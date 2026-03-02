@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Notice - Graduate School Admission</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: "#A02724", beige: "#F5F0EB" },
+                    fontFamily: {
+                        heading: ["Merriweather", "serif"],
+                        body: ['"Source Sans 3"', "sans-serif"],
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        body {
+            font-family: "Source Sans 3", sans-serif;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: "Merriweather", serif;
+        }
+
+        .privacy-text p {
+            margin-bottom: 1.25rem;
+            line-height: 1.7;
+        }
+
+        .privacy-text p:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+
+<body class="bg-beige min-h-screen">
+    <header class="text-center py-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-brand">Graduate School</h1>
+        <p class="text-lg text-gray-500 mt-1">Admission Form</p>
+    </header>
+    <div class="max-w-4xl mx-auto px-4 mb-8">
+        <div class="flex items-center justify-between" id="progressBar"></div>
+    </div>
+    <div class="max-w-3xl mx-auto px-4 pb-12">
+        <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
+            <h2 class="text-2xl font-bold text-brand mb-6">Privacy Notice</h2>
+            <form id="privacyForm" class="space-y-6" novalidate>
+                <!-- Scrollable Privacy Text with proper spacing -->
+                <div class="border border-gray-200 rounded-xl p-8 max-h-80 overflow-y-auto bg-gray-50/50 privacy-text">
+                    <p class="text-gray-700">
+                        Thank you for choosing Western Mindanao State University (WMSU) as your educational institution.
+                        We understand the importance of your privacy and are committed to protecting your personal
+                        information in accordance with the Data Privacy Act of 2012.
+                    </p>
+
+                    <p class="text-gray-700">
+                        Before proceeding with the collection of your personal data, we kindly request your permission
+                        to do
+                        so. Your consent allows us to securely store, process, and utilize your personal information for
+                        admission purposes and to provide you with the best possible educational experience at WMSU.
+                    </p>
+
+                    <p class="text-gray-700">
+                        By providing your consent, you acknowledge that you have read and understood the terms of this
+                        Privacy Notice.
+                    </p>
+
+                    <p class="text-gray-700">
+                        Please note that by providing your consent, you agree to receive communication from WMSU via the
+                        contact details you have provided.
+                    </p>
+
+                    <p class="text-gray-700">
+                        Thank you for your cooperation.
+                    </p>
+                </div>
+
+                <!-- Checkbox with understanding text -->
+                <div class="space-y-3">
+                    <label class="flex items-start gap-3 cursor-pointer select-none">
+                        <input type="checkbox" id="agreeCheckbox" class="w-5 h-5 mt-0.5 rounded accent-brand" />
+                        <span class="text-sm text-gray-700 leading-relaxed">
+                            I have read and understood the Privacy Notice. By checking this box, I understand that this
+                            serves as my digital signature and constitutes my agreement to the terms stated above.
+                        </span>
+                    </label>
+
+                    <!-- Small note about signature -->
+                    <p class="text-xs text-gray-500 italic pl-8">
+                        ✓ Checking the box is legally equivalent to a handwritten signature
+                    </p>
+                </div>
+
+                <!-- Signature Section - Shows that signature is acknowledged -->
+                <div id="signatureSection" class="hidden border border-gray-200 rounded-xl p-8 space-y-6 bg-gray-50/30">
+                    <div class="text-center space-y-2">
+                        <p class="text-brand font-bold text-xl" style="font-family: 'Merriweather', serif">
+                            CONSENT ACKNOWLEDGED
+                        </p>
+                        <p class="text-sm text-gray-600">by checking the box above</p>
+                    </div>
+
+                    <div class="pt-4">
+                        <div class="border-b-2 border-gray-400 w-full max-w-sm mx-auto"></div>
+                        <p class="text-center mt-3 font-semibold text-lg" id="sigName">
+                            Student Full Name
+                        </p>
+                        <p class="text-center text-sm text-gray-500 flex items-center justify-center gap-2">
+                            <i class="fas fa-check-circle text-green-600 text-xs"></i>
+                            Electronically signed •
+                            <?php echo date('F j, Y'); ?>
+                        </p>
+                    </div>
+
+                    <!-- Statement of understanding -->
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-sm text-green-800">
+                        <div class="flex gap-3">
+                            <i class="fas fa-check-circle text-green-600 mt-0.5"></i>
+                            <span>By checking the consent box, you have digitally signed this document. This is legally
+                                binding and equivalent to a handwritten signature.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between pt-4">
+                    <a href="documents.html"
+                        class="inline-flex items-center gap-2 px-8 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand/5 active:scale-[0.98] transition">←
+                        Back</a>
+                    <button type="submit" id="nextBtn" disabled
+                        class="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md opacity-50 cursor-not-allowed">
+                        Next →
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Font Awesome for icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="JavaScript/privacyNotice.js"></script>
+    
+       
+</body>
+
+</html>
