@@ -107,7 +107,7 @@
                     };
                     localStorage.setItem("privacyConsent", JSON.stringify(consentData));
 
-                    window.location.href = "review.html";
+                    window.location.href = "/review/";
                 }
             });
 

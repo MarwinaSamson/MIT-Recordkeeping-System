@@ -196,7 +196,7 @@
             }));
 
             // Redirect to next step
-            window.location.href = "privacyNotice.html";
+            window.location.href = "/privacyNotice/";
         });
 
         function showError(fieldName, message) {

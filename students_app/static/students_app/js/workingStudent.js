@@ -129,7 +129,7 @@
                 }
 
                 localStorage.setItem("workingStudent", JSON.stringify(data));
-                window.location.href = "documents.html";
+                window.location.href = "/documents/";
             });
 
         function showError(f, m) {

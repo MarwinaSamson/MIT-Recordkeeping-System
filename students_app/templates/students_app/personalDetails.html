@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+{% load static %}
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -106,15 +107,27 @@
                 <label class="block text-sm font-semibold mb-1.5">
                   Date of Birth <span class="text-red-500">*</span>
                 </label>
-                <input id="dob" type="date" name="dob"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition">
-                <p class="text-xs text-red-500 mt-1 hidden" data-error="dob"></p>
+                <input
+                  id="dob"
+                  type="date"
+                  name="dob"
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+                />
+                <p
+                  class="text-xs text-red-500 mt-1 hidden"
+                  data-error="dob"
+                ></p>
               </div>
-            
+
               <div>
                 <label class="block text-sm font-semibold mb-1.5">Age</label>
-                <input id="age" name="age" type="text" readonly
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 bg-gray-100 text-gray-700 cursor-not-allowed">
+                <input
+                  id="age"
+                  name="age"
+                  type="text"
+                  readonly
+                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 bg-gray-100 text-gray-700 cursor-not-allowed"
+                />
               </div>
             </div>
 
@@ -142,9 +155,13 @@
           <!-- Row: Civil Status, Place of Birth, Religion, Ethnicity, Nationality, and Disability -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label class="block text-sm font-semibold mb-1.5">Civil Status <span class="text-red-500">*</span></label>
-              <select name="civilStatus"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition cursor-pointer">
+              <label class="block text-sm font-semibold mb-1.5"
+                >Civil Status <span class="text-red-500">*</span></label
+              >
+              <select
+                name="civilStatus"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition cursor-pointer"
+              >
                 <option value="">Select status</option>
                 <option value="Single">Single</option>
                 <option value="Married">Married</option>
@@ -153,7 +170,10 @@
                 <option value="Anulled">Anulled</option>
                 <option value="Live-in">Live-in</option>
               </select>
-              <p class="text-xs text-red-500 mt-1 hidden" data-error="civilStatus"></p>
+              <p
+                class="text-xs text-red-500 mt-1 hidden"
+                data-error="civilStatus"
+              ></p>
             </div>
 
             <div>
@@ -175,22 +195,35 @@
               <label class="block text-sm font-semibold mb-1.5"
                 >Religion <span class="text-red-500">*</span></label
               >
-              <select name="religion" data-other-target="religionOther" class="w-full rounded-lg border border-gray-300 px-4 py-2.5">
+              <select
+                name="religion"
+                data-other-target="religionOther"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5"
+              >
                 <option value="">Select religion</option>
                 <option>Roman Catholic</option>
                 <option>Islam</option>
                 <option>Protestant</option>
                 <option>Other</option>
               </select>
-              
-              <input type="text" name="religionOther" id="religionOther" placeholder="Please specify"
-                class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5">
+
+              <input
+                type="text"
+                name="religionOther"
+                id="religionOther"
+                placeholder="Please specify"
+                class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5"
+              />
             </div>
             <div>
               <label class="block text-sm font-semibold mb-1.5"
                 >Ethnicity <span class="text-red-500">*</span></label
               >
-              <select name="ethnicity" data-other-target="ethnicityOther" class="w-full rounded-lg border border-gray-300 px-4 py-2.5">
+              <select
+                name="ethnicity"
+                data-other-target="ethnicityOther"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5"
+              >
                 <option value="">Select ethnicity</option>
                 <option>Zamboangueño</option>
                 <option>Chavacano</option>
@@ -205,8 +238,13 @@
                 <option>Other</option>
               </select>
 
-              <input type="text" name="ethnicityOther" id="ethnicityOther" placeholder="Please specify"
-                class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5">
+              <input
+                type="text"
+                name="ethnicityOther"
+                id="ethnicityOther"
+                placeholder="Please specify"
+                class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5"
+              />
               <p
                 class="text-xs text-red-500 mt-1 hidden"
                 data-error="ethnicity"
@@ -216,7 +254,11 @@
               <label class="block text-sm font-semibold mb-1.5"
                 >Nationality <span class="text-red-500">*</span></label
               >
-              <select name="nationality" data-other-target="nationalityOther" class="w-full rounded-lg border border-gray-300 px-4 py-2.5">
+              <select
+                name="nationality"
+                data-other-target="nationalityOther"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5"
+              >
                 <option value="">Select nationality</option>
                 <option>Filipino</option>
                 <option>Dual Citizen</option>
@@ -226,8 +268,13 @@
                 <option>Chinese</option>
                 <option>Other</option>
               </select>
-              <input type="text" name="nationalityOther" id="nationalityOther" placeholder="Please specify"
-                class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5">
+              <input
+                type="text"
+                name="nationalityOther"
+                id="nationalityOther"
+                placeholder="Please specify"
+                class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5"
+              />
               <p
                 class="text-xs text-red-500 mt-1 hidden"
                 data-error="nationality"
@@ -237,7 +284,11 @@
               <label class="block text-sm font-semibold mb-1.5"
                 >Disability (if any) <span class="text-red-500">*</span></label
               >
-              <select name="disability" data-other-target="disabilityOther" class="w-full rounded-lg border border-gray-300 px-4 py-2.5">
+              <select
+                name="disability"
+                data-other-target="disabilityOther"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5"
+              >
                 <option value="">Select disability</option>
                 <option>None</option>
                 <option>Visual Impairment</option>
@@ -249,8 +300,13 @@
                 <option>Chronic Illness</option>
                 <option>Other</option>
               </select>
-              <input type="text" name="disabilityOther" id="disabilityOther" placeholder="Please specify"
-                class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5">
+              <input
+                type="text"
+                name="disabilityOther"
+                id="disabilityOther"
+                placeholder="Please specify"
+                class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5"
+              />
               <p
                 class="text-xs text-red-500 mt-1 hidden"
                 data-error="disablity"
@@ -372,7 +428,7 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-semibold mb-1.5"
-                >Name of Spouse (if married)</span></label
+                >Name of Spouse (if married)</label
               >
               <input
                 type="text"
@@ -386,7 +442,7 @@
             </div>
             <div>
               <label class="block text-sm font-semibold mb-1.5"
-                >Contact Number </span></label
+                >Contact Number</label
               >
               <input
                 type="tel"
@@ -400,7 +456,7 @@
             </div>
             <div>
               <label class="block text-sm font-semibold mb-1.5"
-                >Income/monthly </span></label
+                >Income/monthly</label
               >
               <input
                 type="text"
@@ -427,6 +483,6 @@
       </div>
     </div>
 
-          <script src="JavaScript/personalDetails.js"></script>
+    <script src="{% static 'students_app/js/personalDetails.js' %}"></script>
   </body>
 </html>

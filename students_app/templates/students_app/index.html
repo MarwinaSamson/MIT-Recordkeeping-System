@@ -1,78 +1,136 @@
-<!DOCTYPE html>
+{% load static %}
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Western Mindanao State University | MIT Admission</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .hero-gradient {
-      background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 90%);
-    }
-  </style>
-</head>
-<body class="text-slate-800 antialiased">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Western Mindanao State University | MIT Admission</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .hero-gradient {
+        background: linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.9) 90%
+        );
+      }
+    </style>
+  </head>
+  <body class="text-slate-800 antialiased">
+    <header
+      class="fixed top-0 w-full z-50 bg-white/30 backdrop-blur-md border-b border-white/20 transition-all duration-300"
+    >
+      <div
+        class="max-w-7xl mx-auto px-8 py-6 flex justify-between items-center"
+      >
+        <div class="flex items-center gap-5">
+          <div class="w-16 h-16 md:w-20 md:h-20 flex-shrink-0">
+            <img
+              src="{% static 'assets/Western_Mindanao_State_University.png' %}"
+              alt="WMSU Logo"
+              class="w-full h-full object-contain"
+            />
+          </div>
+          <div class="flex flex-col">
+            <h1
+              class="text-xl md:text-2xl font-bold leading-tight text-[#7b1113]"
+            >
+              Western Mindanao State University
+            </h1>
+            <p
+              class="text-sm md:text-base font-semibold text--[#004d40] italic"
+            >
+              Graduate School Admissions
+            </p>
+          </div>
+        </div>
 
-  <header class="fixed top-0 w-full z-50 bg-white/30 backdrop-blur-md border-b border-white/20 transition-all duration-300">
-    <div class="max-w-7xl mx-auto px-8 py-6 flex justify-between items-center">
-      
-      <div class="flex items-center gap-5">
-        <div class="w-16 h-16 md:w-20 md:h-20 flex-shrink-0">
-          <img src="assets/Western_Mindanao_State_University.png" alt="WMSU Logo" class="w-full h-full object-contain">
-        </div>
-        <div class="flex flex-col">
-          <h1 class="text-xl md:text-2xl font-bold leading-tight text-[#7b1113]">
-            Western Mindanao State University
-          </h1>
-          <p class="text-sm md:text-base font-semibold text--[#004d40] italic">
-            Graduate School Admissions
-          </p>
-        </div>
+        <nav class="hidden lg:block">
+          <ul class="flex gap-10">
+            <li>
+              <a
+                href="#"
+                class="text-[#7b1113] hover:text-red-800 font-bold text-lg transition-colors"
+                >About</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="text-[#7b1113] hover:text-red-800 font-bold text-lg transition-colors"
+                >Programs</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="text-[#7b1113] hover:text-red-800 font-bold text-lg transition-colors"
+                >Admission</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="text-[#7b1113] hover:text-red-800 font-bold text-lg transition-colors"
+                >Resources</a
+              >
+            </li>
+          </ul>
+        </nav>
+
+        <div class="lg:hidden text-3xl text-[#7b1113] cursor-pointer">☰</div>
       </div>
+    </header>
 
-      <nav class="hidden lg:block">
-        <ul class="flex gap-10">
-          <li><a href="#" class="text-[#7b1113] hover:text-red-800 font-bold text-lg transition-colors">About</a></li>
-          <li><a href="#" class="text-[#7b1113] hover:text-red-800 font-bold text-lg transition-colors">Programs</a></li>
-          <li><a href="#" class="text-[#7b1113] hover:text-red-800 font-bold text-lg transition-colors">Admission</a></li>
-          <li><a href="#" class="text-[#7b1113] hover:text-red-800 font-bold text-lg transition-colors">Resources</a></li>
-        </ul>
-      </nav>
+    <section
+      class="relative h-screen w-full flex items-end overflow-hidden bg-slate-200"
+    >
+      <img
+        src="{% static 'assets/WMSU.jpg' %}"
+        alt="Campus Background"
+        class="absolute inset-0 w-full h-full object-cover"
+      />
 
-      <div class="lg:hidden text-3xl text-[#7b1113] cursor-pointer">☰</div>
-    </div>
-  </header>
+      <div class="absolute inset-0 hero-gradient"></div>
 
-  <section class="relative h-screen w-full flex items-end overflow-hidden bg-slate-200">
-    <img src="assets/WMSU.jpg" alt="Campus Background" class="absolute inset-0 w-full h-full object-cover">
-    
-    <div class="absolute inset-0 hero-gradient"></div>
+      <div class="relative z-10 max-w-7xl mx-auto px-8 pb-32 w-full">
+        <h2
+          class="text-5xl md:text-7xl font-extrabold text-slate-900 mb-4 tracking-tight"
+        >
+          The University <br />
+          of Choice
+        </h2>
+        <p
+          class="text-xl md:text-2xl text-slate-700 max-w-2xl mb-8 leading-relaxed"
+        >
+          Advance your professional journey. Our Master's programs are designed
+          for the next generation of academic and industry leaders.
+        </p>
 
-    <div class="relative z-10 max-w-7xl mx-auto px-8 pb-32 w-full">
-      <h2 class="text-5xl md:text-7xl font-extrabold text-slate-900 mb-4 tracking-tight">
-        The University <br> of Choice 
-      </h2>
-      <p class="text-xl md:text-2xl text-slate-700 max-w-2xl mb-8 leading-relaxed">
-        Advance your professional journey. Our Master's programs are designed for the next generation of academic and industry leaders.
-      </p>
-      
-      <div class="flex flex-wrap gap-4">
         <div class="flex flex-wrap gap-4">
-            <a href="login.html" class="inline-block bg-[#7b1113] hover:bg-[#5a0c0e] text-white px-10 py-4 rounded-lg font-bold text-lg shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 text-center">
-                Apply Now
+          <div class="flex flex-wrap gap-4">
+            <a
+              href="{% url 'login' %}"
+              class="inline-block bg-[#7b1113] hover:bg-[#5a0c0e] text-white px-10 py-4 rounded-lg font-bold text-lg shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 text-center"
+            >
+              Apply Now
             </a>
 
-            <a href="programs.html" class="inline-block bg-white/80 hover:bg-white text-[#7b1113] border-2 border-[#7b1113] px-10 py-4 rounded-lg font-bold text-lg shadow-lg transition-all text-center">
-                View Programs
+            <a
+              href="#"
+              class="inline-block bg-white/80 hover:bg-white text-[#7b1113] border-2 border-[#7b1113] px-10 py-4 rounded-lg font-bold text-lg shadow-lg transition-all text-center"
+            >
+              View Programs
             </a>
-            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <footer class="bg-white py-10 border-t border-slate-200 text-center">
-    <p class="text-slate-500 font-medium">© 2026 Western Mindanao State University | Graduate School Portal</p>
-  </footer>
-
-</body>
+    <footer class="bg-white py-10 border-t border-slate-200 text-center">
+      <p class="text-slate-500 font-medium">
+        © 2026 Western Mindanao State University | Graduate School Portal
+      </p>
+    </footer>
+  </body>
 </html>

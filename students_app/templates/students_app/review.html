@@ -1,186 +1,246 @@
-<!DOCTYPE html>
+{% load static %}
+<!doctype html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Review - Graduate School Admission</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { brand: "#A02724", beige: "#F5F0EB" },
-                    fontFamily: {
-                        heading: ["Merriweather", "serif"],
-                        body: ['"Source Sans 3"', "sans-serif"],
-                    },
-                },
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { brand: "#A02724", beige: "#F5F0EB" },
+            fontFamily: {
+              heading: ["Merriweather", "serif"],
+              body: ['"Source Sans 3"', "sans-serif"],
             },
-        };
+          },
+        },
+      };
     </script>
     <style>
-        body {
-            font-family: "Source Sans 3", sans-serif;
-        }
+      body {
+        font-family: "Source Sans 3", sans-serif;
+      }
 
-        h1,
-        h2,
-        h3 {
-            font-family: "Merriweather", serif;
-        }
+      h1,
+      h2,
+      h3 {
+        font-family: "Merriweather", serif;
+      }
 
-        .review-section {
-            transition: all 0.2s;
-        }
+      .review-section {
+        transition: all 0.2s;
+      }
 
-        .review-section:hover {
-            border-color: #A02724;
-            box-shadow: 0 4px 6px -1px rgba(160, 39, 36, 0.1);
-        }
+      .review-section:hover {
+        border-color: #a02724;
+        box-shadow: 0 4px 6px -1px rgba(160, 39, 36, 0.1);
+      }
     </style>
-</head>
+  </head>
 
-<body class="bg-beige min-h-screen">
+  <body class="bg-beige min-h-screen">
     <header class="text-center py-8">
-        <h1 class="text-3xl md:text-4xl font-bold text-brand">Graduate School</h1>
-        <p class="text-lg text-gray-500 mt-1">Admission Form</p>
+      <h1 class="text-3xl md:text-4xl font-bold text-brand">Graduate School</h1>
+      <p class="text-lg text-gray-500 mt-1">Admission Form</p>
     </header>
     <div class="max-w-4xl mx-auto px-4 mb-8">
-        <div class="flex items-center justify-between" id="progressBar"></div>
+      <div class="flex items-center justify-between" id="progressBar"></div>
     </div>
     <div class="max-w-4xl mx-auto px-4 pb-12">
-        <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
-            <h2 class="text-2xl font-bold text-brand mb-6">
-                Review Your Application
-            </h2>
-            <div id="reviewContent" class="space-y-5"></div>
+      <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
+        <h2 class="text-2xl font-bold text-brand mb-6">
+          Review Your Application
+        </h2>
+        <div id="reviewContent" class="space-y-5"></div>
 
-            <!-- Digital Signature Confirmation -->
-            <div id="signatureConfirmation" class="border border-green-200 rounded-xl p-5 bg-green-50/50 mt-6 hidden">
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
-                    <div>
-                        <p class="font-semibold text-green-800">Privacy Notice Acknowledged</p>
-                        <p class="text-sm text-green-600" id="signatureDetails"></p>
-                    </div>
-                </div>
+        <!-- Digital Signature Confirmation -->
+        <div
+          id="signatureConfirmation"
+          class="border border-green-200 rounded-xl p-5 bg-green-50/50 mt-6 hidden"
+        >
+          <div class="flex items-center gap-3">
+            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+            <div>
+              <p class="font-semibold text-green-800">
+                Privacy Notice Acknowledged
+              </p>
+              <p class="text-sm text-green-600" id="signatureDetails"></p>
             </div>
-
-            <div class="flex justify-between pt-6">
-                <a href="privacyNotice.html"
-                    class="inline-flex items-center gap-2 px-8 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand/5 active:scale-[0.98] transition">←
-                    Back</a>
-                <button onclick="submitApplication()"
-                    class="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md">
-                    Submit Application
-                </button>
-            </div>
+          </div>
         </div>
+
+        <div class="flex justify-between pt-6">
+          <a
+            href="{% url 'privacyNotice' %}"
+            class="inline-flex items-center gap-2 px-8 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand/5 active:scale-[0.98] transition"
+            >← Back</a
+          >
+          <button
+            onclick="submitApplication()"
+            class="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md"
+          >
+            Submit Application
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Confirmation Modal -->
-    <div id="modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center space-y-4">
-            <div class="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-                <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-            </div>
-            <h3 class="text-xl font-bold text-brand" style="font-family: 'Merriweather', serif">
-                Application Submitted!
-            </h3>
-            <p class="text-gray-500">
-                Your Graduate School Admission Form has been successfully submitted.
-            </p>
-            <button onclick="finishSubmission()"
-                class="w-full px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 transition shadow-md">
-                Done
-            </button>
+    <div
+      id="modal"
+      class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center space-y-4"
+      >
+        <div
+          class="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center"
+        >
+          <svg
+            class="w-10 h-10 text-green-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
         </div>
+        <h3
+          class="text-xl font-bold text-brand"
+          style="font-family: &quot;Merriweather&quot;, serif"
+        >
+          Application Submitted!
+        </h3>
+        <p class="text-gray-500">
+          Your Graduate School Admission Form has been successfully submitted.
+        </p>
+        <button
+          onclick="finishSubmission()"
+          class="w-full px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 transition shadow-md"
+        >
+          Done
+        </button>
+      </div>
     </div>
 
     <script>
-        // ===== PROGRESS BAR =====
-        const STEPS = [
-            { label: "Personal Details" },
-            { label: "Educational Background" },
-            { label: "Working Student" },
-            { label: "Documents Upload" },
-            { label: "Privacy Notice" },
-            { label: "Review" },
-        ];
-        const CURRENT_STEP = 6;
+      // ===== PROGRESS BAR =====
+      const STEPS = [
+        { label: "Personal Details" },
+        { label: "Educational Background" },
+        { label: "Working Student" },
+        { label: "Documents Upload" },
+        { label: "Privacy Notice" },
+        { label: "Review" },
+      ];
+      const CURRENT_STEP = 6;
 
-        function renderProgress() {
-            const bar = document.getElementById("progressBar");
-            bar.innerHTML = STEPS.map((s, i) => {
-                const n = i + 1;
-                const done = n < CURRENT_STEP;
-                const cur = n === CURRENT_STEP;
-                let cc = "bg-gray-300 text-white";
-                if (done) cc = "bg-green-500 text-white";
-                if (cur) cc = "bg-brand text-white shadow-lg scale-110";
-                const lc = cur ? "text-brand font-bold" : "text-gray-400";
-                const conn =
-                    i < STEPS.length - 1
-                        ? `<div class="flex-1 h-1 mx-2 rounded ${n < CURRENT_STEP ? "bg-green-500" : "bg-gray-300"
-                        }"></div>`
-                        : "";
-                return `<div class="flex items-center ${i < STEPS.length - 1 ? "flex-1" : ""
-                    }"><div class="flex flex-col items-center"><div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${cc}">${done ? "✓" : n
-                    }</div><span class="text-xs mt-2 text-center hidden sm:block max-w-[80px] ${lc}">${s.label
-                    }</span></div>${conn}</div>`;
-            }).join("");
-        }
-        renderProgress();
+      function renderProgress() {
+        const bar = document.getElementById("progressBar");
+        bar.innerHTML = STEPS.map((s, i) => {
+          const n = i + 1;
+          const done = n < CURRENT_STEP;
+          const cur = n === CURRENT_STEP;
+          let cc = "bg-gray-300 text-white";
+          if (done) cc = "bg-green-500 text-white";
+          if (cur) cc = "bg-brand text-white shadow-lg scale-110";
+          const lc = cur ? "text-brand font-bold" : "text-gray-400";
+          const conn =
+            i < STEPS.length - 1
+              ? `<div class="flex-1 h-1 mx-2 rounded ${
+                  n < CURRENT_STEP ? "bg-green-500" : "bg-gray-300"
+                }"></div>`
+              : "";
+          return `<div class="flex items-center ${
+            i < STEPS.length - 1 ? "flex-1" : ""
+          }"><div class="flex flex-col items-center"><div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${cc}">${
+            done ? "✓" : n
+          }</div><span class="text-xs mt-2 text-center hidden sm:block max-w-[80px] ${lc}">${
+            s.label
+          }</span></div>${conn}</div>`;
+        }).join("");
+      }
+      renderProgress();
 
-        // ===== LOAD ALL DATA =====
-        const personal = JSON.parse(localStorage.getItem("personalDetails") || "{}");
-        const education = JSON.parse(localStorage.getItem("educationalBackground") || "{}");
-        const working = JSON.parse(localStorage.getItem("workingStudent") || "{}");
-        const documents = JSON.parse(localStorage.getItem("documents") || "{}");
-        const privacyConsent = JSON.parse(localStorage.getItem("privacyConsent") || "null");
-        const privacySignature = JSON.parse(localStorage.getItem("privacySignature") || "null");
+      // ===== LOAD ALL DATA =====
+      const personal = JSON.parse(
+        localStorage.getItem("personalDetails") || "{}",
+      );
+      const education = JSON.parse(
+        localStorage.getItem("educationalBackground") || "{}",
+      );
+      const working = JSON.parse(
+        localStorage.getItem("workingStudent") || "{}",
+      );
+      const documents = JSON.parse(localStorage.getItem("documents") || "{}");
+      const privacyConsent = JSON.parse(
+        localStorage.getItem("privacyConsent") || "null",
+      );
+      const privacySignature = JSON.parse(
+        localStorage.getItem("privacySignature") || "null",
+      );
 
-        // ===== HELPER FUNCTIONS =====
-        function formatValue(value, defaultValue = "—") {
-            return value && value.trim ? (value.trim() || defaultValue) : (value || defaultValue);
-        }
+      // ===== HELPER FUNCTIONS =====
+      function formatValue(value, defaultValue = "—") {
+        return value && value.trim
+          ? value.trim() || defaultValue
+          : value || defaultValue;
+      }
 
-        function getFullName() {
-            return [
-                personal.firstName,
-                personal.middleName,
-                personal.lastName,
-                personal.suffix
-            ].filter(Boolean).join(" ") || "Not provided";
-        }
+      function getFullName() {
+        return (
+          [
+            personal.firstName,
+            personal.middleName,
+            personal.lastName,
+            personal.suffix,
+          ]
+            .filter(Boolean)
+            .join(" ") || "Not provided"
+        );
+      }
 
-        // ===== RENDER REVIEW =====
-        const content = document.getElementById("reviewContent");
+      // ===== RENDER REVIEW =====
+      const content = document.getElementById("reviewContent");
 
-        function sectionHTML(title, editPage, items, icon = null) {
-            const iconHtml = icon ? `<i class="fas ${icon} text-brand/60 mr-2"></i>` : '';
-            const rows = items
-                .filter(([label, value]) => value !== undefined && value !== null && value !== "—")
-                .map(
-                    ([label, value]) => `
+      function sectionHTML(title, editPage, items, icon = null) {
+        const iconHtml = icon
+          ? `<i class="fas ${icon} text-brand/60 mr-2"></i>`
+          : "";
+        const rows = items
+          .filter(
+            ([label, value]) =>
+              value !== undefined && value !== null && value !== "—",
+          )
+          .map(
+            ([label, value]) => `
                     <div class="border-b border-gray-100 pb-2 last:border-0">
                         <span class="text-xs text-gray-400 uppercase tracking-wider">${label}</span>
                         <p class="text-sm font-medium text-gray-800">${value}</p>
                     </div>
-                `
-                )
-                .join("");
+                `,
+          )
+          .join("");
 
-            if (!rows) return ''; // Skip empty sections
+        if (!rows) return ""; // Skip empty sections
 
-            return `
+        return `
                 <div class="review-section border border-gray-200 rounded-xl p-5 space-y-3 bg-white hover:shadow-md transition-all">
                     <div class="flex items-center justify-between">
                         <h3 class="text-lg font-bold text-brand flex items-center" style="font-family:'Merriweather',serif">
@@ -197,153 +257,228 @@
                         ${rows}
                     </div>
                 </div>`;
-        }
+      }
 
-        // ===== PERSONAL DETAILS SECTION =====
-        const personalItems = [
-            ["Full Name", getFullName()],
-            ["Date of Birth", personal.dob],
-            ["Age", personal.age],
-            ["Gender", personal.gender],
-            ["Civil Status", personal.civilStatus],
-            ["Place of Birth", personal.placeOfBirth],
-            ["Religion", personal.religion === "Other" ? personal.religionOther : personal.religion],
-            ["Ethnicity", personal.ethnicity === "Other" ? personal.ethnicityOther : personal.ethnicity],
-            ["Nationality", personal.nationality === "Other" ? personal.nationalityOther : personal.nationality],
-            ["Disability", personal.disability === "Other" ? personal.disabilityOther : personal.disability],
-            ["Permanent Address", personal.permanentAddress],
-            ["Current Address", personal.currentAddress || personal.permanentAddress],
-            ["Contact Number", personal.contactNumber],
-            ["Email Address", personal.email],
-            ["Name of Parent", personal.nameOfParent],
-            ["Parent Relationship", personal.relationship],
-            ["Parent Monthly Income", personal.parentIncome ? `₱${personal.parentIncome}` : null],
-            ["Name of Spouse", personal.nameOfSpouse],
-            ["Spouse Contact", personal.spouseContactNumber],
-            ["Spouse Monthly Income", personal.spouseIncome ? `₱${personal.spouseIncome}` : null]
+      // ===== PERSONAL DETAILS SECTION =====
+      const personalItems = [
+        ["Full Name", getFullName()],
+        ["Date of Birth", personal.dob],
+        ["Age", personal.age],
+        ["Gender", personal.gender],
+        ["Civil Status", personal.civilStatus],
+        ["Place of Birth", personal.placeOfBirth],
+        [
+          "Religion",
+          personal.religion === "Other"
+            ? personal.religionOther
+            : personal.religion,
+        ],
+        [
+          "Ethnicity",
+          personal.ethnicity === "Other"
+            ? personal.ethnicityOther
+            : personal.ethnicity,
+        ],
+        [
+          "Nationality",
+          personal.nationality === "Other"
+            ? personal.nationalityOther
+            : personal.nationality,
+        ],
+        [
+          "Disability",
+          personal.disability === "Other"
+            ? personal.disabilityOther
+            : personal.disability,
+        ],
+        ["Permanent Address", personal.permanentAddress],
+        [
+          "Current Address",
+          personal.currentAddress || personal.permanentAddress,
+        ],
+        ["Contact Number", personal.contactNumber],
+        ["Email Address", personal.email],
+        ["Name of Parent", personal.nameOfParent],
+        ["Parent Relationship", personal.relationship],
+        [
+          "Parent Monthly Income",
+          personal.parentIncome ? `₱${personal.parentIncome}` : null,
+        ],
+        ["Name of Spouse", personal.nameOfSpouse],
+        ["Spouse Contact", personal.spouseContactNumber],
+        [
+          "Spouse Monthly Income",
+          personal.spouseIncome ? `₱${personal.spouseIncome}` : null,
+        ],
+      ];
+
+      content.innerHTML += sectionHTML(
+        "Personal Details",
+        "/personalDetails/",
+        personalItems,
+        "fa-user",
+      );
+
+      // ===== EDUCATIONAL BACKGROUND SECTION =====
+      const eduItems = [];
+      const levels = [
+        { key: "elementary", title: "Elementary" },
+        { key: "secondary", title: "Secondary" },
+        { key: "college", title: "College" },
+        { key: "graduate", title: "Graduate Studies" },
+      ];
+
+      levels.forEach((level) => {
+        const data = education[level.key];
+        if (data && (data.schoolName || data.degree || data.yearCompleted)) {
+          eduItems.push([`${level.title} - School`, data.schoolName]);
+          eduItems.push([`${level.title} - Degree`, data.degree]);
+          eduItems.push([`${level.title} - Year`, data.yearCompleted]);
+        }
+      });
+
+      if (education.scholarship) {
+        eduItems.push(["Scholarship/Awards", education.scholarship]);
+      }
+
+      content.innerHTML += sectionHTML(
+        "Educational Background",
+        "/educationalBackground/",
+        eduItems,
+        "fa-graduation-cap",
+      );
+
+      // ===== WORKING STUDENT SECTION =====
+      if (working.isEmployed) {
+        const employmentItems = [
+          ["Position", working.position],
+          [
+            "Monthly Income",
+            working.monthlyIncome ? `₱${working.monthlyIncome}` : null,
+          ],
+          [
+            "Employment Status",
+            working.employmentStatus === "Other"
+              ? working.employmentStatusOther
+              : working.employmentStatus,
+          ],
+          ["Employer Name", working.employerName],
+          ["Employer Address", working.employerAddress],
+          ["Employer Contact", working.employerContact],
+          [
+            "Employer Classification",
+            working.employerClassification === "Other"
+              ? working.employerClassificationOther
+              : working.employerClassification,
+          ],
         ];
+        content.innerHTML += sectionHTML(
+          "Employment Information",
+          "/workingStudent/",
+          employmentItems,
+          "fa-briefcase",
+        );
+      }
 
-        content.innerHTML += sectionHTML("Personal Details", "personalDetails.html", personalItems, "fa-user");
+      // ===== DOCUMENTS SECTION =====
+      const documentItems = [
+        ["Dean's Recommendation", documents.deansRec || "Not uploaded"],
+        ["TOR", documents.tor || "Not uploaded"],
+        ["Honorable Dismissal", documents.honorableDismissal || "Not uploaded"],
+        ["PSA (live birth)", documents.psa || "Not uploaded"],
+        ["GSAT", documents.gsat || "Not uploaded"],
+      ];
+      content.innerHTML += sectionHTML(
+        "Uploaded Documents",
+        "/documents/",
+        documentItems,
+        "fa-file-alt",
+      );
 
-        // ===== EDUCATIONAL BACKGROUND SECTION =====
-        const eduItems = [];
-        const levels = [
-            { key: "elementary", title: "Elementary" },
-            { key: "secondary", title: "Secondary" },
-            { key: "college", title: "College" },
-            { key: "graduate", title: "Graduate Studies" }
+      // ===== PRIVACY NOTICE SECTION =====
+      if (privacyConsent || privacySignature) {
+        const consentData = privacyConsent || privacySignature;
+        const consentDate = consentData?.dateAgreed || consentData?.date;
+        const formattedDate = consentDate
+          ? new Date(consentDate).toLocaleString("en-PH", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : null;
+
+        const privacyItems = [
+          ["Name", consentData?.name || getFullName()],
+          ["Date & Time", formattedDate],
+          ["Consent Status", "✓ Agreed to Privacy Notice"],
+          ["IP Address", consentData?.ipAddress || "Collected upon submission"],
+          [
+            "Browser",
+            consentData?.userAgent
+              ? consentData.userAgent.split(" ").slice(0, 3).join(" ")
+              : "—",
+          ],
         ];
+        content.innerHTML += sectionHTML(
+          "Privacy Notice Consent",
+          "#",
+          privacyItems,
+          "fa-shield-alt",
+        );
 
-        levels.forEach(level => {
-            const data = education[level.key];
-            if (data && (data.schoolName || data.degree || data.yearCompleted)) {
-                eduItems.push([`${level.title} - School`, data.schoolName]);
-                eduItems.push([`${level.title} - Degree`, data.degree]);
-                eduItems.push([`${level.title} - Year`, data.yearCompleted]);
-            }
-        });
-
-        if (education.scholarship) {
-            eduItems.push(["Scholarship/Awards", education.scholarship]);
+        // Show signature confirmation
+        const sigDiv = document.getElementById("signatureConfirmation");
+        const sigDetails = document.getElementById("signatureDetails");
+        if (sigDiv && sigDetails) {
+          sigDiv.classList.remove("hidden");
+          sigDetails.textContent = `Digitally signed by ${consentData?.name || getFullName()} on ${formattedDate || "the agreed date"}`;
         }
+      }
 
-        content.innerHTML += sectionHTML("Educational Background", "educationalBackground.html", eduItems, "fa-graduation-cap");
+      // ===== SUBMIT FUNCTION =====
+      function submitApplication() {
+        // Add timestamp for final submission
+        const submissionData = {
+          submittedAt: new Date().toISOString(),
+          fullName: getFullName(),
+          email: personal.email,
+          applicationId:
+            "WMSU-GS-" + Math.random().toString(36).substr(2, 9).toUpperCase(),
+        };
+        localStorage.setItem("submissionData", JSON.stringify(submissionData));
 
-        // ===== WORKING STUDENT SECTION =====
-        if (working.isEmployed) {
-            const employmentItems = [
-                ["Position", working.position],
-                ["Monthly Income", working.monthlyIncome ? `₱${working.monthlyIncome}` : null],
-                ["Employment Status", working.employmentStatus === "Other" ? working.employmentStatusOther : working.employmentStatus],
-                ["Employer Name", working.employerName],
-                ["Employer Address", working.employerAddress],
-                ["Employer Contact", working.employerContact],
-                ["Employer Classification", working.employerClassification === "Other" ? working.employerClassificationOther : working.employerClassification]
-            ];
-            content.innerHTML += sectionHTML("Employment Information", "workingStudent.html", employmentItems, "fa-briefcase");
+        document.getElementById("modal").classList.remove("hidden");
+      }
+
+      function finishSubmission() {
+        // Clear all localStorage data
+        localStorage.removeItem("personalDetails");
+        localStorage.removeItem("educationalBackground");
+        localStorage.removeItem("workingStudent");
+        localStorage.removeItem("documents");
+        localStorage.removeItem("privacyAgreed");
+        localStorage.removeItem("privacyConsent");
+        localStorage.removeItem("privacySignature");
+        localStorage.removeItem("submissionData");
+
+        // Redirect to first page
+        window.location.href = "/personalDetails/";
+      }
+
+      // Add confirmation before leaving if data exists
+      window.addEventListener("beforeunload", function (e) {
+        const hasData =
+          localStorage.getItem("personalDetails") ||
+          localStorage.getItem("educationalBackground") ||
+          localStorage.getItem("workingStudent");
+
+        if (hasData && !window.location.href.includes("/personalDetails/")) {
+          e.preventDefault();
+          e.returnValue = "";
         }
-
-        // ===== DOCUMENTS SECTION =====
-        const documentItems = [
-            ["Dean's Recommendation", documents.deansRec || "Not uploaded"],
-            ["TOR", documents.tor || "Not uploaded"],
-            ["Honorable Dismissal", documents.honorableDismissal || "Not uploaded"],
-            ["PSA (live birth)", documents.psa || "Not uploaded"],
-            ["GSAT", documents.gsat || "Not uploaded"]
-        ];
-        content.innerHTML += sectionHTML("Uploaded Documents", "documents.html", documentItems, "fa-file-alt");
-
-        // ===== PRIVACY NOTICE SECTION =====
-        if (privacyConsent || privacySignature) {
-            const consentData = privacyConsent || privacySignature;
-            const consentDate = consentData?.dateAgreed || consentData?.date;
-            const formattedDate = consentDate ? new Date(consentDate).toLocaleString('en-PH', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }) : null;
-
-            const privacyItems = [
-                ["Name", consentData?.name || getFullName()],
-                ["Date & Time", formattedDate],
-                ["Consent Status", "✓ Agreed to Privacy Notice"],
-                ["IP Address", consentData?.ipAddress || "Collected upon submission"],
-                ["Browser", consentData?.userAgent ? consentData.userAgent.split(' ').slice(0, 3).join(' ') : "—"]
-            ];
-            content.innerHTML += sectionHTML("Privacy Notice Consent", "#", privacyItems, "fa-shield-alt");
-
-            // Show signature confirmation
-            const sigDiv = document.getElementById("signatureConfirmation");
-            const sigDetails = document.getElementById("signatureDetails");
-            if (sigDiv && sigDetails) {
-                sigDiv.classList.remove("hidden");
-                sigDetails.textContent = `Digitally signed by ${consentData?.name || getFullName()} on ${formattedDate || 'the agreed date'}`;
-            }
-        }
-
-        // ===== SUBMIT FUNCTION =====
-        function submitApplication() {
-            // Add timestamp for final submission
-            const submissionData = {
-                submittedAt: new Date().toISOString(),
-                fullName: getFullName(),
-                email: personal.email,
-                applicationId: 'WMSU-GS-' + Math.random().toString(36).substr(2, 9).toUpperCase()
-            };
-            localStorage.setItem("submissionData", JSON.stringify(submissionData));
-
-            document.getElementById("modal").classList.remove("hidden");
-        }
-
-        function finishSubmission() {
-            // Clear all localStorage data
-            localStorage.removeItem("personalDetails");
-            localStorage.removeItem("educationalBackground");
-            localStorage.removeItem("workingStudent");
-            localStorage.removeItem("documents");
-            localStorage.removeItem("privacyAgreed");
-            localStorage.removeItem("privacyConsent");
-            localStorage.removeItem("privacySignature");
-            localStorage.removeItem("submissionData");
-
-            // Redirect to first page
-            window.location.href = "personalDetails.html";
-        }
-
-        // Add confirmation before leaving if data exists
-        window.addEventListener('beforeunload', function (e) {
-            const hasData = localStorage.getItem("personalDetails") ||
-                localStorage.getItem("educationalBackground") ||
-                localStorage.getItem("workingStudent");
-
-            if (hasData && !window.location.href.includes('personalDetails.html')) {
-                e.preventDefault();
-                e.returnValue = '';
-            }
-        });
+      });
     </script>
-</body>
-
+  </body>
 </html>

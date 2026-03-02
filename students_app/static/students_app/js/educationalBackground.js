@@ -1,14 +1,14 @@
 
         const STEPS = [
-            { label: "Personal Details", page: "personal-details.html" },
+            { label: "Personal Details", page: "/personalDetails/" },
             {
                 label: "Educational Background",
-                page: "educational-background.html",
+                page: "/educationalBackground/",
             },
-            { label: "Working Student", page: "workingStudent.html" },
-            { label: "Documents Upload", page: "documents.html" },
-            { label: "Privacy Notice", page: "privacyNotice.html" },
-            { label: "Review", page: "review.html" },
+            { label: "Working Student", page: "/workingStudent/" },
+            { label: "Documents Upload", page: "/documents/" },
+            { label: "Privacy Notice", page: "/privacyNotice/" },
+            { label: "Review", page: "/review/" },
         ];
         const CURRENT_STEP = 2;
         function renderProgress() {
@@ -136,7 +136,7 @@
                 });
                 if (valid) {
                     localStorage.setItem("educationalBackground", JSON.stringify(data));
-                    window.location.href = "workingStudent.html";
+                    window.location.href = "/workingStudent/";
                 }
             });
         function showError(f, m) {

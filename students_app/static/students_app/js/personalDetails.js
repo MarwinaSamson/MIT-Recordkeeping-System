@@ -1,13 +1,13 @@
  const STEPS = [
-        { label: "Personal Details", page: "personal-details.html" },
+        { label: "Personal Details", page: "/personalDetails/" },
         {
           label: "Educational Background",
-          page: "educational-background.html",
+          page: "/educationalBackground/",
         },
-        { label: "Working Student", page: "workingStudent.html" },
-        { label: "Documents Upload", page: "documents.html" },
-        { label: "Privacy Notice", page: "privacyNotice.html" },
-        { label: "Review", page: "review.html" },
+        { label: "Working Student", page: "/workingStudent/" },
+        { label: "Documents Upload", page: "/documents/" },
+        { label: "Privacy Notice", page: "/privacyNotice/" },
+        { label: "Review", page: "/review/" },
       ];
       const CURRENT_STEP = 1;
       function renderProgress() {
@@ -92,7 +92,7 @@
         }
         if (valid) {
           localStorage.setItem("personalDetails", JSON.stringify(data));
-          window.location.href = "educational-background.html";
+          window.location.href = "/educationalBackground/";
         }
       });
       function showError(field, msg) {
@@ -102,14 +102,6 @@
           el.classList.remove("hidden");
         }
       }
-
-      //Buttons
-      document.getElementById("personalForm").addEventListener("submit", function(event) {
-          event.preventDefault(); // Prevent default form submission
-
-          // Redirect to next page
-          window.location.href = "educationalBackground.html";
-      });
 
       // age
       const dobInput = document.getElementById("dob");

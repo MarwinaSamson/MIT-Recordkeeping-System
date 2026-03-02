@@ -1,202 +1,277 @@
-<!DOCTYPE html>
+{% load static %}
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>WMSU Graduate School – Enrollment Portal</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.tailwindcss.com"></script>
-   <script src="script.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            crimson: { DEFAULT: '#8c1515', deep: '#5e0d0d', light: '#a31a1a' },
-            gold:    { DEFAULT: '#c9a84c' },
-            ivory:   '#faf8f5',
-            ink:     '#1c1010',
-            muted:   '#7a6060',
-            border:  '#e8d8c8',
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WMSU Graduate School – Enrollment Portal</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{% static 'students_app/js/script.js' %}"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Outfit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              crimson: {
+                DEFAULT: "#8c1515",
+                deep: "#5e0d0d",
+                light: "#a31a1a",
+              },
+              gold: { DEFAULT: "#c9a84c" },
+              ivory: "#faf8f5",
+              ink: "#1c1010",
+              muted: "#7a6060",
+              border: "#e8d8c8",
+            },
+            fontFamily: {
+              garamond: ['"EB Garamond"', "serif"],
+              outfit: ["Outfit", "sans-serif"],
+            },
+            keyframes: {
+              rise: {
+                from: { opacity: "0", transform: "translateY(24px)" },
+                to: { opacity: "1", transform: "translateY(0)" },
+              },
+              slideIn: {
+                from: { opacity: "0", transform: "translateX(20px)" },
+                to: { opacity: "1", transform: "translateX(0)" },
+              },
+              logoIn: {
+                from: {
+                  opacity: "0",
+                  transform: "scale(0.85) translateY(14px)",
+                },
+                to: { opacity: "1", transform: "scale(1) translateY(0)" },
+              },
+              fadeUp: {
+                from: { opacity: "0", transform: "translateY(10px)" },
+                to: { opacity: "1", transform: "translateY(0)" },
+              },
+            },
+            animation: {
+              rise: "rise 0.7s cubic-bezier(0.22,1,0.36,1) both",
+              slideIn: "slideIn 0.65s cubic-bezier(0.22,1,0.36,1) 0.1s both",
+              logoIn: "logoIn 0.9s cubic-bezier(0.22,1,0.36,1) 0.15s both",
+              fadeUp: "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.25s both",
+            },
           },
-          fontFamily: {
-            garamond: ['"EB Garamond"', 'serif'],
-            outfit:   ['Outfit', 'sans-serif'],
-          },
-          keyframes: {
-            rise:    { from: { opacity:'0', transform:'translateY(24px)' }, to: { opacity:'1', transform:'translateY(0)' } },
-            slideIn: { from: { opacity:'0', transform:'translateX(20px)' }, to: { opacity:'1', transform:'translateX(0)' } },
-            logoIn:  { from: { opacity:'0', transform:'scale(0.85) translateY(14px)' }, to: { opacity:'1', transform:'scale(1) translateY(0)' } },
-            fadeUp:  { from: { opacity:'0', transform:'translateY(10px)' }, to: { opacity:'1', transform:'translateY(0)' } },
-          },
-          animation: {
-            rise:    'rise 0.7s cubic-bezier(0.22,1,0.36,1) both',
-            slideIn: 'slideIn 0.65s cubic-bezier(0.22,1,0.36,1) 0.1s both',
-            logoIn:  'logoIn 0.9s cubic-bezier(0.22,1,0.36,1) 0.15s both',
-            fadeUp:  'fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.25s both',
-          },
-        }
-      }
-    }
-  </script>
-
-</head>
-<body class="page-bg min-h-screen flex items-center justify-center p-6">
-<!-- Back Button -->
-<button onclick="history.back()" 
-  class="absolute top-6 left-6 flex items-center gap-2 text-[#8c1515] hover:text-[#5e0d0d] transition-all duration-200 group">
-
-  <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform duration-200"
-       fill="none" stroke="currentColor" stroke-width="2"
-       viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round"
-          d="M15 19l-7-7 7-7" />
-  </svg>
-
-  <span class="text-sm font-medium tracking-wide">
-    Back
-  </span>
-</button>
-
-  <div class="flex flex-col md:flex-row w-full max-w-4xl rounded-2xl overflow-hidden border border-[rgba(232,216,200,0.9)] shadow-[0_2px_4px_rgba(0,0,0,0.04),0_12px_32px_rgba(80,10,10,0.12),0_40px_80px_rgba(80,10,10,0.12)] animate-rise">
-
-    <div class="left-panel relative flex flex-col items-center justify-center md:w-80 flex-shrink-0 px-8 py-14 overflow-hidden">
-
-      <div class="gold-bar absolute top-0 left-0 right-0 h-[3px]"></div>
-    
-      <div class="relative z-10 w-56 h-56 flex items-center justify-center mb-8 animate-logoIn">
-        <img
-          src="assets/logoandcap.png"
-          alt="WMSU Logo"
-          class="h-52 w-auto object-contain drop-shadow-[0_12px_30px_rgba(0,0,0,0.45)]"
-          style="filter: brightness(1.15) contrast(1.05);"
+        },
+      };
+    </script>
+  </head>
+  <body class="page-bg min-h-screen flex items-center justify-center p-6">
+    <!-- Back Button -->
+    <button
+      onclick="history.back()"
+      class="absolute top-6 left-6 flex items-center gap-2 text-[#8c1515] hover:text-[#5e0d0d] transition-all duration-200 group"
+    >
+      <svg
+        class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform duration-200"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M15 19l-7-7 7-7"
         />
-      </div>
+      </svg>
 
-    
-      <div class="relative z-10 w-full flex items-center gap-3 mb-5 animate-fadeUp">
-        <span class="flex-1 h-px bg-[rgba(201,168,76,0.35)]"></span>
-        <span class="w-[5px] h-[5px] rounded-full bg-gold opacity-70"></span>
-        <span class="flex-1 h-px bg-[rgba(201,168,76,0.35)]"></span>
-      </div>
+      <span class="text-sm font-medium tracking-wide"> Back </span>
+    </button>
 
-      
-      <p class="relative z-10 font-garamond text-[1.35rem] font-semibold text-white/95 text-center leading-snug animate-fadeUp">
-        Western Mindanao<br/>State University
-      </p>
-      <p class="relative z-10 mt-2 text-[0.62rem] font-light tracking-[0.18em] uppercase text-white/40 text-center animate-fadeUp">
-        Zamboanga City &nbsp;·&nbsp; Est. 1904
-      </p>
+    <div
+      class="flex flex-col md:flex-row w-full max-w-4xl rounded-2xl overflow-hidden border border-[rgba(232,216,200,0.9)] shadow-[0_2px_4px_rgba(0,0,0,0.04),0_12px_32px_rgba(80,10,10,0.12),0_40px_80px_rgba(80,10,10,0.12)] animate-rise"
+    >
+      <div
+        class="left-panel relative flex flex-col items-center justify-center md:w-80 flex-shrink-0 px-8 py-14 overflow-hidden"
+      >
+        <div class="gold-bar absolute top-0 left-0 right-0 h-[3px]"></div>
 
-      <div class="relative z-10 mt-8 px-5 py-2 border border-[rgba(201,168,76,0.35)] rounded-full text-[0.62rem] font-medium tracking-[0.14em] uppercase text-gold/80 animate-fadeUp">
-        Graduate School
-      </div>
+        <div
+          class="relative z-10 w-56 h-56 flex items-center justify-center mb-8 animate-logoIn"
+        >
+          <img
+            src="{% static 'assets/logoandcap.png' %}"
+            alt="WMSU Logo"
+            class="h-52 w-auto object-contain drop-shadow-[0_12px_30px_rgba(0,0,0,0.45)]"
+            style="filter: brightness(1.15) contrast(1.05)"
+          />
+        </div>
 
-    </div>
+        <div
+          class="relative z-10 w-full flex items-center gap-3 mb-5 animate-fadeUp"
+        >
+          <span class="flex-1 h-px bg-[rgba(201,168,76,0.35)]"></span>
+          <span class="w-[5px] h-[5px] rounded-full bg-gold opacity-70"></span>
+          <span class="flex-1 h-px bg-[rgba(201,168,76,0.35)]"></span>
+        </div>
 
-    
-    <div class="flex-1 bg-white flex flex-col justify-center px-8 md:px-12 py-12 md:py-14 animate-slideIn">
-
-   
-      <div class="flex items-center gap-3 mb-4">
-        <span class="block w-5 h-[1.5px] bg-[#8c1515]"></span>
-        <p class="text-[0.68rem] font-semibold tracking-[0.16em] uppercase text-[#8c1515]">
-          Enrollment Portal
+        <p
+          class="relative z-10 font-garamond text-[1.35rem] font-semibold text-white/95 text-center leading-snug animate-fadeUp"
+        >
+          Western Mindanao<br />State University
         </p>
+        <p
+          class="relative z-10 mt-2 text-[0.62rem] font-light tracking-[0.18em] uppercase text-white/40 text-center animate-fadeUp"
+        >
+          Zamboanga City &nbsp;·&nbsp; Est. 1904
+        </p>
+
+        <div
+          class="relative z-10 mt-8 px-5 py-2 border border-[rgba(201,168,76,0.35)] rounded-full text-[0.62rem] font-medium tracking-[0.14em] uppercase text-gold/80 animate-fadeUp"
+        >
+          Graduate School
+        </div>
       </div>
 
-      
-        <h1 class="font-garamond text-[2.4rem] font-medium text-ink leading-[1.08] mb-2">
+      <div
+        class="flex-1 bg-white flex flex-col justify-center px-8 md:px-12 py-12 md:py-14 animate-slideIn"
+      >
+        <div class="flex items-center gap-3 mb-4">
+          <span class="block w-5 h-[1.5px] bg-[#8c1515]"></span>
+          <p
+            class="text-[0.68rem] font-semibold tracking-[0.16em] uppercase text-[#8c1515]"
+          >
+            Enrollment Portal
+          </p>
+        </div>
+
+        <h1
+          class="font-garamond text-[2.4rem] font-medium text-ink leading-[1.08] mb-2"
+        >
           Welcome <em class="italic text-[#8c1515]">back</em>
         </h1>
-      <p class="text-[0.85rem] font-light text-muted leading-relaxed mb-8">
-        Sign in to access your graduate school enrollment dashboard.
-      </p>
+        <p class="text-[0.85rem] font-light text-muted leading-relaxed mb-8">
+          Sign in to access your graduate school enrollment dashboard.
+        </p>
 
-      
-      <form onsubmit="return false;" class="space-y-5">
-        <div>
-          <label for="email" class="block text-[0.68rem] font-semibold tracking-[0.1em] uppercase text-[#503030] mb-2">
-            Email Address
-          </label>
-          <div class="relative">
-            <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-[#bfa8a8] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/>
-            </svg>
-            <input
-              id="email" type="email"
-              placeholder="yourname@wmsu.edu.ph"
-              autocomplete="email"
-              class="w-full pl-10 pr-4 py-3 border-[1.5px] border-border rounded-xl text-sm text-ink bg-ivory placeholder-[#c8b4b4] placeholder:font-light transition-all duration-200"
-            />
-          </div>
-        </div>
-
-      
-        <div>
-          <label for="pass" class="block text-[0.68rem] font-semibold tracking-[0.1em] uppercase text-[#503030] mb-2">
-            Password
-          </label>
-          <div class="relative">
-            <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-[#bfa8a8] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
-            <input
-              id="pass" type="password"
-              placeholder="Enter your password"
-              autocomplete="current-password"
-              class="w-full pl-10 pr-11 py-3 border-[1.5px] border-border rounded-xl text-sm text-ink bg-ivory placeholder-[#c8b4b4] placeholder:font-light transition-all duration-200"
-            />
-            <button type="button" onclick="togglePass()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#c0a4a4] hover:text-[#8c1515] transition-colors duration-200 leading-none">
-              <svg id="eye" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>
+        <form onsubmit="return false;" class="space-y-5">
+          <div>
+            <label
+              for="email"
+              class="block text-[0.68rem] font-semibold tracking-[0.1em] uppercase text-[#503030] mb-2"
+            >
+              Email Address
+            </label>
+            <div class="relative">
+              <svg
+                class="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-[#bfa8a8] pointer-events-none"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="M2 7l10 7 10-7" />
               </svg>
-            </button>
+              <input
+                id="email"
+                type="email"
+                placeholder="yourname@wmsu.edu.ph"
+                autocomplete="email"
+                class="w-full pl-10 pr-4 py-3 border-[1.5px] border-border rounded-xl text-sm text-ink bg-ivory placeholder-[#c8b4b4] placeholder:font-light transition-all duration-200"
+              />
+            </div>
           </div>
-          <div class="flex justify-end mt-2">
-            <a href="#" class="text-[0.76rem] font-medium text-[#8c1515] opacity-80 hover:opacity-100 transition-opacity duration-200">
-              Forgot password?
-            </a>
+
+          <div>
+            <label
+              for="pass"
+              class="block text-[0.68rem] font-semibold tracking-[0.1em] uppercase text-[#503030] mb-2"
+            >
+              Password
+            </label>
+            <div class="relative">
+              <svg
+                class="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-[#bfa8a8] pointer-events-none"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              <input
+                id="pass"
+                type="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                class="w-full pl-10 pr-11 py-3 border-[1.5px] border-border rounded-xl text-sm text-ink bg-ivory placeholder-[#c8b4b4] placeholder:font-light transition-all duration-200"
+              />
+              <button
+                type="button"
+                onclick="togglePass()"
+                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#c0a4a4] hover:text-[#8c1515] transition-colors duration-200 leading-none"
+              >
+                <svg
+                  id="eye"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                >
+                  <path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+            <div class="flex justify-end mt-2">
+              <a
+                href="#"
+                class="text-[0.76rem] font-medium text-[#8c1515] opacity-80 hover:opacity-100 transition-opacity duration-200"
+              >
+                Forgot password?
+              </a>
+            </div>
           </div>
-        </div>
 
-       
-        <button
-          type="submit"
-          class="btn-signin btn-shine relative w-full py-3.5 rounded-xl text-white font-semibold text-[0.83rem] tracking-[0.1em] uppercase overflow-hidden shadow-[0_4px_18px_rgba(140,21,21,0.28)]"
-        >
-          Sign In
-        </button>
+          <button
+            type="submit"
+            class="btn-signin btn-shine relative w-full py-3.5 rounded-xl text-white font-semibold text-[0.83rem] tracking-[0.1em] uppercase overflow-hidden shadow-[0_4px_18px_rgba(140,21,21,0.28)]"
+          >
+            Sign In
+          </button>
+        </form>
 
-      </form>
-
-     
-      <p class="mt-6 text-center text-[0.83rem] font-light text-muted">
-        Don't have an account?
-        <a href="register.html" class="font-semibold text-[#8c1515] hover:underline ml-1">Register here</a>
-      </p>
-
+        <p class="mt-6 text-center text-[0.83rem] font-light text-muted">
+          Don't have an account?
+          <a
+            href="{% url 'register' %}"
+            class="font-semibold text-[#8c1515] hover:underline ml-1"
+            >Register here</a
+          >
+        </p>
+      </div>
     </div>
-  </div>
 
-  <script>
-    function togglePass() {
-      const inp  = document.getElementById('pass');
-      const icon = document.getElementById('eye');
-      if (inp.type === 'password') {
-        inp.type = 'text';
-        icon.innerHTML = `
+    <script>
+      function togglePass() {
+        const inp = document.getElementById("pass");
+        const icon = document.getElementById("eye");
+        if (inp.type === "password") {
+          inp.type = "text";
+          icon.innerHTML = `
           <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
           <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
           <line x1="1" y1="1" x2="23" y2="23"/>`;
-      } else {
-        inp.type = 'password';
-        icon.innerHTML = `
+        } else {
+          inp.type = "password";
+          icon.innerHTML = `
           <path d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8S1 12 1 12z"/>
           <circle cx="12" cy="12" r="3"/>`;
+        }
       }
-    }
-  </script>
-</body>
+    </script>
+  </body>
 </html>
