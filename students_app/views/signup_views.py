@@ -2,6 +2,59 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.utils import timezone
+from django.conf import settings
+import secrets
+import hashlib
+
+from students_app.models import UserProfile
+
+
+def generate_verification_token(email):
+    """Generate a unique verification token for the user."""
+    # Create a secure token using email + random bytes
+    random_bytes = secrets.token_hex(32)
+    token_string = f"{email}:{random_bytes}"
+    # Hash it for security
+    token = hashlib.sha256(token_string.encode()).hexdigest()
+    return token
+
+
+def send_verification_email(request, user, token):
+    """Send email verification link to user."""
+    # Build the verification URL properly
+    verification_url = request.build_absolute_uri(f'/verify/{token}/')
+    
+    subject = "WMSU Graduate School - Email Verification"
+    message = f"""
+    Dear {user.first_name} {user.last_name},
+
+    Thank you for registering with WMSU Graduate School.
+
+    Please verify your email address by clicking the link below:
+    {verification_url}
+
+    This link will expire in 24 hours.
+
+    If you did not create this account, please ignore this email.
+
+    Best regards,
+    WMSU Graduate School
+    """
+    
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return False
 
 
 def signup_view(request):
@@ -9,6 +62,8 @@ def signup_view(request):
     Handle user registration.
     - For regular users (students): is_staff=False, is_superuser=False
     - For admins: is_staff=True, is_superuser=True
+    
+    Email verification is required for all users.
     """
     if request.method == 'POST':
         # Get form data
@@ -37,7 +92,10 @@ def signup_view(request):
             return render(request, 'students_app/register.html')
 
         try:
-            # Create user based on role
+            # Generate verification token
+            verification_token = generate_verification_token(email)
+            
+            # Create user based on role - set is_active=False until email is verified
             if role == 'admin':
                 user = User.objects.create_user(
                     username=email,
@@ -47,10 +105,10 @@ def signup_view(request):
                     last_name=last_name,
                     is_staff=True,    # Admin can access admin site
                     is_superuser=True, # Admin has full permissions
-                    is_active=True
+                    is_active=True     # Admins are auto-active (can be changed to False)
                 )
             else:
-                # Student role (default)
+                # Student role (default) - require email verification
                 user = User.objects.create_user(
                     username=email,
                     email=email,
@@ -59,10 +117,24 @@ def signup_view(request):
                     last_name=last_name,
                     is_staff=False,
                     is_superuser=False,
-                    is_active=True
+                    is_active=False  # User is inactive until email is verified
                 )
 
-            messages.success(request, 'Account created successfully! Please log in.')
+            # Create UserProfile with verification token
+            UserProfile.objects.create(
+                user=user,
+                verification_token=verification_token,
+                token_created_at=timezone.now(),
+                is_email_verified=False
+            )
+
+            # Send verification email
+            if send_verification_email(request, user, verification_token):
+                messages.success(request, 'Registration successful! Please check your email to verify your account.')
+            else:
+                # If email fails, still show success but with warning
+                messages.warning(request, 'Registration successful! However, we could not send the verification email. Please contact support.')
+            
             return redirect('login')
 
         except Exception as e:
