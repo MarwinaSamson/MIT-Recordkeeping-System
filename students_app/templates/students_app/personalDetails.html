@@ -1,488 +1,320 @@
 {% load static %}
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Personal Details - Graduate School Admission</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              brand: "#A02724",
-              beige: "#F5F0EB",
-              "brand-light": "#C4524F",
-            },
-            fontFamily: {
-              heading: ["Merriweather", "serif"],
-              body: ['"Source Sans 3"', "sans-serif"],
-            },
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personal Details - Graduate School Admission</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: "#A02724",
+            beige: "#F5F0EB",
+            "brand-light": "#C4524F",
+          },
+          fontFamily: {
+            heading: ["Merriweather", "serif"],
+            body: ['"Source Sans 3"', "sans-serif"],
           },
         },
-      };
-    </script>
-    <style>
-      body {
-        font-family: "Source Sans 3", sans-serif;
-      }
-      h1,
-      h2,
-      h3 {
-        font-family: "Merriweather", serif;
-      }
-    </style>
-  </head>
-  <body class="bg-beige min-h-screen">
-    <!-- Header -->
-    <header class="text-center py-8">
-      <h1 class="text-3xl md:text-4xl font-bold text-brand">
-        WMSU Graduate School
-      </h1>
-      <p class="text-lg text-gray-500 mt-1">Admission Form</p>
-    </header>
-    <!-- Progress Bar -->
-    <div class="max-w-4xl mx-auto px-4 mb-8">
-      <div class="flex items-center justify-between" id="progressBar"></div>
-    </div>
-    <!-- Form Card -->
-    <div class="max-w-3xl mx-auto px-4 pb-12">
-      <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
-        <h2 class="text-2xl font-bold text-brand mb-6">Personal Details</h2>
-        <form id="personalForm" class="space-y-5" novalidate>
-          <!-- Row: Names -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >First Name <span class="text-red-500">*</span></label
-              >
-              <input
-                type="text"
-                name="firstName"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-                placeholder="Juan"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="firstName"
-              ></p>
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Middle Name</label
-              >
-              <input
-                type="text"
-                name="middleName"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-                placeholder="Santos"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Last Name <span class="text-red-500">*</span></label
-              >
-              <input
-                type="text"
-                name="lastName"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-                placeholder="Dela Cruz"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="lastName"
-              ></p>
-            </div>
-          </div>
-          <!-- Row: DOB, Age, Gender -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- DOB + Age wrapper -->
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="block text-sm font-semibold mb-1.5">
-                  Date of Birth <span class="text-red-500">*</span>
-                </label>
-                <input
-                  id="dob"
-                  type="date"
-                  name="dob"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-                />
-                <p
-                  class="text-xs text-red-500 mt-1 hidden"
-                  data-error="dob"
-                ></p>
-              </div>
+      },
+    };
+  </script>
+  <style>
+    body {
+      font-family: "Source Sans 3", sans-serif;
+    }
 
-              <div>
-                <label class="block text-sm font-semibold mb-1.5">Age</label>
-                <input
-                  id="age"
-                  name="age"
-                  type="text"
-                  readonly
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 bg-gray-100 text-gray-700 cursor-not-allowed"
-                />
-              </div>
-            </div>
+    h1,
+    h2,
+    h3 {
+      font-family: "Merriweather", serif;
+    }
+  </style>
+</head>
 
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Gender <span class="text-red-500">*</span></label
-              >
-              <select
-                name="gender"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition cursor-pointer"
-              >
-                <option value="">Select gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-                <option value="Prefer not to say">Prefer not to say</option>
-              </select>
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="gender"
-              ></p>
-            </div>
-          </div>
-
-          <!-- Row: Civil Status, Place of Birth, Religion, Ethnicity, Nationality, and Disability -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Civil Status <span class="text-red-500">*</span></label
-              >
-              <select
-                name="civilStatus"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition cursor-pointer"
-              >
-                <option value="">Select status</option>
-                <option value="Single">Single</option>
-                <option value="Married">Married</option>
-                <option value="Widowed">Widowed</option>
-                <option value="Separated">Separated</option>
-                <option value="Anulled">Anulled</option>
-                <option value="Live-in">Live-in</option>
-              </select>
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="civilStatus"
-              ></p>
-            </div>
-
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Place of Birth <span class="text-red-500">*</span></label
-              >
-              <input
-                type="text"
-                name="placeOfBirth"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-                placeholder="Zamboanga City"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="placeOfBirth"
-              ></p>
-            </div>
-            <div name="religion">
-              <label class="block text-sm font-semibold mb-1.5"
-                >Religion <span class="text-red-500">*</span></label
-              >
-              <select
-                name="religion"
-                data-other-target="religionOther"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5"
-              >
-                <option value="">Select religion</option>
-                <option>Roman Catholic</option>
-                <option>Islam</option>
-                <option>Protestant</option>
-                <option>Other</option>
-              </select>
-
-              <input
-                type="text"
-                name="religionOther"
-                id="religionOther"
-                placeholder="Please specify"
-                class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Ethnicity <span class="text-red-500">*</span></label
-              >
-              <select
-                name="ethnicity"
-                data-other-target="ethnicityOther"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5"
-              >
-                <option value="">Select ethnicity</option>
-                <option>Zamboangueño</option>
-                <option>Chavacano</option>
-                <option>Tausug</option>
-                <option>Yakan</option>
-                <option>Sama-Badjao</option>
-                <option>Subanen</option>
-                <option>Visayan</option>
-                <option>Tagalog</option>
-                <option>Ilocano</option>
-                <option>Chinese Filipino</option>
-                <option>Other</option>
-              </select>
-
-              <input
-                type="text"
-                name="ethnicityOther"
-                id="ethnicityOther"
-                placeholder="Please specify"
-                class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="ethnicity"
-              ></p>
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Nationality <span class="text-red-500">*</span></label
-              >
-              <select
-                name="nationality"
-                data-other-target="nationalityOther"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5"
-              >
-                <option value="">Select nationality</option>
-                <option>Filipino</option>
-                <option>Dual Citizen</option>
-                <option>American</option>
-                <option>Malaysian</option>
-                <option>Indonesian</option>
-                <option>Chinese</option>
-                <option>Other</option>
-              </select>
-              <input
-                type="text"
-                name="nationalityOther"
-                id="nationalityOther"
-                placeholder="Please specify"
-                class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="nationality"
-              ></p>
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Disability (if any) <span class="text-red-500">*</span></label
-              >
-              <select
-                name="disability"
-                data-other-target="disabilityOther"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5"
-              >
-                <option value="">Select disability</option>
-                <option>None</option>
-                <option>Visual Impairment</option>
-                <option>Hearing Impairment</option>
-                <option>Speech Impairment</option>
-                <option>Physical Disability</option>
-                <option>Psychosocial Disability</option>
-                <option>Learning Disability</option>
-                <option>Chronic Illness</option>
-                <option>Other</option>
-              </select>
-              <input
-                type="text"
-                name="disabilityOther"
-                id="disabilityOther"
-                placeholder="Please specify"
-                class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="disablity"
-              ></p>
-            </div>
-          </div>
-
-          <!-- Permanent Address -->
+<body class="bg-beige min-h-screen">
+  <!-- Header -->
+  <header class="text-center py-8">
+    <h1 class="text-3xl md:text-4xl font-bold text-brand">
+      WMSU Graduate School
+    </h1>
+    <p class="text-lg text-gray-500 mt-1">Admission Form</p>
+  </header>
+  <!-- Progress Bar -->
+  <div class="max-w-4xl mx-auto px-4 mb-8">
+    <div class="flex items-center justify-between" id="progressBar"></div>
+  </div>
+  <!-- Form Card -->
+  <div class="max-w-3xl mx-auto px-4 pb-12">
+    <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
+      <h2 class="text-2xl font-bold text-brand mb-6">Personal Details</h2>
+      <form id="personalForm" class="space-y-5" novalidate>
+        <!-- Row: Names -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label class="block text-sm font-semibold mb-1.5"
-              >Permanent Address <span class="text-red-500">*</span></label
-            >
-            <input
-              type="text"
-              name="permanentAddress"
+            <label class="block text-sm font-semibold mb-1.5">First Name <span class="text-red-500">*</span></label>
+            <input type="text" name="firstName"
               class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-              placeholder="Street, City, Province"
-            />
-            <p
-              class="text-xs text-red-500 mt-1 hidden"
-              data-error="permanentAddress"
-            ></p>
+              placeholder="Juan" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="firstName"></p>
           </div>
-
-          <!-- Current Address -->
           <div>
-            <label class="block text-sm font-semibold mb-1.5"
-              >Current Address (if different from current address)</label
-            >
-            <input
-              type="text"
-              name="currentAddress"
+            <label class="block text-sm font-semibold mb-1.5">Middle Name</label>
+            <input type="text" name="middleName"
               class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-              placeholder="Street, City, Province"
-            />
-            <p
-              class="text-xs text-red-500 mt-1 hidden"
-              data-error="currentAddress"
-            ></p>
+              placeholder="Santos" />
           </div>
-
-          <!-- Row: Contact, Email -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Last Name <span class="text-red-500">*</span></label>
+            <input type="text" name="lastName"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+              placeholder="Dela Cruz" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="lastName"></p>
+          </div>
+        </div>
+        <!-- Row: DOB, Age, Gender -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- DOB + Age wrapper -->
+          <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Contact Number <span class="text-red-500">*</span></label
-              >
-              <input
-                type="tel"
-                name="contactNumber"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-                placeholder="+63 XXX XXX XXXX"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="contactNumber"
-              ></p>
+              <label class="block text-sm font-semibold mb-1.5">
+                Date of Birth <span class="text-red-500">*</span>
+              </label>
+              <input id="dob" type="date" name="dob"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition" />
+              <p class="text-xs text-red-500 mt-1 hidden" data-error="dob"></p>
             </div>
+
             <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Email Address <span class="text-red-500">*</span></label
-              >
-              <input
-                type="email"
-                name="email"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-                placeholder="you@email.com"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="email"
-              ></p>
+              <label class="block text-sm font-semibold mb-1.5">Age</label>
+              <input id="age" name="age" type="text" readonly
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 bg-gray-100 text-gray-700 cursor-not-allowed" />
             </div>
           </div>
 
-          <!-- Row: Name of Parent, Relationship, Income/Monthly -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Name of Parent <span class="text-red-500">*</span></label
-              >
-              <input
-                type="text"
-                name="nameOfParent"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="nameOfParent"
-              ></p>
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Relationship <span class="text-red-500">*</span></label
-              >
-              <input
-                type="text"
-                name="relationship"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Income/monthly <span class="text-red-500">*</span></label
-              >
-              <input
-                type="text"
-                name="parentIncome"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="parentIncome"
-              ></p>
-            </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Gender <span class="text-red-500">*</span></label>
+            <select name="gender"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition cursor-pointer">
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="gender"></p>
+          </div>
+        </div>
+
+        <!-- Row: Civil Status, Place of Birth, Religion, Ethnicity, Nationality, and Disability -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Civil Status <span class="text-red-500">*</span></label>
+            <select name="civilStatus"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition cursor-pointer">
+              <option value="">Select status</option>
+              <option value="Single">Single</option>
+              <option value="Married">Married</option>
+              <option value="Widowed">Widowed</option>
+              <option value="Separated">Separated</option>
+              <option value="Anulled">Anulled</option>
+              <option value="Live-in">Live-in</option>
+            </select>
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="civilStatus"></p>
           </div>
 
-          <!-- Row: Name of Spouse, Contact Number, Income/Monthly -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Name of Spouse (if married)</label
-              >
-              <input
-                type="text"
-                name="nameOfSpouse"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="nameOfSpouse"
-              ></p>
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Contact Number</label
-              >
-              <input
-                type="tel"
-                name="spouseContactNumber"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="spouseContactNumber"
-              ></p>
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Income/monthly</label
-              >
-              <input
-                type="text"
-                name="spouseIncome"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="spouseIncome"
-              ></p>
-            </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Place of Birth <span class="text-red-500">*</span></label>
+            <input type="text" name="placeOfBirth"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+              placeholder="Zamboanga City" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="placeOfBirth"></p>
           </div>
 
-          <!-- Nav Buttons -->
-          <div class="flex justify-end pt-4">
-            <button
-              type="submit"
-              class="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md"
-            >
-              Next →
-            </button>
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Religion <span class="text-red-500">*</span></label>
+            <select name="religion" data-other-target="religionOther"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5">
+              <option value="">Select religion</option>
+              <option value="Roman Catholic">Roman Catholic</option>
+              <option value="Islam">Islam</option>
+              <option value="Protestant">Protestant</option>
+              <option value="Other">Other</option>
+            </select>
+            <input type="text" name="religionOther" id="religionOther" placeholder="Please specify"
+              class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="religionOther"></p>
           </div>
-        </form>
-      </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Ethnicity <span class="text-red-500">*</span></label>
+            <select name="ethnicity" data-other-target="ethnicityOther"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5">
+              <option value="">Select ethnicity</option>
+              <option value="Zamboangueño">Zamboangueño</option>
+              <option value="Chavacano">Chavacano</option>
+              <option value="Tausug">Tausug</option>
+              <option value="Yakan">Yakan</option>
+              <option value="Sama-Badjao">Sama-Badjao</option>
+              <option value="Subanen">Subanen</option>
+              <option value="Visayan">Visayan</option>
+              <option value="Tagalog">Tagalog</option>
+              <option value="Ilocano">Ilocano</option>
+              <option value="Chinese Filipino">Chinese Filipino</option>
+              <option value="Other">Other</option>
+            </select>
+
+            <input type="text" name="ethnicityOther" id="ethnicityOther" placeholder="Please specify"
+              class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="ethnicity"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Nationality <span class="text-red-500">*</span></label>
+            <select name="nationality" data-other-target="nationalityOther"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5">
+              <option value="">Select nationality</option>
+              <option value="Filipino">Filipino</option>
+              <option value="Dual Citizen">Dual Citizen</option>
+              <option value="American">American</option>
+              <option value="Malaysian">Malaysian</option>
+              <option value="Indonesian">Indonesian</option>
+              <option value="Chinese">Chinese</option>
+              <option value="Other">Other</option>
+            </select>
+            <input type="text" name="nationalityOther" id="nationalityOther" placeholder="Please specify"
+              class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="nationality"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Disability (if any) <span
+                class="text-red-500">*</span></label>
+            <select name="disability" data-other-target="disabilityOther"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5">
+              <option value="">Select disability</option>
+              <option value="None">None</option>
+              <option value="Visual Impairment">Visual Impairment</option>
+              <option value="Hearing Impairment">Hearing Impairment</option>
+              <option value="Speech Impairment">Speech Impairment</option>
+              <option value="Physical Disability">Physical Disability</option>
+              <option value="Psychosocial Disability">Psychosocial Disability</option>
+              <option value="Learning Disability">Learning Disability</option>
+              <option value="Chronic Illness">Chronic Illness</option>
+              <option value="Other">Other</option>
+            </select>
+            <input type="text" name="disabilityOther" id="disabilityOther" placeholder="Please specify"
+              class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="disability"></p>
+          </div>
+        </div>
+
+        <!-- Permanent Address -->
+        <div>
+          <label class="block text-sm font-semibold mb-1.5">Permanent Address <span
+              class="text-red-500">*</span></label>
+          <input type="text" name="permanentAddress"
+            class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+            placeholder="Street, City, Province" />
+          <p class="text-xs text-red-500 mt-1 hidden" data-error="permanentAddress"></p>
+        </div>
+
+        <!-- Current Address -->
+        <div>
+          <label class="block text-sm font-semibold mb-1.5">Current Address (if different from permanent
+            address)</label>
+          <input type="text" name="currentAddress"
+            class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+            placeholder="Street, City, Province" />
+          <p class="text-xs text-red-500 mt-1 hidden" data-error="currentAddress"></p>
+        </div>
+
+        <!-- Row: Contact, Email -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Contact Number <span class="text-red-500">*</span></label>
+            <input type="tel" name="contactNumber"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+              placeholder="09123456789" maxlength="11" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="contactNumber"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Email Address <span class="text-red-500">*</span></label>
+            <input type="email" name="email"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+              placeholder="you@email.com" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="email"></p>
+          </div>
+        </div>
+
+        <!-- Row: Name of Parent, Relationship, Income/Monthly -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Name of Parent <span class="text-red-500">*</span></label>
+            <input type="text" name="nameOfParent"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="nameOfParent"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Relationship to Parent <span
+                class="text-red-500">*</span></label>
+            <input type="text" name="relationship"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+              placeholder="e.g., Father, Mother, Guardian" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="relationship"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Parent's Monthly Income <span
+                class="text-red-500">*</span></label>
+            <input type="text" name="parentIncome"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+              placeholder="e.g., 25000" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="parentIncome"></p>
+          </div>
+        </div>
+
+        <!-- Row: Name of Spouse, Contact Number, Income/Monthly -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Name of Spouse (if married)</label>
+            <input type="text" name="nameOfSpouse"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="nameOfSpouse"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Spouse's Contact Number</label>
+            <input type="tel" name="spouseContactNumber"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+              placeholder="09123456789" maxlength="11" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="spouseContactNumber"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Spouse's Monthly Income</label>
+            <input type="text" name="spouseIncome"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+              placeholder="e.g., 25000" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="spouseIncome"></p>
+          </div>
+        </div>
+
+        <!-- Nav Buttons -->
+        <div class="flex justify-end pt-4">
+          <button type="submit"
+            class="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md">
+            Next →
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <script src="{% static 'students_app/js/personalDetails.js' %}"></script>
-  </body>
+  <script src="{% static 'students_app/js/personalDetails.js' %}"></script>
+</body>
+
 </html>
