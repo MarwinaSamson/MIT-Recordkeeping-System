@@ -126,7 +126,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "mit_recordkeeping_db",
         "USER": "postgres",
-        "PASSWORD": "05172003",
+        "PASSWORD": "qwerty123",
         "HOST": "localhost",
         "PORT": "5432",
     }
@@ -172,6 +172,10 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [
     ("assets", BASE_DIR / "assets"),
 ]
+
+# Media files (User uploaded files)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

@@ -19,12 +19,9 @@ function renderProgress() {
     const isCurrent = num === CURRENT_STEP;
     let circleClass = "bg-gray-300 text-white";
     if (isCompleted) circleClass = "bg-green-500 text-white";
-    if (isCurrent)
-      circleClass = "bg-brand text-white shadow-lg scale-110";
+    if (isCurrent) circleClass = "bg-brand text-white shadow-lg scale-110";
     const checkmark = isCompleted ? "✓" : num;
-    const labelClass = isCurrent
-      ? "text-brand font-bold"
-      : "text-gray-400";
+    const labelClass = isCurrent ? "text-brand font-bold" : "text-gray-400";
     const connector =
       i < STEPS.length - 1
         ? `<div class="flex-1 h-1 mx-2 rounded ${
@@ -32,14 +29,12 @@ function renderProgress() {
           }"></div>`
         : "";
     return `
-    <div class="flex items-center ${
-      i < STEPS.length - 1 ? "flex-1" : ""
-    }">
+    <div class="flex items-center ${i < STEPS.length - 1 ? "flex-1" : ""}">
       <div class="flex flex-col items-center">
         <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${circleClass}">${checkmark}</div>
         <span class="text-xs mt-2 text-center hidden sm:block max-w-[80px] ${labelClass}">${
-      step.label
-    }</span>
+          step.label
+        }</span>
       </div>
       ${connector}
     </div>`;
@@ -51,32 +46,32 @@ renderProgress();
 const form = document.getElementById("personalForm");
 const saved = JSON.parse(localStorage.getItem("personalDetails") || "{}");
 const fields = [
-  "firstName",
-  "middleName",
-  "lastName",
+  "first_name",
+  "middle_name",
+  "last_name",
   "dob",
   "age",
   "gender",
-  "civilStatus",
-  "placeOfBirth",
+  "civil_status",
+  "place_of_birth",
   "religion",
-  "religionOther",
+  "religion_other",
   "ethnicity",
-  "ethnicityOther",
+  "ethnicity_other",
   "nationality",
-  "nationalityOther",
+  "nationality_other",
   "disability",
-  "disabilityOther",
-  "permanentAddress",
-  "currentAddress",
-  "contactNumber",
+  "disability_other",
+  "permanent_address",
+  "current_address",
+  "contact_number",
   "email",
-  "nameOfParent",
+  "name_of_parent",
   "relationship",
-  "parentIncome",
-  "nameOfSpouse",
-  "spouseContactNumber",
-  "spouseIncome",
+  "parent_income",
+  "name_of_spouse",
+  "spouse_contact_number",
+  "spouse_income",
 ];
 
 fields.forEach((f) => {
@@ -96,7 +91,7 @@ if (dobInput) {
   const mm = String(today.getMonth() + 1).padStart(2, "0");
   const dd = String(today.getDate()).padStart(2, "0");
   const todayFormatted = `${yyyy}-${mm}-${dd}`;
-  
+
   dobInput.setAttribute("max", todayFormatted);
 
   // Calculate age when DOB changes
@@ -126,7 +121,7 @@ if (contactInput) {
   contactInput.addEventListener("input", function (e) {
     // Remove any non-digit characters
     this.value = this.value.replace(/\D/g, "");
-    
+
     // Limit to 11 digits
     if (this.value.length > 11) {
       this.value = this.value.slice(0, 11);
@@ -135,7 +130,7 @@ if (contactInput) {
 }
 
 // ===== OTHER FIELDS TOGGLE =====
-document.querySelectorAll("select[data-other-target]").forEach(select => {
+document.querySelectorAll("select[data-other-target]").forEach((select) => {
   const target = document.getElementById(select.dataset.otherTarget);
 
   function toggleField() {
@@ -156,7 +151,7 @@ document.querySelectorAll("select[data-other-target]").forEach(select => {
 // ===== VALIDATION & SUBMIT =====
 form.addEventListener("submit", function (e) {
   e.preventDefault();
-  
+
   // Clear errors
   document
     .querySelectorAll("[data-error]")
@@ -168,22 +163,22 @@ form.addEventListener("submit", function (e) {
   });
 
   const required = [
-    "firstName",
-    "lastName",
+    "first_name",
+    "last_name",
     "dob",
     "gender",
-    "civilStatus",
-    "contactNumber",
+    "civil_status",
+    "contact_number",
     "email",
-    "placeOfBirth",
+    "place_of_birth",
     "religion",
     "ethnicity",
     "nationality",
     "disability",
-    "permanentAddress",
-    "nameOfParent",
+    "permanent_address",
+    "name_of_parent",
     "relationship",
-    "parentIncome",
+    "parent_income",
   ];
 
   let valid = true;
@@ -202,17 +197,17 @@ form.addEventListener("submit", function (e) {
   });
 
   // 'Other' specify fields are required only when the user selects "Other"
-  if (data.religion === "Other" && !data.religionOther) {
-    setInvalid("religionOther", "Please specify your religion");
+  if (data.religion === "Other" && !data.religion_other) {
+    setInvalid("religion_other", "Please specify your religion");
   }
-  if (data.ethnicity === "Other" && !data.ethnicityOther) {
-    setInvalid("ethnicityOther", "Please specify your ethnicity");
+  if (data.ethnicity === "Other" && !data.ethnicity_other) {
+    setInvalid("ethnicity_other", "Please specify your ethnicity");
   }
-  if (data.nationality === "Other" && !data.nationalityOther) {
-    setInvalid("nationalityOther", "Please specify your nationality");
+  if (data.nationality === "Other" && !data.nationality_other) {
+    setInvalid("nationality_other", "Please specify your nationality");
   }
-  if (data.disability === "Other" && !data.disabilityOther) {
-    setInvalid("disabilityOther", "Please specify your disability");
+  if (data.disability === "Other" && !data.disability_other) {
+    setInvalid("disability_other", "Please specify your disability");
   }
 
   // Date of birth cannot be in the future
@@ -231,10 +226,10 @@ form.addEventListener("submit", function (e) {
   }
 
   // Contact number must be exactly 11 digits (no letters)
-  if (data.contactNumber && !/^\d{11}$/.test(data.contactNumber)) {
+  if (data.contact_number && !/^\d{11}$/.test(data.contact_number)) {
     setInvalid(
-      "contactNumber",
-      "Contact number must be 11 digits (numbers only)"
+      "contact_number",
+      "Contact number must be 11 digits (numbers only)",
     );
   }
 
@@ -247,10 +242,9 @@ form.addEventListener("submit", function (e) {
 
   // Save data to localStorage
   localStorage.setItem("personalDetails", JSON.stringify(data));
-  
-  // Redirect to Educational Background page
-  // Change this URL to match your actual file structure
-  window.location.href = "/educationalBackground"; // 
+
+  // Submit the form to backend
+  form.submit();
 });
 
 function showError(field, msg) {
