@@ -1,36 +1,40 @@
- // ===== PROGRESS BAR =====
-        const STEPS = [
-            { label: "Personal Details" },
-            { label: "Educational Background" },
-            { label: "Working Student" },
-            { label: "Documents Upload" },
-            { label: "Privacy Notice" },
-            { label: "Review" },
-        ];
-        const CURRENT_STEP = 5;
+// ===== PROGRESS BAR =====
+const STEPS = [
+    { label: "Personal Details", page: "/personalDetails/" },
+    { label: "Educational Background", page: "/educationalBackground/" },
+    { label: "Working Student", page: "/workingStudent/" },
+    { label: "Documents Upload", page: "/documents/" },
+    { label: "Privacy Notice", page: "/privacyNotice/" },
+    { label: "Review", page: "/review/" },
+];
+const CURRENT_STEP = 5;
 
-        function renderProgress() {
-            const bar = document.getElementById("progressBar");
-            bar.innerHTML = STEPS.map((s, i) => {
-                const n = i + 1;
-                const done = n < CURRENT_STEP;
-                const cur = n === CURRENT_STEP;
-                let cc = "bg-gray-300 text-white";
-                if (done) cc = "bg-green-500 text-white";
-                if (cur) cc = "bg-brand text-white shadow-lg scale-110";
-                const lc = cur ? "text-brand font-bold" : "text-gray-400";
-                const conn =
-                    i < STEPS.length - 1
-                        ? `<div class="flex-1 h-1 mx-2 rounded ${n < CURRENT_STEP ? "bg-green-500" : "bg-gray-300"
-                        }"></div>`
-                        : "";
-                return `<div class="flex items-center ${i < STEPS.length - 1 ? "flex-1" : ""
-                    }"><div class="flex flex-col items-center"><div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${cc}">${done ? "✓" : n
-                    }</div><span class="text-xs mt-2 text-center hidden sm:block max-w-[80px] ${lc}">${s.label
-                    }</span></div>${conn}</div>`;
-            }).join("");
-        }
-        renderProgress();
+function renderProgress() {
+    const bar = document.getElementById("progressBar");
+    bar.innerHTML = STEPS.map((step, i) => {
+        const num = i + 1;
+        const isCompleted = num < CURRENT_STEP;
+        const isCurrent = num === CURRENT_STEP;
+        let circleClass = "bg-gray-300 text-white";
+        if (isCompleted) circleClass = "bg-green-500 text-white";
+        if (isCurrent)
+            circleClass = "bg-brand text-white shadow-lg scale-110";
+        const checkmark = isCompleted ? "✓" : num;
+        const labelClass = isCurrent
+            ? "text-brand font-bold"
+            : "text-gray-400";
+        const connector =
+            i < STEPS.length - 1
+                ? `<div class="flex-1 h-1 mx-2 rounded ${num < CURRENT_STEP ? "bg-green-500" : "bg-gray-300"
+                }"></div>`
+                : "";
+        return `<div class="flex items-center ${i < STEPS.length - 1 ? "flex-1" : ""
+            }"><div class="flex flex-col items-center"><div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${circleClass}">${checkmark
+            }</div><span class="text-xs mt-2 text-center hidden sm:block max-w-[80px] ${labelClass}">${step.label
+            }</span></div>${connector}</div>`;
+    }).join("");
+}
+renderProgress();
 
         // ===== AUTO-FILL NAME =====
         const personal = JSON.parse(

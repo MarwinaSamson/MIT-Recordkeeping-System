@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-i10vc&*%zm57h^)-5hoy(x8s4=+jn761yy)(jzk!yn34g04(z2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -37,8 +37,55 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
+    
+    # allauth apps
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    
     "students_app",
 ]
+
+# Authentication Backends
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+# Site configuration for allauth
+SITE_ID = 1
+
+# allauth settings
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+
+# Custom adapters
+ACCOUNT_ADAPTER = "students_app.adapters.AccountAdapter"
+SOCIALACCOUNT_ADAPTER = "students_app.adapters.SocialAccountAdapter"
+
+# Social Account Providers
+# Note: Google OAuth credentials are now configured in Django Admin
+# Go to Admin > Social Accounts > Social Applications > Add Google SSO
+# This is the recommended approach for django-allauth 0.61+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    }
+}
+
+# Login redirect URLs
+LOGIN_REDIRECT_URL = "/personalDetails/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/login/"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -48,6 +95,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "recordkeeping_proj.urls"
@@ -55,7 +103,7 @@ ROOT_URLCONF = "recordkeeping_proj.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -78,7 +126,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "mit_recordkeeping_db",
         "USER": "postgres",
-        "PASSWORD": "011304",
+        "PASSWORD": "qwerty123",
         "HOST": "localhost",
         "PORT": "5432",
     }
@@ -125,7 +173,23 @@ STATICFILES_DIRS = [
     ("assets", BASE_DIR / "assets"),
 ]
 
+# Media files (User uploaded files)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Email Configuration
+# https://docs.djangoproject.com/en/5.2/topics/email/
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"  
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "aniwrham@gmail.com"  
+EMAIL_HOST_PASSWORD = "cssn mlwz gqyt bdab"  
+DEFAULT_FROM_EMAIL = "WMSU Graduate School <aniwrham@gmail.com>"
