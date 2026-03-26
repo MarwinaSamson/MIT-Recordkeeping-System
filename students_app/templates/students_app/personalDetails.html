@@ -31,6 +31,7 @@
       body {
         font-family: "Source Sans 3", sans-serif;
       }
+
       h1,
       h2,
       h3 {
@@ -38,6 +39,7 @@
       }
     </style>
   </head>
+
   <body class="bg-beige min-h-screen">
     <!-- Header -->
     <header class="text-center py-8">
@@ -54,7 +56,21 @@
     <div class="max-w-3xl mx-auto px-4 pb-12">
       <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
         <h2 class="text-2xl font-bold text-brand mb-6">Personal Details</h2>
-        <form id="personalForm" class="space-y-5" novalidate>
+        {% if success %}
+        <div
+          class="mb-4 rounded-lg bg-green-100 border border-green-200 px-4 py-3 text-green-700"
+        >
+          Personal details saved successfully.
+        </div>
+        {% endif %} {% if errors %}
+        <div
+          class="mb-4 rounded-lg bg-red-100 border border-red-200 px-4 py-3 text-red-700"
+        >
+          Please fix the required errors and resubmit.
+        </div>
+        {% endif %}
+        <form id="personalForm" method="post" class="space-y-5" novalidate>
+          {% csrf_token %}
           <!-- Row: Names -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -63,14 +79,14 @@
               >
               <input
                 type="text"
-                name="firstName"
+                name="first_name"
+                value="{{ form_data.first_name|default:'' }}"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
                 placeholder="Juan"
               />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="firstName"
-              ></p>
+              {% if errors.first_name %}
+              <p class="text-xs text-red-500 mt-1">{{ errors.first_name }}</p>
+              {% endif %}
             </div>
             <div>
               <label class="block text-sm font-semibold mb-1.5"
@@ -78,7 +94,8 @@
               >
               <input
                 type="text"
-                name="middleName"
+                name="middle_name"
+                value="{{ form_data.middle_name|default:'' }}"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
                 placeholder="Santos"
               />
@@ -89,14 +106,14 @@
               >
               <input
                 type="text"
-                name="lastName"
+                name="last_name"
+                value="{{ form_data.last_name|default:'' }}"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
                 placeholder="Dela Cruz"
               />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="lastName"
-              ></p>
+              {% if errors.last_name %}
+              <p class="text-xs text-red-500 mt-1">{{ errors.last_name }}</p>
+              {% endif %}
             </div>
           </div>
           <!-- Row: DOB, Age, Gender -->
@@ -159,7 +176,7 @@
                 >Civil Status <span class="text-red-500">*</span></label
               >
               <select
-                name="civilStatus"
+                name="civil_status"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition cursor-pointer"
               >
                 <option value="">Select status</option>
@@ -172,7 +189,7 @@
               </select>
               <p
                 class="text-xs text-red-500 mt-1 hidden"
-                data-error="civilStatus"
+                data-error="civil_status"
               ></p>
             </div>
 
@@ -182,66 +199,73 @@
               >
               <input
                 type="text"
-                name="placeOfBirth"
+                name="place_of_birth"
+                value="{{ form_data.place_of_birth|default:'' }}"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
                 placeholder="Zamboanga City"
               />
               <p
                 class="text-xs text-red-500 mt-1 hidden"
-                data-error="placeOfBirth"
+                data-error="place_of_birth"
+                value="{{ form_data.place_of_birth|default:'' }}"
               ></p>
             </div>
-            <div name="religion">
+
+            <div>
               <label class="block text-sm font-semibold mb-1.5"
                 >Religion <span class="text-red-500">*</span></label
               >
               <select
                 name="religion"
-                data-other-target="religionOther"
+                data-other-target="religion_other"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5"
               >
                 <option value="">Select religion</option>
-                <option>Roman Catholic</option>
-                <option>Islam</option>
-                <option>Protestant</option>
-                <option>Other</option>
+                <option value="Roman Catholic">Roman Catholic</option>
+                <option value="Islam">Islam</option>
+                <option value="Protestant">Protestant</option>
+                <option value="Other">Other</option>
               </select>
-
               <input
                 type="text"
-                name="religionOther"
-                id="religionOther"
+                name="religion_other"
+                id="religion_other"
                 placeholder="Please specify"
                 class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5"
               />
+              <p
+                class="text-xs text-red-500 mt-1 hidden"
+                data-error="religion_other"
+              ></p>
             </div>
+
             <div>
               <label class="block text-sm font-semibold mb-1.5"
                 >Ethnicity <span class="text-red-500">*</span></label
               >
               <select
                 name="ethnicity"
-                data-other-target="ethnicityOther"
+                data-other-target="ethnicity_other"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5"
               >
                 <option value="">Select ethnicity</option>
-                <option>Zamboangueño</option>
-                <option>Chavacano</option>
-                <option>Tausug</option>
-                <option>Yakan</option>
-                <option>Sama-Badjao</option>
-                <option>Subanen</option>
-                <option>Visayan</option>
-                <option>Tagalog</option>
-                <option>Ilocano</option>
-                <option>Chinese Filipino</option>
-                <option>Other</option>
+                <option value="Zamboangueño">Zamboangueño</option>
+                <option value="Chavacano">Chavacano</option>
+                <option value="Tausug">Tausug</option>
+                <option value="Yakan">Yakan</option>
+                <option value="Sama-Badjao">Sama-Badjao</option>
+                <option value="Subanen">Subanen</option>
+                <option value="Visayan">Visayan</option>
+                <option value="Tagalog">Tagalog</option>
+                <option value="Ilocano">Ilocano</option>
+                <option value="Chinese Filipino">Chinese Filipino</option>
+                <option value="Other">Other</option>
               </select>
 
               <input
                 type="text"
-                name="ethnicityOther"
-                id="ethnicityOther"
+                name="ethnicity_other"
+                id="ethnicity_other"
                 placeholder="Please specify"
                 class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5"
               />
@@ -256,22 +280,22 @@
               >
               <select
                 name="nationality"
-                data-other-target="nationalityOther"
+                data-other-target="nationality_other"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5"
               >
                 <option value="">Select nationality</option>
-                <option>Filipino</option>
-                <option>Dual Citizen</option>
-                <option>American</option>
-                <option>Malaysian</option>
-                <option>Indonesian</option>
-                <option>Chinese</option>
-                <option>Other</option>
+                <option value="Filipino">Filipino</option>
+                <option value="Dual Citizen">Dual Citizen</option>
+                <option value="American">American</option>
+                <option value="Malaysian">Malaysian</option>
+                <option value="Indonesian">Indonesian</option>
+                <option value="Chinese">Chinese</option>
+                <option value="Other">Other</option>
               </select>
               <input
                 type="text"
-                name="nationalityOther"
-                id="nationalityOther"
+                name="nationality_other"
+                id="nationality_other"
                 placeholder="Please specify"
                 class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5"
               />
@@ -286,30 +310,32 @@
               >
               <select
                 name="disability"
-                data-other-target="disabilityOther"
+                data-other-target="disability_other"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5"
               >
                 <option value="">Select disability</option>
-                <option>None</option>
-                <option>Visual Impairment</option>
-                <option>Hearing Impairment</option>
-                <option>Speech Impairment</option>
-                <option>Physical Disability</option>
-                <option>Psychosocial Disability</option>
-                <option>Learning Disability</option>
-                <option>Chronic Illness</option>
-                <option>Other</option>
+                <option value="None">None</option>
+                <option value="Visual Impairment">Visual Impairment</option>
+                <option value="Hearing Impairment">Hearing Impairment</option>
+                <option value="Speech Impairment">Speech Impairment</option>
+                <option value="Physical Disability">Physical Disability</option>
+                <option value="Psychosocial Disability">
+                  Psychosocial Disability
+                </option>
+                <option value="Learning Disability">Learning Disability</option>
+                <option value="Chronic Illness">Chronic Illness</option>
+                <option value="Other">Other</option>
               </select>
               <input
                 type="text"
-                name="disabilityOther"
-                id="disabilityOther"
+                name="disability_other"
+                id="disability_other"
                 placeholder="Please specify"
                 class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5"
               />
               <p
                 class="text-xs text-red-500 mt-1 hidden"
-                data-error="disablity"
+                data-error="disability"
               ></p>
             </div>
           </div>
@@ -321,30 +347,30 @@
             >
             <input
               type="text"
-              name="permanentAddress"
+              name="permanent_address"
               class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
               placeholder="Street, City, Province"
             />
             <p
               class="text-xs text-red-500 mt-1 hidden"
-              data-error="permanentAddress"
+              data-error="permanent_address"
             ></p>
           </div>
 
           <!-- Current Address -->
           <div>
             <label class="block text-sm font-semibold mb-1.5"
-              >Current Address (if different from current address)</label
+              >Current Address (if different from permanent address)</label
             >
             <input
               type="text"
-              name="currentAddress"
+              name="current_address"
               class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
               placeholder="Street, City, Province"
             />
             <p
               class="text-xs text-red-500 mt-1 hidden"
-              data-error="currentAddress"
+              data-error="current_address"
             ></p>
           </div>
 
@@ -356,13 +382,14 @@
               >
               <input
                 type="tel"
-                name="contactNumber"
+                name="contact_number"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-                placeholder="+63 XXX XXX XXXX"
+                placeholder="09123456789"
+                maxlength="11"
               />
               <p
                 class="text-xs text-red-500 mt-1 hidden"
-                data-error="contactNumber"
+                data-error="contact_number"
               ></p>
             </div>
             <div>
@@ -390,36 +417,44 @@
               >
               <input
                 type="text"
-                name="nameOfParent"
+                name="name_of_parent"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
               />
               <p
                 class="text-xs text-red-500 mt-1 hidden"
-                data-error="nameOfParent"
+                data-error="name_of_parent"
               ></p>
             </div>
             <div>
               <label class="block text-sm font-semibold mb-1.5"
-                >Relationship <span class="text-red-500">*</span></label
+                >Relationship to Parent
+                <span class="text-red-500">*</span></label
               >
               <input
                 type="text"
                 name="relationship"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Income/monthly <span class="text-red-500">*</span></label
-              >
-              <input
-                type="text"
-                name="parentIncome"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+                placeholder="e.g., Father, Mother, Guardian"
               />
               <p
                 class="text-xs text-red-500 mt-1 hidden"
-                data-error="parentIncome"
+                data-error="relationship"
+              ></p>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold mb-1.5"
+                >Parent's Monthly Income
+                <span class="text-red-500">*</span></label
+              >
+              <input
+                type="text"
+                name="parent_income"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+                placeholder="e.g., 25000"
+              />
+              <p
+                class="text-xs text-red-500 mt-1 hidden"
+                data-error="parent_income"
               ></p>
             </div>
           </div>
@@ -432,40 +467,43 @@
               >
               <input
                 type="text"
-                name="nameOfSpouse"
+                name="name_of_spouse"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
               />
               <p
                 class="text-xs text-red-500 mt-1 hidden"
-                data-error="nameOfSpouse"
+                data-error="name_of_spouse"
               ></p>
             </div>
             <div>
               <label class="block text-sm font-semibold mb-1.5"
-                >Contact Number</label
+                >Spouse's Contact Number</label
               >
               <input
                 type="tel"
-                name="spouseContactNumber"
+                name="spouse_contact_number"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+                placeholder="09123456789"
+                maxlength="11"
               />
               <p
                 class="text-xs text-red-500 mt-1 hidden"
-                data-error="spouseContactNumber"
+                data-error="spouse_contact_number"
               ></p>
             </div>
             <div>
               <label class="block text-sm font-semibold mb-1.5"
-                >Income/monthly</label
+                >Spouse's Monthly Income</label
               >
               <input
                 type="text"
-                name="spouseIncome"
+                name="spouse_income"
                 class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
+                placeholder="e.g., 25000"
               />
               <p
                 class="text-xs text-red-500 mt-1 hidden"
-                data-error="spouseIncome"
+                data-error="spouse_income"
               ></p>
             </div>
           </div>
