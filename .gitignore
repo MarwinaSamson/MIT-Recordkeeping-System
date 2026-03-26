@@ -204,4 +204,8 @@ cython_debug/
 # Marimo
 marimo/_static/
 marimo/_lsp/
+<<<<<<< Updated upstream
 __marimo__/
+=======
+__marimo__/
+>>>>>>> Stashed changes
