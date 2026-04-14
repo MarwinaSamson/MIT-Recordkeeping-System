@@ -47,15 +47,43 @@
     <div class="max-w-3xl mx-auto px-4 pb-12">
       <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
         <h2 class="text-2xl font-bold text-brand mb-6">Working Student</h2>
-        <form id="workForm" class="space-y-5" novalidate>
-          <label class="flex items-center gap-3 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              id="isEmployed"
-              class="w-5 h-5 rounded accent-brand"
-            />
-            <span class="font-semibold">I am currently employed</span>
-          </label>
+        <form id="workForm" method="post" class="space-y-5" novalidate>
+          {% csrf_token %} {% if messages %}
+          <div class="space-y-2">
+            {% for message in messages %}
+            <div class="rounded-lg px-4 py-3 text-sm {{ message.tags }}">
+              {{ message }}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <label class="flex items-center gap-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                id="isEmployed"
+                name="isEmployed"
+                class="w-5 h-5 rounded accent-brand"
+              />
+              <span class="font-semibold">I am currently employed</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                id="notEmployed"
+                name="notEmployed"
+                class="w-5 h-5 rounded accent-brand"
+              />
+              <span class="font-semibold">I am not employed</span>
+            </label>
+          </div>
+          <p
+            id="employmentStatusError"
+            class="text-xs text-red-500 mt-1 hidden"
+          ></p>
+          {% if errors.is_not_employed %}
+          <p class="text-xs text-red-500 mt-1">{{ errors.is_not_employed }}</p>
+          {% endif %}
           <div
             id="employmentFields"
             class="hidden space-y-4 border border-gray-200 rounded-xl p-5"

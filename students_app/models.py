@@ -77,6 +77,40 @@ class EducationalBackground(models.Model):
         return f"{self.level.title()} background for {self.user.username if self.user else 'Unknown'}"
 
 
+class WorkingStudent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    is_employed = models.BooleanField(default=False)
+    position = models.CharField(max_length=255, blank=True)
+    monthly_income = models.CharField(max_length=50, blank=True)
+    employment_status = models.CharField(max_length=64, blank=True)
+    employment_status_other = models.CharField(max_length=255, blank=True)
+    employer_name = models.CharField(max_length=255, blank=True)
+    employer_address = models.CharField(max_length=500, blank=True)
+    employer_contact = models.CharField(max_length=50, blank=True)
+    employer_classification = models.CharField(max_length=64, blank=True)
+    employer_classification_other = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Working student data for {self.user.username if self.user else 'Unknown'}"
+
+
+class PrivacyConsent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    agreed = models.BooleanField(default=False)
+    name = models.CharField(max_length=255, blank=True)
+    signed_at = models.DateTimeField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    ip_address = models.CharField(max_length=100, blank=True)
+    form_version = models.CharField(max_length=32, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Privacy consent for {self.user.username if self.user else 'Unknown'}: {'agreed' if self.agreed else 'not agreed'}"
+
+
 class Document(models.Model):
     DOCUMENT_TYPE_CHOICES = [
         ('deans_recommendation', "Dean's Recommendation"),

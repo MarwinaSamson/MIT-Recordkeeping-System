@@ -252,8 +252,8 @@ document
       }),
     );
 
-    // Redirect to next step
-    window.location.href = "/privacyNotice/";
+    // Submit form to backend for persistence
+    this.submit();
   });
 
 function showError(fieldName, message) {
