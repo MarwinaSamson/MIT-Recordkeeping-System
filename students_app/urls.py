@@ -1,4 +1,5 @@
 from django.urls import path
+from . import views
 from .views.index_views import index
 from .views.login_views import login_view
 from .views.signup_views import signup_view
@@ -9,6 +10,7 @@ from .views.workingstudent_views import working_student
 from .views.documents_views import documents
 from .views.privacynotice_views import privacy_notice
 from .views.reviews_views import review
+
 
 urlpatterns = [
     path("", index, name="index"),
