@@ -9,6 +9,8 @@ from .views.workingstudent_views import working_student
 from .views.documents_views import documents
 from .views.privacynotice_views import privacy_notice
 from .views.reviews_views import review
+from .views.student_views import student
+from .views.login_views import logout_view
 
 urlpatterns = [
     path("", index, name="index"),
@@ -21,4 +23,6 @@ urlpatterns = [
     path("documents/", documents, name="documents"),
     path("privacyNotice/", privacy_notice, name="privacyNotice"),
     path("review/", review, name="review"),
+    path("student/", student, name="student"),
+    path("logout/", logout_view, name="logout"),
 ]
