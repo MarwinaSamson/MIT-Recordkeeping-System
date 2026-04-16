@@ -38,13 +38,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-    
+
     # allauth apps
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
-    
+
     "students_app",
 ]
 
@@ -178,6 +178,10 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# School seals configuration
+WMSU_SEAL_URL = '/static/assets/seals/WMSU.jpg'
+JAB_SEAL_URL = '/static/assets/seals/logoandcap.png'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -190,9 +194,9 @@ SESSION_COOKIE_AGE = 60 * 60  # keep session cookie valid if active; idle timeou
 # https://docs.djangoproject.com/en/5.2/topics/email/
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"  
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "aniwrham@gmail.com"  
-EMAIL_HOST_PASSWORD = "cssn mlwz gqyt bdab"  
+EMAIL_HOST_USER = "aniwrham@gmail.com"
+EMAIL_HOST_PASSWORD = "cssn mlwz gqyt bdab"
 DEFAULT_FROM_EMAIL = "WMSU Graduate School <aniwrham@gmail.com>"
