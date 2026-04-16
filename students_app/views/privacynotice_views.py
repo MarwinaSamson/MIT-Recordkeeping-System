@@ -17,7 +17,7 @@ def privacy_notice(request):
 
         consent, created = PrivacyConsent.objects.get_or_create(user=user)
         consent.agreed = True
-        consent.name = f"{user.first_name} {user.last_name}".strip() or ""
+        consent.name = "{user.first_name} {user.last_name}".strip() or ""
         consent.signed_at = timezone.now()
         consent.user_agent = request.META.get("HTTP_USER_AGENT", "")
         consent.ip_address = request.META.get("REMOTE_ADDR", "")
