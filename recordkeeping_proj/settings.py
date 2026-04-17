@@ -63,6 +63,14 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
+# Social Account Settings
+# Skip email verification for social accounts (Google already verified)
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+# Allow auto signup for social accounts
+SOCIALACCOUNT_AUTO_SIGNUP = True
+# Automatically connect social accounts to existing users by email
+SOCIALACCOUNT_EMAIL_REQUIRED = True
+
 # Custom adapters
 ACCOUNT_ADAPTER = "students_app.adapters.AccountAdapter"
 SOCIALACCOUNT_ADAPTER = "students_app.adapters.SocialAccountAdapter"
@@ -86,6 +94,8 @@ SOCIALACCOUNT_PROVIDERS = {
 # Login redirect URLs
 LOGIN_REDIRECT_URL = "/personalDetails/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/login/"
+
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

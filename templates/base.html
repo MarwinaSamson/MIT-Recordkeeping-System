@@ -2,34 +2,227 @@
 <!doctype html>
 <html>
   <head>
-    <title>{% block head_title %}{% endblock %}</title>
-    {% block extra_head %} {% endblock %}
-  </head>
-  <body>
-    {% block body %} {% if messages %}
-    <div>
-      <strong>Messages:</strong>
-      <ul>
-        {% for message in messages %}
-        <li>{{message}}</li>
-        {% endfor %}
-      </ul>
-    </div>
-    {% endif %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% block head_title %}WMSU Graduate School Admission{% endblock %}
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: "#A02724",
+              beige: "#F5F0EB",
+            },
+            fontFamily: {
+              heading: ["Merriweather", "serif"],
+              body: ['"Source Sans 3"', "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Source Sans 3", sans-serif;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: "Merriweather", serif;
+      }
+    </style>
+    {% block extra_head %}{% endblock %}
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const messages = document.querySelectorAll("[data-message-id]");
+        messages.forEach((msg) => {
+          const timeOut = setTimeout(() => {
+            msg.style.animation = "slideOut 0.3s ease-in forwards";
+            setTimeout(() => msg.remove(), 300);
+          }, 5000);
 
+<<<<<<< Updated upstream
     <div>
       <strong>Menu:</strong>
       <ul>
         {% if user.is_authenticated %}
         <li><a href="{% url 'account_email' %}">Change E-mail</a></li>
         <li><a href="{% url 'account_logout' %}">Sign Out</a></li>
+=======
+          const closeBtn = msg.querySelector("[data-close-btn]");
+          if (closeBtn) {
+            closeBtn.addEventListener("click", function () {
+              clearTimeout(timeOut);
+              msg.style.animation = "slideOut 0.3s ease-in forwards";
+              setTimeout(() => msg.remove(), 300);
+            });
+          }
+        });
+      });
+    </script>
+    <style>
+      @keyframes slideIn {
+        from {
+          transform: translateY(-100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      @keyframes slideOut {
+        from {
+          transform: translateY(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateY(-100%);
+          opacity: 0;
+        }
+      }
+      [data-message-id] {
+        animation: slideIn 0.3s ease-out;
+      }
+    </style>
+  </head>
+  <body class="bg-beige">
+    {% block body %} {% if messages %}
+    <div class="fixed top-0 left-0 right-0 z-50 pointer-events-none">
+      <div class="max-w-2xl mx-auto px-4 pt-4">
+        {% for message in messages %} {% if message.tags %} {% if 'success' in
+        message.tags or 'green' in message.tags %}
+        <div
+          data-message-id="{{ forloop.counter }}"
+          class="pointer-events-auto mb-3 bg-green-50 border-l-4 border-green-500 rounded-lg shadow-lg overflow-hidden"
+        >
+          <div class="flex items-center justify-between p-4">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check-circle text-green-600 text-lg"></i>
+              <p class="text-sm text-green-800 font-medium">{{ message }}</p>
+            </div>
+            <button
+              data-close-btn
+              type="button"
+              class="text-green-600 hover:text-green-800 transition"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        {% elif 'error' in message.tags or 'red' in message.tags %}
+        <div
+          data-message-id="{{ forloop.counter }}"
+          class="pointer-events-auto mb-3 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-lg overflow-hidden"
+        >
+          <div class="flex items-center justify-between p-4">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-exclamation-circle text-red-600 text-lg"></i>
+              <p class="text-sm text-red-800 font-medium">{{ message }}</p>
+            </div>
+            <button
+              data-close-btn
+              type="button"
+              class="text-red-600 hover:text-red-800 transition"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        {% elif 'warning' in message.tags or 'yellow' in message.tags %}
+        <div
+          data-message-id="{{ forloop.counter }}"
+          class="pointer-events-auto mb-3 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg shadow-lg overflow-hidden"
+        >
+          <div class="flex items-center justify-between p-4">
+            <div class="flex items-center gap-3">
+              <i
+                class="fas fa-exclamation-triangle text-yellow-600 text-lg"
+              ></i>
+              <p class="text-sm text-yellow-800 font-medium">{{ message }}</p>
+            </div>
+            <button
+              data-close-btn
+              type="button"
+              class="text-yellow-600 hover:text-yellow-800 transition"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        {% elif 'info' in message.tags or 'blue' in message.tags %}
+        <div
+          data-message-id="{{ forloop.counter }}"
+          class="pointer-events-auto mb-3 bg-blue-50 border-l-4 border-blue-500 rounded-lg shadow-lg overflow-hidden"
+        >
+          <div class="flex items-center justify-between p-4">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-info-circle text-blue-600 text-lg"></i>
+              <p class="text-sm text-blue-800 font-medium">{{ message }}</p>
+            </div>
+            <button
+              data-close-btn
+              type="button"
+              class="text-blue-600 hover:text-blue-800 transition"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+>>>>>>> Stashed changes
         {% else %}
-        <li><a href="{% url 'account_login' %}">Sign In</a></li>
-        <li><a href="{% url 'account_signup' %}">Sign Up</a></li>
-        {% endif %}
-      </ul>
+        <div
+          data-message-id="{{ forloop.counter }}"
+          class="pointer-events-auto mb-3 bg-gray-50 border-l-4 border-gray-500 rounded-lg shadow-lg overflow-hidden"
+        >
+          <div class="flex items-center justify-between p-4">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-bell text-gray-600 text-lg"></i>
+              <p class="text-sm text-gray-800 font-medium">{{ message }}</p>
+            </div>
+            <button
+              data-close-btn
+              type="button"
+              class="text-gray-600 hover:text-gray-800 transition"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        {% endif %} {% else %}
+        <div
+          data-message-id="{{ forloop.counter }}"
+          class="pointer-events-auto mb-3 bg-green-50 border-l-4 border-green-500 rounded-lg shadow-lg overflow-hidden"
+        >
+          <div class="flex items-center justify-between p-4">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-check-circle text-green-600 text-lg"></i>
+              <p class="text-sm text-green-800 font-medium">{{ message }}</p>
+            </div>
+            <button
+              data-close-btn
+              type="button"
+              class="text-green-600 hover:text-green-800 transition"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        {% endif %} {% endfor %}
+      </div>
     </div>
-    {% block content %} {% endblock %} {% endblock %} {% block extra_body %} {%
-    endblock %}
+    {% endif %} {% block content %}{% endblock %} {% endblock %} {% block
+    extra_body %}{% endblock %}
   </body>
 </html>
