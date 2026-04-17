@@ -1,12 +1,10 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 from students_app.models import UserProfile
-<<<<<<< Updated upstream
-=======
 from students_app.utils import get_user_redirect_url
->>>>>>> Stashed changes
 
 
 def login_view(request):
@@ -34,14 +32,9 @@ def login_view(request):
                     pass
                 
                 login(request, user)
-<<<<<<< Updated upstream
-                # Redirect to personal details after successful login
-                return redirect('personalDetails')
-=======
                 # Determine redirect based on application status
                 redirect_url = get_user_redirect_url(user)
                 return redirect(redirect_url)
->>>>>>> Stashed changes
             else:
                 messages.error(request, 'Your account is inactive.')
         else:
@@ -50,8 +43,6 @@ def login_view(request):
         return render(request, "students_app/login.html")
 
     return render(request, "students_app/login.html")
-<<<<<<< Updated upstream
-=======
 
 
 @login_required
@@ -72,4 +63,3 @@ def logout_view(request):
     logout(request)
     messages.success(request, "You have signed out successfully. See you soon!")
     return redirect("index")
->>>>>>> Stashed changes

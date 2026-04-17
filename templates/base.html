@@ -52,14 +52,6 @@
             setTimeout(() => msg.remove(), 300);
           }, 5000);
 
-<<<<<<< Updated upstream
-    <div>
-      <strong>Menu:</strong>
-      <ul>
-        {% if user.is_authenticated %}
-        <li><a href="{% url 'account_email' %}">Change E-mail</a></li>
-        <li><a href="{% url 'account_logout' %}">Sign Out</a></li>
-=======
           const closeBtn = msg.querySelector("[data-close-btn]");
           if (closeBtn) {
             closeBtn.addEventListener("click", function () {
@@ -180,7 +172,6 @@
             </button>
           </div>
         </div>
->>>>>>> Stashed changes
         {% else %}
         <div
           data-message-id="{{ forloop.counter }}"
