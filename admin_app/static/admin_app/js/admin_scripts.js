@@ -1,63 +1,33 @@
 lucide.createIcons();
 
+// Dynamic data from Django context - initialized from contextData
+let applications = [];
+let activityLog = [];
+let toastTimer;  // Timer for toast notifications
+let selectedApp;  // Currently selected application in modal
+let rejectTargetIdx;  // Index of document being rejected
 
-let applications = [
-  {id:"MIT-0001",name:"Noellene Pearl A. Villarcampo",course:"MIT",email:"villarcamponoellenepearl@gmail.com",mobile:"+639610056461",submissionDate:"2026-02-21",lastActivity:"21/02/2026",status:"Under Review",remarks:"",
-    docs:[
-      {name:"Admission Form",       type:"Academic Form",status:"Verified",     uploadDate:"2026-02-21",verifiedBy:"Marwina Admin",verifiedOn:"2026-02-21",issues:[]},
-      {name:"Transcript of Records",type:"Academic Form",status:"Under Review",  uploadDate:"2026-02-21",verifiedBy:"",verifiedOn:"",issues:["Document appears blurry","Please upload higher resolution"]},
-      {name:"Recommendation Letter",type:"Academic Form",status:"Rejected",      uploadDate:"2026-02-21",verifiedBy:"",verifiedOn:"",issues:["Document is blurry"]},
-    ]},
-  {id:"MIT-0002",name:"Juan Dela Cruz",course:"MIT",email:"juan.delacruz@gmail.com",mobile:"+639171234567",submissionDate:"2026-02-20",lastActivity:"21/02/2026",status:"Verified",remarks:"",
-    docs:[
-      {name:"Admission Form",      type:"Academic Form",status:"Verified",uploadDate:"2026-02-20",verifiedBy:"Marwina Admin",verifiedOn:"2026-02-20",issues:[]},
-      {name:"Transcript",          type:"Academic Form",status:"Verified",uploadDate:"2026-02-20",verifiedBy:"Marwina Admin",verifiedOn:"2026-02-20",issues:[]},
-      {name:"Birth Certificate",   type:"Legal Doc",    status:"Verified",uploadDate:"2026-02-20",verifiedBy:"Marwina Admin",verifiedOn:"2026-02-20",issues:[]},
-      {name:"Diploma",             type:"Academic Form",status:"Verified",uploadDate:"2026-02-20",verifiedBy:"Marwina Admin",verifiedOn:"2026-02-20",issues:[]},
-      {name:"Medical Certificate", type:"Medical Doc",  status:"Verified",uploadDate:"2026-02-20",verifiedBy:"Marwina Admin",verifiedOn:"2026-02-20",issues:[]},
-      {name:"Recommendation 1",    type:"Academic Form",status:"Verified",uploadDate:"2026-02-20",verifiedBy:"Marwina Admin",verifiedOn:"2026-02-20",issues:[]},
-      {name:"Proof of Payment",    type:"Financial Doc",status:"Verified",uploadDate:"2026-02-20",verifiedBy:"Marwina Admin",verifiedOn:"2026-02-20",issues:[]},
-    ]},
-  {id:"MIT-0003",name:"Maria Santos",course:"MIT",email:"maria.santos@gmail.com",mobile:"+639189876543",submissionDate:"2026-02-19",lastActivity:"21/02/2026",status:"Pending Review",remarks:"",
-    docs:[
-      {name:"Admission Form",  type:"Academic Form",status:"Verified",      uploadDate:"2026-02-19",verifiedBy:"",verifiedOn:"",issues:[]},
-      {name:"Transcript",      type:"Academic Form",status:"Pending Review", uploadDate:"2026-02-19",verifiedBy:"",verifiedOn:"",issues:[]},
-      {name:"Recommendation",  type:"Academic Form",status:"Rejected",       uploadDate:"2026-02-19",verifiedBy:"",verifiedOn:"",issues:["Signature missing"]},
-    ]},
-  {id:"MIT-0004",name:"Pedro Reyes",course:"MIT",email:"pedro.reyes@gmail.com",mobile:"+639201112222",submissionDate:"2026-02-18",lastActivity:"21/02/2026",status:"Incomplete",remarks:"",
-    docs:[
-      {name:"Admission Form",type:"Academic Form",status:"Verified",    uploadDate:"2026-02-18",verifiedBy:"Marwina Admin",verifiedOn:"2026-02-18",issues:[]},
-      {name:"Transcript",    type:"Academic Form",status:"Under Review",uploadDate:"2026-02-18",verifiedBy:"",verifiedOn:"",issues:["Poor scan quality"]},
-      {name:"Birth Cert",    type:"Legal Doc",    status:"Under Review",uploadDate:"2026-02-18",verifiedBy:"",verifiedOn:"",issues:["Document is blurry"]},
-    ]},
-];
-
-let activityLog = [
-  {time:"2026-02-21 10:32",admin:"Marwina Admin",appId:"MIT-0001",doc:"Admission Form",      action:"Verified",    notes:"Clear and complete."},
-  {time:"2026-02-21 10:35",admin:"Marwina Admin",appId:"MIT-0001",doc:"Recommendation Letter",action:"Rejected",    notes:"Document is blurry."},
-  {time:"2026-02-20 14:12",admin:"Marwina Admin",appId:"MIT-0002",doc:"All Documents",        action:"Verified",    notes:"All documents passed."},
-  {time:"2026-02-19 09:00",admin:"Marwina Admin",appId:"MIT-0003",doc:"Recommendation",       action:"Rejected",    notes:"Signature missing."},
-  {time:"2026-02-18 11:20",admin:"Marwina Admin",appId:"MIT-0004",doc:"Application",          action:"Incomplete",  notes:"Missing transcript."},
-  {time:"2026-02-17 16:45",admin:"Marwina Admin",appId:"MIT-0003",doc:"Transcript",           action:"Resubmission",notes:"Requested clearer copy."},
-];
-
-let selectedApp=null, rejectTargetIdx=null, toastTimer=null;
-
-/* ═══ NAV ═══ */
-function switchPage(pageId,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+pageId).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  if(el) el.classList.add('active');
-  if(pageId==='documents') renderTable();
-  if(pageId==='students')  renderStudents();
-  if(pageId==='history')   renderHistory();
-  if(pageId==='dashboard') renderDashboard();
-  lucide.createIcons();
+// Initialize data from contextData when page loads
+function initializeData() {
+  if(typeof contextData !== 'undefined') {
+    applications = contextData.allApplications || [];
+    activityLog = contextData.allActivities || [];
+    console.log('Data initialized. Applications count:', applications.length);
+    console.log('Applications data:', applications);
+  } else {
+    console.warn('contextData is not defined!');
+  }
 }
 
-/* ═══ HELPERS ═══ */
-function docSummary(docs){
+// Initialize on page load
+if(document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeData);
+} else {
+  initializeData();
+}
+
+// Document status summary function
+function getDocStatus(docs){
   const v=docs.filter(d=>d.status==="Verified").length;
   const p=docs.filter(d=>d.status==="Pending Review"||d.status==="Under Review").length;
   const r=docs.filter(d=>d.status==="Rejected").length;
@@ -68,9 +38,14 @@ function docSummary(docs){
   return h||`<span class="text-gray-400 text-xs">No docs</span>`;
 }
 function statusBadge(s){
+  const normalized = s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
+  const full = {
+    "Pending review":"Pending Review",
+    "Under review":"Under Review"
+  }[normalized] || normalized;
   const m={"Pending Review":"badge-pending","Under Review":"badge-review","Verified":"badge-verified","Incomplete":"badge-incomplete","Rejected":"badge-rejected"};
   const ic={"Pending Review":"⏳","Under Review":"🔄","Verified":"✅","Incomplete":"⚠️","Rejected":"❌"};
-  return `<span class="status-badge ${m[s]||'badge-review'}">${ic[s]||''}${s}</span>`;
+  return `<span class="status-badge ${m[full]||'badge-review'}">${ic[full]||''}${full}</span>`;
 }
 function initials(n){return n.split(" ").filter((_,i,a)=>i===0||i===a.length-1).map(x=>x[0]).join("").toUpperCase();}
 function avatarBg(n){const c=["bg-red-200 text-red-800","bg-blue-200 text-blue-800","bg-green-200 text-green-800","bg-purple-200 text-purple-800","bg-yellow-200 text-yellow-800"];return c[n.charCodeAt(0)%c.length];}
@@ -87,33 +62,67 @@ function showToast(msg,type="success"){
   toastTimer=setTimeout(()=>t.classList.add("hidden"),3200);
 }
 
+/* ═══ NAV ═══ */
+function switchPage(pageId,el){
+  // Ensure data is initialized from context
+  initializeData();
+  
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+pageId).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(pageId==='documents') renderTable();
+  if(pageId==='students')  renderStudents();
+  if(pageId==='history')   renderHistory();
+  if(pageId==='dashboard') renderDashboard();
+  lucide.createIcons();
+}
+
 /* ═══ DASHBOARD ═══ */
 function renderDashboard(){
-  const list=document.getElementById("dashRecentList");
-  if(!list) return;
-  list.innerHTML=applications.slice(0,4).map(a=>`
-    <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition cursor-pointer" onclick="switchPage('documents',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>openModal('${a.id}'),120)">
-      <div class="w-9 h-9 rounded-full ${avatarBg(a.name)} flex items-center justify-center font-bold text-sm flex-shrink-0">${initials(a.name)}</div>
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold text-gray-800 truncate">${a.name}</p>
-        <p class="text-xs text-gray-400">${a.course} · ${a.id}</p>
+  // Render Recent Applications
+  const recentAppsContainer = document.getElementById('dashRecentList');
+  if(recentAppsContainer && contextData.recentApplications) {
+    recentAppsContainer.innerHTML = contextData.recentApplications.map(app => `
+      <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition border-b border-gray-100 last:border-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full ${avatarBg(app.name)} flex items-center justify-center text-sm font-bold">${initials(app.name)}</div>
+          <div>
+            <p class="font-semibold text-gray-800 text-sm">${app.name}</p>
+            <p class="text-xs text-gray-400">${app.id}</p>
+          </div>
+        </div>
+        ${statusBadge(app.status)}
       </div>
-      ${statusBadge(a.status)}
-    </div>`).join("");
-
-  const prog=document.getElementById("dashProgress");
-  const total=applications.length||1;
-  const stats=[
-    {label:"Verified",   count:applications.filter(a=>a.status==="Verified").length,   color:"bg-green-400"},
-    {label:"Under Review",count:applications.filter(a=>a.status==="Under Review").length,color:"bg-yellow-400"},
-    {label:"Pending",    count:applications.filter(a=>a.status==="Pending Review").length,color:"bg-orange-400"},
-    {label:"Incomplete", count:applications.filter(a=>a.status==="Incomplete").length,  color:"bg-red-400"},
-  ];
-  prog.innerHTML=stats.map(s=>`
-    <div>
-      <div class="flex justify-between text-xs mb-1"><span class="text-gray-500">${s.label}</span><span class="font-semibold text-gray-700">${Math.round(s.count/total*100)}%</span></div>
-      <div class="prog-bar"><div class="prog-fill ${s.color}" style="width:${Math.round(s.count/total*100)}%"></div></div>
-    </div>`).join("");
+    `).join('');
+  }
+  
+  // Render Verification Progress
+  const verificationContainer = document.getElementById('dashProgress');
+  if(verificationContainer && contextData.verificationProgress) {
+    const vp = contextData.verificationProgress;
+    const items = [
+      {name:'Verified',    count:vp.verified||0,  color:'#22c55e'},
+      {name:'Under Review',count:vp.reviewing||0, color:'#eab308'},
+      {name:'Pending',     count:vp.pending||0,   color:'#f97316'},
+      {name:'Rejected',    count:vp.rejected||0,  color:'#ef4444'}
+    ];
+    const total = items.reduce((s,i)=>s+i.count,0)||1;
+    verificationContainer.innerHTML = items.map(item=>{
+      const pct = Math.round((item.count/total)*100);
+      return `
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <p class="text-xs text-gray-600 font-medium">${item.name}</p>
+            <p class="text-xs font-semibold text-gray-800">${pct}%</p>
+          </div>
+          <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div style="width:${pct}%;background:${item.color}" class="h-full rounded-full transition"></div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+  
   lucide.createIcons();
 }
 
@@ -135,9 +144,9 @@ function renderTable(){
           <td class="px-5 py-4 text-red-700 font-semibold text-sm">${app.id}</td>
           <td class="px-4 py-4"><p class="font-semibold text-gray-800 text-sm">${app.name}</p><p class="text-xs text-gray-400">${app.email}</p><p class="text-xs text-gray-400">${app.mobile}</p></td>
           <td class="px-4 py-4 text-sm text-gray-700">${app.course}</td>
-          <td class="px-4 py-4"><div class="flex flex-col gap-0.5 text-xs text-gray-600">${docSummary(app.docs)}</div></td>
+          <td class="px-4 py-4"><div class="flex flex-col gap-0.5 text-xs text-gray-600">${getDocStatus(app.docs)}</div></td>
           <td class="px-4 py-4">${statusBadge(app.status)}</td>
-          <td class="px-4 py-4 text-xs text-gray-400">${app.lastActivity}</td>
+          <td class="px-4 py-4 text-xs text-gray-400">${app.last_activity}</td>
           <td class="px-4 py-4">
             <div class="flex items-center gap-2">
               <button onclick="openModal('${app.id}')" class="flex items-center gap-1.5 bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-700 transition"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Review</button>
@@ -151,13 +160,13 @@ function renderTable(){
   lucide.createIcons();
 }
 function updateCounts(){
+  const s = applications.map(a=>(a.status||'').toLowerCase());
   document.getElementById("totalCount").innerText     =applications.length;
-  document.getElementById("pendingCount").innerText   =applications.filter(a=>a.status==="Pending Review").length;
-  document.getElementById("reviewCount").innerText    =applications.filter(a=>a.status==="Under Review").length;
-  document.getElementById("verifiedCount").innerText  =applications.filter(a=>a.status==="Verified").length;
-  document.getElementById("incompleteCount").innerText=applications.filter(a=>a.status==="Incomplete").length;
+  document.getElementById("pendingCount").innerText   =s.filter(x=>x==="pending review").length;
+  document.getElementById("reviewCount").innerText    =s.filter(x=>x==="under review").length;
+  document.getElementById("verifiedCount").innerText  =s.filter(x=>x==="verified").length;
+  document.getElementById("incompleteCount").innerText=s.filter(x=>x==="incomplete").length;
 }
-
 /* ═══ STUDENTS ═══ */
 function renderStudents(){
   const grid=document.getElementById("studentGrid");
@@ -186,7 +195,7 @@ function renderStudents(){
       <div class="space-y-1.5 text-xs text-gray-500 mb-4">
         <p class="flex items-center gap-2"><i data-lucide="mail" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>${app.email}</p>
         <p class="flex items-center gap-2"><i data-lucide="phone" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>${app.mobile}</p>
-        <p class="flex items-center gap-2"><i data-lucide="calendar" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>Submitted: ${app.submissionDate}</p>
+        <p class="flex items-center gap-2"><i data-lucide="calendar" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>Submitted: ${app.submission_date}</p>
       </div>
       <div class="border-t border-gray-100 pt-3 flex items-center justify-between">
         ${statusBadge(app.status)}
@@ -224,25 +233,51 @@ function renderHistory(){
 
 /* ═══ REVIEW MODAL ═══ */
 function openModal(id){
+  console.log('openModal called with id:', id);
+  console.log('Current applications array:', applications);
   selectedApp=applications.find(a=>a.id===id);
-  if(!selectedApp) return;
+  console.log('Selected app:', selectedApp);
+  if(!selectedApp) {
+    console.error('Application not found with id:', id);
+    alert('Error: Could not find application with ID ' + id);
+    return;
+  }
   document.getElementById("modalID").innerText =selectedApp.id;
   document.getElementById("mName").innerText   =selectedApp.name;
   document.getElementById("mEmail").innerText  =selectedApp.email;
   document.getElementById("mCourse").innerText =selectedApp.course;
   document.getElementById("mMobile").innerText =selectedApp.mobile;
   document.getElementById("mAppID").innerText  =selectedApp.id;
-  document.getElementById("mDate").innerText   =selectedApp.submissionDate;
+  document.getElementById("mDate").innerText   =selectedApp.submission_date;
   document.getElementById("lastUpdated").innerText="Last updated: "+new Date().toISOString().split("T")[0];
   document.getElementById("remarks").value     =selectedApp.remarks||"";
   renderDocCards();
-  document.getElementById("modal").classList.add("open");
+  const modal = document.getElementById("modal");
+  if(modal) {
+    modal.classList.add("open");
+    modal.style.display = "flex";
+    console.log('Modal opened successfully');
+  } else {
+    console.error('Modal element not found');
+  }
 }
-function closeModal(){document.getElementById("modal").classList.remove("open");}
+function closeModal(){
+  const modal = document.getElementById("modal");
+  if(modal) {
+    modal.classList.remove("open");
+    modal.style.display = "none";
+  }
+}
 
 function renderDocCards(){
   const container=document.getElementById("docCards");
   container.innerHTML="";
+  
+  // If no docs array in data, just leave empty (don't alter design)
+  if(!selectedApp.docs || selectedApp.docs.length === 0) {
+    return;
+  }
+  
   selectedApp.docs.forEach((doc,idx)=>{
     const isV=doc.status==="Verified",isR=doc.status==="Rejected";
     const border=isV?"border-green-200":isR?"border-red-200":"border-orange-200";
@@ -268,20 +303,36 @@ function renderDocCards(){
         <p class="text-xs text-gray-500"><span class="font-semibold">Type:</span> ${doc.type}</p>
         <p class="text-xs text-gray-500"><span class="font-semibold">Uploaded:</span> ${doc.uploadDate}</p>
         ${verInfo}${issues}${btns}
-        <button onclick="viewFullDoc('${doc.name}')" class="mt-2 w-full flex items-center justify-center gap-1 border border-gray-200 text-gray-600 text-xs py-1.5 rounded-lg hover:bg-gray-50 transition"><i data-lucide="eye" class="w-3 h-3"></i> View Full</button>
+        <button onclick="viewFullDoc('${doc.fileUrl}', '${doc.name}')" class="mt-2 w-full flex items-center justify-center gap-1 border border-gray-200 text-gray-600 text-xs py-1.5 rounded-lg hover:bg-gray-50 transition"><i data-lucide="eye" class="w-3 h-3"></i> View Full</button>
       </div>`;
   });
   lucide.createIcons();
 }
 
 function verifyDoc(idx){
-  selectedApp.docs[idx].status="Verified";
-  selectedApp.docs[idx].verifiedBy="Marwina Admin";
-  selectedApp.docs[idx].verifiedOn=new Date().toISOString().split("T")[0];
-  selectedApp.docs[idx].issues=[];
-  activityLog.unshift({time:new Date().toLocaleString(),admin:"Marwina Admin",appId:selectedApp.id,doc:selectedApp.docs[idx].name,action:"Verified",notes:"Marked as verified."});
-  showToast("Document marked as Verified");
-  renderDocCards();
+  const doc=selectedApp.docs[idx];
+  fetch('/admin-panel/api/document/verify/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify({
+      application_id: selectedApp.id,
+      document_id: doc.id
+    })
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.success){
+      doc.status="Verified";
+      doc.verifiedBy="Marwina Admin";
+      doc.verifiedOn=new Date().toISOString().split("T")[0];
+      doc.issues=[];
+      showToast(data.message);
+      renderDocCards();
+    } else {
+      showToast('Error: '+data.message,'error');
+    }
+  })
+  .catch(e=>{showToast('Error: '+e.message,'error');});
 }
 function unsetDoc(idx){
   selectedApp.docs[idx].status="Under Review";
@@ -291,7 +342,15 @@ function unsetDoc(idx){
   showToast("Document status reset");
   renderDocCards();
 }
-function viewFullDoc(name){showToast(`Opening "${name}" full view...`);}
+
+function viewFullDoc(fileUrl, docName){
+  if(!fileUrl) {
+    showToast("Document file not available","error");
+    return;
+  }
+  window.open(fileUrl, '_blank');
+  showToast(`Opening \"${docName}\"...`);
+}
 
 /* ═══ REJECT MODAL ═══ */
 function rejectDoc(idx){
@@ -302,10 +361,19 @@ function rejectDoc(idx){
   document.getElementById("rejectError").classList.add("hidden");
   document.querySelectorAll(".chip").forEach(c=>c.classList.remove("selected"));
   if(doc.issues.length) document.querySelectorAll(".chip").forEach(c=>{if(c.dataset.reason===doc.issues[0]) c.classList.add("selected");});
-  document.getElementById("rejectModal").classList.add("open");
+  const rejectModal = document.getElementById("rejectModal");
+  rejectModal.classList.add("open");
+  rejectModal.style.display = "flex";
   lucide.createIcons();
 }
-function closeRejectModal(){document.getElementById("rejectModal").classList.remove("open");rejectTargetIdx=null;}
+function closeRejectModal(){
+  const modal = document.getElementById("rejectModal");
+  if(modal) {
+    modal.classList.remove("open");
+    modal.style.display = "none";
+  }
+  rejectTargetIdx = null;
+}
 function selectChip(el){
   document.querySelectorAll(".chip").forEach(c=>c.classList.remove("selected"));
   el.classList.add("selected");
@@ -315,28 +383,88 @@ function selectChip(el){
 function confirmReject(){
   const reason=document.getElementById("rejectReason").value.trim();
   if(!reason){document.getElementById("rejectError").classList.remove("hidden");return;}
-  selectedApp.docs[rejectTargetIdx].status="Rejected";
-  selectedApp.docs[rejectTargetIdx].issues=[reason];
-  activityLog.unshift({time:new Date().toLocaleString(),admin:"Marwina Admin",appId:selectedApp.id,doc:selectedApp.docs[rejectTargetIdx].name,action:"Rejected",notes:reason.substring(0,50)});
-  showToast("Document rejected: "+reason.substring(0,40)+(reason.length>40?"…":""),"warn");
-  closeRejectModal();
-  renderDocCards();
+  
+  const doc=selectedApp.docs[rejectTargetIdx];
+  fetch('/admin-panel/api/document/reject/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify({
+      application_id: selectedApp.id,
+      document_id: doc.id,
+      reason: reason
+    })
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.success){
+      selectedApp.docs[rejectTargetIdx].status="Rejected";
+      selectedApp.docs[rejectTargetIdx].issues=[reason];
+      showToast("Document rejected: "+reason.substring(0,40)+(reason.length>40?"…":""),"warn");
+      closeRejectModal();
+      renderDocCards();
+    } else {
+      showToast('Error: '+data.message,'error');
+    }
+  })
+  .catch(e=>{showToast('Error: '+e.message,'error');});
 }
 
 /* ═══ MODAL ACTIONS ═══ */
 function markVerified(){
-  selectedApp.remarks=document.getElementById("remarks").value;
-  selectedApp.status="Verified";
-  activityLog.unshift({time:new Date().toLocaleString(),admin:"Marwina Admin",appId:selectedApp.id,doc:"All Documents",action:"Verified",notes:selectedApp.remarks||"Marked as fully verified."});
-  showToast(selectedApp.id+" marked as Verified ✓");
-  closeModal(); renderTable(); renderDashboard();
+  const remarks=document.getElementById("remarks").value;
+  
+  fetch('/admin-panel/api/application/status/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify({
+      application_id: selectedApp.id,
+      status: 'verified',
+      remarks: remarks
+    })
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.success){
+      selectedApp.remarks=remarks;
+      selectedApp.status="Verified";
+      showToast(selectedApp.id+" marked as Verified ✓");
+      closeModal();
+      initializeData();
+      renderTable();
+      renderDashboard();
+    } else {
+      showToast('Error: '+data.message,'error');
+    }
+  })
+  .catch(e=>{showToast('Error: '+e.message,'error');});
 }
 function markIncomplete(){
-  selectedApp.remarks=document.getElementById("remarks").value;
-  selectedApp.status="Incomplete";
-  activityLog.unshift({time:new Date().toLocaleString(),admin:"Marwina Admin",appId:selectedApp.id,doc:"Application",action:"Incomplete",notes:selectedApp.remarks||"Marked as incomplete."});
-  showToast(selectedApp.id+" marked as Incomplete","warn");
-  closeModal(); renderTable(); renderDashboard();
+  const remarks=document.getElementById("remarks").value;
+  
+  fetch('/admin-panel/api/application/status/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify({
+      application_id: selectedApp.id,
+      status: 'incomplete',
+      remarks: remarks
+    })
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.success){
+      selectedApp.remarks=remarks;
+      selectedApp.status="Incomplete";
+      showToast(selectedApp.id+" marked as Incomplete","warn");
+      closeModal();
+      initializeData();
+      renderTable();
+      renderDashboard();
+    } else {
+      showToast('Error: '+data.message,'error');
+    }
+  })
+  .catch(e=>{showToast('Error: '+e.message,'error');});
 }
 function requestResubmission(){
   activityLog.unshift({time:new Date().toLocaleString(),admin:"Marwina Admin",appId:selectedApp?.id||"",doc:"Application",action:"Resubmission",notes:"Resubmission request sent."});
@@ -350,7 +478,7 @@ function deleteApp(id){
 }
 function exportCSV(){
   const rows=[["ID","Name","Course","Status","Last Activity"]];
-  applications.forEach(a=>rows.push([a.id,a.name,a.course,a.status,a.lastActivity]));
+  applications.forEach(a=>rows.push([a.id,a.name,a.course,a.status,a.last_activity]));
   const csv=rows.map(r=>r.join(",")).join("\n");
   const a=document.createElement("a");
   a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
@@ -368,7 +496,10 @@ document.getElementById("searchInput").addEventListener("input",renderTable);
 document.getElementById("statusFilter").addEventListener("change",renderTable);
 
 /* ═══ INIT ═══ */
-renderDashboard();
-renderTable();
-renderStudents();
-renderHistory();
+document.addEventListener('DOMContentLoaded', function() {
+  initializeData();
+  renderDashboard();
+  renderTable();
+  renderStudents();
+  renderHistory();
+});
