@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
 
     "students_app",
+    "admin_app",
 ]
 
 # Authentication Backends

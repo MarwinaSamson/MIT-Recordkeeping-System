@@ -36,13 +36,18 @@ def has_completed_application(user):
 
 def get_user_redirect_url(user):
     """
-    Determine the correct redirect URL for a user based on their application status.
+    Determine the correct redirect URL for a user based on their role and application status.
     
     Logic:
-    - If application submitted (PrivacyConsent.agreed = True) → /student/ (dashboard)
+    - If superuser → /admin-panel/dashboard/ (admin dashboard)
+    - Else if application submitted (PrivacyConsent.agreed = True) → /student/ (dashboard)
     - Else if has any data (partial) → /personalDetails/ (continue forms)
     - Else → /personalDetails/ (start forms)
     """
+    # Admin users always go to admin dashboard
+    if user.is_superuser:
+        return "/admin-panel/dashboard/"
+    
     if has_completed_application(user):
         return "/student/"
     
