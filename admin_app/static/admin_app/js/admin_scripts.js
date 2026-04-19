@@ -213,10 +213,17 @@ function renderHistory(){
   const search=(document.getElementById("historySearch")?.value||"").toLowerCase();
   const filter=document.getElementById("historyFilter")?.value||"all";
   let filtered=activityLog.filter(l=>
-    (l.appId.toLowerCase().includes(search)||l.doc.toLowerCase().includes(search)||l.admin.toLowerCase().includes(search))&&
+    (l.appId.toLowerCase().includes(search)||l.doc.toLowerCase().includes(search)||l.admin.toLowerCase().includes(search)||l.action.toLowerCase().includes(search))&&
     (filter==="all"||l.action===filter)
   );
-  const ac={"Verified":"badge-verified","Rejected":"badge-rejected","Incomplete":"badge-incomplete","Resubmission":"badge-pending"};
+  const ac={
+    "Verified Document":"badge-verified",
+    "Rejected Document":"badge-rejected",
+    "Marked Incomplete":"badge-incomplete",
+    "Requested Resubmission":"badge-pending",
+    "Updated Profile":"badge-review",
+    "Changed Profile Photo":"badge-review"
+  };
   tbody.innerHTML=filtered.length
     ? filtered.map(l=>`
         <tr class="border-t border-gray-50 hover:bg-gray-50/70 transition-colors">
@@ -335,12 +342,29 @@ function verifyDoc(idx){
   .catch(e=>{showToast('Error: '+e.message,'error');});
 }
 function unsetDoc(idx){
-  selectedApp.docs[idx].status="Under Review";
-  selectedApp.docs[idx].verifiedBy="";
-  selectedApp.docs[idx].verifiedOn="";
-  selectedApp.docs[idx].issues=[];
-  showToast("Document status reset");
-  renderDocCards();
+  const doc=selectedApp.docs[idx];
+  fetch('/admin-panel/api/document/reset/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify({
+      application_id: selectedApp.id,
+      document_id: doc.id
+    })
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.success){
+      doc.status="Under Review";
+      doc.verifiedBy="";
+      doc.verifiedOn="";
+      doc.issues=[];
+      showToast(data.message);
+      renderDocCards();
+    } else {
+      showToast('Error: '+data.message,'error');
+    }
+  })
+  .catch(e=>{showToast('Error: '+e.message,'error');});
 }
 
 function viewFullDoc(fileUrl, docName){
@@ -502,4 +526,187 @@ document.addEventListener('DOMContentLoaded', function() {
   renderTable();
   renderStudents();
   renderHistory();
+});
+
+/* ═══ EDIT PROFILE MODAL ═══ */
+function openEditProfileModal() {
+  // Populate form with current user data
+  const adminName = document.querySelector('h3.font-bold.text-gray-800.text-base').innerText;
+  const adminEmail = document.querySelector('p.text-xs.text-gray-400:last-of-type').innerText;
+  
+  // Split name into first and last name
+  const nameParts = adminName.trim().split(' ');
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+  
+  document.getElementById('editFirstName').value = firstName;
+  document.getElementById('editLastName').value = lastName;
+  document.getElementById('editEmail').value = adminEmail;
+  
+  // Clear error messages
+  document.getElementById('editProfileError').classList.add('hidden');
+  document.getElementById('firstNameError').classList.add('hidden');
+  document.getElementById('lastNameError').classList.add('hidden');
+  document.getElementById('emailError').classList.add('hidden');
+  
+  // Show modal
+  document.getElementById('editProfileModal').classList.add('open');
+  document.getElementById('editProfileModal').style.display = 'flex';
+}
+
+function closeEditProfileModal() {
+  document.getElementById('editProfileModal').classList.remove('open');
+  document.getElementById('editProfileModal').style.display = 'none';
+}
+
+function handleEditProfile(event) {
+  event.preventDefault();
+  
+  const firstName = document.getElementById('editFirstName').value.trim();
+  const lastName = document.getElementById('editLastName').value.trim();
+  const email = document.getElementById('editEmail').value.trim();
+  
+  // Clear previous errors
+  document.getElementById('editProfileError').classList.add('hidden');
+  document.getElementById('firstNameError').classList.add('hidden');
+  document.getElementById('lastNameError').classList.add('hidden');
+  document.getElementById('emailError').classList.add('hidden');
+  
+  // Validate inputs
+  let hasError = false;
+  if (!firstName) {
+    document.getElementById('firstNameError').innerText = 'First name is required';
+    document.getElementById('firstNameError').classList.remove('hidden');
+    hasError = true;
+  }
+  if (!lastName) {
+    document.getElementById('lastNameError').innerText = 'Last name is required';
+    document.getElementById('lastNameError').classList.remove('hidden');
+    hasError = true;
+  }
+  if (!email) {
+    document.getElementById('emailError').innerText = 'Email is required';
+    document.getElementById('emailError').classList.remove('hidden');
+    hasError = true;
+  }
+  
+  if (hasError) return;
+  
+  // Disable submit button during request
+  const submitBtn = document.getElementById('saveProfileBtn');
+  submitBtn.disabled = true;
+  submitBtn.innerText = 'Saving...';
+  
+  // Send update request
+  fetch('/admin-panel/api/admin/profile/update/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCSRFToken()
+    },
+    body: JSON.stringify({
+      first_name: firstName,
+      last_name: lastName,
+      email: email
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showToast('Profile updated successfully!', 'success');
+      closeEditProfileModal();
+      // You might want to refresh the page or update the UI here
+      location.reload();
+    } else {
+      document.getElementById('editProfileError').innerText = data.message;
+      document.getElementById('editProfileError').classList.remove('hidden');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    document.getElementById('editProfileError').innerText = 'An error occurred. Please try again.';
+    document.getElementById('editProfileError').classList.remove('hidden');
+  })
+  .finally(() => {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Save Changes';
+    lucide.createIcons();
+  });
+}
+
+/* ═══ PHOTO UPLOAD ═══ */
+function triggerPhotoUpload() {
+  document.getElementById('photoFileInput').click();
+}
+
+function handlePhotoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  // Validate file type
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  if (!allowedTypes.includes(file.type)) {
+    showToast('Only JPG, PNG, and WEBP images are allowed', 'warn');
+    return;
+  }
+  
+  // Validate file size (5MB)
+  const maxSize = 5 * 1024 * 1024;
+  if (file.size > maxSize) {
+    showToast('File size must not exceed 5MB', 'warn');
+    return;
+  }
+  
+  // Create FormData for file upload
+  const formData = new FormData();
+  formData.append('photo', file);
+  
+  // Show uploading toast
+  showToast('Uploading photo...', 'success');
+  
+  // Send upload request
+  fetch('/admin-panel/api/admin/photo/upload/', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCSRFToken()
+    },
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showToast('Profile photo updated successfully!', 'success');
+      // Update the avatar image with the new photo URL
+      const avatarDiv = document.getElementById('adminAvatar');
+      if (avatarDiv && data.data && data.data.photo_url) {
+        // Clear the background color and add the image
+        avatarDiv.classList.remove('bg-red-800');
+        avatarDiv.innerHTML = `<img src="${data.data.photo_url}?t=${new Date().getTime()}" class="w-full h-full object-cover rounded-full" alt="Profile Photo">`;
+      }
+      // Reload page after short delay to update activity history
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      showToast('Error: ' + data.message, 'warn');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showToast('Error uploading photo. Please try again.', 'warn');
+  })
+  .finally(() => {
+    // Reset the file input
+    event.target.value = '';
+  });
+}
+
+// Handle backdrop close for edit profile modal
+document.addEventListener('DOMContentLoaded', () => {
+  const editProfileModal = document.getElementById('editProfileModal');
+  if (editProfileModal) {
+    editProfileModal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeEditProfileModal();
+      }
+    });
+  }
 });

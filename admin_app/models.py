@@ -108,10 +108,12 @@ class AdminActivityLog(models.Model):
         ('resubmit', 'Requested Resubmission'),
         ('note', 'Added Note'),
         ('comment', 'Added Comment'),
+        ('profile_updated', 'Updated Profile'),
+        ('photo_updated', 'Changed Profile Photo'),
     ]
     
     admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='admin_activities')
-    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='activity_logs')
+    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='activity_logs', null=True, blank=True)
     document = models.ForeignKey(Document, on_delete=models.SET_NULL, null=True, blank=True)
     action = models.CharField(max_length=20, choices=ACTION_CHOICES)
     notes = models.TextField(blank=True)
@@ -123,4 +125,21 @@ class AdminActivityLog(models.Model):
         verbose_name_plural = 'Admin Activity Logs'
 
     def __str__(self):
-        return f"{self.admin.username if self.admin else 'Unknown'} - {self.action} on {self.application.application_id}"
+        return f"{self.admin.username if self.admin else 'Unknown'} - {self.action} on {self.application.application_id if self.application else 'Profile'}"
+
+
+class AdminProfile(models.Model):
+    """
+    Stores additional admin profile information including profile picture.
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='admin_profile')
+    profile_picture = models.ImageField(upload_to='admin_profiles/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Admin Profile'
+        verbose_name_plural = 'Admin Profiles'
+
+    def __str__(self):
+        return f"Profile for {self.user.get_full_name() or self.user.username}"

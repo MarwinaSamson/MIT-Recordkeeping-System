@@ -7,7 +7,7 @@ from ..utils import (
     get_verification_progress,
     get_activity_log,
 )
-from ..models import Application, DocumentVerification
+from ..models import Application, DocumentVerification, AdminProfile
 from students_app.models import Document
 
 
@@ -79,10 +79,20 @@ def admin_dashboard(request):
     # Get all activities for activity history section
     all_activities = get_activity_log(limit=100)
     
+    # Get admin profile picture
+    admin_profile_picture = None
+    try:
+        admin_profile = AdminProfile.objects.get(user=request.user)
+        if admin_profile.profile_picture:
+            admin_profile_picture = admin_profile.profile_picture.url
+    except AdminProfile.DoesNotExist:
+        pass
+    
     context = {
         'page_title': 'Admin Dashboard',
         'admin_name': request.user.get_full_name() or request.user.username,
         'admin_email': request.user.email,
+        'admin_profile_picture': admin_profile_picture,
         # Dashboard statistics
         'summary': get_applications_summary(),
         'recent_applications': get_recent_applications(limit=5),
