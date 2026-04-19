@@ -29,6 +29,7 @@ class Application(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     submission_date = models.DateTimeField(auto_now_add=True)
     last_activity = models.DateTimeField(auto_now=True)
+    submission_deadline = models.DateField(null=True, blank=True, help_text="Document submission deadline")
     remarks = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

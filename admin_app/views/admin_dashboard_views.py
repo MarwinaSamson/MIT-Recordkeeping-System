@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth import logout
 from django.http import HttpResponseForbidden
 from ..utils import (
     get_applications_summary,
@@ -103,3 +104,13 @@ def admin_dashboard(request):
         'all_activities': all_activities,
     }
     return render(request, 'admin_app/admin_dashboard.html', context)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+def logout_admin(request):
+    """
+    Logout the admin user and redirect to login page.
+    """
+    logout(request)
+    return redirect('login')

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import admin_dashboard
+from .views import admin_dashboard, logout_admin
 from .views.api_views import (
     verify_document,
     reject_document,
@@ -15,6 +15,7 @@ app_name = 'admin_app'
 urlpatterns = [
     # Main dashboard view
     path('dashboard/', admin_dashboard, name='dashboard'),
+    path('logout/', logout_admin, name='logout'),
     
     # API endpoints for AJAX requests
     path('api/document/verify/', verify_document, name='api_verify_document'),

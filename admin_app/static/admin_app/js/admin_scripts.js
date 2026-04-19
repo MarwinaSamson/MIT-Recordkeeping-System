@@ -509,7 +509,12 @@ function exportCSV(){
   a.download="applications.csv"; a.click();
   showToast("CSV exported");
 }
-function handleLogout(){if(confirm("Log out of the admin panel?")) showToast("Logged out successfully");}
+function handleLogout(){
+  if(confirm("Log out of the admin panel?")) {
+    // Redirect to logout endpoint
+    window.location.href = '/admin-panel/logout/';
+  }
+}
 
 /* ═══ BACKDROP CLOSE ═══ */
 document.getElementById("modal").addEventListener("click",function(e){if(e.target===this) closeModal();});

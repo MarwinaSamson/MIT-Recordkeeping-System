@@ -136,3 +136,35 @@ class Document(models.Model):
         super().save(*args, **kwargs)
 
 
+class Notification(models.Model):
+    """
+    Stores notifications for students about document verification status changes.
+    """
+    NOTIFICATION_TYPE_CHOICES = [
+        ('document_verified', 'Document Verified'),
+        ('document_rejected', 'Document Rejected'),
+        ('document_reviewing', 'Document Under Review'),
+        ('application_status', 'Application Status Changed'),
+        ('deadline_reminder', 'Submission Deadline Reminder'),
+        ('general', 'General Notification'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    notification_type = models.CharField(max_length=30, choices=NOTIFICATION_TYPE_CHOICES)
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = 'Notifications'
+    
+    def __str__(self):
+        return f"{self.title} - {self.user.email}"
+    
+    def mark_as_read(self):
+        self.is_read = True
+        self.save()
+

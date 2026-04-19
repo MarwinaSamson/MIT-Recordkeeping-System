@@ -177,9 +177,7 @@
           <div>
             <div class="banner-eyebrow">MIT Student Portal</div>
             <h1 id="welcomeName">
-              Good morning, {{
-              personal_details.first_name|default:student.first_name|default:full_name
-              }}!
+              Good morning, {{ full_name|default:"Student" }}!
             </h1>
             <p>
               Track your document submissions, monitor review statuses, and keep
@@ -189,15 +187,16 @@
               <span class="banner-chip"
                 ><i class="fas fa-id-card"></i>ID:
                 <span id="bannerID"
-                  >MIT-{{ student.id|stringformat:"06d" }}</span
+                  >{{ application.application_id|default:"MIT-000005" }}</span
                 ></span
               >
-              <span class="banner-chip"
+              <span class="banner-chip" id="statusChip"
                 ><i
                   class="fas fa-circle"
                   style="font-size: 0.5rem; color: var(--green)"
                 ></i
-                >Status: Active</span
+                >Status: {{ application.get_status_display|default:"Pending"
+                }}</span
               >
             </div>
           </div>
@@ -242,7 +241,9 @@
               <i class="fas fa-check-circle" style="color: var(--green)"></i>
             </div>
             <div>
-              <div class="stat-value" id="statApproved">1</div>
+              <div class="stat-value" id="statApproved">
+                {{ verified_documents }}
+              </div>
               <div class="stat-label">Approved</div>
             </div>
           </div>
@@ -251,7 +252,9 @@
               <i class="fas fa-search" style="color: var(--blue)"></i>
             </div>
             <div>
-              <div class="stat-value" id="statReview">1</div>
+              <div class="stat-value" id="statReview">
+                {{ reviewing_documents }}
+              </div>
               <div class="stat-label">Under Review</div>
             </div>
           </div>
@@ -365,7 +368,7 @@
                 </div>
                 <div>
                   <div class="date-label">Document Submission Deadline</div>
-                  <div class="date-val">March 15, 2026</div>
+                  <div class="date-val">{{ submission_deadline }}</div>
                 </div>
               </div>
               <div class="date-row">
@@ -799,14 +802,24 @@
       <div class="doc-preview-panel">
         <div class="doc-preview-header">
           <h3 id="docPreviewTitle">Document preview</h3>
-          <button class="doc-preview-close" onclick="closeDocPreview()">×</button>
+          <button class="doc-preview-close" onclick="closeDocPreview()">
+            ×
+          </button>
         </div>
         <div class="doc-preview-body">
           <iframe id="docPreviewFrame" class="doc-preview-frame"></iframe>
-          <img id="docPreviewImage" class="doc-preview-img" alt="Document preview" />
+          <img
+            id="docPreviewImage"
+            class="doc-preview-img"
+            alt="Document preview"
+          />
           <div id="docPreviewFallback" class="doc-preview-fallback">
             <p>Preview is not available for this document type.</p>
-            <p><a id="docPreviewDownloadLink" href="#" target="_blank">Open file in a new tab</a></p>
+            <p>
+              <a id="docPreviewDownloadLink" href="#" target="_blank"
+                >Open file in a new tab</a
+              >
+            </p>
           </div>
         </div>
       </div>

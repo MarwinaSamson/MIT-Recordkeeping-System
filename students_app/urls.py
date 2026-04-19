@@ -12,6 +12,13 @@ from .views.privacynotice_views import privacy_notice
 from .views.reviews_views import review
 from .views.student_views import student
 from .views.login_views import logout_view
+from .views.api_views import (
+    get_document_status, 
+    get_document_details,
+    get_notifications,
+    mark_notification_read,
+    mark_all_notifications_read
+)
 
 
 urlpatterns = [
@@ -27,4 +34,9 @@ urlpatterns = [
     path("review/", review, name="review"),
     path("student/", student, name="student"),
     path("logout/", logout_view, name="logout"),
+    path("api/document-status/", get_document_status, name="document_status_api"),
+    path("api/document-details/", get_document_details, name="document_details_api"),
+    path("api/student-notifications/", get_notifications, name="student_notifications_api"),
+    path("api/notifications/read/", mark_notification_read, name="mark_notification_read_api"),
+    path("api/notifications/read-all/", mark_all_notifications_read, name="mark_all_notifications_read_api"),
 ]
