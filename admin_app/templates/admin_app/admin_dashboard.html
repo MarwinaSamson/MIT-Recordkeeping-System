@@ -1180,16 +1180,14 @@
     <script>
       // Get CSRF token from DOM
       function getCSRFToken() {
-        const name = "csrftoken";
+        const name = 'csrftoken';
         let cookieValue = null;
-        if (document.cookie && document.cookie !== "") {
-          const cookies = document.cookie.split(";");
+        if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
           for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === name + "=") {
-              cookieValue = decodeURIComponent(
-                cookie.substring(name.length + 1),
-              );
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
               break;
             }
           }
@@ -1199,106 +1197,53 @@
 
       // Pass Django context data to JavaScript
       const contextData = {
-        recentApplications: JSON.parse("{{ recent_applications|safe }}") || [],
-        allApplications: JSON.parse("{{ all_applications|safe }}") || [],
-        verificationProgress:
-          JSON.parse("{{ verification_progress|safe }}") || {},
-        allActivities: JSON.parse("{{ all_activities|safe }}") || [],
-        adminName: "{{ admin_name }}",
+        recentApplications: {{ recent_applications|safe }},
+        allApplications: {{ all_applications|safe }},
+        verificationProgress: {{ verification_progress|safe }},
+        allActivities: {{ all_activities|safe }},
+        adminName: "{{ admin_name }}"
       };
-
-      // Log data initialization
-      console.log("contextData initialized:", contextData);
-      console.log(
-        "Applications count:",
-        contextData.allApplications?.length || 0,
-      );
 
       // Status badge colors and icons
       const statusConfig = {
-        pending: {
-          color: "bg-yellow-50 border-yellow-200",
-          textColor: "text-yellow-700",
-          icon: "hourglass",
-          label: "Pending",
-        },
-        reviewing: {
-          color: "bg-blue-50 border-blue-200",
-          textColor: "text-blue-700",
-          icon: "eye",
-          label: "Under Review",
-        },
-        verified: {
-          color: "bg-green-50 border-green-200",
-          textColor: "text-green-700",
-          icon: "check-circle",
-          label: "Verified",
-        },
-        incomplete: {
-          color: "bg-red-50 border-red-200",
-          textColor: "text-red-700",
-          icon: "alert-circle",
-          label: "Incomplete",
-        },
-        rejected: {
-          color: "bg-red-50 border-red-200",
-          textColor: "text-red-700",
-          icon: "x-circle",
-          label: "Rejected",
-        },
+        'pending': { color: 'bg-yellow-50 border-yellow-200', textColor: 'text-yellow-700', icon: 'hourglass', label: 'Pending' },
+        'reviewing': { color: 'bg-blue-50 border-blue-200', textColor: 'text-blue-700', icon: 'eye', label: 'Under Review' },
+        'verified': { color: 'bg-green-50 border-green-200', textColor: 'text-green-700', icon: 'check-circle', label: 'Verified' },
+        'incomplete': { color: 'bg-red-50 border-red-200', textColor: 'text-red-700', icon: 'alert-circle', label: 'Incomplete' },
+        'rejected': { color: 'bg-red-50 border-red-200', textColor: 'text-red-700', icon: 'x-circle', label: 'Rejected' }
       };
 
       // Function to get initials from name
       function getInitials(name) {
-        return name
-          .split(" ")
-          .map((n) => n[0])
-          .join("")
-          .toUpperCase()
-          .slice(0, 2);
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
       }
 
       // Function to get random color for avatar
       function getAvatarColor(name) {
-        const colors = [
-          "bg-purple-100",
-          "bg-yellow-100",
-          "bg-green-100",
-          "bg-blue-100",
-          "bg-pink-100",
-          "bg-indigo-100",
-        ];
-        const hash = name
-          .split("")
-          .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const colors = ['bg-purple-100', 'bg-yellow-100', 'bg-green-100', 'bg-blue-100', 'bg-pink-100', 'bg-indigo-100'];
+        const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         return colors[hash % colors.length];
       }
 
       // Initialize recent applications
       function initializeRecentApplications() {
-        const container = document.getElementById("dashRecentList");
-        if (
-          !container ||
-          !contextData.recentApplications ||
-          contextData.recentApplications.length === 0
-        )
-          return;
+        const container = document.getElementById('dashRecentList');
+        if (!container || !contextData.recentApplications || contextData.recentApplications.length === 0) return;
 
-        container.innerHTML = contextData.recentApplications
-          .map((app) => {
-            const status = statusConfig[app.status] || statusConfig["pending"];
-            const initials = getInitials(app.name || "N/A");
-            const avatarColor = getAvatarColor(app.name || "N/A");
+        container.innerHTML = contextData.recentApplications.map(app => {
+          const status = statusConfig[app.status] || statusConfig['pending'];
+          const initials = getInitials(app.name || 'N/A');
+          const avatarColor = getAvatarColor(app.name || 'N/A');
 
-            return `
+          return `
             <div class="flex items-center justify-between p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition cursor-pointer" onclick="openApplicationDetail('${app.id}')">
               <div class="flex items-center gap-3 flex-1">
                 <div class="w-10 h-10 rounded-full ${avatarColor} flex items-center justify-center text-xs font-bold text-gray-600 flex-shrink-0">
                   ${initials}
                 </div>
                 <div class="min-w-0 flex-1">
-                  <p class="text-sm font-semibold text-gray-800 truncate">${app.name || "N/A"}</p>
-                  <p class="text-xs text-gray-400">${app.id || "N/A"}</p>
+                  <p class="text-sm font-semibold text-gray-800 truncate">${app.name || 'N/A'}</p>
+                  <p class="text-xs text-gray-400">${app.id || 'N/A'}</p>
                 </div>
               </div>
               <div class="px-2.5 py-1 border ${status.color} rounded-full">
@@ -1306,45 +1251,27 @@
               </div>
             </div>
           `;
-          })
-          .join("");
+        }).join('');
       }
 
       // Initialize verification progress
       function initializeVerificationProgress() {
-        const container = document.getElementById("dashProgress");
+        const container = document.getElementById('dashProgress');
         if (!container || !contextData.verificationProgress) return;
 
         const data = contextData.verificationProgress;
-        const total =
-          (data.verified || 0) +
-            (data.reviewing || 0) +
-            (data.pending || 0) +
-            (data.rejected || 0) || 1;
+        const total = (data.verified || 0) + (data.reviewing || 0) + (data.pending || 0) + (data.rejected || 0) || 1;
 
         const items = [
-          {
-            label: "Verified",
-            count: data.verified || 0,
-            color: "bg-green-500",
-          },
-          {
-            label: "Under Review",
-            count: data.reviewing || 0,
-            color: "bg-yellow-500",
-          },
-          {
-            label: "Pending",
-            count: data.pending || 0,
-            color: "bg-orange-500",
-          },
-          { label: "Rejected", count: data.rejected || 0, color: "bg-red-500" },
+          { label: 'Verified', count: data.verified || 0, color: 'bg-green-500' },
+          { label: 'Under Review', count: data.reviewing || 0, color: 'bg-yellow-500' },
+          { label: 'Pending', count: data.pending || 0, color: 'bg-orange-500' },
+          { label: 'Rejected', count: data.rejected || 0, color: 'bg-red-500' }
         ];
 
-        container.innerHTML = items
-          .map((item) => {
-            const percentage = Math.round((item.count / total) * 100) || 0;
-            return `
+        container.innerHTML = items.map(item => {
+          const percentage = Math.round((item.count / total) * 100) || 0;
+          return `
             <div>
               <div class="flex items-center justify-between mb-1">
                 <p class="text-xs text-gray-600 font-medium">${item.label}</p>
@@ -1355,18 +1282,17 @@
               </div>
             </div>
           `;
-          })
-          .join("");
+        }).join('');
       }
 
       // Function to open application detail (placeholder)
       function openApplicationDetail(appId) {
-        console.log("Opening application: " + appId);
+        console.log('Opening application: ' + appId);
         // This will be connected to your existing modal/detail view
       }
 
       // Initialize on page load
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener('DOMContentLoaded', function() {
         // handled by admin_scripts.js
       });
     </script>
