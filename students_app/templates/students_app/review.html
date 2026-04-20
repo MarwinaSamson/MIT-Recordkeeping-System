@@ -2065,7 +2065,8 @@
           y += 2;
 
           const appNum =
-            JSON.parse(localStorage.getItem("submissionData") || "null")?.applicationId || "MIT-PENDING";
+            JSON.parse(localStorage.getItem("submissionData") || "null")
+              ?.applicationId || "MIT-PENDING";
           doc.setFont("helvetica", "bold");
           doc.setFontSize(11);
           txt(appNum, pageW - margin, y + 12, { align: "right" });
