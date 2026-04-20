@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import logout
 from django.http import HttpResponseForbidden
+from django.core.serializers.json import DjangoJSONEncoder
+import json
 from ..utils import (
     get_applications_summary,
     get_recent_applications,
@@ -89,6 +91,33 @@ def admin_dashboard(request):
     except AdminProfile.DoesNotExist:
         pass
     
+    # Serialize data to JSON strings for template
+    try:
+        all_applications_json = json.dumps(all_applications, cls=DjangoJSONEncoder)
+    except Exception as e:
+        print(f"Error serializing applications: {e}")
+        all_applications_json = json.dumps([])
+    
+    try:
+        all_activities_json = json.dumps(all_activities, cls=DjangoJSONEncoder)
+    except Exception as e:
+        print(f"Error serializing activities: {e}")
+        all_activities_json = json.dumps([])
+    
+    try:
+        recent_applications_list = get_recent_applications(limit=5)
+        recent_applications_json = json.dumps(recent_applications_list, cls=DjangoJSONEncoder)
+    except Exception as e:
+        print(f"Error serializing recent applications: {e}")
+        recent_applications_json = json.dumps([])
+    
+    try:
+        verification_progress_data = get_verification_progress()
+        verification_progress_json = json.dumps(verification_progress_data, cls=DjangoJSONEncoder)
+    except Exception as e:
+        print(f"Error serializing verification progress: {e}")
+        verification_progress_json = json.dumps({})
+    
     context = {
         'page_title': 'Admin Dashboard',
         'admin_name': request.user.get_full_name() or request.user.username,
@@ -96,12 +125,12 @@ def admin_dashboard(request):
         'admin_profile_picture': admin_profile_picture,
         # Dashboard statistics
         'summary': get_applications_summary(),
-        'recent_applications': get_recent_applications(limit=5),
-        'verification_progress': get_verification_progress(),
+        'recent_applications': recent_applications_json,
+        'verification_progress': verification_progress_json,
         'recent_activities': get_activity_log(limit=10),
         # Additional data for other sections (Document Verification, Students, Activity History)
-        'all_applications': all_applications,
-        'all_activities': all_activities,
+        'all_applications': all_applications_json,
+        'all_activities': all_activities_json,
     }
     return render(request, 'admin_app/admin_dashboard.html', context)
 
