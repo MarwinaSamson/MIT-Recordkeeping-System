@@ -17,7 +17,8 @@ from .views.api_views import (
     get_document_details,
     get_notifications,
     mark_notification_read,
-    mark_all_notifications_read
+    mark_all_notifications_read,
+    submit_application,
 )
 
 
@@ -39,4 +40,5 @@ urlpatterns = [
     path("api/student-notifications/", get_notifications, name="student_notifications_api"),
     path("api/notifications/read/", mark_notification_read, name="mark_notification_read_api"),
     path("api/notifications/read-all/", mark_all_notifications_read, name="mark_all_notifications_read_api"),
+    path("api/submit-application/", submit_application, name="submit_application_api"),
 ]

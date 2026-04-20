@@ -47,26 +47,7 @@
         border-color: #a02724;
         box-shadow: 0 4px 6px -1px rgba(160, 39, 36, 0.1);
       }
-    </style>
-  </head>
 
-<<<<<<< Updated upstream
-  <body class="bg-beige min-h-screen">
-    <header class="text-center py-8">
-      <h1 class="text-3xl md:text-4xl font-bold text-brand">Graduate School</h1>
-      <p class="text-lg text-gray-500 mt-1">Admission Form</p>
-    </header>
-    <div class="max-w-4xl mx-auto px-4 mb-8">
-      <div class="flex items-center justify-between" id="progressBar"></div>
-    </div>
-    <div class="max-w-4xl mx-auto px-4 pb-12">
-      <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
-        <h2 class="text-2xl font-bold text-brand mb-6">
-          Review Your Application
-        </h2>
-        <div id="reviewContent" class="space-y-5"></div>
-
-=======
       /* ===== PRINT STYLES - Official WMSU Form Layout ===== */
       @media print {
         * {
@@ -330,7 +311,6 @@
 
         <div id="reviewContent" class="space-y-5"></div>
 
->>>>>>> Stashed changes
         <!-- Digital Signature Confirmation -->
         <div
           id="signatureConfirmation"
@@ -344,8 +324,6 @@
               </p>
               <p class="text-sm text-green-600" id="signatureDetails"></p>
             </div>
-<<<<<<< Updated upstream
-=======
           </div>
         </div>
 
@@ -440,18 +418,18 @@
         Part I. &nbsp;To be filled up by the WMSU admitting official:
       </div>
       <div class="field-line">
-        <span class="field-label">COLLEGE:</span
-        ><span class="field-value" style="min-width: 120px; flex: 2"
+        <span class="field-label">COLLEGE:</span>
+        <span class="field-value" style="min-width: 120px; flex: 2"
           >&nbsp;</span
         >
-        <span class="field-label">SCHOOL YEAR:</span
-        ><span class="field-value" style="max-width: 70px">&nbsp;</span>
-        <span class="field-label">SEMESTER:</span
-        ><span class="field-value" style="max-width: 50px">&nbsp;</span>
+        <span class="field-label">SCHOOL YEAR:</span>
+        <span class="field-value" style="max-width: 70px">&nbsp;</span>
+        <span class="field-label">SEMESTER:</span>
+        <span class="field-value" style="max-width: 50px">&nbsp;</span>
       </div>
       <div class="field-line">
-        <span class="field-label">ACADEMIC PROGRAM:</span
-        ><span class="field-value">&nbsp;</span>
+        <span class="field-label">ACADEMIC PROGRAM:</span>
+        <span class="field-value">&nbsp;</span>
       </div>
       <div class="two-col" style="margin-top: 4px">
         <div>
@@ -477,97 +455,10 @@
             <div class="checkbox-item">
               <input type="checkbox" disabled /> Returning student
             </div>
->>>>>>> Stashed changes
           </div>
         </div>
-
-<<<<<<< Updated upstream
-        <div class="flex justify-between pt-6">
-          <a
-            href="{% url 'privacyNotice' %}"
-            class="inline-flex items-center gap-2 px-8 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand/5 active:scale-[0.98] transition"
-            >← Back</a
-          >
-          <button
-            onclick="submitApplication()"
-            class="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md"
-          >
-            Submit Application
-          </button>
-        </div>
       </div>
-    </div>
 
-    <!-- Confirmation Modal -->
-    <div
-      id="modal"
-      class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-    >
-      <div
-        class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center space-y-4"
-      >
-        <div
-          class="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center"
-        >
-          <svg
-            class="w-10 h-10 text-green-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-        </div>
-        <h3
-          class="text-xl font-bold text-brand"
-          style="font-family: &quot;Merriweather&quot;, serif"
-        >
-          Application Submitted!
-        </h3>
-        <p class="text-gray-500">
-          Your Graduate School Admission Form has been successfully submitted.
-        </p>
-        <button
-          onclick="finishSubmission()"
-          class="w-full px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 transition shadow-md"
-        >
-          Done
-        </button>
-      </div>
-    </div>
-
-    <script>
-      // ===== PROGRESS BAR =====
-      const STEPS = [
-          { label: "Personal Details", page: "/personalDetails/" },
-          { label: "Educational Background", page: "/educationalBackground/" },
-          { label: "Working Student", page: "/workingStudent/" },
-          { label: "Documents Upload", page: "/documents/" },
-          { label: "Privacy Notice", page: "/privacyNotice/" }, 
-          { label: "Review", page: "/review/" },
-        ];
-        const CURRENT_STEP = 6;
-
-        function renderProgress() {
-          const bar = document.getElementById("progressBar");
-          bar.innerHTML = STEPS.map((step, i) => {
-            const n = i + 1;
-            const done = n < CURRENT_STEP;
-            const cur = n === CURRENT_STEP;
-            let cc = "bg-gray-300 text-white";
-            if (done) cc = "bg-green-500 text-white";
-            if (cur) cc = "bg-brand text-white shadow-lg scale-110";
-            const lc = cur ? "text-brand font-bold" : "text-gray-400";
-            const conn = i < STEPS.length - 1
-              ? `<div class="flex-1 h-1 mx-2 rounded ${n < CURRENT_STEP ? "bg-green-500" : "bg-gray-300"}"></div>`
-              : "";
-            return `<div class="flex items-center ${i < STEPS.length - 1 ? "flex-1" : ""}">
-=======
       <div class="divider"></div>
 
       <!-- PART II -->
@@ -579,70 +470,70 @@
       <div class="section-label">Student's Personal Data:</div>
       <div class="two-col">
         <div class="field-line">
-          <span class="field-label">Family name:</span
-          ><span class="field-value" id="pf-ln"></span>
+          <span class="field-label">Family name:</span>
+          <span class="field-value" id="pf-ln"></span>
         </div>
         <div class="field-line">
-          <span class="field-label">Given Name:</span
-          ><span class="field-value" id="pf-fn"></span>
-          <span class="field-label">Middle Name:</span
-          ><span class="field-value" id="pf-mn"></span>
-        </div>
-      </div>
-      <div class="two-col">
-        <div class="field-line">
-          <span class="field-label">Date of Birth:</span
-          ><span class="field-value" id="pf-dob"></span>
-        </div>
-        <div class="field-line">
-          <span class="field-label">Age:</span
-          ><span class="field-value" id="pf-age" style="max-width: 40px"></span>
-          <span class="field-label">Civil Status:</span
-          ><span class="field-value" id="pf-civil"></span>
+          <span class="field-label">Given Name:</span>
+          <span class="field-value" id="pf-fn"></span>
+          <span class="field-label">Middle Name:</span>
+          <span class="field-value" id="pf-mn"></span>
         </div>
       </div>
       <div class="two-col">
         <div class="field-line">
-          <span class="field-label">Place of Birth:</span
-          ><span class="field-value" id="pf-pob"></span>
+          <span class="field-label">Date of Birth:</span>
+          <span class="field-value" id="pf-dob"></span>
         </div>
         <div class="field-line">
-          <span class="field-label">Gender:</span
-          ><span class="field-value" id="pf-gender"></span>
-          <span class="field-label">Religion:</span
-          ><span class="field-value" id="pf-religion"></span>
+          <span class="field-label">Age:</span>
+          <span class="field-value" id="pf-age" style="max-width: 40px"></span>
+          <span class="field-label">Civil Status:</span>
+          <span class="field-value" id="pf-civil"></span>
         </div>
       </div>
       <div class="two-col">
         <div class="field-line">
-          <span class="field-label">Ethnicity / Tribe:</span
-          ><span class="field-value" id="pf-ethnicity"></span>
+          <span class="field-label">Place of Birth:</span>
+          <span class="field-value" id="pf-pob"></span>
         </div>
         <div class="field-line">
-          <span class="field-label">Nationality:</span
-          ><span class="field-value" id="pf-nat"></span>
-          <span class="field-label">Disability (if any):</span
-          ><span class="field-value" id="pf-disability"></span>
+          <span class="field-label">Gender:</span>
+          <span class="field-value" id="pf-gender"></span>
+          <span class="field-label">Religion:</span>
+          <span class="field-value" id="pf-religion"></span>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field-line">
+          <span class="field-label">Ethnicity / Tribe:</span>
+          <span class="field-value" id="pf-ethnicity"></span>
+        </div>
+        <div class="field-line">
+          <span class="field-label">Nationality:</span>
+          <span class="field-value" id="pf-nat"></span>
+          <span class="field-label">Disability (if any):</span>
+          <span class="field-value" id="pf-disability"></span>
         </div>
       </div>
       <div class="field-line">
-        <span class="field-label">Permanent Address:</span
-        ><span class="field-value" id="pf-paddress"></span>
+        <span class="field-label">Permanent Address:</span>
+        <span class="field-value" id="pf-paddress"></span>
       </div>
       <div class="field-line">
         <span class="field-label"
           >Current Address (if different from permanent address):</span
-        ><span class="field-value" id="pf-caddress"></span>
+        >
+        <span class="field-value" id="pf-caddress"></span>
       </div>
-
       <div class="two-col">
         <div class="field-line">
-          <span class="field-label">Telephone/Cellphone No.:</span
-          ><span class="field-value" id="pf-contact"></span>
+          <span class="field-label">Telephone/Cellphone No.:</span>
+          <span class="field-value" id="pf-contact"></span>
         </div>
         <div class="field-line">
-          <span class="field-label">Email address:</span
-          ><span class="field-value" id="pf-email"></span>
+          <span class="field-label">Email address:</span>
+          <span class="field-value" id="pf-email"></span>
         </div>
       </div>
       <div
@@ -654,21 +545,22 @@
           margin: 2px 0;
         "
       >
-        <span class="field-label">Name of Parent or Guardian:</span
-        ><span
+        <span class="field-label">Name of Parent or Guardian:</span>
+        <span
           class="field-value"
           id="pf-parent"
           style="min-width: 80px; flex: 2"
         ></span>
         <span class="field-label" style="white-space: nowrap"
           >Relationship:</span
-        ><span
+        >
+        <span
           class="field-value"
           id="pf-rel"
           style="min-width: 50px; flex: 1"
         ></span>
-        <span class="field-label" style="white-space: nowrap">Income/mo.:</span
-        ><span
+        <span class="field-label" style="white-space: nowrap">Income/mo.:</span>
+        <span
           class="field-value"
           id="pf-pincome"
           style="min-width: 40px; flex: 1; max-width: 55px"
@@ -683,21 +575,22 @@
           margin: 2px 0;
         "
       >
-        <span class="field-label">Name of Spouse (if married):</span
-        ><span
+        <span class="field-label">Name of Spouse (if married):</span>
+        <span
           class="field-value"
           id="pf-spouse"
           style="min-width: 80px; flex: 2"
         ></span>
         <span class="field-label" style="white-space: nowrap"
           >Tel phone/CP No.:</span
-        ><span
+        >
+        <span
           class="field-value"
           id="pf-spcontact"
           style="min-width: 50px; flex: 1"
         ></span>
-        <span class="field-label" style="white-space: nowrap">Income/mo.:</span
-        ><span
+        <span class="field-label" style="white-space: nowrap">Income/mo.:</span>
+        <span
           class="field-value"
           id="pf-spincome"
           style="min-width: 40px; flex: 1; max-width: 55px"
@@ -745,8 +638,8 @@
         </tbody>
       </table>
       <div class="field-line">
-        <span class="field-label">Scholarship (if any):</span
-        ><span class="field-value" id="pf-scholarship"></span>
+        <span class="field-label">Scholarship (if any):</span>
+        <span class="field-value" id="pf-scholarship"></span>
       </div>
 
       <div class="divider"></div>
@@ -755,12 +648,12 @@
       <div class="section-label">For working students only:</div>
       <div class="two-col">
         <div class="field-line">
-          <span class="field-label">Present Position:</span
-          ><span class="field-value" id="pf-position"></span>
+          <span class="field-label">Present Position:</span>
+          <span class="field-value" id="pf-position"></span>
         </div>
         <div class="field-line">
-          <span class="field-label">Income/month:</span
-          ><span class="field-value" id="pf-wsincome"></span>
+          <span class="field-label">Income/month:</span>
+          <span class="field-value" id="pf-wsincome"></span>
         </div>
       </div>
       <div class="field-line">
@@ -792,12 +685,12 @@
         </div>
       </div>
       <div class="field-line">
-        <span class="field-label">Employer:</span
-        ><span class="field-value" id="pf-employer"></span>
+        <span class="field-label">Employer:</span>
+        <span class="field-value" id="pf-employer"></span>
       </div>
       <div class="field-line">
-        <span class="field-label">Employer's address:</span
-        ><span class="field-value" id="pf-empaddress"></span>
+        <span class="field-label">Employer's address:</span>
+        <span class="field-value" id="pf-empaddress"></span>
       </div>
       <div class="field-line">
         <span class="field-label">Employer's classification:</span>
@@ -830,7 +723,7 @@
 
       <div class="divider"></div>
 
-      <!-- SIGNATURE AREA - auto-filled from privacy consent -->
+      <!-- SIGNATURE AREA -->
       <div
         style="
           display: flex;
@@ -841,7 +734,6 @@
         "
       >
         <div style="flex: 2; text-align: center">
-          <!-- Cursive signature rendered from privacy consent name -->
           <div
             id="pf-sig-display"
             style="
@@ -873,7 +765,7 @@
 
       <div class="page-num">Page 1 of 2</div>
 
-      <!-- ===== SEAL IMAGE UPLOAD PANEL (only shown on screen, hidden when printing) ===== -->
+      <!-- ===== SEAL IMAGE UPLOAD PANEL (screen only, hidden when printing) ===== -->
       <div
         id="sealUploadPanel"
         style="
@@ -1029,22 +921,15 @@
               ? `<div class="flex-1 h-1 mx-2 rounded ${n < CURRENT_STEP ? "bg-green-500" : "bg-gray-300"}"></div>`
               : "";
           return `<div class="flex items-center ${i < STEPS.length - 1 ? "flex-1" : ""}">
->>>>>>> Stashed changes
-                <div class="flex flex-col items-center">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${cc}">${done ? "✓" : n}</div>
-                    <span class="text-xs mt-2 text-center hidden sm:block max-w-[80px] ${lc}">${step.label}</span>
-                </div>
-                ${conn}
-            </div>`;
-<<<<<<< Updated upstream
-          }).join("");
-        }
-        renderProgress();
-=======
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${cc}">${done ? "✓" : n}</div>
+              <span class="text-xs mt-2 text-center hidden sm:block max-w-[80px] ${lc}">${step.label}</span>
+            </div>
+            ${conn}
+          </div>`;
         }).join("");
       }
       renderProgress();
->>>>>>> Stashed changes
 
       // ===== LOAD ALL DATA =====
       const personal = JSON.parse(
@@ -1073,16 +958,7 @@
 
       function getFullName() {
         return (
-<<<<<<< Updated upstream
-          [
-            personal.firstName,
-            personal.middleName,
-            personal.lastName,
-            personal.suffix,
-          ]
-=======
           [personal.first_name, personal.middle_name, personal.last_name]
->>>>>>> Stashed changes
             .filter(Boolean)
             .join(" ") || "Not provided"
         );
@@ -1102,37 +978,34 @@
           )
           .map(
             ([label, value]) => `
-                    <div class="border-b border-gray-100 pb-2 last:border-0">
-                        <span class="text-xs text-gray-400 uppercase tracking-wider">${label}</span>
-                        <p class="text-sm font-medium text-gray-800">${value}</p>
-                    </div>
-                `,
+            <div class="border-b border-gray-100 pb-2 last:border-0">
+              <span class="text-xs text-gray-400 uppercase tracking-wider">${label}</span>
+              <p class="text-sm font-medium text-gray-800">${value}</p>
+            </div>
+          `,
           )
           .join("");
 
-<<<<<<< Updated upstream
-        if (!rows) return ""; // Skip empty sections
-=======
         if (!rows) return "";
->>>>>>> Stashed changes
 
         return `
-                <div class="review-section border border-gray-200 rounded-xl p-5 space-y-3 bg-white hover:shadow-md transition-all">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-bold text-brand flex items-center" style="font-family:'Merriweather',serif">
-                            ${iconHtml}${title}
-                        </h3>
-                        <a href="${editPage}" class="text-sm font-semibold text-brand hover:underline flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                            Edit
-                        </a>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
-                        ${rows}
-                    </div>
-                </div>`;
+          <div class="review-section border border-gray-200 rounded-xl p-5 space-y-3 bg-white hover:shadow-md transition-all">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-bold text-brand flex items-center" style="font-family:'Merriweather',serif">
+                ${iconHtml}${title}
+              </h3>
+              <a href="${editPage}" class="text-sm font-semibold text-brand hover:underline flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Edit
+              </a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+              ${rows}
+            </div>
+          </div>`;
       }
 
       // ===== PERSONAL DETAILS SECTION =====
@@ -1141,69 +1014,29 @@
         ["Date of Birth", personal.dob],
         ["Age", personal.age],
         ["Gender", personal.gender],
-<<<<<<< Updated upstream
-        ["Civil Status", personal.civilStatus],
-        ["Place of Birth", personal.placeOfBirth],
-        [
-          "Religion",
-          personal.religion === "Other"
-            ? personal.religionOther
-=======
         ["Civil Status", personal.civil_status],
         ["Place of Birth", personal.place_of_birth],
         [
           "Religion",
           personal.religion === "Other"
             ? personal.religion_other
->>>>>>> Stashed changes
             : personal.religion,
         ],
         [
           "Ethnicity",
           personal.ethnicity === "Other"
-<<<<<<< Updated upstream
-            ? personal.ethnicityOther
-=======
             ? personal.ethnicity_other
->>>>>>> Stashed changes
             : personal.ethnicity,
         ],
         [
           "Nationality",
           personal.nationality === "Other"
-<<<<<<< Updated upstream
-            ? personal.nationalityOther
-=======
             ? personal.nationality_other
->>>>>>> Stashed changes
             : personal.nationality,
         ],
         [
           "Disability",
           personal.disability === "Other"
-<<<<<<< Updated upstream
-            ? personal.disabilityOther
-            : personal.disability,
-        ],
-        ["Permanent Address", personal.permanentAddress],
-        [
-          "Current Address",
-          personal.currentAddress || personal.permanentAddress,
-        ],
-        ["Contact Number", personal.contactNumber],
-        ["Email Address", personal.email],
-        ["Name of Parent", personal.nameOfParent],
-        ["Parent Relationship", personal.relationship],
-        [
-          "Parent Monthly Income",
-          personal.parentIncome ? `₱${personal.parentIncome}` : null,
-        ],
-        ["Name of Spouse", personal.nameOfSpouse],
-        ["Spouse Contact", personal.spouseContactNumber],
-        [
-          "Spouse Monthly Income",
-          personal.spouseIncome ? `₱${personal.spouseIncome}` : null,
-=======
             ? personal.disability_other
             : personal.disability,
         ],
@@ -1225,7 +1058,6 @@
         [
           "Spouse Monthly Income",
           personal.spouse_income ? `₱${personal.spouse_income}` : null,
->>>>>>> Stashed changes
         ],
       ];
 
@@ -1253,151 +1085,6 @@
           eduItems.push([`${level.title} - Year`, data.yearCompleted]);
         }
       });
-<<<<<<< Updated upstream
-
-      if (education.scholarship) {
-        eduItems.push(["Scholarship/Awards", education.scholarship]);
-      }
-
-      content.innerHTML += sectionHTML(
-        "Educational Background",
-        "/educationalBackground/",
-        eduItems,
-        "fa-graduation-cap",
-      );
-
-      // ===== WORKING STUDENT SECTION =====
-      if (working.isEmployed) {
-        const employmentItems = [
-          ["Position", working.position],
-          [
-            "Monthly Income",
-            working.monthlyIncome ? `₱${working.monthlyIncome}` : null,
-          ],
-          [
-            "Employment Status",
-            working.employmentStatus === "Other"
-              ? working.employmentStatusOther
-              : working.employmentStatus,
-          ],
-          ["Employer Name", working.employerName],
-          ["Employer Address", working.employerAddress],
-          ["Employer Contact", working.employerContact],
-          [
-            "Employer Classification",
-            working.employerClassification === "Other"
-              ? working.employerClassificationOther
-              : working.employerClassification,
-          ],
-        ];
-        content.innerHTML += sectionHTML(
-          "Employment Information",
-          "/workingStudent/",
-          employmentItems,
-          "fa-briefcase",
-        );
-      }
-
-      // ===== DOCUMENTS SECTION =====
-      const documentItems = [
-        ["Dean's Recommendation", documents.deansRec || "Not uploaded"],
-        ["TOR", documents.tor || "Not uploaded"],
-        ["Honorable Dismissal", documents.honorableDismissal || "Not uploaded"],
-        ["PSA (live birth)", documents.psa || "Not uploaded"],
-        ["GSAT", documents.gsat || "Not uploaded"],
-      ];
-      content.innerHTML += sectionHTML(
-        "Uploaded Documents",
-        "/documents/",
-        documentItems,
-        "fa-file-alt",
-      );
-
-      // ===== PRIVACY NOTICE SECTION =====
-      if (privacyConsent || privacySignature) {
-        const consentData = privacyConsent || privacySignature;
-        const consentDate = consentData?.dateAgreed || consentData?.date;
-        const formattedDate = consentDate
-          ? new Date(consentDate).toLocaleString("en-PH", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          : null;
-
-        const privacyItems = [
-          ["Name", consentData?.name || getFullName()],
-          ["Date & Time", formattedDate],
-          ["Consent Status", "✓ Agreed to Privacy Notice"],
-          ["IP Address", consentData?.ipAddress || "Collected upon submission"],
-          [
-            "Browser",
-            consentData?.userAgent
-              ? consentData.userAgent.split(" ").slice(0, 3).join(" ")
-              : "—",
-          ],
-        ];
-        content.innerHTML += sectionHTML(
-          "Privacy Notice Consent",
-          "#",
-          privacyItems,
-          "fa-shield-alt",
-        );
-
-        // Show signature confirmation
-        const sigDiv = document.getElementById("signatureConfirmation");
-        const sigDetails = document.getElementById("signatureDetails");
-        if (sigDiv && sigDetails) {
-          sigDiv.classList.remove("hidden");
-          sigDetails.textContent = `Digitally signed by ${consentData?.name || getFullName()} on ${formattedDate || "the agreed date"}`;
-        }
-      }
-
-      // ===== SUBMIT FUNCTION =====
-      function submitApplication() {
-        // Add timestamp for final submission
-        const submissionData = {
-          submittedAt: new Date().toISOString(),
-          fullName: getFullName(),
-          email: personal.email,
-          applicationId:
-            "WMSU-GS-" + Math.random().toString(36).substr(2, 9).toUpperCase(),
-        };
-        localStorage.setItem("submissionData", JSON.stringify(submissionData));
-
-        document.getElementById("modal").classList.remove("hidden");
-      }
-
-      function finishSubmission() {
-        // Clear all localStorage data
-        localStorage.removeItem("personalDetails");
-        localStorage.removeItem("educationalBackground");
-        localStorage.removeItem("workingStudent");
-        localStorage.removeItem("documents");
-        localStorage.removeItem("privacyAgreed");
-        localStorage.removeItem("privacyConsent");
-        localStorage.removeItem("privacySignature");
-        localStorage.removeItem("submissionData");
-
-        // Redirect to first page
-        window.location.href = "/personalDetails/";
-      }
-
-      // Add confirmation before leaving if data exists
-      window.addEventListener("beforeunload", function (e) {
-        const hasData =
-          localStorage.getItem("personalDetails") ||
-          localStorage.getItem("educationalBackground") ||
-          localStorage.getItem("workingStudent");
-
-        if (hasData && !window.location.href.includes("/personalDetails/")) {
-          e.preventDefault();
-          e.returnValue = "";
-        }
-      });
-=======
 
       if (education.scholarship) {
         eduItems.push(["Scholarship/Awards", education.scholarship]);
@@ -1500,15 +1187,117 @@
 
       // ===== SUBMIT FUNCTION =====
       function submitApplication() {
-        const submissionData = {
-          submittedAt: new Date().toISOString(),
-          fullName: getFullName(),
-          email: personal.email,
-          applicationId:
-            "WMSU-GS-" + Math.random().toString(36).substr(2, 9).toUpperCase(),
+        // Disable button to prevent double submission
+        const submitBtn = document.querySelector(
+          'button[onclick="submitApplication()"]',
+        );
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+        }
+
+        // Prepare the data payload for the backend
+        const payloadData = {
+          personalDetails: {
+            first_name: personal.first_name || "",
+            middle_name: personal.middle_name || "",
+            last_name: personal.last_name || "",
+            dob: personal.dob || "",
+            age: personal.age || "",
+            gender: personal.gender || "",
+            civil_status: personal.civil_status || "",
+            place_of_birth: personal.place_of_birth || "",
+            religion: personal.religion || "",
+            religion_other: personal.religion_other || "",
+            ethnicity: personal.ethnicity || "",
+            ethnicity_other: personal.ethnicity_other || "",
+            nationality: personal.nationality || "",
+            nationality_other: personal.nationality_other || "",
+            disability: personal.disability || "",
+            disability_other: personal.disability_other || "",
+            permanent_address: personal.permanent_address || "",
+            current_address: personal.current_address || "",
+            contact_number: personal.contact_number || "",
+            email: personal.email || "",
+            name_of_parent: personal.name_of_parent || "",
+            relationship: personal.relationship || "",
+            parent_income: personal.parent_income || "",
+            name_of_spouse: personal.name_of_spouse || "",
+            spouse_contact_number: personal.spouse_contact_number || "",
+            spouse_income: personal.spouse_income || "",
+          },
+          educationalBackground: {
+            program: education.program || "",
+          },
         };
-        localStorage.setItem("submissionData", JSON.stringify(submissionData));
-        document.getElementById("modal").classList.remove("hidden");
+
+        // Send POST request to the backend API
+        fetch("/api/submit-application/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+          body: JSON.stringify(payloadData),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              // Save submission data to localStorage for the success modal
+              const submissionData = {
+                submittedAt: new Date().toISOString(),
+                fullName: getFullName(),
+                email: personal.email,
+                applicationId: data.application_id,
+              };
+              localStorage.setItem(
+                "submissionData",
+                JSON.stringify(submissionData),
+              );
+
+              // Show success modal
+              document.getElementById("modal").classList.remove("hidden");
+            } else {
+              // Show error message
+              alert(
+                "Error submitting application: " +
+                  (data.message || "Unknown error"),
+              );
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML =
+                  '<i class="fas fa-paper-plane"></i> Submit Application';
+              }
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Error submitting application: " + error.message);
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML =
+                '<i class="fas fa-paper-plane"></i> Submit Application';
+            }
+          });
+      }
+
+      // Helper function to get CSRF token from cookies
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+              cookieValue = decodeURIComponent(
+                cookie.substring(name.length + 1),
+              );
+              break;
+            }
+          }
+        }
+        return cookieValue;
       }
 
       function finishSubmission() {
@@ -1534,12 +1323,11 @@
         }
       });
 
-      // ===== IMAGE HANDLING - Load admin seals on page load =====
+      // ===== IMAGE HANDLING =====
       let sealWmsuB64 = localStorage.getItem("sealWmsu") || null;
       let sealJabB64 = localStorage.getItem("sealJab") || null;
       let photoB64 = localStorage.getItem("applicantPhoto") || null;
 
-      // Server-provided seal URLs
       const WMSU_SEAL_URL = "{{ wmsu_seal_url }}";
       const JAB_SEAL_URL = "{{ jab_seal_url }}";
 
@@ -1549,7 +1337,6 @@
         r.readAsDataURL(file);
       }
 
-      // Load school seals from server
       async function loadSchoolSeals() {
         try {
           if (WMSU_SEAL_URL && !sealWmsuB64) {
@@ -1654,7 +1441,6 @@
           });
         });
 
-      // Load school seals and apply images (or use saved/uploaded ones)
       loadSchoolSeals();
 
       // ===== POPULATE PRINT FORM =====
@@ -1668,7 +1454,6 @@
       }
 
       function populatePrintForm() {
-        // Personal Data
         setText("pf-ln", personal.last_name);
         setText("pf-fn", personal.first_name);
         setText("pf-mn", personal.middle_name);
@@ -1718,7 +1503,6 @@
           personal.spouse_income ? "₱" + personal.spouse_income : "",
         );
 
-        // Education
         const edLevels = {
           elem: "elementary",
           sec: "secondary",
@@ -1733,7 +1517,6 @@
         });
         setText("pf-scholarship", education.scholarship);
 
-        // Working Student
         setText("pf-position", working.position);
         setText(
           "pf-wsincome",
@@ -1769,28 +1552,23 @@
           isOtherEc ? working.employerClassificationOther : "",
         );
 
-        // App ID
         const existingSub = JSON.parse(
           localStorage.getItem("submissionData") || "null",
         );
         setText(
           "pf-appid",
-          existingSub
-            ? existingSub.applicationId
-            : "WMSU-GS-" +
-                Math.random().toString(36).substr(2, 9).toUpperCase(),
+          existingSub ? existingSub.applicationId : "MIT-PENDING",
         );
 
-        // ===== AUTO-SIGNATURE from privacy consent =====
+        // Auto-signature from privacy consent
         const consentData = privacyConsent || privacySignature;
         const sigDisplay = document.getElementById("pf-sig-display");
         const sigDate = document.getElementById("pf-sig-date");
         if (consentData && sigDisplay) {
-          const sigName = consentData.name || getFullName();
-          sigDisplay.textContent = sigName;
+          sigDisplay.textContent = consentData.name || getFullName();
           if (sigDate) {
             const cd = consentData.dateAgreed || consentData.date;
-            const dateStr = cd
+            sigDate.textContent = cd
               ? new Date(cd).toLocaleDateString("en-PH", {
                   year: "numeric",
                   month: "long",
@@ -1801,10 +1579,8 @@
                   month: "long",
                   day: "numeric",
                 });
-            sigDate.textContent = dateStr;
           }
         } else if (sigDisplay) {
-          // Fallback to applicant name
           sigDisplay.textContent = getFullName();
           if (sigDate)
             sigDate.textContent = new Date().toLocaleDateString("en-PH", {
@@ -1817,7 +1593,7 @@
 
       populatePrintForm();
 
-      // Fix print button to show print form
+      // Fix print button
       document.querySelector('button[onclick="window.print()"]').onclick =
         function () {
           populatePrintForm();
@@ -1828,7 +1604,7 @@
           }, 500);
         };
 
-      // ===== PDF GENERATION - OFFICIAL WMSU FORM FORMAT =====
+      // ===== PDF GENERATION =====
       document
         .getElementById("downloadPdfBtn")
         .addEventListener("click", function () {
@@ -1840,14 +1616,12 @@
             contentW = pageW - margin * 2;
           let y = 12;
 
-          // ---- Helpers ----
           function line(x1, y1, x2, y2) {
             doc.line(x1, y1, x2, y2);
           }
           function hline(yy) {
             line(margin, yy, pageW - margin, yy);
           }
-
           function txt(text, x, yy, opts) {
             doc.text(String(text || ""), x, yy, opts || {});
           }
@@ -1860,8 +1634,7 @@
             doc.setFont("helvetica", "normal");
             const vx = x + lw + 1;
             const vw = valueWidth || 50;
-            const val = value || "";
-            txt(val, vx, yy);
+            txt(value || "", vx, yy);
             line(vx, yy + 0.5, vx + vw, yy + 0.5);
             return vx + vw + 2;
           }
@@ -1878,12 +1651,11 @@
             doc.addPage();
             y = 15;
           }
-
           function checkPageBreak(needed) {
             if (y + needed > pageH - 15) newPage();
           }
 
-          // ===== HEADER - embed seal images if available =====
+          // Header
           doc.setFontSize(7);
           doc.setFont("helvetica", "normal");
           txt("WMSU-AO-FR-002 01", pageW - margin, y, { align: "right" });
@@ -1893,7 +1665,6 @@
           });
           y += 3;
 
-          // Photo box - embed uploaded photo or draw placeholder
           const pbx = pageW - margin - 22,
             pby = 10,
             pbw = 22,
@@ -1912,7 +1683,6 @@
             txt("background", pbx + pbw / 2, pby + 19, { align: "center" });
           }
 
-          // WMSU Seal
           const sealY = 10,
             sealR = 7;
           if (sealWmsuB64) {
@@ -1945,7 +1715,6 @@
             txt("SEAL", margin + 8, sealY + sealR + 3, { align: "center" });
           }
 
-          // JAB Cert
           if (sealJabB64) {
             try {
               doc.addImage(sealJabB64, "PNG", margin + 19, sealY + 2, 10, 10);
@@ -1969,16 +1738,15 @@
             txt("CERT", margin + 24, sealY + 9, { align: "center" });
           }
 
-          // University name
           const cx = margin + 33;
           doc.setFont("helvetica", "bold");
           doc.setFontSize(9.5);
-          txt("WESTERN MINDANAO STATE UNIVERSITY", cx, 12, {});
+          txt("WESTERN MINDANAO STATE UNIVERSITY", cx, 12);
           doc.setFontSize(8.5);
-          txt("OFFICE OF THE DIRECTOR OF ADMISSIONS", cx, 17, {});
+          txt("OFFICE OF THE DIRECTOR OF ADMISSIONS", cx, 17);
           doc.setFont("helvetica", "normal");
           doc.setFontSize(8);
-          txt("Zamboanga City", cx, 22, {});
+          txt("Zamboanga City", cx, 22);
 
           y = 30;
           doc.setFont("helvetica", "bold");
@@ -1990,7 +1758,7 @@
           hline(y);
           y += 5;
 
-          // ===== PART I =====
+          // Part I
           doc.setFontSize(8);
           txt(
             "Part I.  To be filled up by the WMSU admitting official:",
@@ -1998,8 +1766,6 @@
             y,
           );
           y += 5;
-
-          // Part I - leave BLANK for admitting official to fill by hand
           doc.setFont("helvetica", "normal");
           let nx = fieldLine("COLLEGE:", "", margin, y, 55);
           nx = fieldLine("SCHOOL YEAR:", "", nx, y, 20);
@@ -2028,7 +1794,7 @@
           hline(y);
           y += 5;
 
-          // ===== PART II =====
+          // Part II
           doc.setFont("helvetica", "bold");
           doc.setFontSize(8);
           txt(
@@ -2037,24 +1803,20 @@
             y,
           );
           y += 5;
-
           doc.setFont("helvetica", "bold");
           txt("Student's Personal Data:", margin, y);
           y += 5;
 
-          // Row: Family name / Given Name / Middle Name
           let rx = fieldLine("Family name:", personal.last_name, margin, y, 40);
           rx = fieldLine("Given Name:", personal.first_name, rx, y, 35);
           fieldLine("Middle Name:", personal.middle_name, rx, y, 25);
           y += 5;
 
-          // Row: DOB / Age / Civil Status
           rx = fieldLine("Date of Birth:", personal.dob, margin, y, 30);
           rx = fieldLine("Age:", personal.age, rx, y, 12);
-          rx = fieldLine("Civil Status:", personal.civil_status, rx, y, 28);
+          fieldLine("Civil Status:", personal.civil_status, rx, y, 28);
           y += 5;
 
-          // Row: Place of Birth / Gender / Religion
           rx = fieldLine(
             "Place of Birth:",
             personal.place_of_birth,
@@ -2074,7 +1836,6 @@
           );
           y += 5;
 
-          // Row: Ethnicity / Nationality / Disability
           rx = fieldLine(
             "Ethnicity / Tribe:",
             personal.ethnicity === "Other"
@@ -2131,7 +1892,6 @@
           fieldLine("Email address:", personal.email, rx, y, 55);
           y += 5;
 
-          // FIXED: income fields each on their own portion with proper spacing
           rx = fieldLine(
             "Name of Parent or Guardian:",
             personal.name_of_parent,
@@ -2140,7 +1900,7 @@
             38,
           );
           rx = fieldLine("Relationship:", personal.relationship, rx, y, 20);
-          rx = fieldLine("Income/mo.:", "", rx, y, 4); // label+short line
+          rx = fieldLine("Income/mo.:", "", rx, y, 4);
           doc.setFont("helvetica", "normal");
           doc.setFontSize(8);
           txt("₱ " + (personal.parent_income || ""), rx - 2, y);
@@ -2168,19 +1928,16 @@
           line(rx - 2, y + 0.5, rx + 18, y + 0.5);
           y += 7;
 
-          // ===== EDUCATIONAL BACKGROUND =====
+          // Educational Background
           checkPageBreak(55);
           doc.setFont("helvetica", "bold");
           doc.setFontSize(8);
           txt("Student's Educational Background:", margin, y);
           y += 5;
 
-          // Education table
           const colsX = [margin, margin + 35, margin + 105, margin + 155];
-          const colsW = [35, 70, 50, contentW - (155 - margin + 5)];
           const rowH = 6;
 
-          // Header row
           doc.setFillColor(230, 230, 230);
           doc.rect(margin, y, contentW, rowH, "F");
           doc.rect(margin, y, contentW, rowH);
@@ -2200,7 +1957,6 @@
             ["Tertiary", education.college],
             ["Graduate Studies", education.graduate],
           ];
-
           eduRows.forEach(([label, data]) => {
             doc.rect(margin, y, contentW, rowH);
             doc.setFont("helvetica", "bold");
@@ -2218,7 +1974,7 @@
           });
           y += 4;
 
-          rx = fieldLine(
+          fieldLine(
             "Scholarship (if any):",
             education.scholarship,
             margin,
@@ -2227,7 +1983,7 @@
           );
           y += 7;
 
-          // ===== WORKING STUDENT =====
+          // Working Student
           checkPageBreak(45);
           doc.setFont("helvetica", "bold");
           doc.setFontSize(8);
@@ -2303,26 +2059,23 @@
           }
           y += 10;
 
-          // ===== SIGNATURE - auto from privacy consent =====
+          // Signature
           checkPageBreak(30);
           hline(y);
           y += 2;
 
-          // Application number
           const appNum =
-            "WMSU-GS-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+            JSON.parse(localStorage.getItem("submissionData") || "null")?.applicationId || "MIT-PENDING";
           doc.setFont("helvetica", "bold");
           doc.setFontSize(11);
           txt(appNum, pageW - margin, y + 12, { align: "right" });
 
-          // Auto-signature: use privacy consent name in italic style
           const consentData2 = privacyConsent || privacySignature;
           const sigName2 = consentData2
             ? consentData2.name || getFullName()
             : getFullName();
           const sigLineX = margin + 5,
             sigLineEnd2 = margin + 90;
-          // Write name in italic as signature substitute
           doc.setFont("helvetica", "italic");
           doc.setFontSize(13);
           txt(sigName2, sigLineX, y + 14);
@@ -2352,7 +2105,7 @@
             y + 24,
           );
 
-          // ===== FOOTER =====
+          // Footer
           doc.setFontSize(7.5);
           doc.setTextColor(120);
           txt(
@@ -2368,7 +2121,6 @@
             `WMSU_AdmissionForm_${personal.last_name || "Application"}.pdf`,
           );
         });
->>>>>>> Stashed changes
     </script>
   </body>
 </html>

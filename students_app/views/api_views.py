@@ -5,7 +5,7 @@ from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 
 from admin_app.models import DocumentVerification, Application
-from students_app.models import Document, Notification
+from students_app.models import Document, Notification, PersonalDetails
 
 
 DOCUMENT_TYPE_MAP = {
@@ -212,3 +212,95 @@ def mark_all_notifications_read(request):
         'status': 'success',
         'unread_count': 0,
     })
+
+
+@login_required
+@require_http_methods(["POST"])
+def submit_application(request):
+    """
+    Handle application submission from the review page.
+    Creates/updates PersonalDetails and Application records in the database.
+    Expects JSON payload with application data from the student form.
+    """
+    try:
+        data = json.loads(request.body)
+        user = request.user
+        
+        # Extract personal details from the submitted data
+        personal_details_data = data.get('personalDetails', {})
+        
+        # Create or update PersonalDetails record
+        personal_details_obj, created = PersonalDetails.objects.update_or_create(
+            user=user,
+            defaults={
+                'first_name': personal_details_data.get('first_name', ''),
+                'middle_name': personal_details_data.get('middle_name', ''),
+                'last_name': personal_details_data.get('last_name', ''),
+                'dob': personal_details_data.get('dob', ''),
+                'age': personal_details_data.get('age', ''),
+                'gender': personal_details_data.get('gender', ''),
+                'civil_status': personal_details_data.get('civil_status', ''),
+                'place_of_birth': personal_details_data.get('place_of_birth', ''),
+                'religion': personal_details_data.get('religion', ''),
+                'religion_other': personal_details_data.get('religion_other', ''),
+                'ethnicity': personal_details_data.get('ethnicity', ''),
+                'ethnicity_other': personal_details_data.get('ethnicity_other', ''),
+                'nationality': personal_details_data.get('nationality', ''),
+                'nationality_other': personal_details_data.get('nationality_other', ''),
+                'disability': personal_details_data.get('disability', ''),
+                'disability_other': personal_details_data.get('disability_other', ''),
+                'permanent_address': personal_details_data.get('permanent_address', ''),
+                'current_address': personal_details_data.get('current_address', ''),
+                'contact_number': personal_details_data.get('contact_number', ''),
+                'email': personal_details_data.get('email', ''),
+                'name_of_parent': personal_details_data.get('name_of_parent', ''),
+                'relationship': personal_details_data.get('relationship', ''),
+                'parent_income': personal_details_data.get('parent_income', ''),
+                'name_of_spouse': personal_details_data.get('name_of_spouse', ''),
+                'spouse_contact_number': personal_details_data.get('spouse_contact_number', ''),
+                'spouse_income': personal_details_data.get('spouse_income', ''),
+            }
+        )
+        
+        # Check if application already exists
+        existing_app = Application.objects.filter(user=user).first()
+        
+        # Generate the correct application ID based on user ID
+        app_id = f"MIT-{str(user.id).zfill(4)}"
+        
+        if existing_app:
+            # Update existing application with new format application ID
+            existing_app.program = data.get('educationalBackground', {}).get('program', '')
+            existing_app.status = 'pending'
+            existing_app.last_activity = timezone.now()
+            existing_app.application_id = app_id  # Update to new format
+            existing_app.save()
+            application = existing_app
+        else:
+            # Create new application with generated ID based on user ID
+            application = Application.objects.create(
+                user=user,
+                program=data.get('educationalBackground', {}).get('program', ''),
+                application_id=app_id,
+                status='pending',
+                last_activity=timezone.now(),
+            )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Application submitted successfully',
+            'application_id': application.application_id,
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid JSON data',
+        }, status=400)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'message': f'Error submitting application: {str(e)}',
+        }, status=500)
