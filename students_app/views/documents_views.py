@@ -1,8 +1,6 @@
 from django.shortcuts import render
 
 def documents(request):
-<<<<<<< Updated upstream
-=======
     if request.method == "POST":
         # Get all file uploads
         deans_rec = request.FILES.get("deansRec")
@@ -55,5 +53,4 @@ def documents(request):
             request, "Documents saved successfully. You can add or modify documents later if needed.")
         return redirect("privacyNotice")
 
->>>>>>> Stashed changes
     return render(request, "students_app/documents.html")

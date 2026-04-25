@@ -46,11 +46,8 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
 
     "students_app",
-<<<<<<< Updated upstream
-=======
     "admin_app",
     
->>>>>>> Stashed changes
 ]
 
 # Authentication Backends
