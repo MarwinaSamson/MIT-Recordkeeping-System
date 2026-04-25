@@ -46,6 +46,11 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
 
     "students_app",
+<<<<<<< Updated upstream
+=======
+    "admin_app",
+    
+>>>>>>> Stashed changes
 ]
 
 # Authentication Backends
@@ -110,6 +115,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+        
             ],
         },
     },

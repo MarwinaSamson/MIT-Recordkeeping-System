@@ -808,6 +808,7 @@
       "fa-graduation-cap",
     );
 
+<<<<<<< Updated upstream
     // ===== WORKING STUDENT SECTION =====
     if (working.isEmployed) {
       const employmentItems = [
@@ -818,6 +819,402 @@
         ],
         [
           "Employment Status",
+=======
+      // ===== DOCUMENTS SECTION =====
+      const documentItems = [
+        ["Dean's Recommendation", documents.deansRec || "Not uploaded"],
+        ["TOR", documents.tor || "Not uploaded"],
+        ["Honorable Dismissal", documents.honorableDismissal || "Not uploaded"],
+        ["PSA (live birth)", documents.psa || "Not uploaded"],
+        ["GSAT", documents.gsat || "Not uploaded"],
+      ];
+      content.innerHTML += sectionHTML(
+        "Uploaded Documents",
+        "/documents/",
+        documentItems,
+        "fa-file-alt",
+      );
+
+      // ===== PRIVACY NOTICE SECTION =====
+      if (privacyConsent || privacySignature) {
+        const consentData = privacyConsent || privacySignature;
+        const consentDate = consentData?.dateAgreed || consentData?.date;
+        const formattedDate = consentDate
+          ? new Date(consentDate).toLocaleString("en-PH", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : null;
+
+        const privacyItems = [
+          ["Name", consentData?.name || getFullName()],
+          ["Date & Time", formattedDate],
+          ["Consent Status", "✓ Agreed to Privacy Notice"],
+          ["IP Address", consentData?.ipAddress || "Collected upon submission"],
+          [
+            "Browser",
+            consentData?.userAgent
+              ? consentData.userAgent.split(" ").slice(0, 3).join(" ")
+              : "—",
+          ],
+        ];
+        content.innerHTML += sectionHTML(
+          "Privacy Notice Consent",
+          "#",
+          privacyItems,
+          "fa-shield-alt",
+        );
+
+        const sigDiv = document.getElementById("signatureConfirmation");
+        const sigDetails = document.getElementById("signatureDetails");
+        if (sigDiv && sigDetails) {
+          sigDiv.classList.remove("hidden");
+          sigDetails.textContent = `Digitally signed by ${consentData?.name || getFullName()} on ${formattedDate || "the agreed date"}`;
+        }
+      }
+
+      // ===== SUBMIT FUNCTION =====
+      function submitApplication() {
+        // Disable button to prevent double submission
+        const submitBtn = document.querySelector(
+          'button[onclick="submitApplication()"]',
+        );
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+        }
+
+        // Prepare the data payload for the backend
+        const payloadData = {
+          personalDetails: {
+            first_name: personal.first_name || "",
+            middle_name: personal.middle_name || "",
+            last_name: personal.last_name || "",
+            dob: personal.dob || "",
+            age: personal.age || "",
+            gender: personal.gender || "",
+            civil_status: personal.civil_status || "",
+            place_of_birth: personal.place_of_birth || "",
+            religion: personal.religion || "",
+            religion_other: personal.religion_other || "",
+            ethnicity: personal.ethnicity || "",
+            ethnicity_other: personal.ethnicity_other || "",
+            nationality: personal.nationality || "",
+            nationality_other: personal.nationality_other || "",
+            disability: personal.disability || "",
+            disability_other: personal.disability_other || "",
+            permanent_address: personal.permanent_address || "",
+            current_address: personal.current_address || "",
+            contact_number: personal.contact_number || "",
+            email: personal.email || "",
+            name_of_parent: personal.name_of_parent || "",
+            relationship: personal.relationship || "",
+            parent_income: personal.parent_income || "",
+            name_of_spouse: personal.name_of_spouse || "",
+            spouse_contact_number: personal.spouse_contact_number || "",
+            spouse_income: personal.spouse_income || "",
+          },
+          educationalBackground: {
+            program: education.program || "",
+          },
+        };
+
+        // Send POST request to the backend API
+        fetch("/api/submit-application/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+          body: JSON.stringify(payloadData),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              // Save submission data to localStorage for the success modal
+              const submissionData = {
+                submittedAt: new Date().toISOString(),
+                fullName: getFullName(),
+                email: personal.email,
+                applicationId: data.application_id,
+              };
+              localStorage.setItem(
+                "submissionData",
+                JSON.stringify(submissionData),
+              );
+
+              // Show success modal
+              document.getElementById("modal").classList.remove("hidden");
+            } else {
+              // Show error message
+              alert(
+                "Error submitting application: " +
+                  (data.message || "Unknown error"),
+              );
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML =
+                  '<i class="fas fa-paper-plane"></i> Submit Application';
+              }
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Error submitting application: " + error.message);
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML =
+                '<i class="fas fa-paper-plane"></i> Submit Application';
+            }
+          });
+      }
+
+      // Helper function to get CSRF token from cookies
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+              cookieValue = decodeURIComponent(
+                cookie.substring(name.length + 1),
+              );
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+
+      function finishSubmission() {
+        localStorage.removeItem("personalDetails");
+        localStorage.removeItem("educationalBackground");
+        localStorage.removeItem("workingStudent");
+        localStorage.removeItem("documents");
+        localStorage.removeItem("privacyAgreed");
+        localStorage.removeItem("privacyConsent");
+        localStorage.removeItem("privacySignature");
+        localStorage.removeItem("submissionData");
+        window.location.href = "/login/";
+      }
+
+      window.addEventListener("beforeunload", function (e) {
+        const hasData =
+          localStorage.getItem("personalDetails") ||
+          localStorage.getItem("educationalBackground") ||
+          localStorage.getItem("workingStudent");
+        if (hasData && !window.location.href.includes("/personalDetails/")) {
+          e.preventDefault();
+          e.returnValue = "";
+        }
+      });
+
+      // ===== IMAGE HANDLING =====
+      let sealWmsuB64 = localStorage.getItem("sealWmsu") || null;
+      let sealJabB64 = localStorage.getItem("sealJab") || null;
+      let photoB64 = localStorage.getItem("applicantPhoto") || null;
+
+      const WMSU_SEAL_URL = "{{ wmsu_seal_url }}";
+      const JAB_SEAL_URL = "{{ jab_seal_url }}";
+
+      function readFileAsB64(file, callback) {
+        const r = new FileReader();
+        r.onload = (e) => callback(e.target.result);
+        r.readAsDataURL(file);
+      }
+
+      async function loadSchoolSeals() {
+        try {
+          if (WMSU_SEAL_URL && !sealWmsuB64) {
+            const response = await fetch(WMSU_SEAL_URL);
+            if (response.ok) {
+              sealWmsuB64 = await response.blob().then(
+                (blob) =>
+                  new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                  }),
+              );
+            }
+          }
+          if (JAB_SEAL_URL && !sealJabB64) {
+            const response = await fetch(JAB_SEAL_URL);
+            if (response.ok) {
+              sealJabB64 = await response.blob().then(
+                (blob) =>
+                  new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                  }),
+              );
+            }
+          }
+          applyImages();
+        } catch (error) {
+          console.log("School seals loaded successfully");
+        }
+      }
+
+      function applyImages() {
+        if (sealWmsuB64) {
+          const img = document.getElementById("pfLogoWmsuImg");
+          const txt = document.getElementById("pfLogoWmsuText");
+          img.src = sealWmsuB64;
+          img.style.display = "block";
+          if (txt) txt.style.display = "none";
+          const prev = document.getElementById("sealWmsuPreview");
+          if (prev) {
+            prev.src = sealWmsuB64;
+            prev.style.display = "block";
+          }
+        }
+        if (sealJabB64) {
+          const img = document.getElementById("pfLogoJabImg");
+          const txt = document.getElementById("pfLogoJabText");
+          img.src = sealJabB64;
+          img.style.display = "block";
+          if (txt) txt.style.display = "none";
+          const prev = document.getElementById("sealJabPreview");
+          if (prev) {
+            prev.src = sealJabB64;
+            prev.style.display = "block";
+          }
+        }
+        if (photoB64) {
+          const img = document.getElementById("pfPhotoImg");
+          const txt = document.getElementById("pfPhotoText");
+          img.src = photoB64;
+          img.style.display = "block";
+          if (txt) txt.style.display = "none";
+          const prev = document.getElementById("photoPreview");
+          if (prev) {
+            prev.src = photoB64;
+            prev.style.display = "block";
+          }
+        }
+      }
+
+      document
+        .getElementById("sealWmsuInput")
+        .addEventListener("change", function (e) {
+          if (!e.target.files[0]) return;
+          readFileAsB64(e.target.files[0], (b64) => {
+            sealWmsuB64 = b64;
+            localStorage.setItem("sealWmsu", b64);
+            applyImages();
+          });
+        });
+      document
+        .getElementById("sealJabInput")
+        .addEventListener("change", function (e) {
+          if (!e.target.files[0]) return;
+          readFileAsB64(e.target.files[0], (b64) => {
+            sealJabB64 = b64;
+            localStorage.setItem("sealJab", b64);
+            applyImages();
+          });
+        });
+      document
+        .getElementById("photoInput")
+        .addEventListener("change", function (e) {
+          if (!e.target.files[0]) return;
+          readFileAsB64(e.target.files[0], (b64) => {
+            photoB64 = b64;
+            localStorage.setItem("applicantPhoto", b64);
+            applyImages();
+          });
+        });
+
+      loadSchoolSeals();
+
+      // ===== POPULATE PRINT FORM =====
+      function setText(id, val, fallback) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val || fallback || "";
+      }
+      function setChecked(id, checked) {
+        const el = document.getElementById(id);
+        if (el) el.checked = checked;
+      }
+
+      function populatePrintForm() {
+        setText("pf-ln", personal.last_name);
+        setText("pf-fn", personal.first_name);
+        setText("pf-mn", personal.middle_name);
+        setText("pf-dob", personal.dob);
+        setText("pf-age", personal.age);
+        setText("pf-civil", personal.civil_status);
+        setText("pf-pob", personal.place_of_birth);
+        setText("pf-gender", personal.gender);
+        setText(
+          "pf-religion",
+          personal.religion === "Other"
+            ? personal.religion_other
+            : personal.religion,
+        );
+        setText(
+          "pf-ethnicity",
+          personal.ethnicity === "Other"
+            ? personal.ethnicity_other
+            : personal.ethnicity,
+        );
+        setText(
+          "pf-nat",
+          personal.nationality === "Other"
+            ? personal.nationality_other
+            : personal.nationality,
+        );
+        setText(
+          "pf-disability",
+          personal.disability === "Other"
+            ? personal.disability_other
+            : personal.disability,
+        );
+        setText("pf-paddress", personal.permanent_address);
+        setText("pf-caddress", personal.current_address || "");
+        setText("pf-contact", personal.contact_number);
+        setText("pf-email", personal.email);
+        setText("pf-parent", personal.name_of_parent);
+        setText("pf-rel", personal.relationship);
+        setText(
+          "pf-pincome",
+          personal.parent_income ? "₱" + personal.parent_income : "",
+        );
+        setText("pf-spouse", personal.name_of_spouse);
+        setText("pf-spcontact", personal.spouse_contact_number);
+        setText(
+          "pf-spincome",
+          personal.spouse_income ? "₱" + personal.spouse_income : "",
+        );
+
+        const edLevels = {
+          elem: "elementary",
+          sec: "secondary",
+          col: "college",
+          grad: "graduate",
+        };
+        Object.entries(edLevels).forEach(([prefix, key]) => {
+          const d = education[key] || {};
+          setText(`pf-${prefix}-school`, d.schoolName);
+          setText(`pf-${prefix}-degree`, d.degree);
+          setText(`pf-${prefix}-year`, d.yearCompleted);
+        });
+        setText("pf-scholarship", education.scholarship);
+
+        setText("pf-position", working.position);
+        setText(
+          "pf-wsincome",
+          working.monthlyIncome ? "₱" + working.monthlyIncome : "",
+        );
+        const empStatus =
+>>>>>>> Stashed changes
           working.employmentStatus === "Other"
             ? working.employmentStatusOther
             : working.employmentStatus,

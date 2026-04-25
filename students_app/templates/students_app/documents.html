@@ -1,92 +1,90 @@
 {% load static %}
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Documents Upload - Graduate School Admission</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: { brand: "#A02724", beige: "#F5F0EB" },
-            fontFamily: {
-              heading: ["Merriweather", "serif"],
-              body: ['"Source Sans 3"', "sans-serif"],
-            },
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documents Upload - Graduate School Admission</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: "#A02724", beige: "#F5F0EB" },
+          fontFamily: {
+            heading: ["Merriweather", "serif"],
+            body: ['"Source Sans 3"', "sans-serif"],
           },
         },
-      };
-    </script>
-    <style>
-      body {
-        font-family: "Source Sans 3", sans-serif;
-      }
+      },
+    };
+  </script>
+  <style>
+    body {
+      font-family: "Source Sans 3", sans-serif;
+    }
 
-      h1,
-      h2,
-      h3 {
-        font-family: "Merriweather", serif;
-      }
+    h1,
+    h2,
+    h3 {
+      font-family: "Merriweather", serif;
+    }
 
-      .preview-image {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-      }
+    .preview-image {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
 
-      .file-item {
-        transition: all 0.2s;
-      }
+    .file-item {
+      transition: all 0.2s;
+    }
 
-      .file-item:hover {
-        background-color: #f9fafb;
-      }
+    .file-item:hover {
+      background-color: #f9fafb;
+    }
 
-      .pdf-badge {
-        background-color: #fee2e2;
-        color: #b91c1c;
-        font-size: 0.7rem;
-        padding: 2px 8px;
-        border-radius: 12px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-      }
+    .pdf-badge {
+      background-color: #fee2e2;
+      color: #b91c1c;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
 
-      .or-divider {
-        display: flex;
-        align-items: center;
-        text-align: center;
-        color: #6b7280;
-        font-size: 0.8rem;
-        margin: 8px 0;
-      }
+    .or-divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.8rem;
+      margin: 8px 0;
+    }
 
-      .or-divider::before,
-      .or-divider::after {
-        content: "";
-        flex: 1;
-        border-bottom: 1px solid #e5e7eb;
-      }
+    .or-divider::before,
+    .or-divider::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid #e5e7eb;
+    }
 
-      .or-divider span {
-        padding: 0 10px;
-      }
-    </style>
-  </head>
+    .or-divider span {
+      padding: 0 10px;
+    }
+  </style>
+</head>
 
+<<<<<<< Updated upstream
   <body class="bg-beige min-h-screen">
     <header class="text-center py-8">
       <h1 class="text-3xl md:text-4xl font-bold text-brand">Graduate School</h1>
@@ -110,320 +108,271 @@
           <div class="border border-gray-200 rounded-xl p-5">
             <label class="block text-sm font-semibold mb-2 text-gray-700">
               Dean's Recommendation <span class="text-red-500">*</span>
+=======
+<body class="bg-beige min-h-screen">
+  <header class="text-center py-8">
+    <h1 class="text-3xl md:text-4xl font-bold text-brand">Graduate School</h1>
+    <p class="text-lg text-gray-500 mt-1">Admission Form</p>
+  </header>
+  <div class="max-w-4xl mx-auto px-4 mb-8">
+    <div class="flex items-center justify-between" id="progressBar"></div>
+  </div>
+  <div class="max-w-3xl mx-auto px-4 pb-12">
+    <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
+      <h2 class="text-2xl font-bold text-brand mb-2">Documents Upload</h2>
+      <p class="text-sm text-gray-600 mb-6">
+        TOR (Transcript of Records) is the only required document. All other documents are optional and can be submitted
+        later.
+      </p>
+      <form id="documentsForm" method="post" enctype="multipart/form-data" class="space-y-6" novalidate>
+        {% csrf_token %} {% if messages %}
+        <div class="space-y-2">
+          {% for message in messages %}
+          <div class="rounded-lg px-4 py-3 text-sm {{ message.tags }}">
+            {{ message }}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <!-- Dean's Recommendation with Preview -->
+        <div class="border border-gray-200 rounded-xl p-5">
+          <label class="block text-sm font-semibold mb-2 text-gray-700">
+            Dean's Recommendation
+          </label>
+          <div class="flex items-start gap-4">
+            <div class="flex-grow">
+              <input type="file" name="deansRec" accept=".pdf,.jpg,.jpeg,.png"
+                class="deansRec-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition" />
+            </div>
+            <div
+              class="deansRec-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
+              <i class="fas fa-image text-2xl"></i>
+            </div>
+          </div>
+          <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
+            <i class="fas fa-info-circle"></i>
+            <span>PDF or image, max 10MB</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-2 italic">Optional — can be submitted later</p>
+        </div>
+
+        <!-- TOR - Hybrid: PDF preferred, multiple images fallback -->
+        <div class="border border-gray-200 rounded-xl p-5 bg-blue-50/30" id="tor-section">
+          <div class="flex items-center justify-between mb-3">
+            <label class="block text-sm font-semibold text-gray-700">
+              TOR (Transcript of Records)
+>>>>>>> Stashed changes
             </label>
-            <div class="flex items-start gap-4">
-              <div class="flex-grow">
-                <input
-                  type="file"
-                  name="deansRec"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  required
-                  class="deansRec-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition"
-                />
-              </div>
-              <div
-                class="deansRec-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden"
-              >
-                <i class="fas fa-image text-2xl"></i>
-              </div>
-            </div>
-            <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
-              <i class="fas fa-info-circle"></i>
-              <span>PDF or image, max 10MB</span>
-            </div>
-            <p
-              class="text-xs text-red-500 mt-1 hidden"
-              data-error="deansRec"
-            ></p>
+            <span class="pdf-badge">
+              <i class="fas fa-file-pdf text-xs"></i> PDF preferred
+            </span>
           </div>
 
-          <!-- TOR - Hybrid: PDF preferred, multiple images fallback -->
-          <div
-            class="border border-gray-200 rounded-xl p-5 bg-blue-50/30"
-            id="tor-section"
-          >
-            <div class="flex items-center justify-between mb-3">
-              <label class="block text-sm font-semibold text-gray-700">
-                TOR (Transcript of Records) <span class="text-red-500">*</span>
-              </label>
-              <span class="pdf-badge">
-                <i class="fas fa-file-pdf text-xs"></i> PDF preferred
-              </span>
+          <!-- Option 1: Upload as single PDF (recommended) -->
+          <div class="mb-4 p-3 bg-white rounded-lg border border-gray-200">
+            <div class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+              <i class="fas fa-star text-yellow-500 text-xs"></i>
+              <span>Recommended: Upload as one PDF file</span>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="flex-grow">
+                <input type="file" name="torPDF" accept=".pdf" id="torPDF"
+                  class="tor-pdf-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 transition" />
+              </div>
+              <div
+                class="tor-pdf-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
+                <i class="fas fa-file-pdf text-2xl text-red-500"></i>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">
+              Upload all pages as a single PDF file
+            </p>
+          </div>
+
+          <div class="or-divider">
+            <span>OR</span>
+          </div>
+
+          <!-- Option 2: Multiple image uploads (fallback) -->
+          <div class="mt-3">
+            <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
+              <i class="fas fa-image text-gray-400"></i>
+              <span>Upload as multiple images (if you don't have PDF)</span>
             </div>
 
-            <!-- Option 1: Upload as single PDF (recommended) -->
-            <div class="mb-4 p-3 bg-white rounded-lg border border-gray-200">
-              <div
-                class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2"
-              >
-                <i class="fas fa-star text-yellow-500 text-xs"></i>
-                <span>Recommended: Upload as one PDF file</span>
-              </div>
-              <div class="flex items-start gap-4">
+            <!-- Container for TOR image files -->
+            <div id="tor-images-container" class="space-y-3 mb-3">
+              <!-- First TOR image input -->
+              <div class="tor-image-item flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-200">
                 <div class="flex-grow">
-                  <input
-                    type="file"
-                    name="torPDF"
-                    accept=".pdf"
-                    id="torPDF"
-                    class="tor-pdf-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 transition"
-                  />
+                  <input type="file" name="torImages[]" accept=".jpg,.jpeg,.png"
+                    class="tor-image-input w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition" />
                 </div>
                 <div
-                  class="tor-pdf-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden"
-                >
-                  <i class="fas fa-file-pdf text-2xl text-red-500"></i>
+                  class="tor-image-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
+                  <i class="fas fa-image text-2xl"></i>
                 </div>
-              </div>
-              <p class="text-xs text-gray-500 mt-1">
-                Upload all pages as a single PDF file
-              </p>
-            </div>
-
-            <div class="or-divider">
-              <span>OR</span>
-            </div>
-
-            <!-- Option 2: Multiple image uploads (fallback) -->
-            <div class="mt-3">
-              <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                <i class="fas fa-image text-gray-400"></i>
-                <span>Upload as multiple images (if you don't have PDF)</span>
-              </div>
-
-              <!-- Container for TOR image files -->
-              <div id="tor-images-container" class="space-y-3 mb-3">
-                <!-- First TOR image input -->
-                <div
-                  class="tor-image-item flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-200"
-                >
-                  <div class="flex-grow">
-                    <input
-                      type="file"
-                      name="torImages[]"
-                      accept=".jpg,.jpeg,.png"
-                      class="tor-image-input w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition"
-                    />
-                  </div>
-                  <div
-                    class="tor-image-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden"
-                  >
-                    <i class="fas fa-image text-2xl"></i>
-                  </div>
-                  <button
-                    type="button"
-                    class="remove-tor-image text-red-500 hover:text-red-700 p-1"
-                    style="display: none"
-                  >
-                    <i class="fas fa-times"></i>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Add another image button for TOR -->
-              <button
-                type="button"
-                id="add-tor-image"
-                class="mt-2 text-sm text-brand hover:text-brand/80 font-medium flex items-center gap-2"
-              >
-                <i class="fas fa-plus-circle"></i> Add another page image
-              </button>
-            </div>
-
-            <div class="mt-3 flex items-center gap-2 text-xs text-gray-500">
-              <i class="fas fa-info-circle"></i>
-              <span
-                >Choose EITHER one PDF file OR multiple images. At least one
-                page required.</span
-              >
-            </div>
-            <p class="text-xs text-red-500 mt-1 hidden" data-error="tor"></p>
-          </div>
-
-          <!-- Honorable Dismissal with Preview -->
-          <div class="border border-gray-200 rounded-xl p-5">
-            <label class="block text-sm font-semibold mb-2 text-gray-700">
-              Honorable Dismissal <span class="text-red-500">*</span>
-            </label>
-            <div class="flex items-start gap-4">
-              <div class="flex-grow">
-                <input
-                  type="file"
-                  name="honorableDismissal"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  required
-                  class="honorable-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition"
-                />
-              </div>
-              <div
-                class="honorable-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden"
-              >
-                <i class="fas fa-image text-2xl"></i>
+                <button type="button" class="remove-tor-image text-red-500 hover:text-red-700 p-1"
+                  style="display: none">
+                  <i class="fas fa-times"></i>
+                </button>
               </div>
             </div>
-            <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
-              <i class="fas fa-info-circle"></i>
-              <span>PDF or image, max 10MB</span>
-            </div>
-            <p
-              class="text-xs text-red-500 mt-1 hidden"
-              data-error="honorableDismissal"
-            ></p>
-          </div>
 
-          <!-- PSA - Hybrid: PDF preferred, multiple images-->
-          <div
-            class="border border-gray-200 rounded-xl p-5 bg-blue-50/30"
-            id="psa-section"
-          >
-            <div class="flex items-center justify-between mb-3">
-              <label class="block text-sm font-semibold text-gray-700">
-                PSA (live birth) <span class="text-red-500">*</span>
-              </label>
-              <span class="pdf-badge">
-                <i class="fas fa-file-pdf text-xs"></i> PDF preferred
-              </span>
-            </div>
-
-            <!-- Option 1: Upload as single PDF  -->
-            <div class="mb-4 p-3 bg-white rounded-lg border border-gray-200">
-              <div
-                class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2"
-              >
-                <i class="fas fa-star text-yellow-500 text-xs"></i>
-                <span>Recommended: Upload as one PDF file</span>
-              </div>
-              <div class="flex items-start gap-4">
-                <div class="flex-grow">
-                  <input
-                    type="file"
-                    name="psaPDF"
-                    accept=".pdf"
-                    id="psaPDF"
-                    class="psa-pdf-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 transition"
-                  />
-                </div>
-                <div
-                  class="psa-pdf-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden"
-                >
-                  <i class="fas fa-file-pdf text-2xl text-red-500"></i>
-                </div>
-              </div>
-              <p class="text-xs text-gray-500 mt-1">
-                Upload all pages as a single PDF file
-              </p>
-            </div>
-
-            <div class="or-divider">
-              <span>OR</span>
-            </div>
-
-            <!-- Option 2: Multiple image uploads  -->
-            <div class="mt-3">
-              <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                <i class="fas fa-image text-gray-400"></i>
-                <span
-                  >Upload as multiple images (front/back or multiple
-                  pages)</span
-                >
-              </div>
-
-              <!-- Container for PSA image files -->
-              <div id="psa-images-container" class="space-y-3 mb-3">
-                <!-- First PSA image input -->
-                <div
-                  class="psa-image-item flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-200"
-                >
-                  <div class="flex-grow">
-                    <input
-                      type="file"
-                      name="psaImages[]"
-                      accept=".jpg,.jpeg,.png"
-                      class="psa-image-input w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition"
-                    />
-                  </div>
-                  <div
-                    class="psa-image-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden"
-                  >
-                    <i class="fas fa-image text-2xl"></i>
-                  </div>
-                  <button
-                    type="button"
-                    class="remove-psa-image text-red-500 hover:text-red-700 p-1"
-                    style="display: none"
-                  >
-                    <i class="fas fa-times"></i>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Add another image button for PSA -->
-              <button
-                type="button"
-                id="add-psa-image"
-                class="mt-2 text-sm text-brand hover:text-brand/80 font-medium flex items-center gap-2"
-              >
-                <i class="fas fa-plus-circle"></i> Add another page image
-              </button>
-            </div>
-
-            <div class="mt-3 flex items-center gap-2 text-xs text-gray-500">
-              <i class="fas fa-info-circle"></i>
-              <span
-                >Choose EITHER one PDF file OR multiple images. At least one
-                page required.</span
-              >
-            </div>
-            <p class="text-xs text-red-500 mt-1 hidden" data-error="psa"></p>
-          </div>
-
-          <!-- GSAT with Preview -->
-          <div class="border border-gray-200 rounded-xl p-5">
-            <label class="block text-sm font-semibold mb-2 text-gray-700">
-              GSAT (Graduate School Admission Test)
-              <span class="text-red-500">*</span>
-            </label>
-            <div class="flex items-start gap-4">
-              <div class="flex-grow">
-                <input
-                  type="file"
-                  name="gsat"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  required
-                  class="gsat-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition"
-                />
-              </div>
-              <div
-                class="gsat-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden"
-              >
-                <i class="fas fa-image text-2xl"></i>
-              </div>
-            </div>
-            <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
-              <i class="fas fa-info-circle"></i>
-              <span>PDF or image, max 10MB</span>
-            </div>
-            <p class="text-xs text-red-500 mt-1 hidden" data-error="gsat"></p>
-          </div>
-
-          <!-- Navigation -->
-          <div class="flex justify-between pt-6">
-            <a
-              href="{% url 'workingStudent' %}"
-              class="inline-flex items-center gap-2 px-8 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand/5 active:scale-[0.98] transition"
-              >← Back</a
-            >
-            <button
-              type="submit"
-              class="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md"
-            >
-              Next →
+            <!-- Add another image button for TOR -->
+            <button type="button" id="add-tor-image"
+              class="mt-2 text-sm text-brand hover:text-brand/80 font-medium flex items-center gap-2">
+              <i class="fas fa-plus-circle"></i> Add another page image
             </button>
           </div>
-        </form>
-      </div>
-    </div>
 
-    <script src="{% static 'students_app/js/documents.js' %}"></script>
-  </body>
+          <div class="mt-3 flex items-center gap-2 text-xs text-gray-500">
+            <i class="fas fa-info-circle"></i>
+            <span>Choose EITHER one PDF file OR multiple images. At least one
+              page required.</span>
+          </div>
+
+          <p class="text-xs text-red-500 mt-1 hidden" data-error="tor"></p>
+        </div>
+
+        <!-- Honorable Dismissal with Preview -->
+        <div class="border border-gray-200 rounded-xl p-5">
+          <label class="block text-sm font-semibold mb-2 text-gray-700">
+            Honorable Dismissal
+          </label>
+          <div class="flex items-start gap-4">
+            <div class="flex-grow">
+              <input type="file" name="honorableDismissal" accept=".pdf,.jpg,.jpeg,.png"
+                class="honorable-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition" />
+            </div>
+            <div
+              class="honorable-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
+              <i class="fas fa-image text-2xl"></i>
+            </div>
+          </div>
+          <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
+            <i class="fas fa-info-circle"></i>
+            <span>PDF or image, max 10MB</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-2 italic">Optional — can be submitted later</p>
+        </div>
+
+        <!-- PSA - Hybrid: PDF preferred, multiple images-->
+        <div class="border border-gray-200 rounded-xl p-5 bg-blue-50/30" id="psa-section">
+          <div class="flex items-center justify-between mb-3">
+            <label class="block text-sm font-semibold text-gray-700">
+              PSA (live birth)
+            </label>
+            <span class="pdf-badge">
+              <i class="fas fa-file-pdf text-xs"></i> PDF preferred
+            </span>
+          </div>
+
+          <!-- Option 1: Upload as single PDF  -->
+          <div class="mb-4 p-3 bg-white rounded-lg border border-gray-200">
+            <div class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+              <i class="fas fa-star text-yellow-500 text-xs"></i>
+              <span>Recommended: Upload as one PDF file</span>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="flex-grow">
+                <input type="file" name="psaPDF" accept=".pdf" id="psaPDF"
+                  class="psa-pdf-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 transition" />
+              </div>
+              <div
+                class="psa-pdf-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
+                <i class="fas fa-file-pdf text-2xl text-red-500"></i>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">
+              Upload all pages as a single PDF file
+            </p>
+          </div>
+
+          <div class="or-divider">
+            <span>OR</span>
+          </div>
+
+          <!-- Option 2: Multiple image uploads  -->
+          <div class="mt-3">
+            <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
+              <i class="fas fa-image text-gray-400"></i>
+              <span>Upload as multiple images (front/back or multiple
+                pages)</span>
+            </div>
+
+            <!-- Container for PSA image files -->
+            <div id="psa-images-container" class="space-y-3 mb-3">
+              <!-- First PSA image input -->
+              <div class="psa-image-item flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-200">
+                <div class="flex-grow">
+                  <input type="file" name="psaImages[]" accept=".jpg,.jpeg,.png"
+                    class="psa-image-input w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition" />
+                </div>
+                <div
+                  class="psa-image-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
+                  <i class="fas fa-image text-2xl"></i>
+                </div>
+                <button type="button" class="remove-psa-image text-red-500 hover:text-red-700 p-1"
+                  style="display: none">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Add another image button for PSA -->
+            <button type="button" id="add-psa-image"
+              class="mt-2 text-sm text-brand hover:text-brand/80 font-medium flex items-center gap-2">
+              <i class="fas fa-plus-circle"></i> Add another page image
+            </button>
+          </div>
+
+          <div class="mt-3 flex items-center gap-2 text-xs text-gray-500">
+            <i class="fas fa-info-circle"></i>
+            <span>Choose EITHER one PDF file OR multiple images. At least one
+              page required.</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-2 italic">Optional — can be submitted later</p>
+          <p class="text-xs text-red-500 mt-1 hidden" data-error="psa"></p>
+        </div>
+
+        <!-- GSAT with Preview -->
+        <div class="border border-gray-200 rounded-xl p-5">
+          <label class="block text-sm font-semibold mb-2 text-gray-700">
+            GSAT (Graduate School Admission Test)
+          </label>
+          <div class="flex items-start gap-4">
+            <div class="flex-grow">
+              <input type="file" name="gsat" accept=".pdf,.jpg,.jpeg,.png"
+                class="gsat-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition" />
+            </div>
+            <div
+              class="gsat-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
+              <i class="fas fa-image text-2xl"></i>
+            </div>
+          </div>
+          <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
+            <i class="fas fa-info-circle"></i>
+            <span>PDF or image, max 10MB</span>
+          </div>
+          <p class="text-xs text-gray-500 mt-2 italic">Optional — can be submitted later</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex justify-between pt-6">
+          <a href="{% url 'workingStudent' %}"
+            class="inline-flex items-center gap-2 px-8 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand/5 active:scale-[0.98] transition">←
+            Back</a>
+          <button type="submit"
+            class="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md">
+            Next →
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="{% static 'students_app/js/documents.js' %}"></script>
+</body>
+
 </html>
