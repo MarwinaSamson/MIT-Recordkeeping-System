@@ -5,12 +5,13 @@ from django.utils import timezone
 
 class UserProfile(models.Model):
     """
-    Extended user profile to store email verification data.
+    Extended user profile to store email verification and session state.
     """
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     verification_token = models.CharField(max_length=64, unique=True, null=True, blank=True)
     token_created_at = models.DateTimeField(null=True, blank=True)
     is_email_verified = models.BooleanField(default=False)
+    current_session_key = models.CharField(max_length=40, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -77,6 +78,40 @@ class EducationalBackground(models.Model):
         return f"{self.level.title()} background for {self.user.username if self.user else 'Unknown'}"
 
 
+class WorkingStudent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    is_employed = models.BooleanField(default=False)
+    position = models.CharField(max_length=255, blank=True)
+    monthly_income = models.CharField(max_length=50, blank=True)
+    employment_status = models.CharField(max_length=64, blank=True)
+    employment_status_other = models.CharField(max_length=255, blank=True)
+    employer_name = models.CharField(max_length=255, blank=True)
+    employer_address = models.CharField(max_length=500, blank=True)
+    employer_contact = models.CharField(max_length=50, blank=True)
+    employer_classification = models.CharField(max_length=64, blank=True)
+    employer_classification_other = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Working student data for {self.user.username if self.user else 'Unknown'}"
+
+
+class PrivacyConsent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    agreed = models.BooleanField(default=False)
+    name = models.CharField(max_length=255, blank=True)
+    signed_at = models.DateTimeField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    ip_address = models.CharField(max_length=100, blank=True)
+    form_version = models.CharField(max_length=32, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Privacy consent for {self.user.username if self.user else 'Unknown'}: {'agreed' if self.agreed else 'not agreed'}"
+
+
 class Document(models.Model):
     DOCUMENT_TYPE_CHOICES = [
         ('deans_recommendation', "Dean's Recommendation"),
@@ -101,3 +136,34 @@ class Document(models.Model):
         super().save(*args, **kwargs)
 
 
+class Notification(models.Model):
+    """
+    Stores notifications for students about document verification status changes.
+    """
+    NOTIFICATION_TYPE_CHOICES = [
+        ('document_verified', 'Document Verified'),
+        ('document_rejected', 'Document Rejected'),
+        ('document_reviewing', 'Document Under Review'),
+        ('application_status', 'Application Status Changed'),
+        ('deadline_reminder', 'Submission Deadline Reminder'),
+        ('general', 'General Notification'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    notification_type = models.CharField(max_length=30, choices=NOTIFICATION_TYPE_CHOICES)
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = 'Notifications'
+    
+    def __str__(self):
+        return f"{self.title} - {self.user.email}"
+    
+    def mark_as_read(self):
+        self.is_read = True
+        self.save()

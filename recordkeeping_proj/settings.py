@@ -47,7 +47,6 @@ INSTALLED_APPS = [
 
     "students_app",
     "admin_app",
-    
 ]
 
 # Authentication Backends
@@ -64,6 +63,14 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+
+# Social Account Settings
+# Skip email verification for social accounts (Google already verified)
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+# Allow auto signup for social accounts
+SOCIALACCOUNT_AUTO_SIGNUP = True
+# Automatically connect social accounts to existing users by email
+SOCIALACCOUNT_EMAIL_REQUIRED = True
 
 # Custom adapters
 ACCOUNT_ADAPTER = "students_app.adapters.AccountAdapter"
@@ -89,12 +96,14 @@ SOCIALACCOUNT_PROVIDERS = {
 LOGIN_REDIRECT_URL = "/personalDetails/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/login/"
 
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "students_app.middleware.SessionSecurityMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
@@ -112,7 +121,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-        
             ],
         },
     },
@@ -189,6 +197,9 @@ JAB_SEAL_URL = '/static/assets/seals/logoandcap.png'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+SESSION_SAVE_EVERY_REQUEST = True
+# keep session cookie valid if active; idle timeout is enforced separately
+SESSION_COOKIE_AGE = 60 * 60
 
 # Email Configuration
 # https://docs.djangoproject.com/en/5.2/topics/email/

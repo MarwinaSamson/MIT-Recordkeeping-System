@@ -225,14 +225,9 @@ document
       }),
     );
 
-<<<<<<< Updated upstream
-    // Redirect to next step
-    window.location.href = "/privacyNotice/";
-=======
 
     // Submit form to backend for persistence
     this.submit();
->>>>>>> Stashed changes
   });
 
 function showError(fieldName, message) {

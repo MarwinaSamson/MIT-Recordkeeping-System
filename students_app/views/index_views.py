@@ -1,8 +1,8 @@
 from django.shortcuts import render
+from admin_app.models import CMSSettings
 
 def index(request):
-    from admin_app.models import CMSSettings
-
+    
     # Get CMS settings for the homepage
     cms = CMSSettings.objects.filter(pk=1).first() or CMSSettings()
 
