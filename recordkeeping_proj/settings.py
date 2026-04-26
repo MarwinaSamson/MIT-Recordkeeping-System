@@ -58,9 +58,8 @@ AUTHENTICATION_BACKENDS = [
 SITE_ID = 1
 
 # allauth settings
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
 # Custom adapters
@@ -73,6 +72,11 @@ SOCIALACCOUNT_ADAPTER = "students_app.adapters.SocialAccountAdapter"
 # This is the recommended approach for django-allauth 0.61+
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
+        "APP": {
+            "client_id": "268150191505-7j2dc1d0jnd89at95qhp1f9o4cmm2rp8.apps.googleusercontent.com",
+            "secret": "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",
+            "key": "",
+        },
         "SCOPE": [
             "profile",
             "email",
@@ -127,7 +131,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "mit_recordkeeping_db",
         "USER": "postgres",
-        "PASSWORD": "011304",
+        "PASSWORD": "060104",
         "HOST": "localhost",
         "PORT": "5432",
     }
