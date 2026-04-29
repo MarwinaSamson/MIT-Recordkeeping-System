@@ -81,11 +81,6 @@ SOCIALACCOUNT_ADAPTER = "students_app.adapters.SocialAccountAdapter"
 # This is the recommended approach for django-allauth 0.61+
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
-        "APP": {
-            "client_id": "268150191505-7j2dc1d0jnd89at95qhp1f9o4cmm2rp8.apps.googleusercontent.com",
-            "secret": "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",
-            "key": "",
-        },
         "SCOPE": [
             "profile",
             "email",
@@ -142,7 +137,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "mit_recordkeeping_db",
         "USER": "postgres",
-        "PASSWORD": "060104",
+        "PASSWORD": "011304",
         "HOST": "localhost",
         "PORT": "5432",
     }

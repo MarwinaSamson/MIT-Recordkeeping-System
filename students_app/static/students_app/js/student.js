@@ -18,41 +18,48 @@ const DOC_STATUS = {
   psa: { status: "pending", note: "Awaiting submission." },
   gsat: { status: "pending", note: "Awaiting submission." },
 };
-let notifications = [];
-
-async function fetchNotifications() {
-  try {
-    const response = await fetch("/api/student-notifications/", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      notifications = data.notifications.map((n) => ({
-        id: n.id,
-        icon: n.icon,
-        color: n.color,
-        bg: n.bg,
-        title: n.title,
-        msg: n.message,
-        time: n.time,
-        read: n.read,
-      }));
-    } else {
-      console.error("Failed to fetch notifications:", response.status);
-      notifications = [];
-    }
-  } catch (error) {
-    console.error("Error fetching notifications:", error);
-    notifications = [];
-  } finally {
-    buildNotifications();
-    buildNotifPreview();
-  }
-}
+let notifications = [
+  {
+    id: 1,
+    icon: "fa-times-circle",
+    color: "#DC2626",
+    bg: "#FEF2F2",
+    title: "Document Rejected",
+    msg: "Your Honorable Dismissal was rejected. Please re-upload a clearer, legible copy for re-review.",
+    time: "2 hours ago",
+    read: false,
+  },
+  {
+    id: 2,
+    icon: "fa-search",
+    color: "#1D4ED8",
+    bg: "#EFF6FF",
+    title: "Document Under Review",
+    msg: "Your Transcript of Records (TOR) is currently being reviewed by the Registrar's Office.",
+    time: "Yesterday",
+    read: false,
+  },
+  {
+    id: 3,
+    icon: "fa-check-circle",
+    color: "#15803D",
+    bg: "#F0FDF4",
+    title: "Document Approved",
+    msg: "Your Dean's Recommendation letter has been verified and approved. No further action is required.",
+    time: "2 days ago",
+    read: true,
+  },
+  {
+    id: 4,
+    icon: "fa-bell",
+    color: "#B45309",
+    bg: "#FFFBEB",
+    title: "Deadline Reminder",
+    msg: "The document submission deadline is March 15, 2026. Ensure all required documents are uploaded on time.",
+    time: "3 days ago",
+    read: true,
+  },
+];
 let toastTimer = null,
   isEditing = false,
   currentUploadKey = null;
@@ -96,32 +103,23 @@ function toggleTheme() {
 function initTheme() {
   const saved = localStorage.getItem("mitTheme");
   const prefersDark = window.matchMedia("(prefers-color-scheme:dark)").matches;
-  // Default to dark theme unless explicitly saved as light
-  if (saved !== "light" && (saved === "dark" || prefersDark || saved === null)) {
+  if (saved === "dark" || (saved === null && prefersDark)) {
     document.documentElement.classList.add("dark");
     document.getElementById("themeIcon").className = "fas fa-sun";
   }
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  console.log("DOMContentLoaded event fired");
   initTheme();
   loadPersonalData();
   buildMiniDocList();
   buildDocGrid();
   buildStatusSummary();
-  // Initialize with empty state first
-  document.getElementById("progLabel").textContent = "Loading...";
-  fetchNotifications();
-  // Fetch actual document status from API immediately
-  console.log("About to call fetchDocumentStatus()");
-  fetchDocumentStatus();
-  fetchDocumentDetails();
+  buildNotifications();
+  buildNotifPreview();
+  updateProgress();
   loadProfileFields();
   setFieldsDisabled(true);
-  // Start polling every 10 seconds
-  statusPollInterval = setInterval(fetchDocumentStatus, 10000);
-  console.log("Polling started, interval ID:", statusPollInterval);
 });
 
 function greetUser() {
@@ -336,45 +334,17 @@ function renderN(n, compact = false) {
 }
 
 function readNotif(id) {
-  // Call API to mark notification as read
-  fetch("/api/notifications/read/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ notification_id: id }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.status === "success") {
-        notifications = notifications.map((n) =>
-          n.id === id ? { ...n, read: true } : n,
-        );
-        buildNotifications();
-        buildNotifPreview();
-      }
-    })
-    .catch((error) => console.error("Error marking notification as read:", error));
+  notifications = notifications.map((n) =>
+    n.id === id ? { ...n, read: true } : n,
+  );
+  buildNotifications();
+  buildNotifPreview();
 }
-
 function markAllRead() {
-  // Call API to mark all notifications as read
-  fetch("/api/notifications/read-all/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.status === "success") {
-        notifications = notifications.map((n) => ({ ...n, read: true }));
-        buildNotifications();
-        buildNotifPreview();
-        showToast("All notifications marked as read");
-      }
-    })
-    .catch((error) => console.error("Error marking all notifications as read:", error));
+  notifications = notifications.map((n) => ({ ...n, read: true }));
+  buildNotifications();
+  buildNotifPreview();
+  showToast("All notifications marked as read");
 }
 
 function triggerUploadFor(key) {
@@ -574,14 +544,13 @@ function switchPage(pageId, el) {
   if (pageId === "overview") {
     buildMiniDocList();
     buildNotifPreview();
-    // Re-fetch latest data from API to ensure accuracy
-    fetchDocumentStatus();
+    updateProgress();
   }
   if (pageId === "documents") {
     buildDocGrid();
     buildStatusSummary();
   }
-  if (pageId === "notifications") fetchNotifications();
+  if (pageId === "notifications") buildNotifications();
   if (pageId === "profile") loadProfileFields();
   closeSidebar();
   window.scrollTo(0, 0);
@@ -597,7 +566,9 @@ function closeSidebar() {
 }
 function handleLogout() {
   if (confirm("Sign out of MIT Student Portal?")) {
-    window.location.href = "/logout/";
+    const stored = getStoredData();
+    const target = stored.logoutUrl || "/accounts/logout/";
+    window.location.href = target;
   }
 }
 
@@ -631,194 +602,3 @@ function pillClass(s) {
 function capFirst(s) {
   return s ? s[0].toUpperCase() + s.slice(1) : "";
 }
-
-/* POLLING: Check for document status updates */
-let statusPollInterval = null;
-let cachedStatus = {
-  verified_documents: null,
-  reviewing_documents: null,
-  application_status: null,
-  submission_deadline: null,
-};
-
-function fetchDocumentDetails() {
-  // Fetch detailed document statuses from server and update DOC_STATUS
-  fetch("/api/document-details/", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Requested-With": "XMLHttpRequest",
-    },
-  })
-    .then((res) => res.json())
-    .then((docDetails) => {
-      // Update DOC_STATUS with actual database values
-      for (const key in docDetails) {
-        if (DOC_STATUS[key]) {
-          const detail = docDetails[key];
-          DOC_STATUS[key].status = detail.status;
-          if (detail.rejection_reason) {
-            DOC_STATUS[key].note = detail.rejection_reason;
-          }
-        }
-      }
-      // Rebuild UI with updated statuses
-      buildMiniDocList();
-      buildDocGrid();
-      buildStatusSummary();
-    })
-    .catch((err) => {
-      console.error("Error fetching document details:", err);
-    });
-}
-
-function fetchDocumentStatus() {
-  console.log("Starting fetchDocumentStatus...");
-  fetch("/api/document-status/", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Requested-With": "XMLHttpRequest",
-    },
-  })
-    .then((res) => {
-      console.log("API Response status:", res.status);
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      return res.json();
-    })
-    .then((data) => {
-      console.log("Document status data:", data);
-      
-      // Check if any values changed
-      const changed = {
-        verified: cachedStatus.verified_documents !== data.verified_documents,
-        reviewing:
-          cachedStatus.reviewing_documents !== data.reviewing_documents,
-        status: cachedStatus.application_status !== data.application_status,
-        deadline:
-          cachedStatus.submission_deadline !== data.submission_deadline,
-      };
-
-      // On first load, always update (when cached values are null)
-      const isFirstLoad = cachedStatus.verified_documents === null;
-
-      if (isFirstLoad || changed.verified || changed.reviewing || changed.status || changed.deadline) {
-        // Update cached values
-        cachedStatus = data;
-
-        // Update approved documents count
-        if (isFirstLoad || changed.verified) {
-          const statApprovedEl = document.getElementById("statApproved");
-          console.log("statApproved element:", statApprovedEl);
-          if (statApprovedEl) {
-            statApprovedEl.textContent = data.verified_documents;
-          }
-          // Also update progress based on verified count
-          if (data.total_documents > 0) {
-            const progressPercent = Math.round((data.verified_documents / data.total_documents) * 100);
-            console.log("Updating progress to:", progressPercent + "%");
-            const progressPercentEl = document.getElementById("progressPercent");
-            const progBarEl = document.getElementById("progBar");
-            const progressRingEl = document.getElementById("progressRing");
-            const progLabelEl = document.getElementById("progLabel");
-            
-            console.log("Elements found - progressPercent:", !!progressPercentEl, "progBar:", !!progBarEl, "progressRing:", !!progressRingEl, "progLabel:", !!progLabelEl);
-            
-            if (progressPercentEl) progressPercentEl.textContent = progressPercent + "%";
-            if (progBarEl) progBarEl.style.width = progressPercent + "%";
-            if (progressRingEl) progressRingEl.style.strokeDashoffset = 283 - (283 * progressPercent) / 100;
-            if (progLabelEl) progLabelEl.textContent = `${data.verified_documents} of ${data.total_documents} completed`;
-          }
-        }
-
-        // Update reviewing documents count
-        if (isFirstLoad || changed.reviewing) {
-          document.getElementById("statReview").textContent =
-            data.reviewing_documents;
-        }
-
-        // Update application status in banner
-        if (isFirstLoad || changed.status) {
-          const statusChip = document.getElementById("statusChip");
-          if (statusChip) {
-            const statusText = data.application_status.charAt(0).toUpperCase() + 
-                              data.application_status.slice(1).toLowerCase();
-            statusChip.innerHTML = `<i
-                  class="fas fa-circle"
-                  style="font-size: 0.5rem; color: var(--green)"
-                ></i
-                >Status: ${statusText}`;
-          }
-        }
-
-        // Update submission deadline
-        if (isFirstLoad || changed.deadline) {
-          const dateRows = document.querySelectorAll(".date-row");
-          dateRows.forEach((row) => {
-            const label = row.querySelector(".date-label");
-            if (
-              label &&
-              label.textContent.includes("Document Submission Deadline")
-            ) {
-              row.querySelector(".date-val").textContent =
-                data.submission_deadline;
-            }
-          });
-        }
-
-        // Show notifications for important changes
-        if (
-          !isFirstLoad &&
-          changed.verified &&
-          data.verified_documents >
-            (cachedStatus.verified_documents - 1 || -1)
-        ) {
-          showToast(
-            `✓ Document verified! ${data.verified_documents} approved.`,
-            "success",
-          );
-        } else if (changed.reviewing) {
-          showToast(
-            `📋 ${data.reviewing_documents} document(s) under review.`,
-            "info",
-          );
-        }
-
-        if (changed.status) {
-          showToast(
-            `Application status: ${data.application_status}`,
-            "info",
-          );
-        }
-
-        // Fetch updated document details
-        fetchDocumentDetails();
-      }
-    })
-    .catch((err) => {
-      console.error("Error fetching document status:", err);
-    });
-}
-
-function startStatusPolling() {
-  // Fetch document details immediately on load
-  fetchDocumentDetails();
-  // Fetch status immediately on load
-  fetchDocumentStatus();
-  // Then poll every 10 seconds
-  statusPollInterval = setInterval(fetchDocumentStatus, 10000);
-}
-
-function stopStatusPolling() {
-  if (statusPollInterval) {
-    clearInterval(statusPollInterval);
-    statusPollInterval = null;
-  }
-}
-
-// Stop polling when user leaves the page
-window.addEventListener("beforeunload", () => {
-  stopStatusPolling();
-});
