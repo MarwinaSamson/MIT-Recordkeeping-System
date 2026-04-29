@@ -1,21 +1,18 @@
-from django.shortcuts import render, redirect
-
-from students_app.models import (
-    Document,
-    EducationalBackground,
-    PersonalDetails,
-    WorkingStudent,
-)
-
-
-def _has_student_data(user):
-    return (
-        PersonalDetails.objects.filter(user=user).exists()
-        or EducationalBackground.objects.filter(user=user).exists()
-        or WorkingStudent.objects.filter(user=user).exists()
-        or Document.objects.filter(user=user).exists()
-    )
+from django.shortcuts import render
+from admin_app.models import CMSSettings
 
 
 def index(request):
-    return render(request, "students_app/index.html")
+
+    # Get CMS settings for the homepage
+    cms = CMSSettings.objects.filter(pk=1).first() or CMSSettings()
+
+    context = {
+        'cms': cms
+    }
+    return render(request, "students_app/index.html", context)
+
+
+def about(request):
+    cms = CMSSettings.objects.filter(pk=1).first() or CMSSettings()
+    return render(request, "students_app/about.html", {"cms": cms})
