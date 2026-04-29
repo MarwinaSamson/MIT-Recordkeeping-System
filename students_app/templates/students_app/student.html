@@ -835,6 +835,17 @@
               <div><div class="date-label">Start of Classes</div><div class="date-val">June 9, 2026</div></div>
             </div>
           </div>
+<<<<<<< HEAD
+          <div class="stat-card fu" style="animation-delay: 0.11s">
+            <div class="stat-icon-wrap" style="background: var(--green-bg)">
+              <i class="fas fa-check-circle" style="color: var(--green)"></i>
+            </div>
+            <div>
+              <div class="stat-value" id="statApproved">
+                {{ verified_documents }}
+              </div>
+              <div class="stat-label">Approved</div>
+=======
         </div>
       </div>
 
@@ -898,6 +909,7 @@
               <div class="guide-row"><span class="ms ok">check_circle</span><span>TOR and PSA: PDF format preferred</span></div>
               <div class="guide-row"><span class="ms info">info</span><span>Blurry or incomplete files may delay processing</span></div>
               <div class="guide-row"><span class="ms warn">warning</span><span>Files are scanned for safety on upload</span></div>
+>>>>>>> origin/main
             </div>
           </div>
 
@@ -942,6 +954,13 @@
               <h3>Semester COR Records</h3>
               <span style="font-size:0.7rem;color:var(--ink-4)">Upload one COR per semester after enrollment</span>
             </div>
+<<<<<<< HEAD
+            <div>
+              <div class="stat-value" id="statReview">
+                {{ reviewing_documents }}
+              </div>
+              <div class="stat-label">Under Review</div>
+=======
 
             <div class="cor-sem-tabs">
               <div class="cor-sem-tab active"   onclick="switchCorSem('1-1', this)">1st Year — 1st Sem</div>
@@ -1080,6 +1099,7 @@
                   </div>
                 </div>
               </div>
+>>>>>>> origin/main
             </div>
           </div>
         </div>
@@ -1314,15 +1334,472 @@
                   <div class="school" id="profileCollege">{{ undergrad_school }}</div>
                   <div class="degree">Bachelor's Degree</div>
                 </div>
+<<<<<<< HEAD
+                <div>
+                  <div class="date-label">Document Submission Deadline</div>
+                  <div class="date-val">{{ submission_deadline }}</div>
+                </div>
+              </div>
+              <div class="date-row">
+                <div class="date-icon" style="background: var(--blue-bg)">
+                  <i class="fas fa-pen-nib" style="color: var(--blue)"></i>
+                </div>
+                <div>
+                  <div class="date-label">GSAT Examination</div>
+                  <div class="date-val">March 22, 2026 · 8:00 AM</div>
+                </div>
+              </div>
+              <div class="date-row">
+                <div class="date-icon" style="background: var(--green-bg)">
+                  <i class="fas fa-users" style="color: var(--green)"></i>
+                </div>
+                <div>
+                  <div class="date-label">Admission Interview</div>
+                  <div class="date-val">April 5, 2026 · TBA</div>
+                </div>
+              </div>
+              <div class="date-row">
+                <div class="date-icon" style="background: #fdf4ff">
+                  <i class="fas fa-lightbulb" style="color: #7c3aed"></i>
+                </div>
+                <div>
+                  <div class="date-label">Title Proposal Defense</div>
+                  <div class="date-val">May 10, 2026 · 9:00 AM</div>
+                </div>
+              </div>
+              <div class="date-row">
+                <div class="date-icon" style="background: #fff7ed">
+                  <i class="fas fa-scroll" style="color: #c2410c"></i>
+                </div>
+                <div>
+                  <div class="date-label">Final Defense Presentation</div>
+                  <div class="date-val">August 20, 2026 · 8:00 AM</div>
+                </div>
+              </div>
+              <div class="date-row">
+                <div class="date-icon" style="background: var(--amber-bg)">
+                  <i
+                    class="fas fa-graduation-cap"
+                    style="color: var(--amber)"
+                  ></i>
+                </div>
+                <div>
+                  <div class="date-label">Start of Classes</div>
+                  <div class="date-val">June 9, 2026</div>
+=======
                 <div class="edu-card">
                   <div class="level">Graduate</div>
                   <div class="school" id="profileGrad">{{ graduate_school }}</div>
                   <div class="degree">Current Program</div>
+>>>>>>> origin/main
                 </div>
               </div>
             </div>
           </div>
         </div>
+<<<<<<< HEAD
+
+        <div class="card fu" style="animation-delay: 0.27s">
+          <div class="card-header">
+            <div class="card-title">Recent Notifications</div>
+            <button
+              class="btn btn-ghost btn-xs"
+              onclick="
+                switchPage(
+                  'notifications',
+                  document.querySelectorAll('.nav-item')[2],
+                )
+              "
+            >
+              View all
+              <i class="fas fa-arrow-right" style="font-size: 0.65rem"></i>
+            </button>
+          </div>
+          <div style="padding: 8px 8px" id="notifPreview"></div>
+        </div>
+      </section>
+
+      <!-- DOCUMENTS -->
+      <section class="page" id="page-documents">
+        <div style="margin-bottom: 20px" class="fu">
+          <h1
+            style="
+              font-family: &quot;Instrument Serif&quot;, serif;
+              font-size: 1.6rem;
+              font-weight: 400;
+              color: var(--ink);
+              letter-spacing: -0.02em;
+              margin-bottom: 3px;
+            "
+          >
+            My Documents
+          </h1>
+          <p style="font-size: 0.81rem; color: var(--ink-4)">
+            Upload and manage your required submission documents below.
+          </p>
+        </div>
+        <div class="doc-layout">
+          <div>
+            <div id="uploadNotice" class="upload-notice hidden">
+              <i class="fas fa-check-circle"></i
+              ><span id="uploadNoticeTxt"></span>
+            </div>
+            <div
+              class="dropzone"
+              id="dropzone"
+              onclick="document.getElementById('fileInput').click()"
+              ondragover="
+                event.preventDefault();
+                this.classList.add('dragover');
+              "
+              ondragleave="this.classList.remove('dragover')"
+              ondrop="handleDrop(event)"
+            >
+              <input
+                type="file"
+                id="fileInput"
+                accept=".pdf,.jpg,.jpeg,.png"
+                onchange="handleFileSelect(event)"
+              />
+              <div class="dz-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+              <h4>Drag &amp; drop your document here</h4>
+              <p>
+                <span>Click to browse files</span> &nbsp;·&nbsp; PDF, JPG, PNG
+                &nbsp;·&nbsp; Max 10 MB
+              </p>
+            </div>
+            <div class="sec-label">
+              Required Documents <span style="color: var(--red)">*</span>
+            </div>
+            <div id="docGrid"></div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <div class="card fu" style="animation-delay: 0.06s">
+              <div class="card-header">
+                <div class="card-title">Upload Guidelines</div>
+              </div>
+              <div class="card-body" style="padding-top: 12px">
+                <div class="guide-row">
+                  <i class="fas fa-check-circle ok"></i
+                  ><span>Accepted: PDF, JPG, PNG</span>
+                </div>
+                <div class="guide-row">
+                  <i class="fas fa-check-circle ok"></i
+                  ><span>Max file size: 10 MB per document</span>
+                </div>
+                <div class="guide-row">
+                  <i class="fas fa-check-circle ok"></i
+                  ><span>Ensure documents are clear and readable</span>
+                </div>
+                <div class="guide-row">
+                  <i class="fas fa-check-circle ok"></i
+                  ><span>TOR and PSA: PDF format preferred</span>
+                </div>
+                <div class="guide-row">
+                  <i class="fas fa-info-circle info"></i
+                  ><span>Blurry or incomplete files may delay processing</span>
+                </div>
+              </div>
+            </div>
+            <div class="deadline-card fu" style="animation-delay: 0.1s">
+              <div class="eyebrow">Submission Deadline</div>
+              <div class="date">March 15, 2026</div>
+              <p>
+                Submit all required documents before this date to avoid delays
+                in your application review.
+              </p>
+              <button
+                class="btn"
+                style="
+                  width: 100%;
+                  background: rgba(255, 255, 255, 0.1);
+                  color: #fff;
+                  border: 1px solid rgba(255, 255, 255, 0.15);
+                  font-size: 0.78rem;
+                "
+                onclick="document.getElementById('fileInput').click()"
+              >
+                <i class="fas fa-upload" style="font-size: 0.7rem"></i>Upload
+                Now
+              </button>
+            </div>
+            <div class="card fu" style="animation-delay: 0.14s">
+              <div class="card-header">
+                <div class="card-title">Status Summary</div>
+              </div>
+              <div
+                class="card-body"
+                style="padding-top: 12px"
+                id="statusSummary"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- NOTIFICATIONS -->
+      <section class="page" id="page-notifications">
+        <div style="margin-bottom: 20px" class="fu">
+          <h1
+            style="
+              font-family: &quot;Instrument Serif&quot;, serif;
+              font-size: 1.6rem;
+              font-weight: 400;
+              color: var(--ink);
+              letter-spacing: -0.02em;
+              margin-bottom: 3px;
+            "
+          >
+            Notifications
+          </h1>
+          <p style="font-size: 0.81rem; color: var(--ink-4)">
+            Stay updated on document review statuses and important
+            announcements.
+          </p>
+        </div>
+        <div class="card fu" style="max-width: 700px">
+          <div class="card-header">
+            <span
+              style="font-size: 0.82rem; font-weight: 600; color: var(--ink)"
+              >All Notifications</span
+            >
+            <button class="btn btn-ghost btn-xs" onclick="markAllRead()">
+              Mark all as read
+            </button>
+          </div>
+          <div style="padding: 8px" id="notifList"></div>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
+      <section class="page" id="page-profile">
+        <div style="margin-bottom: 20px" class="fu">
+          <h1
+            style="
+              font-family: &quot;Instrument Serif&quot;, serif;
+              font-size: 1.6rem;
+              font-weight: 400;
+              color: var(--ink);
+              letter-spacing: -0.02em;
+              margin-bottom: 3px;
+            "
+          >
+            My Profile
+          </h1>
+          <p style="font-size: 0.81rem; color: var(--ink-4)">
+            View and update your personal information and academic background.
+          </p>
+        </div>
+        <div class="profile-layout">
+          <div class="fu">
+            <div class="card" style="text-align: center; padding: 24px 18px">
+              <div class="avatar-lg" id="profileAvatarBig">NV</div>
+              <div
+                style="
+                  font-size: 0.9rem;
+                  font-weight: 700;
+                  color: var(--ink);
+                  margin-bottom: 2px;
+                "
+                id="profileName"
+              >
+                {{ full_name }}
+              </div>
+              <div
+                style="
+                  font-size: 0.72rem;
+                  color: var(--ink-4);
+                  margin-bottom: 3px;
+                "
+              >
+                MIT Student
+              </div>
+              <div
+                style="
+                  font-size: 0.72rem;
+                  color: var(--ink-4);
+                  margin-bottom: 18px;
+                "
+                id="profileEmail"
+              >
+                {{ student.email }}
+              </div>
+              <button
+                class="btn btn-outline"
+                style="width: 100%; font-size: 0.78rem"
+                onclick="toggleEditMode()"
+              >
+                <i class="fas fa-pen" style="font-size: 0.65rem"></i
+                ><span id="editBtnLabel">Edit Profile</span>
+              </button>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <div class="card fu" style="animation-delay: 0.08s">
+              <div class="card-header">
+                <div class="card-title">Personal Information</div>
+                <div
+                  id="editIndicator"
+                  style="
+                    display: none;
+                    font-size: 0.68rem;
+                    font-weight: 600;
+                    color: var(--red);
+                    background: var(--red-light);
+                    padding: 3px 8px;
+                    border-radius: 5px;
+                    border: 1px solid var(--red-mid);
+                  "
+                >
+                  Editing
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="profile-grid">
+                  <div class="field">
+                    <label>First Name</label
+                    ><input
+                      type="text"
+                      id="pFirstName"
+                      placeholder="First name"
+                      value="{{ personal_details.first_name|default_if_none:'' }}"
+                    />
+                  </div>
+                  <div class="field">
+                    <label>Last Name</label
+                    ><input
+                      type="text"
+                      id="pLastName"
+                      placeholder="Last name"
+                      value="{{ personal_details.last_name|default_if_none:'' }}"
+                    />
+                  </div>
+                  <div class="field">
+                    <label>Date of Birth</label
+                    ><input
+                      type="date"
+                      id="pDob"
+                      value="{{ personal_details.dob|date:'Y-m-d'|default_if_none:'' }}"
+                    />
+                  </div>
+                  <div class="field">
+                    <label>Gender</label>
+                    <select id="pGender">
+                      <option value="">Select</option>
+                      <option>Male</option>
+                      <option>Female</option>
+                      <option>Prefer not to say</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label>Contact Number</label
+                    ><input
+                      type="tel"
+                      id="pContact"
+                      placeholder="+1 (617) 000-0000"
+                      value="{{ personal_details.contact_number|default_if_none:'' }}"
+                    />
+                  </div>
+                  <div class="field">
+                    <label>Email Address</label
+                    ><input
+                      type="email"
+                      id="pEmail"
+                      placeholder="name@mit.edu"
+                      value="{{ personal_details.email|default:student.email }}"
+                    />
+                  </div>
+                  <div class="field" style="grid-column: 1/-1">
+                    <label>Permanent Address</label
+                    ><input
+                      type="text"
+                      id="pAddress"
+                      placeholder="Enter your permanent address"
+                    />
+                  </div>
+                </div>
+                <div
+                  id="savePersonalBtns"
+                  style="display: none; gap: 8px; margin-top: 4px"
+                >
+                  <button
+                    class="btn btn-primary btn-xs"
+                    onclick="saveProfile()"
+                  >
+                    <i class="fas fa-check" style="font-size: 0.65rem"></i>Save
+                    Changes
+                  </button>
+                  <button class="btn btn-outline btn-xs" onclick="cancelEdit()">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="card fu" style="animation-delay: 0.14s">
+              <div class="card-header">
+                <div class="card-title">Educational Background</div>
+              </div>
+              <div class="card-body">
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 10px;
+                  "
+                >
+                  <div class="edu-card">
+                    <div class="level">Undergraduate</div>
+                    <div class="school" id="profileCollege">
+                      {{ undergrad_school }}
+                    </div>
+                    <div class="degree">Bachelor's Degree</div>
+                  </div>
+                  <div class="edu-card">
+                    <div class="level">Graduate</div>
+                    <div class="school" id="profileGrad">
+                      {{ graduate_school }}
+                    </div>
+                    <div class="degree">Current Program</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast hidden" id="toast">
+      <i id="toastIcon" class="fas fa-check-circle" style="color: #4ade80"></i>
+      <span id="toastText"></span>
+    </div>
+
+    <div id="docPreviewModal" class="doc-preview-modal">
+      <div class="doc-preview-panel">
+        <div class="doc-preview-header">
+          <h3 id="docPreviewTitle">Document preview</h3>
+          <button class="doc-preview-close" onclick="closeDocPreview()">
+            ×
+          </button>
+        </div>
+        <div class="doc-preview-body">
+          <iframe id="docPreviewFrame" class="doc-preview-frame"></iframe>
+          <img
+            id="docPreviewImage"
+            class="doc-preview-img"
+            alt="Document preview"
+          />
+          <div id="docPreviewFallback" class="doc-preview-fallback">
+            <p>Preview is not available for this document type.</p>
+            <p>
+              <a id="docPreviewDownloadLink" href="#" target="_blank"
+                >Open file in a new tab</a
+              >
+            </p>
+          </div>
+        </div>
+=======
+>>>>>>> origin/main
       </div>
     </section>
 
