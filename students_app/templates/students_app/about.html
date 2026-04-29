@@ -28,41 +28,258 @@
             vertical-align: middle;
             line-height: 1;
         }
-        .navbar-glass { background: rgba(255,255,255,0.97); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-        .nav-link { position: relative; font-size: 0.83rem; font-weight: 500; color: #4b5563; transition: color 0.2s; white-space: nowrap; text-decoration: none; }
-        .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px; background: #7b1113; border-radius: 99px; transition: width 0.25s ease; }
-        .nav-link:hover { color: #7b1113; }
-        .nav-link:hover::after { width: 100%; }
-        .dropdown-group:hover .nav-link { color: #7b1113; }
-        .dropdown-group:hover .nav-link::after { width: 100%; }
-        .dropdown-group { position: relative; }
-        .dropdown-panel { position: absolute; top: calc(100% + 16px); left: 50%; transform: translateX(-50%) translateY(8px); background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.10),0 4px 16px rgba(123,17,19,0.08); padding: 8px; opacity: 0; pointer-events: none; transition: opacity 0.2s ease,transform 0.2s ease; z-index: 200; }
-        .dropdown-group:hover .dropdown-panel, .dropdown-group:focus-within .dropdown-panel { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
-        .panel-arrow { position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 11px; height: 11px; background: #fff; border-left: 1px solid #e5e7eb; border-top: 1px solid #e5e7eb; }
-        .panel-label { font-size: 0.61rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #9ca3af; padding: 5px 12px 6px; }
-        .dl-row { display: flex; align-items: center; gap: 11px; padding: 9px 10px; border-radius: 10px; color: #374151; text-decoration: none; transition: background 0.15s,color 0.15s; min-width: 255px; }
-        .dl-row:hover { background: #fef2f2; color: #7b1113; }
-        .pdf-icon { width: 36px; height: 42px; flex-shrink: 0; position: relative; display: flex; align-items: center; justify-content: center; }
-        .pdf-icon-bg { position: absolute; inset: 0; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; }
-        .pdf-icon-bg::after { content: ""; position: absolute; top: 0; right: 0; width: 0; height: 0; border-style: solid; border-width: 9px 9px 0 0; border-color: #fecaca transparent transparent transparent; }
-        .pdf-icon-label { position: relative; z-index: 1; font-size: 6.5px; font-weight: 800; letter-spacing: 0.06em; color: #fff; background: #7b1113; padding: 2px 4px; border-radius: 2px; margin-top: 8px; }
-        .dl-text { flex: 1; }
-        .dl-text strong { display: block; font-size: 0.8rem; font-weight: 600; }
-        .dl-text span { font-size: 0.68rem; color: #9ca3af; }
-        .dl-download { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 7px; background: #f3f4f6; flex-shrink: 0; transition: background 0.15s; }
-        .dl-row:hover .dl-download { background: #fee2e2; }
-        .dl-download .material-symbols-rounded { font-size: 14px; color: #9ca3af; }
-        .dl-row:hover .dl-download .material-symbols-rounded { color: #7b1113; }
-        .prog-row { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 10px; text-decoration: none; color: #374151; transition: background 0.15s; }
-        .prog-row:hover { background: #fef2f2; color: #7b1113; }
-        .prog-icon { width: 38px; height: 38px; border-radius: 9px; background: #fef2f2; border: 1px solid #fecaca; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .prog-row:hover .prog-icon { background: #fee2e2; }
-        .prog-icon .material-symbols-rounded { font-size: 20px; color: #7b1113; }
-        .prog-text strong { display: block; font-size: 0.8rem; font-weight: 600; }
-        .prog-text span { font-size: 0.68rem; color: #9ca3af; }
-        #mobile-menu { transition: max-height 0.3s ease,opacity 0.3s ease; }
-        .mob-chevron { transition: transform 0.25s ease; }
-        .mob-chevron.rotated { transform: rotate(180deg); }
+
+        .navbar-glass {
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .nav-link {
+            position: relative;
+            font-size: 0.83rem;
+            font-weight: 500;
+            color: #4b5563;
+            transition: color 0.2s;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #7b1113;
+            border-radius: 99px;
+            transition: width 0.25s ease;
+        }
+
+        .nav-link:hover {
+            color: #7b1113;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .dropdown-group:hover .nav-link {
+            color: #7b1113;
+        }
+
+        .dropdown-group:hover .nav-link::after {
+            width: 100%;
+        }
+
+        .dropdown-group {
+            position: relative;
+        }
+
+        .dropdown-panel {
+            position: absolute;
+            top: calc(100% + 16px);
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.10), 0 4px 16px rgba(123, 17, 19, 0.08);
+            padding: 8px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 200;
+        }
+
+        .dropdown-group:hover .dropdown-panel,
+        .dropdown-group:focus-within .dropdown-panel {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .panel-arrow {
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 11px;
+            height: 11px;
+            background: #fff;
+            border-left: 1px solid #e5e7eb;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .panel-label {
+            font-size: 0.61rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #9ca3af;
+            padding: 5px 12px 6px;
+        }
+
+        .dl-row {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 9px 10px;
+            border-radius: 10px;
+            color: #374151;
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s;
+            min-width: 255px;
+        }
+
+        .dl-row:hover {
+            background: #fef2f2;
+            color: #7b1113;
+        }
+
+        .pdf-icon {
+            width: 36px;
+            height: 42px;
+            flex-shrink: 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pdf-icon-bg {
+            position: absolute;
+            inset: 0;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+        }
+
+        .pdf-icon-bg::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 9px 9px 0 0;
+            border-color: #fecaca transparent transparent transparent;
+        }
+
+        .pdf-icon-label {
+            position: relative;
+            z-index: 1;
+            font-size: 6.5px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            color: #fff;
+            background: #7b1113;
+            padding: 2px 4px;
+            border-radius: 2px;
+            margin-top: 8px;
+        }
+
+        .dl-text {
+            flex: 1;
+        }
+
+        .dl-text strong {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .dl-text span {
+            font-size: 0.68rem;
+            color: #9ca3af;
+        }
+
+        .dl-download {
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 7px;
+            background: #f3f4f6;
+            flex-shrink: 0;
+            transition: background 0.15s;
+        }
+
+        .dl-row:hover .dl-download {
+            background: #fee2e2;
+        }
+
+        .dl-download .material-symbols-rounded {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        .dl-row:hover .dl-download .material-symbols-rounded {
+            color: #7b1113;
+        }
+
+        .prog-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #374151;
+            transition: background 0.15s;
+        }
+
+        .prog-row:hover {
+            background: #fef2f2;
+            color: #7b1113;
+        }
+
+        .prog-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .prog-row:hover .prog-icon {
+            background: #fee2e2;
+        }
+
+        .prog-icon .material-symbols-rounded {
+            font-size: 20px;
+            color: #7b1113;
+        }
+
+        .prog-text strong {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .prog-text span {
+            font-size: 0.68rem;
+            color: #9ca3af;
+        }
+
+        #mobile-menu {
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+        }
+
+        .mob-chevron {
+            transition: transform 0.25s ease;
+        }
+
+        .mob-chevron.rotated {
+            transform: rotate(180deg);
+        }
 
         :root {
             --green-dark: #5a0c0e;
@@ -654,11 +871,16 @@
 
                 <!-- Brand -->
                 <a href="{% url 'index' %}" class="flex items-center gap-3 shrink-0">
-                    <img src="{% static 'assets/Western_Mindanao_State_University.png' %}" class="w-10 h-10 object-contain" alt="WMSU Logo">
+                    <img src="{% static 'assets/Western_Mindanao_State_University.png' %}"
+                        class="w-10 h-10 object-contain" alt="WMSU Logo">
                     <div>
-                        <p class="text-[0.92rem] font-bold leading-tight hidden sm:block" style="color:#7b1113;font-family:'Playfair Display',serif;">Western Mindanao State University</p>
-                        <p class="text-[0.92rem] font-bold leading-tight sm:hidden" style="color:#7b1113;font-family:'Playfair Display',serif;">WMSU</p>
-                        <p class="text-[10.5px] text-slate-400 tracking-wide" style="font-family:'JetBrains Mono',monospace;">MIT · Graduate School Admissions</p>
+                        <p class="text-[0.92rem] font-bold leading-tight hidden sm:block"
+                            style="color:#7b1113;font-family:'Playfair Display',serif;">Western Mindanao State
+                            University</p>
+                        <p class="text-[0.92rem] font-bold leading-tight sm:hidden"
+                            style="color:#7b1113;font-family:'Playfair Display',serif;">WMSU</p>
+                        <p class="text-[10.5px] text-slate-400 tracking-wide"
+                            style="font-family:'JetBrains Mono',monospace;">MIT · Graduate School Admissions</p>
                     </div>
                 </a>
 
@@ -672,9 +894,11 @@
                     <!-- Programs dropdown -->
                     <div class="dropdown-group" tabindex="0">
                         <button class="nav-link flex items-center gap-1 focus:outline-none cursor-default">
-                            <span class="material-symbols-rounded" style="font-size:15px;color:#7b1113;opacity:0.7;">school</span>
+                            <span class="material-symbols-rounded"
+                                style="font-size:15px;color:#7b1113;opacity:0.7;">school</span>
                             Programs
-                            <span class="material-symbols-rounded" style="font-size:14px;opacity:0.35;">expand_more</span>
+                            <span class="material-symbols-rounded"
+                                style="font-size:14px;opacity:0.35;">expand_more</span>
                         </button>
                         <div class="dropdown-panel">
                             <div class="panel-arrow"></div>
@@ -682,7 +906,8 @@
                             {% for prog in cms.programs %}{% if prog.visible %}
                             <a href="{% url 'index' %}#requirements" class="prog-row">
                                 <div class="prog-icon"><span class="material-symbols-rounded">school</span></div>
-                                <div class="prog-text"><strong>{{ prog.name }}</strong><span>{{ prog.degree }}</span></div>
+                                <div class="prog-text"><strong>{{ prog.name }}</strong><span>{{ prog.degree }}</span>
+                                </div>
                             </a>
                             {% endif %}{% endfor %}
                         </div>
@@ -691,9 +916,11 @@
                     <!-- Downloadables dropdown -->
                     <div class="dropdown-group" tabindex="0">
                         <button class="nav-link flex items-center gap-1 focus:outline-none cursor-default">
-                            <span class="material-symbols-rounded" style="font-size:15px;color:#7b1113;opacity:0.7;">folder_open</span>
+                            <span class="material-symbols-rounded"
+                                style="font-size:15px;color:#7b1113;opacity:0.7;">folder_open</span>
                             Downloadables
-                            <span class="material-symbols-rounded" style="font-size:14px;opacity:0.35;">expand_more</span>
+                            <span class="material-symbols-rounded"
+                                style="font-size:14px;opacity:0.35;">expand_more</span>
                         </button>
                         <div class="dropdown-panel">
                             <div class="panel-arrow"></div>
@@ -701,7 +928,10 @@
                             {% if cms.downloads %}
                             {% for dl in cms.downloads %}
                             <a href="{{ dl.url }}" download class="dl-row">
-                                <div class="pdf-icon"><div class="pdf-icon-bg"></div><span class="pdf-icon-label">{{ dl.file_type }}</span></div>
+                                <div class="pdf-icon">
+                                    <div class="pdf-icon-bg"></div><span class="pdf-icon-label">{{ dl.file_type
+                                        }}</span>
+                                </div>
                                 <div class="dl-text"><strong>{{ dl.name }}</strong><span></span></div>
                                 <div class="dl-download"><span class="material-symbols-rounded">download</span></div>
                             </a>
@@ -714,16 +944,22 @@
 
                     <a href="{% url 'index' %}#contact" class="nav-link">Contact</a>
 
-                    <a href="{% url 'login' %}" class="flex items-center gap-1.5 text-[0.78rem] font-semibold text-white px-5 py-2.5 rounded-lg shadow transition-all" style="background:#7b1113;" onmouseover="this.style.background='#5a0c0e'" onmouseout="this.style.background='#7b1113'">
+                    <a href="{% url 'login' %}"
+                        class="flex items-center gap-1.5 text-[0.78rem] font-semibold text-white px-5 py-2.5 rounded-lg shadow transition-all"
+                        style="background:#7b1113;" onmouseover="this.style.background='#5a0c0e'"
+                        onmouseout="this.style.background='#7b1113'">
                         <span class="material-symbols-rounded" style="font-size:15px;">edit_note</span>
                         Apply Now
                     </a>
                 </nav>
 
                 <!-- Hamburger -->
-                <button id="menu-btn" class="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors" aria-label="Toggle menu">
-                    <span id="ico-open" class="material-symbols-rounded" style="font-size:22px;color:#374151;">menu</span>
-                    <span id="ico-close" class="material-symbols-rounded hidden" style="font-size:22px;color:#374151;">close</span>
+                <button id="menu-btn" class="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+                    aria-label="Toggle menu">
+                    <span id="ico-open" class="material-symbols-rounded"
+                        style="font-size:22px;color:#374151;">menu</span>
+                    <span id="ico-close" class="material-symbols-rounded hidden"
+                        style="font-size:22px;color:#374151;">close</span>
                 </button>
             </div>
         </div>
@@ -731,41 +967,59 @@
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="lg:hidden max-h-0 overflow-hidden opacity-0 bg-white border-t border-slate-100">
             <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-0.5">
-                <a href="{% url 'about' %}" class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                <a href="{% url 'about' %}"
+                    class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
                     <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">info</span> About
                 </a>
-                <a href="{% url 'index' %}#events-carousel" class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                <a href="{% url 'index' %}#events-carousel"
+                    class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
                     <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">event</span> Events
                 </a>
-                <a href="{% url 'index' %}#calendar" class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                    <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">calendar_month</span> Calendar
+                <a href="{% url 'index' %}#calendar"
+                    class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                    <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">calendar_month</span>
+                    Calendar
                 </a>
-                <a href="{% url 'index' %}#requirements" class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                    <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">checklist</span> Requirements
+                <a href="{% url 'index' %}#requirements"
+                    class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                    <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">checklist</span>
+                    Requirements
                 </a>
                 <div>
-                    <button data-acc="downloads" class="w-full flex justify-between items-center px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                    <button data-acc="downloads"
+                        class="w-full flex justify-between items-center px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
                         <span class="flex items-center gap-2.5">
-                            <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">folder_open</span>
+                            <span class="material-symbols-rounded"
+                                style="font-size:17px;color:#7b1113;">folder_open</span>
                             Downloadables
                         </span>
-                        <span class="material-symbols-rounded mob-chevron" style="font-size:17px;opacity:0.4;">expand_more</span>
+                        <span class="material-symbols-rounded mob-chevron"
+                            style="font-size:17px;opacity:0.4;">expand_more</span>
                     </button>
                     <div id="acc-downloads" class="hidden pl-4 pb-1 flex flex-col gap-0.5">
                         {% if cms.downloads %}{% for dl in cms.downloads %}
-                        <a href="{{ dl.url }}" download class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-red-50 hover:text-red-700 transition-colors">
-                            <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">description</span>
-                            <div><p class="font-semibold text-xs">{{ dl.name }}</p><p class="text-[10px] text-slate-400">{{ dl.file_type }}</p></div>
+                        <a href="{{ dl.url }}" download
+                            class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-red-50 hover:text-red-700 transition-colors">
+                            <span class="material-symbols-rounded"
+                                style="font-size:17px;color:#7b1113;">description</span>
+                            <div>
+                                <p class="font-semibold text-xs">{{ dl.name }}</p>
+                                <p class="text-[10px] text-slate-400">{{ dl.file_type }}</p>
+                            </div>
                         </a>
                         {% endfor %}{% else %}
                         <p class="px-3 py-2 text-xs text-slate-400">No downloads available</p>
                         {% endif %}
                     </div>
                 </div>
-                <a href="{% url 'index' %}#contact" class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                    <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">contact_mail</span> Contact
+                <a href="{% url 'index' %}#contact"
+                    class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                    <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">contact_mail</span>
+                    Contact
                 </a>
-                <a href="{% url 'login' %}" class="mt-2 flex items-center justify-center gap-2 text-sm font-semibold text-white px-5 py-3 rounded-xl" style="background:#7b1113;">
+                <a href="{% url 'login' %}"
+                    class="mt-2 flex items-center justify-center gap-2 text-sm font-semibold text-white px-5 py-3 rounded-xl"
+                    style="background:#7b1113;">
                     <span class="material-symbols-rounded" style="font-size:16px;">edit_note</span> Apply Now
                 </a>
             </div>
