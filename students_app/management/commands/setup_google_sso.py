@@ -20,7 +20,7 @@ class Command(BaseCommand):
                 'name': 'WMSU Graduate School'
             }
         )
-        
+
         # Update site domain if needed
         if site.domain == 'example.com':
             site.domain = 'localhost:8000'
@@ -36,7 +36,7 @@ class Command(BaseCommand):
                 'secret': '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',
             }
         )
-        
+
         if not created:
             app.client_id = '5275722877-ans6ljekru3amfoshkc7is9f3jb1dtrc.apps.googleusercontent.com'
             app.secret = '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'
@@ -48,12 +48,14 @@ class Command(BaseCommand):
             app.save()
 
         if created:
-            self.stdout.write(self.style.SUCCESS('Created Google SocialApp and associated with site'))
+            self.stdout.write(self.style.SUCCESS(
+                'Created Google SocialApp and associated with site'))
         else:
             self.stdout.write(self.style.SUCCESS('Updated Google SocialApp'))
-        
+
         self.stdout.write(self.style.SUCCESS('Google SSO setup complete!'))
         self.stdout.write('')
-        self.stdout.write('Make sure to add this redirect URI in Google Cloud Console:')
-        self.stdout.write('  http://localhost:8000/accounts/google/login/callback/')
-
+        self.stdout.write(
+            'Make sure to add this redirect URI in Google Cloud Console:')
+        self.stdout.write(
+            '  http://localhost:8000/accounts/google/login/callback/')

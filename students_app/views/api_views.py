@@ -45,22 +45,23 @@ def get_document_status(request):
     total_documents = DocumentVerification.objects.filter(
         document__user=request.user
     ).count()
-    
+
     # Calculate progress (approved documents out of total)
     progress_percent = 0
     if total_documents > 0:
         progress_percent = round((verified_count / total_documents) * 100)
-    
+
     # Get application status and deadline
     application = Application.objects.filter(user=request.user).first()
-    
+
     application_status = application.status if application else "pending"
     submission_deadline = ""
     if application and application.submission_deadline:
-        submission_deadline = application.submission_deadline.strftime('%B %d, %Y')
+        submission_deadline = application.submission_deadline.strftime(
+            '%B %d, %Y')
     else:
         submission_deadline = "TBA"
-    
+
     return JsonResponse({
         "verified_documents": verified_count,
         "reviewing_documents": reviewing_count,
@@ -81,16 +82,17 @@ def get_document_details(request):
     """
     documents = Document.objects.filter(user=request.user)
     doc_statuses = {}
-    
+
     for doc in documents:
         # Get the document key
         key = DOCUMENT_TYPE_MAP.get(doc.document_type)
         if not key:
             continue
-        
+
         # Get verification status if it exists
-        verification = DocumentVerification.objects.filter(document=doc).first()
-        
+        verification = DocumentVerification.objects.filter(
+            document=doc).first()
+
         if verification:
             frontend_status = STATUS_MAP.get(verification.status, 'pending')
             doc_statuses[key] = {
@@ -107,7 +109,7 @@ def get_document_details(request):
                 'rejection_reason': '',
                 'remarks': '',
             }
-    
+
     return JsonResponse(doc_statuses)
 
 
@@ -137,13 +139,16 @@ def get_notifications(request):
     Return all notifications for the logged-in student.
     Includes styling information for frontend rendering.
     """
-    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:20]
-    
+    notifications = Notification.objects.filter(
+        user=request.user).order_by('-created_at')[:20]
+
     notif_list = []
     for notif in notifications:
-        colors = NOTIFICATION_COLOR_MAP.get(notif.notification_type, NOTIFICATION_COLOR_MAP['general'])
-        icon = NOTIFICATION_ICON_MAP.get(notif.notification_type, 'fa-info-circle')
-        
+        colors = NOTIFICATION_COLOR_MAP.get(
+            notif.notification_type, NOTIFICATION_COLOR_MAP['general'])
+        icon = NOTIFICATION_ICON_MAP.get(
+            notif.notification_type, 'fa-info-circle')
+
         # Format timestamp (relative time)
         time_diff = (timezone.now() - notif.created_at).total_seconds()
         if time_diff < 60:
@@ -159,7 +164,7 @@ def get_notifications(request):
             time_str = f"{days} day{'s' if days > 1 else ''} ago"
         else:
             time_str = notif.created_at.strftime("%b %d, %Y")
-        
+
         notif_list.append({
             'id': notif.id,
             'title': notif.title,
@@ -171,7 +176,7 @@ def get_notifications(request):
             'time': time_str,
             'read': notif.is_read,
         })
-    
+
     return JsonResponse({
         'notifications': notif_list,
         'unread_count': Notification.objects.filter(user=request.user, is_read=False).count(),
@@ -187,10 +192,10 @@ def mark_notification_read(request):
     try:
         data = json.loads(request.body)
         notif_id = data.get('notification_id')
-        
+
         notification = Notification.objects.get(id=notif_id, user=request.user)
         notification.mark_as_read()
-        
+
         return JsonResponse({
             'status': 'success',
             'unread_count': Notification.objects.filter(user=request.user, is_read=False).count(),
@@ -207,7 +212,8 @@ def mark_all_notifications_read(request):
     """
     Mark all notifications as read for the logged-in student.
     """
-    Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    Notification.objects.filter(
+        user=request.user, is_read=False).update(is_read=True)
     return JsonResponse({
         'status': 'success',
         'unread_count': 0,
@@ -225,10 +231,10 @@ def submit_application(request):
     try:
         data = json.loads(request.body)
         user = request.user
-        
+
         # Extract personal details from the submitted data
         personal_details_data = data.get('personalDetails', {})
-        
+
         # Create or update PersonalDetails record
         personal_details_obj, created = PersonalDetails.objects.update_or_create(
             user=user,
@@ -261,16 +267,17 @@ def submit_application(request):
                 'spouse_income': personal_details_data.get('spouse_income', ''),
             }
         )
-        
+
         # Check if application already exists
         existing_app = Application.objects.filter(user=user).first()
-        
+
         # Generate the correct application ID based on user ID
         app_id = f"MIT-{str(user.id).zfill(4)}"
-        
+
         if existing_app:
             # Update existing application with new format application ID
-            existing_app.program = data.get('educationalBackground', {}).get('program', '')
+            existing_app.program = data.get(
+                'educationalBackground', {}).get('program', '')
             existing_app.status = 'pending'
             existing_app.last_activity = timezone.now()
             existing_app.application_id = app_id  # Update to new format
@@ -280,18 +287,19 @@ def submit_application(request):
             # Create new application with generated ID based on user ID
             application = Application.objects.create(
                 user=user,
-                program=data.get('educationalBackground', {}).get('program', ''),
+                program=data.get('educationalBackground',
+                                 {}).get('program', ''),
                 application_id=app_id,
                 status='pending',
                 last_activity=timezone.now(),
             )
-        
+
         return JsonResponse({
             'success': True,
             'message': 'Application submitted successfully',
             'application_id': application.application_id,
         })
-        
+
     except json.JSONDecodeError:
         return JsonResponse({
             'success': False,

@@ -42,7 +42,8 @@ class SessionSecurityMiddleware:
 
         last_activity = request.session.get('last_activity')
         if last_activity is not None:
-            last_seen = datetime.fromtimestamp(last_activity, tz=dt_timezone.utc)
+            last_seen = datetime.fromtimestamp(
+                last_activity, tz=dt_timezone.utc)
             if timezone.now() - last_seen > timedelta(minutes=SESSION_TIMEOUT_MINUTES):
                 logout(request)
                 request.session.flush()

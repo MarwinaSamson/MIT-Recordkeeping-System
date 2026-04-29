@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from students_app.models import (
-    UserProfile, PersonalDetails, EducationalBackground, 
+    UserProfile, PersonalDetails, EducationalBackground,
     WorkingStudent, PrivacyConsent, Document
 )
 
@@ -35,13 +35,15 @@ class Command(BaseCommand):
             return
 
         # Display what will be deleted
-        self.stdout.write(self.style.WARNING(f'\nDeleting records for user: {email}'))
+        self.stdout.write(self.style.WARNING(
+            f'\nDeleting records for user: {email}'))
         self.stdout.write(f'Username: {user.username}')
         self.stdout.write(f'User ID: {user.id}')
 
         # Count records that will be deleted
         personal_count = PersonalDetails.objects.filter(user=user).count()
-        education_count = EducationalBackground.objects.filter(user=user).count()
+        education_count = EducationalBackground.objects.filter(
+            user=user).count()
         working_count = WorkingStudent.objects.filter(user=user).count()
         privacy_count = PrivacyConsent.objects.filter(user=user).count()
         document_count = Document.objects.filter(user=user).count()
@@ -58,7 +60,8 @@ class Command(BaseCommand):
 
         # Confirm before deleting
         if not force:
-            confirm = input('\nAre you sure you want to delete all these records? (yes/no): ')
+            confirm = input(
+                '\nAre you sure you want to delete all these records? (yes/no): ')
             if confirm.lower() != 'yes':
                 self.stdout.write(self.style.WARNING('Deletion cancelled.'))
                 return
@@ -72,18 +75,22 @@ class Command(BaseCommand):
             EducationalBackground.objects.filter(user=user).delete()
             PersonalDetails.objects.filter(user=user).delete()
             UserProfile.objects.filter(user=user).delete()
-            
+
             # Finally delete the user account
             username = user.username
             user.delete()
 
             self.stdout.write(
-                self.style.SUCCESS(f'\n✓ Successfully deleted all records for user "{email}"')
+                self.style.SUCCESS(
+                    f'\n✓ Successfully deleted all records for user "{email}"')
             )
-            self.stdout.write(self.style.SUCCESS(f'✓ User account "{username}" has been deleted'))
-            self.stdout.write(self.style.SUCCESS('\nThe user can now create a new account and restart their application.'))
+            self.stdout.write(self.style.SUCCESS(
+                f'✓ User account "{username}" has been deleted'))
+            self.stdout.write(self.style.SUCCESS(
+                '\nThe user can now create a new account and restart their application.'))
 
         except Exception as e:
             self.stdout.write(
-                self.style.ERROR(f'\n✗ Error occurred during deletion: {str(e)}')
+                self.style.ERROR(
+                    f'\n✗ Error occurred during deletion: {str(e)}')
             )

@@ -1,245 +1,164 @@
 {% load static %}
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Working Student - Graduate School Admission</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: { brand: "#A02724", beige: "#F5F0EB" },
-            fontFamily: {
-              heading: ["Merriweather", "serif"],
-              body: ['"Source Sans 3"', "sans-serif"],
-            },
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Working Student - Graduate School Admission</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: "#A02724", beige: "#F5F0EB" },
+          fontFamily: {
+            heading: ["Merriweather", "serif"],
+            body: ['"Source Sans 3"', "sans-serif"],
           },
         },
-      };
-    </script>
-    <style>
-      body {
-        font-family: "Source Sans 3", sans-serif;
-      }
+      },
+    };
+  </script>
+  <style>
+    body {
+      font-family: "Source Sans 3", sans-serif;
+    }
 
-      h1,
-      h2,
-      h3 {
-        font-family: "Merriweather", serif;
-      }
-    </style>
-  </head>
+    h1,
+    h2,
+    h3 {
+      font-family: "Merriweather", serif;
+    }
+  </style>
+</head>
 
-  <body class="bg-beige min-h-screen">
-    <header class="text-center py-8">
-      <h1 class="text-3xl md:text-4xl font-bold text-brand">Graduate School</h1>
-      <p class="text-lg text-gray-500 mt-1">Admission Form</p>
-    </header>
-    <div class="max-w-4xl mx-auto px-4 mb-8">
-      <div class="flex items-center justify-between" id="progressBar"></div>
-    </div>
-    <div class="max-w-3xl mx-auto px-4 pb-12">
-      <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
-        <h2 class="text-2xl font-bold text-brand mb-6">Working Student</h2>
-        <form id="workForm" method="post" class="space-y-5" novalidate>
-          {% csrf_token %} {% if messages %}
-          <div class="space-y-2">
-            {% for message in messages %}
-            <div class="rounded-lg px-4 py-3 text-sm {{ message.tags }}">
-              {{ message }}
-            </div>
-            {% endfor %}
+<body class="bg-beige min-h-screen">
+  <header class="text-center py-8">
+    <h1 class="text-3xl md:text-4xl font-bold text-brand">Graduate School</h1>
+    <p class="text-lg text-gray-500 mt-1">Admission Form</p>
+  </header>
+  <div class="max-w-4xl mx-auto px-4 mb-8">
+    <div class="flex items-center justify-between" id="progressBar"></div>
+  </div>
+  <div class="max-w-3xl mx-auto px-4 pb-12">
+    <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
+      <h2 class="text-2xl font-bold text-brand mb-6">Working Student</h2>
+      <form id="workForm" method="post" class="space-y-5" novalidate>
+        {% csrf_token %} {% if messages %}
+        <div class="space-y-2">
+          {% for message in messages %}
+          <div class="rounded-lg px-4 py-3 text-sm {{ message.tags }}">
+            {{ message }}
           </div>
-          {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <label class="flex items-center gap-3 cursor-pointer select-none">
+            <input type="checkbox" id="isEmployed" name="isEmployed" class="w-5 h-5 rounded accent-brand" />
+            <span class="font-semibold">I am currently employed</span>
+          </label>
+          <label class="flex items-center gap-3 cursor-pointer select-none">
+            <input type="checkbox" id="notEmployed" name="notEmployed" class="w-5 h-5 rounded accent-brand" />
+            <span class="font-semibold">I am not employed</span>
+          </label>
+        </div>
+        <p id="employmentStatusError" class="text-xs text-red-500 mt-1 hidden"></p>
+        {% if errors.is_not_employed %}
+        <p class="text-xs text-red-500 mt-1">{{ errors.is_not_employed }}</p>
+        {% endif %}
+        <div id="employmentFields" class="hidden space-y-4 border border-gray-200 rounded-xl p-5">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <label class="flex items-center gap-3 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                id="isEmployed"
-                name="isEmployed"
-                class="w-5 h-5 rounded accent-brand"
-              />
-              <span class="font-semibold">I am currently employed</span>
-            </label>
-            <label class="flex items-center gap-3 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                id="notEmployed"
-                name="notEmployed"
-                class="w-5 h-5 rounded accent-brand"
-              />
-              <span class="font-semibold">I am not employed</span>
-            </label>
-          </div>
-          <p
-            id="employmentStatusError"
-            class="text-xs text-red-500 mt-1 hidden"
-          ></p>
-          {% if errors.is_not_employed %}
-          <p class="text-xs text-red-500 mt-1">{{ errors.is_not_employed }}</p>
-          {% endif %}
-          <div
-            id="employmentFields"
-            class="hidden space-y-4 border border-gray-200 rounded-xl p-5"
-          >
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-semibold mb-1.5"
-                  >Position <span class="text-red-500">*</span></label
-                >
-                <input
-                  type="text"
-                  name="position"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-                />
-                <p
-                  class="text-xs text-red-500 mt-1 hidden"
-                  data-error="position"
-                ></p>
-              </div>
-              <div>
-                <label class="block text-sm font-semibold mb-1.5"
-                  >Monthly Income <span class="text-red-500">*</span></label
-                >
-                <input
-                  type="number"
-                  name="monthlyIncome"
-                  class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-                />
-                <p
-                  class="text-xs text-red-500 mt-1 hidden"
-                  data-error="monthlyIncome"
-                ></p>
-              </div>
-            </div>
-
-            <!-- Employment status -->
             <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Employment Status <span class="text-red-500">*</span></label
-              >
-              <select
-                name="employmentStatus"
-                data-other-target="employmentStatusOther"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5"
-              >
-                <option value="">Select status</option>
-                <option value="Full-time">Full-time</option>
-                <option value="Part-time">Part-time</option>
-                <option value="Contractual">Contractual</option>
-                <option>Other</option>
-              </select>
-              <input
-                type="text"
-                name="employmentStatusOther"
-                id="employmentStatusOther"
-                placeholder="Please specify"
-                class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="employmentStatus"
-              ></p>
-            </div>
-
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Employer Name <span class="text-red-500">*</span></label
-              >
-              <input
-                type="text"
-                name="employerName"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="employerName"
-              ></p>
+              <label class="block text-sm font-semibold mb-1.5">Position <span class="text-red-500">*</span></label>
+              <input type="text" name="position"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition" />
+              <p class="text-xs text-red-500 mt-1 hidden" data-error="position"></p>
             </div>
             <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Employer Address <span class="text-red-500">*</span></label
-              >
-              <input
-                type="text"
-                name="employerAddress"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="employerAddress"
-              ></p>
-            </div>
-
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Employer Contact Number
-                <span class="text-red-500">*</span></label
-              >
-              <input
-                type="tel"
-                name="employerContact"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="employerContact"
-              ></p>
-            </div>
-            <div>
-              <label class="block text-sm font-semibold mb-1.5"
-                >Employer Classification
-                <span class="text-red-500">*</span></label
-              >
-              <select
-                name="employerClassification"
-                data-other-target="employerClassificationOther"
-                class="w-full rounded-lg border border-gray-300 px-4 py-2.5"
-              >
-                <option value="">Select classification</option>
-                <option value="Government Agency">Government Agency</option>
-                <option value="Private Company">Private Company</option>
-                <option value="Non-Government Organization">
-                  Non-Government Organization
-                </option>
-                <option>Other</option>
-              </select>
-              <input
-                type="text"
-                name="employerClassificationOther"
-                id="employerClassificationOther"
-                placeholder="Please specify employer type"
-                class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5"
-              />
-              <p
-                class="text-xs text-red-500 mt-1 hidden"
-                data-error="employerClassification"
-              ></p>
+              <label class="block text-sm font-semibold mb-1.5">Monthly Income <span
+                  class="text-red-500">*</span></label>
+              <input type="number" name="monthlyIncome"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition" />
+              <p class="text-xs text-red-500 mt-1 hidden" data-error="monthlyIncome"></p>
             </div>
           </div>
-          <div class="flex justify-between pt-4">
-            <a
-              href="{% url 'educationalBackground' %}"
-              class="inline-flex items-center gap-2 px-8 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand/5 active:scale-[0.98] transition"
-              >← Back</a
-            >
-            <button
-              type="submit"
-              class="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md"
-            >
-              Next →
-            </button>
+
+          <!-- Employment status -->
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Employment Status <span
+                class="text-red-500">*</span></label>
+            <select name="employmentStatus" data-other-target="employmentStatusOther"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5">
+              <option value="">Select status</option>
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Contractual">Contractual</option>
+              <option>Other</option>
+            </select>
+            <input type="text" name="employmentStatusOther" id="employmentStatusOther" placeholder="Please specify"
+              class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="employmentStatus"></p>
           </div>
-        </form>
-      </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Employer Name <span class="text-red-500">*</span></label>
+            <input type="text" name="employerName"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="employerName"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Employer Address <span
+                class="text-red-500">*</span></label>
+            <input type="text" name="employerAddress"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="employerAddress"></p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Employer Contact Number
+              <span class="text-red-500">*</span></label>
+            <input type="tel" name="employerContact"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="employerContact"></p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-1.5">Employer Classification
+              <span class="text-red-500">*</span></label>
+            <select name="employerClassification" data-other-target="employerClassificationOther"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2.5">
+              <option value="">Select classification</option>
+              <option value="Government Agency">Government Agency</option>
+              <option value="Private Company">Private Company</option>
+              <option value="Non-Government Organization">
+                Non-Government Organization
+              </option>
+              <option>Other</option>
+            </select>
+            <input type="text" name="employerClassificationOther" id="employerClassificationOther"
+              placeholder="Please specify employer type"
+              class="hidden mt-2 w-full rounded-lg border border-gray-300 px-4 py-2.5" />
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="employerClassification"></p>
+          </div>
+        </div>
+        <div class="flex justify-between pt-4">
+          <a href="{% url 'educationalBackground' %}"
+            class="inline-flex items-center gap-2 px-8 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand/5 active:scale-[0.98] transition">←
+            Back</a>
+          <button type="submit"
+            class="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md">
+            Next →
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <script src="{% static 'students_app/js/workingStudent.js' %}"></script>
-  </body>
+  <script src="{% static 'students_app/js/workingStudent.js' %}"></script>
+</body>
+
 </html>

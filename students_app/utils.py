@@ -47,9 +47,9 @@ def get_user_redirect_url(user):
     # Admin users always go to admin dashboard
     if user.is_superuser:
         return "/admin-panel/dashboard/"
-    
+
     if has_completed_application(user):
         return "/student/"
-    
+
     # Whether they have partial data or not, go to forms
     return "/personalDetails/"

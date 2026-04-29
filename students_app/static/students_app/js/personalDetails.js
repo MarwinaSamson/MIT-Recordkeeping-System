@@ -116,7 +116,7 @@ if (dobInput) {
 }
 
 // ===== CONTACT NUMBER - NUMBERS ONLY, MAX 11 DIGITS =====
-const contactInput = document.getElementsByName("contact_number")[0];
+const contactInput = document.getElementsByName("contactNumber")[0];
 if (contactInput) {
   contactInput.addEventListener("input", function (e) {
     // Remove any non-digit characters

@@ -58,7 +58,8 @@ def working_student(request):
             errors["is_not_employed"] = "Please select employed or not employed"
 
         if not errors:
-            ws, created = WorkingStudent.objects.get_or_create(user=request.user)
+            ws, created = WorkingStudent.objects.get_or_create(
+                user=request.user)
             ws.is_employed = is_employed
             ws.position = form_data["position"]
             ws.monthly_income = form_data["monthly_income"]
@@ -71,10 +72,12 @@ def working_student(request):
             ws.employer_classification_other = form_data["employer_classification_other"]
             ws.save()
 
-            messages.success(request, "Working student information saved successfully.")
+            messages.success(
+                request, "Working student information saved successfully.")
             return redirect("documents")
         else:
-            messages.error(request, "Please fix the highlighted fields and submit again.")
+            messages.error(
+                request, "Please fix the highlighted fields and submit again.")
 
     return render(
         request,

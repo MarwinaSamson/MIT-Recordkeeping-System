@@ -41,7 +41,8 @@ def student(request):
     education = EducationalBackground.objects.filter(user=request.user)
     working = WorkingStudent.objects.filter(user=request.user).first()
     documents = Document.objects.filter(user=request.user)
-    privacy = PrivacyConsent.objects.filter(user=request.user).order_by("-updated_at").first()
+    privacy = PrivacyConsent.objects.filter(
+        user=request.user).order_by("-updated_at").first()
 
     # Get application for status
     from admin_app.models import Application, DocumentVerification

@@ -103,6 +103,3 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         Allow signup for social accounts (Google).
         """
         return True
-
-
-

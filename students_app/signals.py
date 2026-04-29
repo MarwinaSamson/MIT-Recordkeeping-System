@@ -27,7 +27,7 @@ def ensure_single_active_session(sender, user, request, **kwargs):
     profile.current_session_key = session_key
     profile.save(update_fields=['current_session_key'])
     request.session['last_activity'] = timezone.now().timestamp()
-    
+
     # Store the correct redirect URL in the session for SSO login
     redirect_url = get_user_redirect_url(user)
     request.session['_redirect_after_login'] = redirect_url

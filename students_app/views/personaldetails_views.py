@@ -10,7 +10,7 @@ def personal_details(request):
         redirect_url = request.session.pop('_redirect_after_login', None)
         if redirect_url and redirect_url != request.path:
             return redirect(redirect_url)
-    
+
     errors = {}
     form_data = {}
 
@@ -104,10 +104,12 @@ def personal_details(request):
             # Create or update existing record
             instance = None
             if request.user.is_authenticated:
-                instance = PersonalDetails.objects.filter(user=request.user).first()
+                instance = PersonalDetails.objects.filter(
+                    user=request.user).first()
 
             if not instance:
-                instance = PersonalDetails(user=request.user if request.user.is_authenticated else None)
+                instance = PersonalDetails(
+                    user=request.user if request.user.is_authenticated else None)
 
             for key, value in data.items():
                 if hasattr(instance, key):
@@ -119,7 +121,8 @@ def personal_details(request):
 
                 dob_date = datetime.strptime(data["dob"], "%Y-%m-%d").date()
                 today = date.today()
-                age = today.year - dob_date.year - ((today.month, today.day) < (dob_date.month, dob_date.day))
+                age = today.year - dob_date.year - \
+                    ((today.month, today.day) < (dob_date.month, dob_date.day))
                 instance.age = age
 
             instance.save()
