@@ -174,14 +174,12 @@ document
 
     let valid = true;
 
-    // Validate Dean's Recommendation
+    // Collect optional document references (no validation needed)
     const deansRec = this.elements["deansRec"];
-    if (!deansRec.files.length) {
-      showError("deansRec", "Dean's Recommendation is required");
-      valid = false;
-    }
+    const honorableDismissal = this.elements["honorableDismissal"];
+    const gsat = this.elements["gsat"];
 
-    // Validate TOR (either PDF or at least one image)
+    // Validate TOR (required — must upload either PDF or at least one image, no bypass)
     const torPDF = document.getElementById("torPDF");
     const torImages = document.querySelectorAll('input[name="torImages[]"]');
     let torHasPDF = torPDF.files.length > 0;
@@ -191,21 +189,11 @@ document
     });
 
     if (!torHasPDF && !torHasImage) {
-      showError(
-        "tor",
-        "Please upload either a PDF file or at least one image of your TOR",
-      );
+      showError("tor", "TOR is required. Please upload a PDF or at least one image to proceed.");
       valid = false;
     }
 
-    // Validate Honorable Dismissal
-    const honorableDismissal = this.elements["honorableDismissal"];
-    if (!honorableDismissal.files.length) {
-      showError("honorableDismissal", "Honorable Dismissal is required");
-      valid = false;
-    }
-
-    // Validate PSA (either PDF or at least one image)
+    // PSA — optional, but if uploading, collect the state
     const psaPDF = document.getElementById("psaPDF");
     const psaImages = document.querySelectorAll('input[name="psaImages[]"]');
     let psaHasPDF = psaPDF.files.length > 0;
@@ -213,21 +201,6 @@ document
     psaImages.forEach((input) => {
       if (input.files.length > 0) psaHasImage = true;
     });
-
-    if (!psaHasPDF && !psaHasImage) {
-      showError(
-        "psa",
-        "Please upload either a PDF file or at least one image of your PSA",
-      );
-      valid = false;
-    }
-
-    // Validate GSAT
-    const gsat = this.elements["gsat"];
-    if (!gsat.files.length) {
-      showError("gsat", "GSAT is required");
-      valid = false;
-    }
 
     if (!valid) return;
 
@@ -251,6 +224,7 @@ document
         uploaded: true,
       }),
     );
+
 
     // Submit form to backend for persistence
     this.submit();
