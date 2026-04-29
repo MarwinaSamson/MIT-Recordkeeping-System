@@ -40,7 +40,8 @@ def get_application_details(application_id):
     Get detailed information about a specific application.
     """
     try:
-        app = Application.objects.select_related('user').get(application_id=application_id)
+        app = Application.objects.select_related(
+            'user').get(application_id=application_id)
         return {
             'id': app.application_id,
             'name': app.get_full_name(),
@@ -68,14 +69,16 @@ def get_application_documents(user):
             verification = doc.verification
             status = verification.status
             verified_by = verification.verified_by.username if verification.verified_by else ''
-            verified_on = verification.verified_at.strftime('%Y-%m-%d') if verification.verified_at else ''
-            issues = [verification.rejection_reason] if verification.rejection_reason else []
+            verified_on = verification.verified_at.strftime(
+                '%Y-%m-%d') if verification.verified_at else ''
+            issues = [
+                verification.rejection_reason] if verification.rejection_reason else []
         except DocumentVerification.DoesNotExist:
             status = 'pending'
             verified_by = ''
             verified_on = ''
             issues = []
-        
+
         documents.append({
             'id': doc.id,
             'name': doc.get_document_type_display(),
@@ -87,7 +90,7 @@ def get_application_documents(user):
             'issues': issues,
             'file_name': doc.file_name,
         })
-    
+
     return documents
 
 
@@ -95,7 +98,8 @@ def get_recent_applications(limit=5):
     """
     Get recent applications for dashboard display.
     """
-    apps = Application.objects.select_related('user').order_by('-submission_date')[:limit]
+    apps = Application.objects.select_related(
+        'user').order_by('-submission_date')[:limit]
     return [
         {
             'id': app.application_id,
@@ -113,20 +117,21 @@ def get_verification_progress():
     Get verification progress across all applications.
     Returns stats about document verification.
     """
-    doc_verifications = DocumentVerification.objects.values('status').annotate(count=Count('id'))
+    doc_verifications = DocumentVerification.objects.values(
+        'status').annotate(count=Count('id'))
     progress = {
         'verified': 0,
         'reviewing': 0,
         'pending': 0,
         'rejected': 0,
     }
-    
+
     for item in doc_verifications:
         if item['status'] in progress:
             progress[item['status']] = item['count']
-    
+
     total = sum(progress.values())
-    
+
     return {
         'verified': progress.get('verified', 0),
         'reviewing': progress.get('reviewing', 0),
@@ -143,7 +148,7 @@ def get_activity_log(limit=20):
     logs = AdminActivityLog.objects.select_related(
         'admin', 'application', 'document'
     ).order_by('-timestamp')[:limit]
-    
+
     return [
         {
             'time': log.timestamp.strftime('%Y-%m-%d %H:%M'),

@@ -14,7 +14,7 @@ class Application(models.Model):
         ('MBA', 'Master of Business Administration'),
         ('MPA', 'Master of Public Administration'),
     ]
-    
+
     STATUS_CHOICES = [
         ('pending', 'Pending Review'),
         ('reviewing', 'Under Review'),
@@ -22,15 +22,26 @@ class Application(models.Model):
         ('incomplete', 'Incomplete'),
         ('rejected', 'Rejected'),
     ]
-    
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='application')
-    program = models.CharField(max_length=50, choices=PROGRAM_CHOICES, default='MIT')
+
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name='application')
+    program = models.CharField(
+        max_length=50, choices=PROGRAM_CHOICES, default='MIT')
     application_id = models.CharField(max_length=50, unique=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default='pending')
     submission_date = models.DateTimeField(auto_now_add=True)
     last_activity = models.DateTimeField(auto_now=True)
-    submission_deadline = models.DateField(null=True, blank=True, help_text="Document submission deadline")
+    submission_deadline = models.DateField(
+        null=True, blank=True, help_text="Document submission deadline")
     remarks = models.TextField(blank=True)
+    # Admission details — filled by admin when marking as Verified
+    semester = models.CharField(
+        max_length=20, blank=True, help_text="e.g. 1st Semester")
+    year_admitted = models.CharField(
+        max_length=20, blank=True, help_text="e.g. 2025–2026")
+    curriculum = models.CharField(
+        max_length=100, blank=True, help_text="e.g. MIT 2023")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -81,10 +92,13 @@ class DocumentVerification(models.Model):
         ('incomplete', 'Incomplete'),
         ('rejected', 'Rejected'),
     ]
-    
-    document = models.OneToOneField(Document, on_delete=models.CASCADE, related_name='verification')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    verified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_documents')
+
+    document = models.OneToOneField(
+        Document, on_delete=models.CASCADE, related_name='verification')
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default='pending')
+    verified_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_documents')
     verified_at = models.DateTimeField(null=True, blank=True)
     rejection_reason = models.TextField(blank=True)
     remarks = models.TextField(blank=True)
@@ -111,11 +125,15 @@ class AdminActivityLog(models.Model):
         ('comment', 'Added Comment'),
         ('profile_updated', 'Updated Profile'),
         ('photo_updated', 'Changed Profile Photo'),
+        ('cms_updated', 'Updated CMS Settings'),
     ]
-    
-    admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='admin_activities')
-    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='activity_logs', null=True, blank=True)
-    document = models.ForeignKey(Document, on_delete=models.SET_NULL, null=True, blank=True)
+
+    admin = models.ForeignKey(User, on_delete=models.SET_NULL,
+                              null=True, blank=True, related_name='admin_activities')
+    application = models.ForeignKey(
+        Application, on_delete=models.CASCADE, related_name='activity_logs', null=True, blank=True)
+    document = models.ForeignKey(
+        Document, on_delete=models.SET_NULL, null=True, blank=True)
     action = models.CharField(max_length=20, choices=ACTION_CHOICES)
     notes = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -133,8 +151,10 @@ class AdminProfile(models.Model):
     """
     Stores additional admin profile information including profile picture.
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='admin_profile')
-    profile_picture = models.ImageField(upload_to='admin_profiles/', null=True, blank=True)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name='admin_profile')
+    profile_picture = models.ImageField(
+        upload_to='admin_profiles/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -144,3 +164,42 @@ class AdminProfile(models.Model):
 
     def __str__(self):
         return f"Profile for {self.user.get_full_name() or self.user.username}"
+
+
+class CMSSettings(models.Model):
+    """
+    Singleton model for controlling public-facing homepage content.
+    Always use pk=1. Access via CMSSettings.objects.get_or_create(pk=1).
+    """
+    admissions_open = models.BooleanField(default=True)
+    show_announcement = models.BooleanField(default=True)
+    # JSON list of {text: str, duration: int (seconds)}
+    announcements = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='List of announcements: [{text, duration}]'
+    )
+    hero_tagline = models.TextField(
+        blank=True,
+        default="Advance your professional journey. Our Master's programs are designed for the next generation of academic and industry leaders."
+    )
+    application_deadline = models.DateField(null=True, blank=True)
+    # JSON list of {name: str, degree: str, description: str, visible: bool}
+    programs = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='List of programs: [{name, degree, description, visible}]'
+    )
+    # JSON list of {name: str, url: str, file_type: str}
+    downloads = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='List of downloadable files: [{name, url, file_type}]'
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'CMS Settings'
+
+    def __str__(self):
+        return 'Homepage CMS Settings'

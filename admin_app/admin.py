@@ -63,3 +63,4 @@ class AdminActivityLogAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+

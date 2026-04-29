@@ -258,6 +258,13 @@ function openModal(id){
   document.getElementById("mDate").innerText   =selectedApp.submission_date;
   document.getElementById("lastUpdated").innerText="Last updated: "+new Date().toISOString().split("T")[0];
   document.getElementById("remarks").value     =selectedApp.remarks||"";
+  // Populate admission details
+  const semEl = document.getElementById("admSemester");
+  const yearEl = document.getElementById("admYear");
+  const currEl = document.getElementById("admCurriculum");
+  if(semEl) semEl.value   = selectedApp.semester   || "";
+  if(yearEl) yearEl.value = selectedApp.year_admitted || "";
+  if(currEl) currEl.value = selectedApp.curriculum  || "";
   renderDocCards();
   const modal = document.getElementById("modal");
   if(modal) {
@@ -276,41 +283,266 @@ function closeModal(){
   }
 }
 
+/* ═══ DOCUMENT PREVIEW HELPERS ═══ */
+let docPreviewCurrentIdx = 0;
+
+function getFileExt(url){
+  const clean = (url||'').split('?')[0];
+  return clean.split('.').pop().toLowerCase();
+}
+
+function getDocumentPreviewMarkup(doc, size='thumb'){
+  const url = doc.fileUrl || '';
+  const ext = getFileExt(url);
+  const imageExts = ['jpg','jpeg','png','webp','gif'];
+  const pdfExts   = ['pdf'];
+  const h = size === 'full' ? 'h-full' : 'h-full';
+
+  if(!url){
+    return `<div class="w-full h-full flex flex-col items-center justify-center gap-2 text-gray-400 select-none">
+      <i data-lucide="file-x" class="w-8 h-8 opacity-40"></i>
+      <p class="text-xs font-semibold">No file attached</p>
+    </div>`;
+  }
+
+  if(imageExts.includes(ext)){
+    if(size === 'full'){
+      return `<img src="${url}" alt="${doc.name}"
+        class="max-w-full max-h-full object-contain rounded-lg shadow-md cursor-zoom-in"
+        onclick="window.open('${url}','_blank')" />`;
+    }
+    return `<img src="${url}" alt="${doc.name}"
+      class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition"
+      onclick="openDocPreview(${doc._idx})" />`;
+  }
+
+  if(pdfExts.includes(ext)){
+    if(size === 'full'){
+      return `<iframe src="${url}#toolbar=0&navpanes=0&view=FitH" class="w-full h-full rounded-lg border-0"
+        title="${doc.name}">
+        <div class="w-full h-full flex flex-col items-center justify-center gap-2 text-gray-500 bg-gray-100 rounded-lg">
+          <i data-lucide="file-text" class="w-10 h-10 opacity-40"></i>
+          <p class="text-sm font-semibold">PDF cannot be rendered inline.</p>
+          <a href="${url}" target="_blank" class="text-sm text-red-700 underline font-semibold mt-1">Open in new tab →</a>
+        </div>
+      </iframe>`;
+    }
+    return `<div class="w-full h-full flex flex-col items-center justify-center gap-1.5 text-gray-500 cursor-pointer hover:bg-gray-200 transition rounded-lg"
+      onclick="openDocPreview(${doc._idx})">
+      <i data-lucide="file-text" class="w-7 h-7 text-red-400"></i>
+      <p class="text-[11px] font-semibold text-gray-600">PDF Preview</p>
+      <p class="text-[10px] text-gray-400">Click to view</p>
+    </div>`;
+  }
+
+  return `<div class="w-full h-full flex flex-col items-center justify-center gap-2 text-gray-400 cursor-pointer hover:bg-gray-200 transition rounded-lg"
+    onclick="openDocPreview(${doc._idx})">
+    <i data-lucide="file" class="w-7 h-7 opacity-50"></i>
+    <p class="text-[11px] font-semibold">Click to preview</p>
+  </div>`;
+}
+
+/* ── Full-screen doc preview modal ── */
+function openDocPreview(idx){
+  docPreviewCurrentIdx = idx;
+  _renderDocPreviewModal();
+  const overlay = document.getElementById('docPreviewOverlay');
+  overlay.style.display = 'flex';
+  lucide.createIcons();
+}
+
+function closeDocPreview(){
+  document.getElementById('docPreviewOverlay').style.display = 'none';
+}
+
+function navDocPreview(dir){
+  const total = selectedApp.docs.length;
+  docPreviewCurrentIdx = (docPreviewCurrentIdx + dir + total) % total;
+  _renderDocPreviewModal();
+  lucide.createIcons();
+}
+
+function _renderDocPreviewModal(){
+  const doc  = selectedApp.docs[docPreviewCurrentIdx];
+  const total = selectedApp.docs.length;
+  const isV  = doc.status === 'Verified';
+  const isR  = doc.status === 'Rejected';
+
+  // Header info
+  document.getElementById('dpDocName').textContent    = doc.name;
+  document.getElementById('dpDocType').textContent    = doc.type;
+  document.getElementById('dpDocUploaded').textContent= doc.uploadDate;
+  document.getElementById('dpDocCounter').textContent = `${docPreviewCurrentIdx+1} / ${total}`;
+
+  // Badge
+  const badgeEl = document.getElementById('dpDocBadge');
+  if(isV) badgeEl.className='status-badge badge-verified', badgeEl.innerHTML='<i data-lucide="check-circle" class="w-3 h-3"></i>Verified';
+  else if(isR) badgeEl.className='status-badge badge-rejected', badgeEl.innerHTML='<i data-lucide="x-circle" class="w-3 h-3"></i>Rejected';
+  else badgeEl.className='status-badge badge-pending', badgeEl.innerHTML='<i data-lucide="clock" class="w-3 h-3"></i>'+doc.status;
+
+  // Verified-by strip
+  const vstrip = document.getElementById('dpVerifiedBy');
+  if(isV && doc.verifiedBy){
+    vstrip.classList.remove('hidden');
+    vstrip.innerHTML=`<i data-lucide="user-check" class="w-3.5 h-3.5 text-green-500"></i><span class="text-green-700 text-xs font-medium">Verified by <strong>${doc.verifiedBy}</strong> on ${doc.verifiedOn}</span>`;
+  } else { vstrip.classList.add('hidden'); }
+
+  // Issues strip
+  const istrip = document.getElementById('dpIssues');
+  if(doc.issues && doc.issues.length){
+    istrip.classList.remove('hidden');
+    istrip.innerHTML=`<i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-red-500 flex-shrink-0"></i><span class="text-red-600 text-xs">${doc.issues.join(' · ')}</span>`;
+  } else { istrip.classList.add('hidden'); }
+
+  // Preview area
+  document.getElementById('dpPreviewArea').innerHTML = getDocumentPreviewMarkup(doc, 'full');
+
+  // Action buttons
+  const actionsEl = document.getElementById('dpActions');
+  if(!isV && !isR){
+    actionsEl.innerHTML=`
+      <button onclick="verifyDoc(${docPreviewCurrentIdx}); _renderDocPreviewModal();" class="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
+        <i data-lucide="check" class="w-3.5 h-3.5"></i> Verify
+      </button>
+      <button onclick="rejectDoc(${docPreviewCurrentIdx})" class="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
+        <i data-lucide="x" class="w-3.5 h-3.5"></i> Reject
+      </button>`;
+  } else {
+    actionsEl.innerHTML=`
+      <button onclick="unsetDoc(${docPreviewCurrentIdx}); _renderDocPreviewModal();" class="flex items-center gap-1.5 border border-gray-300 text-gray-600 text-xs font-semibold px-4 py-2 rounded-xl hover:bg-gray-50 transition">
+        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> ${isV ? 'Undo Verify' : 'Undo Reject'}
+      </button>`;
+  }
+
+  // Open full button
+  document.getElementById('dpOpenFull').onclick = ()=> viewFullDoc(doc.fileUrl, doc.name);
+
+  // Nav buttons
+  document.getElementById('dpNavPrev').classList.toggle('invisible', total <= 1);
+  document.getElementById('dpNavNext').classList.toggle('invisible', total <= 1);
+
+  lucide.createIcons();
+}
+
+/* inject the doc preview overlay HTML once */
+(function injectDocPreviewOverlay(){
+  if(document.getElementById('docPreviewOverlay')) return;
+  const html = `
+  <div id="docPreviewOverlay" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)">
+    <div style="background:#fff;border-radius:1.5rem;width:100%;max-width:860px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 32px 64px rgba(0,0,0,.35)">
+      <!-- Header -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:1.1rem 1.4rem 0.9rem;border-bottom:1px solid #f3f4f6;flex-shrink:0">
+        <div style="min-width:0;flex:1">
+          <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.3rem">
+            <p id="dpDocName" style="font-weight:700;font-size:0.95rem;color:#1f2937;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px"></p>
+            <span id="dpDocBadge" class="status-badge badge-pending"></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+            <p style="font-size:0.72rem;color:#9ca3af"><span style="font-weight:600;color:#6b7280">Type:</span> <span id="dpDocType"></span></p>
+            <p style="font-size:0.72rem;color:#9ca3af"><span style="font-weight:600;color:#6b7280">Uploaded:</span> <span id="dpDocUploaded"></span></p>
+            <p style="font-size:0.72rem;color:#9ca3af" id="dpDocCounter"></p>
+          </div>
+          <div id="dpVerifiedBy" class="hidden" style="display:flex;align-items:center;gap:0.4rem;margin-top:0.4rem;padding:0.3rem 0.7rem;background:#f0fdf4;border-radius:0.5rem;width:fit-content"></div>
+          <div id="dpIssues" class="hidden" style="display:flex;align-items:center;gap:0.4rem;margin-top:0.4rem;padding:0.3rem 0.7rem;background:#fef2f2;border-radius:0.5rem"></div>
+        </div>
+        <button onclick="closeDocPreview()" style="width:2rem;height:2rem;border-radius:50%;border:none;background:#f3f4f6;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#6b7280;flex-shrink:0;margin-left:0.75rem" onmouseover="this.style.background='#e5e7eb'" onmouseout="this.style.background='#f3f4f6'">&times;</button>
+      </div>
+
+      <!-- Preview area -->
+      <div style="flex:1;overflow:hidden;position:relative;background:#f8fafc;display:flex;align-items:center;justify-content:center;min-height:0">
+        <!-- Nav prev -->
+        <button id="dpNavPrev" onclick="navDocPreview(-1)" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);z-index:10;width:2.25rem;height:2.25rem;border-radius:50%;background:rgba(255,255,255,0.9);border:1px solid #e5e7eb;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.12)" onmouseover="this.style.background='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.9)'">
+          <i data-lucide="chevron-left" style="width:1rem;height:1rem;color:#374151"></i>
+        </button>
+        <!-- Preview content -->
+        <div id="dpPreviewArea" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:1rem;overflow:auto"></div>
+        <!-- Nav next -->
+        <button id="dpNavNext" onclick="navDocPreview(1)" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);z-index:10;width:2.25rem;height:2.25rem;border-radius:50%;background:rgba(255,255,255,0.9);border:1px solid #e5e7eb;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.12)" onmouseover="this.style.background='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.9)'">
+          <i data-lucide="chevron-right" style="width:1rem;height:1rem;color:#374151"></i>
+        </button>
+      </div>
+
+      <!-- Footer actions -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1.4rem;border-top:1px solid #f3f4f6;flex-shrink:0;gap:0.75rem;flex-wrap:wrap">
+        <div id="dpActions" style="display:flex;gap:0.6rem;flex-wrap:wrap"></div>
+        <button id="dpOpenFull" style="display:flex;align-items:center;gap:0.4rem;padding:0.4rem 1rem;border:1px solid #e5e7eb;border-radius:0.75rem;background:#fff;color:#374151;font-size:0.75rem;font-weight:600;cursor:pointer;transition:background .15s" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
+          <i data-lucide="external-link" style="width:0.875rem;height:0.875rem"></i> Open in New Tab
+        </button>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+  // Close on backdrop click
+  document.getElementById('docPreviewOverlay').addEventListener('click', function(e){
+    if(e.target === this) closeDocPreview();
+  });
+})();
+
 function renderDocCards(){
   const container=document.getElementById("docCards");
   container.innerHTML="";
   
-  // If no docs array in data, just leave empty (don't alter design)
-  if(!selectedApp.docs || selectedApp.docs.length === 0) {
-    return;
+  if(!selectedApp.docs || selectedApp.docs.length === 0){
+    container.innerHTML=`<div class="col-span-full py-10 text-center text-gray-400"><i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-40"></i><p class="text-sm">No documents submitted yet.</p></div>`;
+    lucide.createIcons(); return;
   }
   
-  selectedApp.docs.forEach((doc,idx)=>{
-    const isV=doc.status==="Verified",isR=doc.status==="Rejected";
-    const border=isV?"border-green-200":isR?"border-red-200":"border-orange-200";
+  selectedApp.docs.forEach((doc, idx)=>{
+    doc._idx = idx; // stash index for preview nav
+    const isV=doc.status==="Verified", isR=doc.status==="Rejected";
+    const border=isV?"border-green-300 bg-green-50/30":isR?"border-red-300 bg-red-50/30":"border-orange-200 bg-orange-50/20";
     const badge=isV
       ?`<span class="status-badge badge-verified"><i data-lucide="check-circle" class="w-3 h-3"></i>Verified</span>`
       :isR
       ?`<span class="status-badge badge-rejected"><i data-lucide="x-circle" class="w-3 h-3"></i>Rejected</span>`
       :`<span class="status-badge badge-review"><i data-lucide="clock" class="w-3 h-3"></i>${doc.status}</span>`;
-    const issues=doc.issues.length?`<div class="mt-2"><p class="text-xs font-semibold text-red-500 mb-1">Issues:</p>${doc.issues.map(i=>`<p class="text-xs text-red-500 flex items-start gap-1"><span>•</span>${i}</p>`).join("")}</div>`:"";
-    const verInfo=isV&&doc.verifiedBy?`<p class="text-xs text-gray-400 mt-1">Verified by: ${doc.verifiedBy}</p><p class="text-xs text-gray-400">Verified on: ${doc.verifiedOn}</p>`:"";
+    const issues=doc.issues&&doc.issues.length
+      ?`<div class="mt-1.5 px-2 py-1.5 bg-red-50 rounded-lg"><p class="text-[11px] font-semibold text-red-500 mb-0.5">Issues:</p>${doc.issues.map(i=>`<p class="text-[11px] text-red-500 flex items-start gap-1"><span>•</span>${i}</p>`).join("")}</div>`:"";
+    const verInfo=isV&&doc.verifiedBy
+      ?`<p class="text-[11px] text-green-600 mt-1 flex items-center gap-1"><i data-lucide="user-check" class="w-3 h-3"></i>${doc.verifiedBy} · ${doc.verifiedOn}</p>`:"";
     const btns=!isV&&!isR
       ?`<div class="flex gap-2 mt-3">
-          <button onclick="verifyDoc(${idx})" class="flex-1 flex items-center justify-center gap-1 bg-green-500 text-white text-xs font-semibold py-1.5 rounded-lg hover:bg-green-600 transition"><i data-lucide="check" class="w-3 h-3"></i> Verify</button>
-          <button onclick="rejectDoc(${idx})" class="flex-1 flex items-center justify-center gap-1 bg-red-500 text-white text-xs font-semibold py-1.5 rounded-lg hover:bg-red-600 transition"><i data-lucide="x" class="w-3 h-3"></i> Reject</button>
+          <button onclick="verifyDoc(${idx})" class="flex-1 flex items-center justify-center gap-1 bg-green-500 text-white text-xs font-semibold py-2 rounded-xl hover:bg-green-600 transition shadow-sm"><i data-lucide="check" class="w-3 h-3"></i> Verify</button>
+          <button onclick="rejectDoc(${idx})" class="flex-1 flex items-center justify-center gap-1 bg-red-500 text-white text-xs font-semibold py-2 rounded-xl hover:bg-red-600 transition shadow-sm"><i data-lucide="x" class="w-3 h-3"></i> Reject</button>
         </div>`
-      :`<button onclick="unsetDoc(${idx})" class="w-full mt-3 text-xs text-gray-500 border border-gray-200 rounded-lg py-1.5 hover:bg-gray-50 transition">${isV?"Undo Verify":"Undo Reject"}</button>`;
+      :`<button onclick="unsetDoc(${idx})" class="w-full mt-3 text-xs text-gray-500 border border-gray-200 rounded-xl py-2 hover:bg-gray-50 transition">${isV?"↩ Undo Verify":"↩ Undo Reject"}</button>`;
+
+    // Thumbnail label overlay for PDF
+    const ext = getFileExt(doc.fileUrl||'');
+    const isPdf = ext==='pdf';
+    const previewLabel = isPdf
+      ? `<span style="position:absolute;top:6px;left:6px;background:rgba(239,68,68,0.9);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.04em">PDF</span>`
+      : '';
+
     container.innerHTML+=`
-      <div class="doc-card border-2 ${border} rounded-xl p-4 flex flex-col text-sm">
-        <div class="flex items-center justify-between mb-3"><p class="font-semibold text-gray-800 text-xs leading-tight">${doc.name}</p>${badge}</div>
-        <div class="flex-1 bg-gray-100 rounded-lg flex items-center justify-center h-24 mb-3">
-          <div class="text-center text-gray-400"><i data-lucide="file-text" class="w-8 h-8 mx-auto mb-1 opacity-50"></i><p class="text-xs opacity-60">Document Preview</p></div>
+      <div class="doc-card border-2 ${border} rounded-2xl p-4 flex flex-col text-sm transition-shadow">
+        <!-- Doc name + badge -->
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <p class="font-semibold text-gray-800 text-xs leading-snug flex-1">${doc.name}</p>
+          ${badge}
         </div>
-        <p class="text-xs text-gray-500"><span class="font-semibold">Type:</span> ${doc.type}</p>
-        <p class="text-xs text-gray-500"><span class="font-semibold">Uploaded:</span> ${doc.uploadDate}</p>
-        ${verInfo}${issues}${btns}
-        <button onclick="viewFullDoc('${doc.fileUrl}', '${doc.name}')" class="mt-2 w-full flex items-center justify-center gap-1 border border-gray-200 text-gray-600 text-xs py-1.5 rounded-lg hover:bg-gray-50 transition"><i data-lucide="eye" class="w-3 h-3"></i> View Full</button>
+        <!-- Clickable thumbnail preview -->
+        <div class="relative rounded-xl overflow-hidden mb-3 cursor-pointer group" style="height:140px;background:#f3f4f6"
+          onclick="openDocPreview(${idx})">
+          ${getDocumentPreviewMarkup(doc, 'thumb')}
+          ${previewLabel}
+          <!-- hover overlay -->
+          <div style="position:absolute;inset:0;background:rgba(0,0,0,0);transition:background .2s;display:flex;align-items:center;justify-content:center"
+            class="group-hover:bg-black/20">
+            <span style="opacity:0;transition:opacity .2s;background:rgba(0,0,0,0.65);color:#fff;font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;display:flex;align-items:center;gap:5px"
+              class="group-hover:opacity-100">
+              <i data-lucide="maximize-2" style="width:12px;height:12px"></i> Preview
+            </span>
+          </div>
+        </div>
+        <!-- Meta -->
+        <p class="text-[11px] text-gray-500"><span class="font-semibold text-gray-600">Type:</span> ${doc.type}</p>
+        <p class="text-[11px] text-gray-500"><span class="font-semibold text-gray-600">Uploaded:</span> ${doc.uploadDate}</p>
+        ${verInfo}${issues}
+        ${btns}
+        <button onclick="openDocPreview(${idx})" class="mt-2 w-full flex items-center justify-center gap-1.5 border border-gray-200 text-gray-600 text-xs py-1.5 rounded-xl hover:bg-gray-50 transition">
+          <i data-lucide="eye" class="w-3.5 h-3.5"></i> View Full
+        </button>
       </div>`;
   });
   lucide.createIcons();
@@ -330,11 +562,12 @@ function verifyDoc(idx){
   .then(data=>{
     if(data.success){
       doc.status="Verified";
-      doc.verifiedBy="Marwina Admin";
+      doc.verifiedBy=contextData.adminName||"Admin";
       doc.verifiedOn=new Date().toISOString().split("T")[0];
       doc.issues=[];
       showToast(data.message);
       renderDocCards();
+      if(document.getElementById('docPreviewOverlay')?.style.display==='flex') _renderDocPreviewModal();
     } else {
       showToast('Error: '+data.message,'error');
     }
@@ -360,6 +593,7 @@ function unsetDoc(idx){
       doc.issues=[];
       showToast(data.message);
       renderDocCards();
+      if(document.getElementById('docPreviewOverlay')?.style.display==='flex') _renderDocPreviewModal();
     } else {
       showToast('Error: '+data.message,'error');
     }
@@ -426,6 +660,7 @@ function confirmReject(){
       showToast("Document rejected: "+reason.substring(0,40)+(reason.length>40?"…":""),"warn");
       closeRejectModal();
       renderDocCards();
+      if(document.getElementById('docPreviewOverlay')?.style.display==='flex') _renderDocPreviewModal();
     } else {
       showToast('Error: '+data.message,'error');
     }
@@ -435,22 +670,31 @@ function confirmReject(){
 
 /* ═══ MODAL ACTIONS ═══ */
 function markVerified(){
-  const remarks=document.getElementById("remarks").value;
-  
+  const remarks    = document.getElementById("remarks").value;
+  const semester   = document.getElementById("admSemester")?.value  || "";
+  const yearAdmitted = document.getElementById("admYear")?.value    || "";
+  const curriculum = document.getElementById("admCurriculum")?.value || "";
+
   fetch('/admin-panel/api/application/status/', {
     method: 'POST',
     headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
     body: JSON.stringify({
       application_id: selectedApp.id,
       status: 'verified',
-      remarks: remarks
+      remarks,
+      semester,
+      year_admitted: yearAdmitted,
+      curriculum,
     })
   })
   .then(r=>r.json())
   .then(data=>{
     if(data.success){
-      selectedApp.remarks=remarks;
-      selectedApp.status="Verified";
+      selectedApp.remarks       = remarks;
+      selectedApp.status        = "Verified";
+      selectedApp.semester      = semester;
+      selectedApp.year_admitted = yearAdmitted;
+      selectedApp.curriculum    = curriculum;
       showToast(selectedApp.id+" marked as Verified ✓");
       closeModal();
       initializeData();
@@ -715,3 +959,231 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+/* ═══ CMS SETTINGS ═══ */
+function addAnnouncementRow() {
+  const list = document.getElementById('announcementsList');
+  const row = document.createElement('div');
+  row.className = 'announcement-row flex items-center gap-2';
+  row.innerHTML = `
+    <input type="text" placeholder="Announcement text…"
+      class="ann-text flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
+    <input type="number" placeholder="sec" value="5" min="3" max="30"
+      class="ann-duration w-16 border border-gray-200 rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
+    <button type="button" onclick="removeAnnouncementRow(this)"
+      class="w-7 h-7 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition flex-shrink-0">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>`;
+  list.appendChild(row);
+  lucide.createIcons();
+}
+
+function removeAnnouncementRow(btn) {
+  const list = document.getElementById('announcementsList');
+  if (list.querySelectorAll('.announcement-row').length > 1) {
+    btn.closest('.announcement-row').remove();
+  }
+}
+
+function addProgramRow() {
+  const list = document.getElementById('programsList');
+  const row = document.createElement('div');
+  row.className = 'program-row border border-gray-100 rounded-xl p-3 bg-gray-50 space-y-2';
+  row.innerHTML = `
+    <div class="flex items-center gap-2">
+      <input type="text" placeholder="Program name e.g. Master in Information Technology"
+        class="prog-name flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
+      <button type="button" onclick="removeProgramRow(this)"
+        class="w-7 h-7 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-100 rounded-lg transition flex-shrink-0">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <input type="text" placeholder="Degree type e.g. Master's Degree"
+      class="prog-degree w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
+    <textarea placeholder="Short description shown on the card…" rows="2"
+      class="prog-desc w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition resize-none"></textarea>
+    <div class="flex items-center gap-2">
+      <div class="toggle-track on prog-visible-toggle" onclick="this.classList.toggle('on')">
+        <div class="toggle-thumb"></div>
+      </div>
+      <span class="text-xs text-gray-500">Visible on homepage</span>
+    </div>`;
+  list.appendChild(row);
+  lucide.createIcons();
+}
+
+function removeProgramRow(btn) {
+  btn.closest('.program-row').remove();
+}
+
+function saveCMSSettings() {
+  const admissionsOpen   = document.getElementById('cmsAdmissionsToggle').classList.contains('on');
+  const showAnnouncement = document.getElementById('cmsAnnouncementToggle').classList.contains('on');
+  const heroTagline      = document.getElementById('cmsHeroTagline').value.trim();
+  const deadline         = document.getElementById('cmsDeadline').value;
+  const errorEl          = document.getElementById('cmsSaveError');
+  const saveBtn          = document.getElementById('cmsSaveBtn');
+
+  errorEl.classList.add('hidden');
+
+  // Collect announcements
+  const announcements = [];
+  document.querySelectorAll('.announcement-row').forEach(row => {
+    const text = row.querySelector('.ann-text').value.trim();
+    const duration = parseInt(row.querySelector('.ann-duration').value) || 5;
+    if (text) announcements.push({ text, duration: Math.max(3, duration) });
+  });
+
+  if (showAnnouncement && announcements.length === 0) {
+    errorEl.textContent = 'Add at least one announcement, or turn off the announcement bar.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+
+  // Collect programs
+  const programs = [];
+  document.querySelectorAll('.program-row').forEach(row => {
+    const name        = row.querySelector('.prog-name').value.trim();
+    const degree      = row.querySelector('.prog-degree').value.trim();
+    const description = row.querySelector('.prog-desc').value.trim();
+    const visible     = row.querySelector('.prog-visible-toggle').classList.contains('on');
+    if (name) programs.push({ name, degree, description, visible });
+  });
+
+  // Collect downloads
+  const downloads = [];
+  document.querySelectorAll('.download-row').forEach(row => {
+    const name = row.querySelector('.dl-name')?.value || '';
+    const url = row.querySelector('.dl-url')?.value || '';
+    const file_type = row.querySelector('.dl-type')?.value || '';
+    if (name && url) downloads.push({ name, url, file_type });
+  });
+
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Saving...';
+  lucide.createIcons();
+
+  fetch('/admin-panel/api/cms/update/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+    body: JSON.stringify({
+      admissions_open:      admissionsOpen,
+      show_announcement:    showAnnouncement,
+      announcements,
+      hero_tagline:         heroTagline,
+      application_deadline: deadline || null,
+      programs,
+      downloads,
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      showToast('Homepage settings saved!', 'success');
+    } else {
+      errorEl.textContent = data.message || 'Failed to save settings.';
+      errorEl.classList.remove('hidden');
+    }
+  })
+  .catch(() => {
+    errorEl.textContent = 'Network error. Please try again.';
+    errorEl.classList.remove('hidden');
+  })
+  .finally(() => {
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Save Homepage Settings';
+    lucide.createIcons();
+  });
+}
+
+/* ═══ DOWNLOADS MANAGEMENT ═══ */
+document.addEventListener('DOMContentLoaded', () => {
+  const uploadBtn = document.getElementById('uploadDownloadBtn');
+  const fileInput = document.getElementById('downloadFileInput');
+
+  if (uploadBtn && fileInput) {
+    uploadBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', handleDownloadUpload);
+  }
+});
+
+function handleDownloadUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const uploadBtn = document.getElementById('uploadDownloadBtn');
+  const originalHTML = uploadBtn.innerHTML;
+  uploadBtn.disabled = true;
+  uploadBtn.innerHTML = '<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Uploading...';
+  lucide.createIcons();
+
+  fetch('/admin-panel/api/cms/upload-file/', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCSRFToken()
+    },
+    body: formData
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      addDownloadRow(data.data);
+      showToast('File uploaded successfully!', 'success');
+    } else {
+      showToast('Error: ' + data.message, 'warn');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showToast('Error uploading file. Please try again.', 'warn');
+  })
+  .finally(() => {
+    uploadBtn.disabled = false;
+    uploadBtn.innerHTML = originalHTML;
+    event.target.value = '';
+    lucide.createIcons();
+  });
+}
+
+function addDownloadRow(fileData) {
+  const list = document.getElementById('downloadsList');
+
+  // Remove empty state message if it exists
+  const emptyMsg = list.querySelector('p');
+  if (emptyMsg) emptyMsg.remove();
+
+  // Create hidden input to store download data
+  const row = document.createElement('div');
+  row.className = 'download-row border border-gray-100 rounded-lg p-3 bg-gray-50 flex items-center justify-between gap-3';
+  row.innerHTML = `
+    <div class="flex items-center gap-3 flex-1 min-w-0">
+      <div class="w-8 h-8 rounded-md bg-red-100 flex items-center justify-center flex-shrink-0 text-xs font-bold text-red-700">
+        ${fileData.file_type}
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium text-gray-800 truncate">${fileData.name}</p>
+        <p class="text-xs text-gray-400 truncate">${fileData.url}</p>
+      </div>
+      <input type="hidden" class="dl-name" value="${fileData.name}">
+      <input type="hidden" class="dl-url" value="${fileData.url}">
+      <input type="hidden" class="dl-type" value="${fileData.file_type}">
+    </div>
+    <button type="button" onclick="removeDownloadRow(this)"
+      class="w-7 h-7 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-100 rounded-lg transition flex-shrink-0">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>`;
+  list.appendChild(row);
+  lucide.createIcons();
+}
+
+function removeDownloadRow(btn) {
+  btn.closest('.download-row').remove();
+}
+
+// CSRF token helper
+function getCSRFToken() {
+  return document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+    document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='))?.split('=')[1] || '';
+}

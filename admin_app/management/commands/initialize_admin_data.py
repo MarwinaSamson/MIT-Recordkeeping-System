@@ -22,11 +22,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options['delete']:
             self.stdout.write('Deleting existing test data...')
-            Application.objects.filter(application_id__startswith='TEST-').delete()
+            Application.objects.filter(
+                application_id__startswith='TEST-').delete()
             self.stdout.write(self.style.SUCCESS('Test data deleted'))
 
         self.stdout.write('Creating sample data...')
-        
+
         # Get or create superuser for testing
         admin_user, created = User.objects.get_or_create(
             username='admin',
@@ -38,12 +39,13 @@ class Command(BaseCommand):
                 'last_name': 'User',
             }
         )
-        
+
         if created:
             admin_user.set_password('admin123')
             admin_user.save()
-            self.stdout.write(self.style.SUCCESS(f'Created superuser: {admin_user.username}'))
-        
+            self.stdout.write(self.style.SUCCESS(
+                f'Created superuser: {admin_user.username}'))
+
         # Sample data
         samples = [
             {
@@ -87,7 +89,7 @@ class Command(BaseCommand):
                 'mobile': '+639201112222',
             },
         ]
-        
+
         created_count = 0
         for sample in samples:
             user, created = User.objects.get_or_create(
@@ -98,11 +100,11 @@ class Command(BaseCommand):
                     'last_name': sample['last_name'],
                 }
             )
-            
+
             if created:
                 user.set_password('password123')
                 user.save()
-            
+
             # Create personal details if not exist
             PersonalDetails.objects.get_or_create(
                 user=user,
@@ -125,7 +127,7 @@ class Command(BaseCommand):
                     'parent_income': '50,000 - 100,000',
                 }
             )
-            
+
             # Create application
             Application.objects.get_or_create(
                 application_id=sample['application_id'],
@@ -136,7 +138,7 @@ class Command(BaseCommand):
                     'remarks': f'Sample application for {sample["first_name"]} {sample["last_name"]}',
                 }
             )
-            
+
             # Create sample documents
             doc_types = ['tor', 'deans_recommendation', 'psa']
             for doc_type in doc_types:
@@ -148,7 +150,7 @@ class Command(BaseCommand):
                         'file': 'documents/sample.pdf',
                     }
                 )
-                
+
                 # Create document verification
                 if sample['status'] == 'verified':
                     doc_status = 'verified'
@@ -166,7 +168,7 @@ class Command(BaseCommand):
                     doc_status = 'pending'
                     verified_by = None
                     verified_at = None
-                
+
                 DocumentVerification.objects.get_or_create(
                     document=doc,
                     defaults={
@@ -176,11 +178,13 @@ class Command(BaseCommand):
                         'remarks': f'{doc_type} sample document',
                     }
                 )
-            
+
             created_count += 1
-        
-        self.stdout.write(self.style.SUCCESS(f'Created {created_count} sample students'))
-        self.stdout.write(self.style.SUCCESS('Admin dashboard data initialized successfully!'))
+
+        self.stdout.write(self.style.SUCCESS(
+            f'Created {created_count} sample students'))
+        self.stdout.write(self.style.SUCCESS(
+            'Admin dashboard data initialized successfully!'))
         self.stdout.write(self.style.WARNING('Test credentials:'))
         self.stdout.write(f'  Username: admin')
         self.stdout.write(f'  Password: admin123')
