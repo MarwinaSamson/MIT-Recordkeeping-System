@@ -1044,10 +1044,9 @@
     <div id="tab-about" class="panel active">
         <div class="hero">
             <p class="hero-label">Western Mindanao State University · College of Computing Studies</p>
-            <h1>Master in <span>Information Technology</span></h1>
+            <h1>{{ cms.program_title|default:"Master in Information Technology" }}</h1>
             <p class="hero-sub">
-                Preparing professionals for the industrial practice of systems integration, administration, planning,
-                implementation, and the maintenance of complex technology ecosystems.
+                {{ cms.program_tagline|default:"Preparing professionals for the industrial practice of systems integration, administration, planning, implementation, and the maintenance of complex technology ecosystems." }}
             </p>
             <div class="hero-badge">
                 🎓 CHED Compliant · Effective S.Y. 2019–2020
@@ -1062,12 +1061,7 @@
             <div class="about-grid">
                 <div>
                     <p class="about-desc">
-                        The <strong>Master in Information Technology (MIT)</strong> at Western Mindanao State University
-                        emphasizes the acquisition of advanced concepts and technologies, preparing and enabling
-                        graduates for the industrial practice of <strong>systems integration</strong>, <strong>systems
-                            administration</strong>, <strong>systems planning</strong>, <strong>systems
-                            implementation</strong>, and other activities that maintain the integrity and proper
-                        functionality of a system and its components.
+                        {{ cms.program_description|default:"The <strong>Master in Information Technology (MIT)</strong> at Western Mindanao State University emphasizes the acquisition of advanced concepts and technologies, preparing and enabling graduates for the industrial practice of <strong>systems integration</strong>, <strong>systems administration</strong>, <strong>systems planning</strong>, <strong>systems implementation</strong>, and other activities that maintain the integrity and proper functionality of a system and its components." }}
                     </p>
 
                     <div class="info-block">
@@ -1075,28 +1069,28 @@
                             <div class="info-icon">🏫</div>
                             <div class="info-text">
                                 <strong>Institution</strong>
-                                <span>Western Mindanao State University, Zamboanga City</span>
+                                <span>{{ cms.program_institution|default:"Western Mindanao State University, Zamboanga City" }}</span>
                             </div>
                         </div>
                         <div class="info-item">
                             <div class="info-icon">📋</div>
                             <div class="info-text">
                                 <strong>COPC No.</strong>
-                                <span>017, Series of 2019 – issued August 28, 2019</span>
+                                <span>{{ cms.program_copc_number|default:"017, Series of 2019 – issued August 28, 2019" }}</span>
                             </div>
                         </div>
                         <div class="info-item">
                             <div class="info-icon">📅</div>
                             <div class="info-text">
                                 <strong>Effective Academic Year</strong>
-                                <span>2019–2020</span>
+                                <span>{{ cms.program_effective_year|default:"2019–2020" }}</span>
                             </div>
                         </div>
                         <div class="info-item">
                             <div class="info-icon">🏛️</div>
                             <div class="info-text">
                                 <strong>Accrediting Body</strong>
-                                <span>Commission on Higher Education (CHED), Republic of the Philippines</span>
+                                <span>{{ cms.program_accreditor|default:"Commission on Higher Education (CHED), Republic of the Philippines" }}</span>
                             </div>
                         </div>
                     </div>
@@ -1113,6 +1107,14 @@
 
                 <div>
                     <div class="about-stats">
+                        {% if cms.program_stats %}
+                            {% for stat in cms.program_stats %}
+                            <div class="stat-card">
+                                <div class="stat-number">{{ stat.stat_value }}</div>
+                                <div class="stat-label">{{ stat.stat_label }}</div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
                         <div class="stat-card">
                             <div class="stat-number">39</div>
                             <div class="stat-label">Total Units</div>
@@ -1129,9 +1131,24 @@
                             <div class="stat-number">21</div>
                             <div class="stat-label">Specialization Units</div>
                         </div>
+                        {% endif %}
                     </div>
 
                     <div class="courses-wrap">
+                        {% if cms.program_curriculum %}
+                            {% for group in cms.program_curriculum %}
+                            <div class="course-group">
+                                <div class="course-group-title">{{ group.title }}</div>
+                                <div class="course-list">
+                                    {% for course in group.courses %}
+                                    <div class="course-pill"><span class="course-code">{{ course.code }}</span><span
+                                            class="course-name">{{ course.name }}</span><span
+                                            class="course-units">{{ course.units }}u</span></div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
                         <div class="course-group">
                             <div class="course-group-title">IT Core Courses · 12 Units</div>
                             <div class="course-list">
@@ -1186,11 +1203,8 @@
                                         class="course-units">3u</span></div>
                             </div>
                         </div>
+                        {% endif %}
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- ══════════════════════════════════════════════
      PROGRAM OUTCOMES PANEL
@@ -1306,7 +1320,16 @@
             <div class="section-divider"></div>
 
             <ul class="obj-list">
-
+                {% if cms.program_objectives %}
+                    {% for obj in cms.program_objectives %}
+                    <li class="obj-item">
+                        <div class="obj-bullet">{{ forloop.counter }}</div>
+                        <div class="obj-text">
+                            {{ obj.description }}
+                        </div>
+                    </li>
+                    {% endfor %}
+                {% else %}
                 <li class="obj-item">
                     <div class="obj-bullet">1</div>
                     <div class="obj-text">
@@ -1379,7 +1402,7 @@
                         globally competitive and ethically grounded professionals.
                     </div>
                 </li>
-
+                {% endif %}
             </ul>
         </div>
     </div>

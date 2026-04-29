@@ -516,9 +516,10 @@ def upload_cms_file(request):
 def get_requirement_types(request):
     """Get all active requirement types."""
     from ..models import RequirementType
-    
+
     types = RequirementType.objects.filter(is_active=True).order_by('name')
-    data = [{'id': t.id, 'name': t.name, 'description': t.description} for t in types]
+    data = [{'id': t.id, 'name': t.name, 'description': t.description}
+            for t in types]
     return JsonResponse({'success': True, 'data': data})
 
 
@@ -528,27 +529,28 @@ def get_requirement_types(request):
 def create_requirement_type(request):
     """Create a new requirement type."""
     from ..models import RequirementType
-    
+
     try:
         data = json.loads(request.body)
         name = data.get('name', '').strip()
         description = data.get('description', '').strip()
-        
+
         if not name:
             return JsonResponse({'success': False, 'message': 'Requirement name is required.'}, status=400)
-        
+
         # Check if already exists
         if RequirementType.objects.filter(name__iexact=name).exists():
             return JsonResponse({'success': False, 'message': 'A requirement type with this name already exists.'}, status=400)
-        
-        req_type = RequirementType.objects.create(name=name, description=description)
-        
+
+        req_type = RequirementType.objects.create(
+            name=name, description=description)
+
         AdminActivityLog.objects.create(
             admin=request.user,
             action='note',
             notes=f"Created requirement type: {name}"
         )
-        
+
         return JsonResponse({
             'success': True,
             'message': 'Requirement type created successfully.',
@@ -566,24 +568,24 @@ def create_requirement_type(request):
 def delete_requirement_type(request):
     """Delete a requirement type."""
     from ..models import RequirementType
-    
+
     try:
         data = json.loads(request.body)
         type_id = data.get('requirement_type_id')
-        
+
         if not type_id:
             return JsonResponse({'success': False, 'message': 'Requirement type ID is required.'}, status=400)
-        
+
         req_type = RequirementType.objects.get(id=type_id)
         name = req_type.name
         req_type.delete()
-        
+
         AdminActivityLog.objects.create(
             admin=request.user,
             action='note',
             notes=f"Deleted requirement type: {name}"
         )
-        
+
         return JsonResponse({'success': True, 'message': 'Requirement type deleted successfully.'})
     except RequirementType.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Requirement type not found.'}, status=404)
@@ -598,18 +600,19 @@ def get_students_with_requirements(request):
     """Get list of students with missing requirements."""
     from ..models import StudentRequirement, RequirementType
     from django.contrib.auth.models import User
-    
+
     # Get filter parameters
     status = request.GET.get('status', '')
     requirement_id = request.GET.get('requirement_id', '')
-    
-    requirements = StudentRequirement.objects.select_related('user', 'requirement')
-    
+
+    requirements = StudentRequirement.objects.select_related(
+        'user', 'requirement')
+
     if status:
         requirements = requirements.filter(status=status)
     if requirement_id:
         requirements = requirements.filter(requirement_id=requirement_id)
-    
+
     # Group by student
     student_data = {}
     for req in requirements:
@@ -626,7 +629,7 @@ def get_students_with_requirements(request):
                 'application_id': app.application_id if app else None,
                 'requirements': []
             }
-        
+
         student_data[user_id]['requirements'].append({
             'id': req.id,
             'requirement_id': req.requirement.id,
@@ -636,7 +639,7 @@ def get_students_with_requirements(request):
             'created_at': req.created_at.strftime('%Y-%m-%d %H:%M'),
             'updated_at': req.updated_at.strftime('%Y-%m-%d %H:%M')
         })
-    
+
     return JsonResponse({'success': True, 'data': list(student_data.values())})
 
 
@@ -647,37 +650,37 @@ def add_student_requirement(request):
     """Add a missing requirement for a student."""
     from ..models import StudentRequirement, RequirementType, RequirementNotification
     from django.contrib.auth.models import User
-    
+
     try:
         data = json.loads(request.body)
         user_id = data.get('user_id')
         requirement_id = data.get('requirement_id')
         notes = data.get('notes', '').strip()
-        
+
         if not user_id or not requirement_id:
             return JsonResponse({'success': False, 'message': 'User ID and Requirement ID are required.'}, status=400)
-        
+
         user = User.objects.get(id=user_id)
         requirement = RequirementType.objects.get(id=requirement_id)
-        
+
         # Check if already exists
         if StudentRequirement.objects.filter(user=user, requirement=requirement).exists():
             return JsonResponse({'success': False, 'message': 'This requirement is already marked for this student.'}, status=400)
-        
+
         student_req = StudentRequirement.objects.create(
             user=user,
             requirement=requirement,
             notes=notes,
             status='pending'
         )
-        
+
         AdminActivityLog.objects.create(
             admin=request.user,
             action='note',
             application=Application.objects.filter(user=user).first(),
             notes=f"Added missing requirement for {user.username}: {requirement.name}"
         )
-        
+
         return JsonResponse({
             'success': True,
             'message': 'Requirement added successfully.',
@@ -703,26 +706,26 @@ def add_student_requirement(request):
 def remove_student_requirement(request):
     """Remove a missing requirement from a student."""
     from ..models import StudentRequirement
-    
+
     try:
         data = json.loads(request.body)
         requirement_id = data.get('student_requirement_id')
-        
+
         if not requirement_id:
             return JsonResponse({'success': False, 'message': 'Student requirement ID is required.'}, status=400)
-        
+
         student_req = StudentRequirement.objects.get(id=requirement_id)
         user = student_req.user
         req_name = student_req.requirement.name
         student_req.delete()
-        
+
         AdminActivityLog.objects.create(
             admin=request.user,
             action='note',
             application=Application.objects.filter(user=user).first(),
             notes=f"Removed missing requirement for {user.username}: {req_name}"
         )
-        
+
         return JsonResponse({'success': True, 'message': 'Requirement removed successfully.'})
     except StudentRequirement.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Student requirement not found.'}, status=404)
@@ -736,35 +739,36 @@ def remove_student_requirement(request):
 def update_student_requirement_status(request):
     """Update the status of a student requirement."""
     from ..models import StudentRequirement
-    
+
     try:
         data = json.loads(request.body)
         requirement_id = data.get('student_requirement_id')
         new_status = data.get('status')
-        
+
         if not requirement_id or not new_status:
             return JsonResponse({'success': False, 'message': 'Requirement ID and status are required.'}, status=400)
-        
+
         valid_statuses = ['pending', 'notified', 'submitted', 'waived']
         if new_status not in valid_statuses:
             return JsonResponse({'success': False, 'message': 'Invalid status.'}, status=400)
-        
+
         student_req = StudentRequirement.objects.get(id=requirement_id)
         old_status = student_req.status
         student_req.status = new_status
-        
+
         if new_status == 'notified':
             student_req.notified_at = timezone.now()
-        
+
         student_req.save()
-        
+
         AdminActivityLog.objects.create(
             admin=request.user,
             action='note',
-            application=Application.objects.filter(user=student_req.user).first(),
+            application=Application.objects.filter(
+                user=student_req.user).first(),
             notes=f"Updated requirement status for {student_req.user.username}: {student_req.requirement.name} ({old_status} -> {new_status})"
         )
-        
+
         return JsonResponse({
             'success': True,
             'message': 'Status updated successfully.',
@@ -784,18 +788,18 @@ def send_requirement_notification(request):
     from ..models import StudentRequirement, RequirementNotification
     from django.core.mail import send_mail
     from django.conf import settings
-    
+
     try:
         data = json.loads(request.body)
         student_requirement_ids = data.get('student_requirement_ids', [])
         message = data.get('message', '').strip()
-        
+
         if not student_requirement_ids:
             return JsonResponse({'success': False, 'message': 'At least one student requirement is required.'}, status=400)
-        
+
         if not message:
             return JsonResponse({'success': False, 'message': 'Notification message is required.'}, status=400)
-        
+
         # Group requirements by user
         requirements_by_user = {}
         for req_id in student_requirement_ids:
@@ -808,24 +812,25 @@ def send_requirement_notification(request):
                         'requirements': [],
                         'req_ids': []
                     }
-                requirements_by_user[user_id]['requirements'].append(req.requirement.name)
+                requirements_by_user[user_id]['requirements'].append(
+                    req.requirement.name)
                 requirements_by_user[user_id]['req_ids'].append(req_id)
             except StudentRequirement.DoesNotExist:
                 continue
-        
+
         # Send notifications to each student
         notifications_sent = 0
         for user_id, user_data in requirements_by_user.items():
             user = user_data['user']
             req_names = ', '.join(user_data['requirements'])
-            
+
             # Update status to notified
             for req_id in user_data['req_ids']:
                 StudentRequirement.objects.filter(id=req_id).update(
                     status='notified',
                     notified_at=timezone.now()
                 )
-            
+
             # Create notification record
             for req_id in user_data['req_ids']:
                 RequirementNotification.objects.create(
@@ -833,7 +838,7 @@ def send_requirement_notification(request):
                     sent_by=request.user,
                     message=f"{message}\n\nMissing requirements: {req_names}"
                 )
-            
+
             # Send email notification
             try:
                 full_name = user.get_full_name() or user.email
@@ -860,13 +865,13 @@ Admissions Office
             except Exception as e:
                 # Log but continue with other students
                 print(f"Failed to send email to {user.email}: {e}")
-        
+
         AdminActivityLog.objects.create(
             admin=request.user,
             action='note',
             notes=f"Sent {notifications_sent} requirement notifications to students."
         )
-        
+
         return JsonResponse({
             'success': True,
             'message': f'Notifications sent to {notifications_sent} student(s).'
@@ -882,19 +887,20 @@ def get_all_students(request):
     """Get list of all students with applications for selection."""
     from django.contrib.auth.models import User
     from students_app.models import PersonalDetails
-    
+
     users = User.objects.filter(
         application__isnull=False
     ).select_related('application').distinct().order_by('username')
-    
+
     data = []
     for user in users:
         # Get personal details if available
         personal = PersonalDetails.objects.filter(user=user).first()
-        full_name = personal.first_name + ' ' + personal.last_name if personal else user.get_full_name() or user.email
-        
+        full_name = personal.first_name + ' ' + \
+            personal.last_name if personal else user.get_full_name() or user.email
+
         app = Application.objects.filter(user=user).first()
-        
+
         data.append({
             'user_id': user.id,
             'username': user.username,
@@ -903,5 +909,441 @@ def get_all_students(request):
             'application_id': app.application_id if app else None,
             'program': app.program if app else None
         })
+
+    return JsonResponse({'success': True, 'data': data})
+
+
+# ============== Program CMS APIs ==============
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def get_program_cms(request):
+    """Get all program CMS data."""
+    from ..models import CMSSettings, Faculty
+    
+    try:
+        cms = CMSSettings.objects.get(pk=1)
+    except CMSSettings.DoesNotExist:
+        CMSSettings.objects.create(pk=1)
+        cms = CMSSettings.objects.get(pk=1)
+    
+    # Get faculty members
+    faculty_list = Faculty.objects.filter(is_active=True).order_by('order')
+    faculties = [{
+        'id': f.id,
+        'first_name': f.first_name,
+        'last_name': f.last_name,
+        'title': f.title,
+        'specializations': f.specializations,
+        'photo': f.photo.url if f.photo else None,
+        'order': f.order,
+    } for f in faculty_list]
+    
+    data = {
+        'program_name': cms.program_name,
+        'program_degree': cms.program_degree,
+        'program_title': cms.program_title,
+        'program_tagline': cms.program_tagline,
+        'program_description': cms.program_description,
+        'program_institution': cms.program_institution,
+        'program_copc_number': cms.program_copc_number,
+        'program_effective_year': cms.program_effective_year,
+        'program_accreditor': cms.program_accreditor,
+        'program_objectives': cms.program_objectives,
+        'program_outcomes': cms.program_outcomes,
+        'program_curriculum': cms.program_curriculum,
+        'program_stats': cms.program_stats,
+        'faculties': faculties,
+    }
     
     return JsonResponse({'success': True, 'data': data})
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def update_program_cms(request):
+    """Update program CMS settings."""
+    from ..models import CMSSettings
+    
+    try:
+        data = json.loads(request.body)
+        
+        # Get or create CMS settings
+        try:
+            cms = CMSSettings.objects.get(pk=1)
+        except CMSSettings.DoesNotExist:
+            CMSSettings.objects.create(pk=1)
+            cms = CMSSettings.objects.get(pk=1)
+        
+        # Update program basic info
+        cms.program_name = data.get('program_name', cms.program_name).strip()
+        cms.program_degree = data.get('program_degree', cms.program_degree).strip()
+        cms.program_title = data.get('program_title', cms.program_title).strip()
+        cms.program_tagline = data.get('program_tagline', cms.program_tagline).strip()
+        cms.program_description = data.get('program_description', cms.program_description).strip()
+        cms.program_institution = data.get('program_institution', cms.program_institution).strip()
+        cms.program_copc_number = data.get('program_copc_number', cms.program_copc_number).strip()
+        cms.program_effective_year = data.get('program_effective_year', cms.program_effective_year).strip()
+        cms.program_accreditor = data.get('program_accreditor', cms.program_accreditor).strip()
+        
+        # Update objectives [{title, description}]
+        objectives = data.get('program_objectives', None)
+        if objectives is not None:
+            cleaned_objectives = []
+            for obj in objectives:
+                title = str(obj.get('title', '')).strip()
+                description = str(obj.get('description', '')).strip()
+                if title:
+                    cleaned_objectives.append({'title': title, 'description': description})
+            cms.program_objectives = cleaned_objectives
+        
+        # Update outcomes [{number, title, description}]
+        outcomes = data.get('program_outcomes', None)
+        if outcomes is not None:
+            cleaned_outcomes = []
+            for outcome in outcomes:
+                try:
+                    number = int(outcome.get('number', 0))
+                except (ValueError, TypeError):
+                    number = 0
+                title = str(outcome.get('title', '')).strip()
+                description = str(outcome.get('description', '')).strip()
+                if title and number > 0:
+                    cleaned_outcomes.append({
+                        'number': number,
+                        'title': title,
+                        'description': description
+                    })
+            cms.program_outcomes = cleaned_outcomes
+        
+        # Update curriculum [{title, courses: [{code, name, units}]}]
+        curriculum = data.get('program_curriculum', None)
+        if curriculum is not None:
+            cleaned_curriculum = []
+            for group in curriculum:
+                group_title = str(group.get('title', '')).strip()
+                courses_raw = group.get('courses', [])
+                cleaned_courses = []
+                for course in courses_raw:
+                    code = str(course.get('code', '')).strip()
+                    name = str(course.get('name', '')).strip()
+                    try:
+                        units = int(course.get('units', 0))
+                    except (ValueError, TypeError):
+                        units = 0
+                    if code and name and units > 0:
+                        cleaned_courses.append({
+                            'code': code,
+                            'name': name,
+                            'units': units
+                        })
+                if group_title and cleaned_courses:
+                    cleaned_curriculum.append({
+                        'title': group_title,
+                        'courses': cleaned_courses
+                    })
+            cms.program_curriculum = cleaned_curriculum
+        
+        # Update stats [{stat_label, stat_value}]
+        stats = data.get('program_stats', None)
+        if stats is not None:
+            cleaned_stats = []
+            for stat in stats:
+                label = str(stat.get('stat_label', '')).strip()
+                value = str(stat.get('stat_value', '')).strip()
+                if label and value:
+                    cleaned_stats.append({
+                        'stat_label': label,
+                        'stat_value': value
+                    })
+            cms.program_stats = cleaned_stats
+        
+        cms.save()
+        
+        # Log the activity
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='cms_updated',
+            notes='Program CMS settings updated.'
+        )
+        
+        return JsonResponse({'success': True, 'message': 'Program CMS settings updated successfully.'})
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON data.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def get_faculty_list(request):
+    """Get list of all faculty members."""
+    from ..models import Faculty
+    
+    faculty = Faculty.objects.filter(is_active=True).order_by('order')
+    data = [{
+        'id': f.id,
+        'first_name': f.first_name,
+        'last_name': f.last_name,
+        'title': f.title,
+        'specializations': f.specializations,
+        'photo': f.photo.url if f.photo else None,
+        'order': f.order,
+    } for f in faculty]
+    
+    return JsonResponse({'success': True, 'data': data})
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def add_faculty_member(request):
+    """Add a new faculty member."""
+    from ..models import Faculty
+    
+    try:
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        title = request.POST.get('title', '').strip()
+        specializations = request.POST.get('specializations', '').strip()
+        photo = request.FILES.get('photo', None)
+        
+        if not first_name or not last_name or not title:
+            return JsonResponse({
+                'success': False,
+                'message': 'First name, last name, and title are required.'
+            }, status=400)
+        
+        # Validate photo if provided
+        if photo:
+            allowed_types = ['image/jpeg', 'image/png', 'image/webp']
+            if photo.content_type not in allowed_types:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Only JPG, PNG, and WEBP images are allowed.'
+                }, status=400)
+            
+            max_size = 5 * 1024 * 1024  # 5MB
+            if photo.size > max_size:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Photo size must not exceed 5MB.'
+                }, status=400)
+        
+        # Get next order number
+        last_faculty = Faculty.objects.order_by('-order').first()
+        next_order = (last_faculty.order + 1) if last_faculty else 1
+        
+        faculty = Faculty.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            title=title,
+            specializations=specializations,
+            photo=photo if photo else None,
+            order=next_order
+        )
+        
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='cms_updated',
+            notes=f"Added faculty member: {first_name} {last_name}"
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Faculty member added successfully.',
+            'data': {
+                'id': faculty.id,
+                'first_name': faculty.first_name,
+                'last_name': faculty.last_name,
+                'title': faculty.title,
+                'specializations': faculty.specializations,
+                'photo': faculty.photo.url if faculty.photo else None,
+                'order': faculty.order,
+            }
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def update_faculty_member(request):
+    """Update an existing faculty member."""
+    from ..models import Faculty
+    
+    try:
+        faculty_id = request.POST.get('faculty_id')
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        title = request.POST.get('title', '').strip()
+        specializations = request.POST.get('specializations', '').strip()
+        photo = request.FILES.get('photo', None)
+        
+        if not faculty_id:
+            return JsonResponse({
+                'success': False,
+                'message': 'Faculty ID is required.'
+            }, status=400)
+        
+        faculty = Faculty.objects.get(id=faculty_id)
+        
+        # Update fields if provided
+        if first_name:
+            faculty.first_name = first_name
+        if last_name:
+            faculty.last_name = last_name
+        if title:
+            faculty.title = title
+        
+        faculty.specializations = specializations
+        
+        # Update photo if provided
+        if photo:
+            allowed_types = ['image/jpeg', 'image/png', 'image/webp']
+            if photo.content_type not in allowed_types:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Only JPG, PNG, and WEBP images are allowed.'
+                }, status=400)
+            
+            max_size = 5 * 1024 * 1024  # 5MB
+            if photo.size > max_size:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Photo size must not exceed 5MB.'
+                }, status=400)
+            
+            # Delete old photo if exists
+            if faculty.photo:
+                if default_storage.exists(faculty.photo.name):
+                    default_storage.delete(faculty.photo.name)
+            
+            faculty.photo = photo
+        
+        faculty.save()
+        
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='cms_updated',
+            notes=f"Updated faculty member: {faculty.first_name} {faculty.last_name}"
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Faculty member updated successfully.',
+            'data': {
+                'id': faculty.id,
+                'first_name': faculty.first_name,
+                'last_name': faculty.last_name,
+                'title': faculty.title,
+                'specializations': faculty.specializations,
+                'photo': faculty.photo.url if faculty.photo else None,
+                'order': faculty.order,
+            }
+        })
+    except Faculty.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Faculty member not found.'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def delete_faculty_member(request):
+    """Delete a faculty member."""
+    from ..models import Faculty
+    
+    try:
+        data = json.loads(request.body)
+        faculty_id = data.get('faculty_id')
+        
+        if not faculty_id:
+            return JsonResponse({
+                'success': False,
+                'message': 'Faculty ID is required.'
+            }, status=400)
+        
+        faculty = Faculty.objects.get(id=faculty_id)
+        full_name = faculty.get_full_name()
+        
+        # Delete photo if exists
+        if faculty.photo:
+            if default_storage.exists(faculty.photo.name):
+                default_storage.delete(faculty.photo.name)
+        
+        faculty.delete()
+        
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='cms_updated',
+            notes=f"Deleted faculty member: {full_name}"
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Faculty member deleted successfully.'
+        })
+    except Faculty.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Faculty member not found.'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def reorder_faculty(request):
+    """Reorder faculty members."""
+    from ..models import Faculty
+    
+    try:
+        data = json.loads(request.body)
+        faculty_orders = data.get('faculty_orders', [])
+        
+        for item in faculty_orders:
+            faculty_id = item.get('id')
+            order = item.get('order')
+            
+            try:
+                faculty = Faculty.objects.get(id=faculty_id)
+                faculty.order = order
+                faculty.save()
+            except Faculty.DoesNotExist:
+                continue
+        
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='cms_updated',
+            notes='Reordered faculty members.'
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Faculty members reordered successfully.'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=400)

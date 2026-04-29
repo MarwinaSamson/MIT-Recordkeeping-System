@@ -20,6 +20,14 @@ from .views.api_views import (
     update_student_requirement_status,
     send_requirement_notification,
     get_all_students,
+    # Program CMS APIs
+    get_program_cms,
+    update_program_cms,
+    get_faculty_list,
+    add_faculty_member,
+    update_faculty_member,
+    delete_faculty_member,
+    reorder_faculty,
 )
 
 app_name = 'admin_app'
@@ -45,13 +53,30 @@ urlpatterns = [
     path('api/cms/upload-file/', upload_cms_file, name='api_upload_cms_file'),
 
     # Student Requirement Notification APIs
-    path('api/requirements/types/', get_requirement_types, name='api_get_requirement_types'),
-    path('api/requirements/types/create/', create_requirement_type, name='api_create_requirement_type'),
-    path('api/requirements/types/delete/', delete_requirement_type, name='api_delete_requirement_type'),
-    path('api/requirements/students/', get_students_with_requirements, name='api_get_students_with_requirements'),
-    path('api/requirements/add/', add_student_requirement, name='api_add_student_requirement'),
-    path('api/requirements/remove/', remove_student_requirement, name='api_remove_student_requirement'),
-    path('api/requirements/update-status/', update_student_requirement_status, name='api_update_requirement_status'),
-    path('api/requirements/notify/', send_requirement_notification, name='api_send_notification'),
+    path('api/requirements/types/', get_requirement_types,
+         name='api_get_requirement_types'),
+    path('api/requirements/types/create/', create_requirement_type,
+         name='api_create_requirement_type'),
+    path('api/requirements/types/delete/', delete_requirement_type,
+         name='api_delete_requirement_type'),
+    path('api/requirements/students/', get_students_with_requirements,
+         name='api_get_students_with_requirements'),
+    path('api/requirements/add/', add_student_requirement,
+         name='api_add_student_requirement'),
+    path('api/requirements/remove/', remove_student_requirement,
+         name='api_remove_student_requirement'),
+    path('api/requirements/update-status/', update_student_requirement_status,
+         name='api_update_requirement_status'),
+    path('api/requirements/notify/', send_requirement_notification,
+         name='api_send_notification'),
     path('api/students/all/', get_all_students, name='api_get_all_students'),
+    
+    # Program CMS APIs
+    path('api/program/cms/', get_program_cms, name='api_get_program_cms'),
+    path('api/program/cms/update/', update_program_cms, name='api_update_program_cms'),
+    path('api/faculty/list/', get_faculty_list, name='api_get_faculty_list'),
+    path('api/faculty/add/', add_faculty_member, name='api_add_faculty'),
+    path('api/faculty/update/', update_faculty_member, name='api_update_faculty'),
+    path('api/faculty/delete/', delete_faculty_member, name='api_delete_faculty'),
+    path('api/faculty/reorder/', reorder_faculty, name='api_reorder_faculty'),
 ]

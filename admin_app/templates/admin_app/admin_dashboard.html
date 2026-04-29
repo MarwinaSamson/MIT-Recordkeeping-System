@@ -12,6 +12,8 @@
     rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <link href="{% static 'admin_app/ccs/admin_style.css' %}" rel="stylesheet" />
+  <script src="{% static 'admin_app/js/admin_scripts.js' %}" defer></script>
+  <script src="{% static 'admin_app/js/program_cms.js' %}" defer></script>
 </head>
 
 <body class="flex" style="min-height: 100vh">
@@ -50,6 +52,9 @@
       <p class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-4 pb-1">
         System
       </p>
+      <div class="nav-item" onclick="switchPage('program', this)">
+        <i data-lucide="book-open"></i><span>Program Management</span>
+      </div>
       <div class="nav-item" onclick="switchPage('settings', this)">
         <i data-lucide="settings"></i><span>Settings</span>
       </div>
@@ -865,6 +870,163 @@
             </div>
           </div>
 
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: PROGRAM CMS ══ -->
+    <div id="page-program" class="page p-8">
+      <div class="mb-7 fade-in">
+        <h1 class="text-3xl font-bold text-gray-800" style="font-family: &quot;Playfair Display&quot;, serif">
+          Program Management
+        </h1>
+        <p class="text-gray-400 text-sm mt-1">
+          Manage program information, objectives, curriculum, and faculty members.
+        </p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex gap-2 mb-6 border-b border-gray-200">
+        <button onclick="switchProgramTab('info', this)" class="program-tab active px-4 py-2 text-sm font-semibold text-red-800 border-b-2 border-red-800">
+          Program Info
+        </button>
+        <button onclick="switchProgramTab('objectives', this)" class="program-tab px-4 py-2 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-700">
+          Objectives
+        </button>
+        <button onclick="switchProgramTab('outcomes', this)" class="program-tab px-4 py-2 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-700">
+          Outcomes
+        </button>
+        <button onclick="switchProgramTab('curriculum', this)" class="program-tab px-4 py-2 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-700">
+          Curriculum
+        </button>
+        <button onclick="switchProgramTab('statistics', this)" class="program-tab px-4 py-2 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-700">
+          Statistics
+        </button>
+        <button onclick="switchProgramTab('faculty', this)" class="program-tab px-4 py-2 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-700">
+          Faculty
+        </button>
+      </div>
+
+      <!-- Program Info Tab -->
+      <div id="program-tab-info" class="program-tab-content">
+        <div class="bg-white rounded-2xl shadow-sm p-6 max-w-4xl">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4">Program Information</h2>
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Program Name</label>
+                <input type="text" id="programName" placeholder="e.g., Master in Information Technology" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-800">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Degree Code</label>
+                <input type="text" id="programDegree" placeholder="e.g., MIT" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-800">
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Tagline</label>
+              <textarea id="programTagline" rows="2" placeholder="Brief description..."
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-800"></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Full Description</label>
+              <textarea id="programDescription" rows="4" placeholder="Detailed program description..."
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-800"></textarea>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Institution</label>
+                <input type="text" id="programInstitution" placeholder="Institution name" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-800">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">COPC Number</label>
+                <input type="text" id="programCOPC" placeholder="e.g., 017, Series of 2019" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-800">
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Effective Year</label>
+                <input type="text" id="programEffectiveYear" placeholder="e.g., 2019–2020" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-800">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Accrediting Body</label>
+                <input type="text" id="programAccreditor" placeholder="e.g., CHED" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-800">
+              </div>
+            </div>
+            <button onclick="saveProgramInfo()" class="mt-4 px-5 py-2 bg-red-800 text-white rounded-lg font-semibold hover:bg-red-900 transition">
+              Save Program Info
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Objectives Tab -->
+      <div id="program-tab-objectives" class="program-tab-content hidden">
+        <div class="bg-white rounded-2xl shadow-sm p-6 max-w-4xl">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">Program Objectives</h2>
+            <button onclick="addObjective()" class="px-4 py-2 bg-red-800 text-white rounded-lg text-sm font-semibold hover:bg-red-900">
+              + Add Objective
+            </button>
+          </div>
+          <div id="objectivesList" class="space-y-3"></div>
+        </div>
+      </div>
+
+      <!-- Outcomes Tab -->
+      <div id="program-tab-outcomes" class="program-tab-content hidden">
+        <div class="bg-white rounded-2xl shadow-sm p-6 max-w-4xl">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">Learning Outcomes</h2>
+            <button onclick="addOutcome()" class="px-4 py-2 bg-red-800 text-white rounded-lg text-sm font-semibold hover:bg-red-900">
+              + Add Outcome
+            </button>
+          </div>
+          <div id="outcomesList" class="space-y-3"></div>
+        </div>
+      </div>
+
+      <!-- Curriculum Tab -->
+      <div id="program-tab-curriculum" class="program-tab-content hidden">
+        <div class="bg-white rounded-2xl shadow-sm p-6 max-w-4xl">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">Program Curriculum</h2>
+            <button onclick="addCurriculumGroup()" class="px-4 py-2 bg-red-800 text-white rounded-lg text-sm font-semibold hover:bg-red-900">
+              + Add Course Group
+            </button>
+          </div>
+          <div id="curriculumList" class="space-y-4"></div>
+        </div>
+      </div>
+
+      <!-- Statistics Tab -->
+      <div id="program-tab-statistics" class="program-tab-content hidden">
+        <div class="bg-white rounded-2xl shadow-sm p-6 max-w-4xl">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">Program Statistics</h2>
+            <button onclick="addStatistic()" class="px-4 py-2 bg-red-800 text-white rounded-lg text-sm font-semibold hover:bg-red-900">
+              + Add Statistic
+            </button>
+          </div>
+          <div id="statisticsList" class="space-y-3"></div>
+        </div>
+      </div>
+
+      <!-- Faculty Tab -->
+      <div id="program-tab-faculty" class="program-tab-content hidden">
+        <div class="bg-white rounded-2xl shadow-sm p-6 max-w-4xl">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">Faculty Members</h2>
+            <button onclick="openAddFacultyModal()" class="px-4 py-2 bg-red-800 text-white rounded-lg text-sm font-semibold hover:bg-red-900">
+              + Add Faculty
+            </button>
+          </div>
+          <div id="facultyList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
       </div>
     </div>
