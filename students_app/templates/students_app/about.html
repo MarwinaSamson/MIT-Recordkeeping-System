@@ -1,1572 +1,1155 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>About – WMSU MIT Program</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
-    <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MIT Program – WMSU College of Computing Studies</title>
 
-        /* ===== NAVBAR STYLES ===== */
-        .material-symbols-rounded {
-            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-            line-height: 1;
-        }
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        .navbar-glass {
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-
-        .nav-link {
-            position: relative;
-            font-size: 0.83rem;
-            font-weight: 500;
-            color: #4b5563;
-            transition: color 0.2s;
-            white-space: nowrap;
-            text-decoration: none;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #7b1113;
-            border-radius: 99px;
-            transition: width 0.25s ease;
-        }
-
-        .nav-link:hover {
-            color: #7b1113;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
-        .dropdown-group:hover .nav-link {
-            color: #7b1113;
-        }
-
-        .dropdown-group:hover .nav-link::after {
-            width: 100%;
-        }
-
-        .dropdown-group {
-            position: relative;
-        }
-
-        .dropdown-panel {
-            position: absolute;
-            top: calc(100% + 16px);
-            left: 50%;
-            transform: translateX(-50%) translateY(8px);
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.10), 0 4px 16px rgba(123, 17, 19, 0.08);
-            padding: 8px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            z-index: 200;
-        }
-
-        .dropdown-group:hover .dropdown-panel,
-        .dropdown-group:focus-within .dropdown-panel {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .panel-arrow {
-            position: absolute;
-            top: -6px;
-            left: 50%;
-            transform: translateX(-50%) rotate(45deg);
-            width: 11px;
-            height: 11px;
-            background: #fff;
-            border-left: 1px solid #e5e7eb;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .panel-label {
-            font-size: 0.61rem;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: #9ca3af;
-            padding: 5px 12px 6px;
-        }
-
-        .dl-row {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-            padding: 9px 10px;
-            border-radius: 10px;
-            color: #374151;
-            text-decoration: none;
-            transition: background 0.15s, color 0.15s;
-            min-width: 255px;
-        }
-
-        .dl-row:hover {
-            background: #fef2f2;
-            color: #7b1113;
-        }
-
-        .pdf-icon {
-            width: 36px;
-            height: 42px;
-            flex-shrink: 0;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .pdf-icon-bg {
-            position: absolute;
-            inset: 0;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 6px;
-        }
-
-        .pdf-icon-bg::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 0;
-            height: 0;
-            border-style: solid;
-            border-width: 9px 9px 0 0;
-            border-color: #fecaca transparent transparent transparent;
-        }
-
-        .pdf-icon-label {
-            position: relative;
-            z-index: 1;
-            font-size: 6.5px;
-            font-weight: 800;
-            letter-spacing: 0.06em;
-            color: #fff;
-            background: #7b1113;
-            padding: 2px 4px;
-            border-radius: 2px;
-            margin-top: 8px;
-        }
-
-        .dl-text {
-            flex: 1;
-        }
-
-        .dl-text strong {
-            display: block;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .dl-text span {
-            font-size: 0.68rem;
-            color: #9ca3af;
-        }
-
-        .dl-download {
-            width: 26px;
-            height: 26px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 7px;
-            background: #f3f4f6;
-            flex-shrink: 0;
-            transition: background 0.15s;
-        }
-
-        .dl-row:hover .dl-download {
-            background: #fee2e2;
-        }
-
-        .dl-download .material-symbols-rounded {
-            font-size: 14px;
-            color: #9ca3af;
-        }
-
-        .dl-row:hover .dl-download .material-symbols-rounded {
-            color: #7b1113;
-        }
-
-        .prog-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #374151;
-            transition: background 0.15s;
-        }
-
-        .prog-row:hover {
-            background: #fef2f2;
-            color: #7b1113;
-        }
-
-        .prog-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 9px;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .prog-row:hover .prog-icon {
-            background: #fee2e2;
-        }
-
-        .prog-icon .material-symbols-rounded {
-            font-size: 20px;
-            color: #7b1113;
-        }
-
-        .prog-text strong {
-            display: block;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .prog-text span {
-            font-size: 0.68rem;
-            color: #9ca3af;
-        }
-
-        #mobile-menu {
-            transition: max-height 0.3s ease, opacity 0.3s ease;
-        }
-
-        .mob-chevron {
-            transition: transform 0.25s ease;
-        }
-
-        .mob-chevron.rotated {
-            transform: rotate(180deg);
-        }
-
-        :root {
-            --green-dark: #5a0c0e;
-            --green-mid: #7b1113;
-            --green-light: #9b1416;
-            --green-muted: #b83032;
-            --gold: #c9a84c;
-            --gold-light: #e6c97a;
-            --cream: #fdfaf5;
-            --cream-dark: #f0ebe0;
-            --white: #ffffff;
-            --text-dark: #1a1a1a;
-            --text-body: #3a3a3a;
-            --text-muted: #6a6a6a;
-            --shadow: 0 20px 60px rgba(123, 17, 19, 0.10);
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--cream);
-            color: var(--text-dark);
-            overflow-x: hidden;
-        }
-
-        /* ── NAV TABS ───────────────────────────────────────── */
-        .tab-nav {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: var(--green-dark);
-            display: flex;
-            justify-content: center;
-            gap: 0;
-            padding: 0 1rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .tab-btn {
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 600;
-            font-size: 0.78rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.55);
-            background: transparent;
-            border: none;
-            border-bottom: 3px solid transparent;
-            padding: 1.1rem 1.6rem;
-            cursor: pointer;
-            transition: color 0.25s, border-color 0.25s;
-            white-space: nowrap;
-        }
-
-        .tab-btn:hover {
-            color: var(--gold-light);
-        }
-
-        .tab-btn.active {
-            color: var(--gold);
-            border-bottom-color: var(--gold);
-        }
-
-        /* ── PANELS ─────────────────────────────────────────── */
-        .panel {
-            display: none;
-        }
-
-        .panel.active {
-            display: block;
-        }
-
-        /* ── HERO BANNER ────────────────────────────────────── */
-        .hero {
-            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 55%, var(--green-light) 100%);
-            padding: 6rem 2rem 5rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        }
-
-        .hero-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.72rem;
-            letter-spacing: 0.25em;
-            text-transform: uppercase;
-            color: var(--gold);
-            margin-bottom: 1rem;
-            opacity: 0;
-            animation: fadeUp 0.7s 0.1s forwards;
-        }
-
-        .hero h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(2.4rem, 5vw, 4rem);
-            font-weight: 900;
-            color: var(--white);
-            line-height: 1.15;
-            margin-bottom: 1.2rem;
-            opacity: 0;
-            animation: fadeUp 0.7s 0.25s forwards;
-        }
-
-        .hero h1 span {
-            color: var(--gold);
-        }
-
-        .hero-sub {
-            max-width: 640px;
-            margin: 0 auto;
-            font-size: 1.05rem;
-            color: rgba(255, 255, 255, 0.7);
-            line-height: 1.7;
-            opacity: 0;
-            animation: fadeUp 0.7s 0.4s forwards;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 2rem;
-            background: rgba(200, 168, 75, 0.15);
-            border: 1px solid rgba(200, 168, 75, 0.4);
-            border-radius: 2rem;
-            padding: 0.5rem 1.2rem;
-            font-size: 0.8rem;
-            color: var(--gold-light);
-            font-weight: 500;
-            opacity: 0;
-            animation: fadeUp 0.7s 0.55s forwards;
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(18px);
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cr: {
+              50:  '#fdf2f2', 100: '#fce0e0', 200: '#facaca',
+              300: '#f5a0a2', 400: '#ee6669', 500: '#e03b3e',
+              600: '#c01e21', 700: '#9b1416', 800: '#7b1113',
+              900: '#5a0c0e', 950: '#380508',
+            },
+            gold: {
+              50:  '#fdfaf0', 100: '#faf0cc', 200: '#f5df99',
+              300: '#e6c97a', 400: '#d4aa52', 500: '#c9a84c',
+              600: '#a8892e', 700: '#7d6420', 800: '#5c4815',
+              900: '#3d300d',
             }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+          },
+          fontFamily: {
+            serif: ['Playfair Display','Georgia','serif'],
+            sans:  ['DM Sans','sans-serif'],
+            mono:  ['JetBrains Mono','monospace'],
+          },
         }
+      }
+    }
+  </script>
 
-        /* ── SECTION SHELL ──────────────────────────────────── */
-        .section {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 5rem 2rem;
-        }
+  <style>
+    :root {
+      --crimson: #7b1113;
+      --crimson-dark: #5a0c0e;
+      --crimson-light: #9b1416;
+      --gold: #c9a84c;
+      --gold-light: #e6c97a;
+      --cream: #fdfaf5;
+      --slate-soft: #f6f5f3;
+      --mono: 'JetBrains Mono', monospace;
+    }
 
-        .section-tag {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7rem;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            color: var(--green-light);
-            margin-bottom: 0.6rem;
-        }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: #1a1a1a;
+      overflow-x: hidden;
+    }
 
-        .section-title {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(1.8rem, 3.5vw, 2.6rem);
-            font-weight: 700;
-            color: var(--green-dark);
-            line-height: 1.2;
-            margin-bottom: 1rem;
-        }
+    h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
 
-        .section-divider {
-            width: 50px;
-            height: 3px;
-            background: linear-gradient(90deg, var(--gold), var(--gold-light));
-            border-radius: 2px;
-            margin-bottom: 2.5rem;
-        }
+    .material-symbols-rounded {
+      font-family: 'Material Symbols Rounded';
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+      line-height: 1;
+      display: inline-block;
+    }
 
-        /* ── ABOUT ──────────────────────────────────────────── */
-        .about-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            align-items: start;
-        }
+    /* ─ panel visibility ─ */
+    .panel { display: none; }
+    .panel.active { display: block; }
 
-        @media (max-width: 768px) {
-            .about-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+    /* ─ tab underline ─ */
+    .tab-btn {
+      position: relative;
+      transition: color .2s, background .2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab-btn::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform .25s ease;
+    }
+    .tab-btn.active { color: var(--crimson); }
+    .tab-btn.active::after { transform: scaleX(1); }
+    .tab-btn:not(.active):hover { color: var(--crimson); background: rgba(123,17,19,.04); }
 
-        .about-desc {
-            font-size: 1.05rem;
-            color: var(--text-body);
-            line-height: 1.85;
-        }
+    /* ─ hero ─ */
+    .hero-bg {
+      background: linear-gradient(145deg, #3d0709 0%, var(--crimson-dark) 30%, var(--crimson) 65%, var(--crimson-light) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 44px 44px;
+      pointer-events: none;
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      top: -30%; right: -5%;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,.07) 0%, transparent 65%);
+      pointer-events: none;
+    }
 
-        .about-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
+    /* ─ fade-up entrance ─ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .a1 { opacity: 0; animation: fadeUp .55s .08s forwards; }
+    .a2 { opacity: 0; animation: fadeUp .55s .22s forwards; }
+    .a3 { opacity: 0; animation: fadeUp .55s .36s forwards; }
+    .a4 { opacity: 0; animation: fadeUp .55s .50s forwards; }
 
-        .stat-card {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 1.4rem 1.2rem;
-            border-left: 4px solid var(--gold);
-            box-shadow: var(--shadow);
-            transition: transform 0.2s;
-        }
+    /* ─ hover lift ─ */
+    .hov { transition: transform .22s cubic-bezier(.22,.68,0,1.2), box-shadow .22s; }
+    .hov:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(123,17,19,.11); }
 
-        .stat-card:hover {
-            transform: translateY(-3px);
-        }
+    /* ─ objective hover ─ */
+    .obj { transition: transform .18s, border-color .18s; }
+    .obj:hover { transform: translateX(4px); border-left-color: var(--crimson) !important; }
 
-        .stat-number {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.2rem;
-            font-weight: 900;
-            color: var(--green-dark);
-        }
+    /* ─ modal ─ */
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 900;
+      background: rgba(15,10,12,.55); backdrop-filter: blur(5px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity .22s;
+    }
+    .modal-bg.open { opacity: 1; pointer-events: all; }
+    .modal-box {
+      background: #fff; border-radius: 18px;
+      max-width: 660px; width: 100%; max-height: 88vh;
+      overflow-y: auto;
+      box-shadow: 0 32px 80px rgba(0,0,0,.22);
+      transform: translateY(16px) scale(.98);
+      transition: transform .25s, opacity .25s;
+    }
+    .modal-bg.open .modal-box { transform: translateY(0) scale(1); }
+    .modal-box::-webkit-scrollbar { width: 5px; }
+    .modal-box::-webkit-scrollbar-track { background: #f5f5f5; }
+    .modal-box::-webkit-scrollbar-thumb { background: var(--crimson); border-radius: 6px; }
 
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 0.2rem;
-            font-weight: 500;
-        }
+    /* ─ mobile nav drawer ─ */
+    #mobile-menu {
+      max-height: 0; overflow: hidden;
+      transition: max-height .3s ease;
+    }
+    #mobile-menu.open { max-height: 400px; }
 
-        .info-block {
-            margin-top: 2rem;
-        }
+    /* ─ scrollbar ─ */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: var(--crimson); border-radius: 6px; }
 
-        .info-item {
-            display: flex;
-            gap: 1rem;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--cream-dark);
-        }
+    /* ─ pill tag ─ */
+    .tag {
+      display: inline-flex; align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .62rem; font-weight: 600;
+      border-radius: 5px; padding: .2rem .55rem;
+      letter-spacing: .02em;
+    }
 
-        .info-item:last-child {
-            border-bottom: none;
-        }
+    /* ─ stat number ─ */
+    .stat-n {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem; font-weight: 700;
+      line-height: 1; color: var(--crimson);
+    }
 
-        .info-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--green-mid), var(--green-light));
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 1rem;
-        }
+    /* ─ section heading ─ */
+    .sh {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.7rem, 4vw, 2.4rem);
+      font-weight: 700; color: #1a1a1a; line-height: 1.2;
+    }
 
-        .info-text strong {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--text-dark);
-            font-weight: 600;
-            margin-bottom: 0.15rem;
-        }
+    /* ─ gold divider ─ */
+    .gold-divider {
+      width: 36px; height: 2px;
+      background: var(--gold);
+      border-radius: 2px;
+    }
 
-        .info-text span {
-            font-size: 0.82rem;
-            color: var(--text-muted);
-        }
+    /* ─ course pill ─ */
+    .cpill {
+      display: flex; align-items: flex-start; gap: .75rem;
+      background: #fff;
+      border: 1px solid #ede8e0;
+      border-radius: 12px; padding: 1rem 1.1rem; cursor: pointer;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+    }
+    .cpill:hover {
+      border-color: #e6c97a;
+      box-shadow: 0 6px 22px rgba(123,17,19,.09);
+      transform: translateY(-2px);
+    }
+    .cpill-icon {
+      width: 34px; height: 34px; min-width: 34px; border-radius: 8px;
+      background: rgba(123,17,19,.07);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; color: var(--crimson);
+    }
 
-        /* ── COURSES SUMMARY ────────────────────────────────── */
-        .courses-wrap {
-            margin-top: 3rem;
-        }
+    /* ─ faculty avatar ─ */
+    .fav {
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem; font-weight: 700;
+      color: rgba(255,255,255,.92);
+      background: linear-gradient(135deg, #5a0c0e, #9b1416);
+    }
 
-        .course-group {
-            margin-bottom: 2rem;
-        }
+    /* ─ eyebrow label ─ */
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .625rem; letter-spacing: .22em;
+      text-transform: uppercase; color: var(--crimson);
+    }
 
-        .course-group-title {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.72rem;
-            letter-spacing: 0.18em;
-            text-transform: uppercase;
-            color: var(--green-light);
-            margin-bottom: 0.8rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--cream-dark);
-        }
+    /* ─ info card ─ */
+    .info-card {
+      background: #fff; border: 1px solid #ede8e0;
+      border-radius: 14px; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+    }
+    .info-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 18px; border-bottom: 1px solid #f0ece5;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-icon {
+      width: 36px; height: 36px; min-width: 36px; border-radius: 9px;
+      background: rgba(123,17,19,.07);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--crimson);
+    }
+    .info-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .56rem; letter-spacing: .14em;
+      text-transform: uppercase; color: #a89a8a; font-weight: 600;
+    }
+    .info-val { font-size: .825rem; color: #1a1a1a; font-weight: 500; margin-top: 2px; }
 
-        .course-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 0.7rem;
-        }
+    /* ─ stat card ─ */
+    .stat-card {
+      background: #fff; border: 1px solid #ede8e0;
+      border-left: 3px solid var(--crimson);
+      border-radius: 12px; padding: 16px 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(123,17,19,.09); }
+    .stat-lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .56rem; letter-spacing: .12em;
+      text-transform: uppercase; color: #998879; margin-top: 4px;
+    }
 
-        .course-pill {
-            background: var(--white);
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            transition: box-shadow 0.2s;
-        }
-
-        .course-pill:hover {
-            box-shadow: 0 6px 20px rgba(123, 17, 19, 0.1);
-        }
-
-        .course-code {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.72rem;
-            color: var(--green-light);
-            font-weight: 500;
-        }
-
-        .course-name {
-            font-size: 0.82rem;
-            color: var(--text-body);
-            flex: 1;
-            margin: 0 0.8rem;
-        }
-
-        .course-units {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--gold);
-            background: rgba(200, 168, 75, 0.1);
-            border-radius: 4px;
-            padding: 0.15rem 0.5rem;
-        }
-
-        /* ── OUTCOMES ───────────────────────────────────────── */
-        .outcomes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .outcome-card {
-            background: var(--white);
-            border-radius: 16px;
-            padding: 2rem 1.6rem;
-            box-shadow: var(--shadow);
-            border-top: 4px solid var(--green-light);
-            transition: transform 0.25s, box-shadow 0.25s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .outcome-card::after {
-            content: '';
-            position: absolute;
-            bottom: -30px;
-            right: -30px;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: rgba(123, 17, 19, 0.06);
-        }
-
-        .outcome-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 30px 70px rgba(123, 17, 19, 0.14);
-        }
-
-        .outcome-num {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--cream-dark);
-            line-height: 1;
-            margin-bottom: 0.5rem;
-        }
-
-        .outcome-title {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--green-dark);
-            margin-bottom: 0.6rem;
-        }
-
-        .outcome-desc {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.7;
-        }
-
-        /* ── OBJECTIVES ─────────────────────────────────────── */
-        .obj-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 1.2rem;
-        }
-
-        .obj-item {
-            display: flex;
-            gap: 1.2rem;
-            align-items: flex-start;
-            background: var(--white);
-            border-radius: 12px;
-            padding: 1.4rem 1.6rem;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s;
-        }
-
-        .obj-item:hover {
-            transform: translateX(4px);
-        }
-
-        .obj-bullet {
-            width: 32px;
-            height: 32px;
-            min-width: 32px;
-            background: linear-gradient(135deg, var(--green-dark), var(--green-light));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--white);
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        .obj-text {
-            font-size: 0.95rem;
-            color: var(--text-body);
-            line-height: 1.7;
-        }
-
-        /* ── FACULTY ────────────────────────────────────────── */
-        .faculty-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 1.8rem;
-        }
-
-        .faculty-card {
-            background: var(--white);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .faculty-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 30px 60px rgba(123, 17, 19, 0.16);
-        }
-
-        .faculty-photo {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            display: block;
-            background: linear-gradient(135deg, var(--green-mid), var(--green-muted));
-        }
-
-        .faculty-avatar-placeholder {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .faculty-avatar-placeholder .avatar-initials {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        .faculty-avatar-placeholder .avatar-icon {
-            font-size: 0.7rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
-        .faculty-info {
-            padding: 1.3rem 1.2rem 1.4rem;
-        }
-
-        .faculty-name {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--green-dark);
-            margin-bottom: 0.25rem;
-        }
-
-        .faculty-title {
-            font-size: 0.75rem;
-            color: var(--green-light);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 0.5rem;
-        }
-
-        .faculty-spec {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 0.8rem;
-            line-height: 1.5;
-        }
-
-        .faculty-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-        }
-
-        .tag {
-            font-size: 0.68rem;
-            background: var(--cream);
-            color: var(--green-mid);
-            border-radius: 4px;
-            padding: 0.2rem 0.55rem;
-            font-weight: 600;
-        }
-
-        /* ── FOOTER STRIP ───────────────────────────────────── */
-        .footer-strip {
-            background: var(--green-dark);
-            text-align: center;
-            padding: 1.5rem;
-            font-size: 0.78rem;
-            color: rgba(255, 255, 255, 0.4);
-            font-family: 'DM Mono', monospace;
-            letter-spacing: 0.08em;
-        }
-
-        /* ── COPC NOTICE ────────────────────────────────────── */
-        .copc-notice {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: linear-gradient(135deg, rgba(200, 168, 75, 0.12), rgba(200, 168, 75, 0.04));
-            border: 1px solid rgba(200, 168, 75, 0.35);
-            border-radius: 12px;
-            padding: 1.2rem 1.5rem;
-            margin-top: 2.5rem;
-        }
-
-        .copc-icon {
-            font-size: 1.8rem;
-        }
-
-        .copc-text strong {
-            display: block;
-            font-size: 0.88rem;
-            color: var(--gold);
-            margin-bottom: 0.2rem;
-        }
-
-        .copc-text span {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-    </style>
+    /* ─ glance card ─ */
+    .glance-head {
+      padding: 12px 18px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .glance-head-txt {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .62rem; letter-spacing: .18em;
+      text-transform: uppercase; color: rgba(255,255,255,.85);
+    }
+    .glance-section-lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .56rem; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--crimson);
+      border-bottom: 1px solid #f0ece5; padding-bottom: 8px; margin-bottom: 12px;
+    }
+    .course-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .course-code { font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: #b0a090; width: 48px; flex-shrink: 0; }
+    .course-name { font-size: .75rem; color: #2a2a2a; flex: 1; }
+    .course-unit {
+      font-family: 'JetBrains Mono', monospace; font-size: .6rem; font-weight: 600;
+      background: rgba(123,17,19,.08); color: var(--crimson);
+      border-radius: 5px; padding: 2px 7px;
+    }
+  </style>
 </head>
-
 <body>
 
-    <!-- ===== NAVBAR (from index.html) ===== -->
-    <header id="main-header" class="fixed top-0 w-full z-50 navbar-glass border-b border-slate-200/70 shadow-sm">
-        <div style="height:3px;background:linear-gradient(90deg,#7b1113 0%,#c9a84c 50%,#7b1113 100%);"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-[66px]">
+<!-- ════════════════════════════════════════
+  NAVIGATION
+════════════════════════════════════════ -->
+<nav class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
 
-                <!-- Brand -->
-                <a href="{% url 'index' %}" class="flex items-center gap-3 shrink-0">
-                    <img src="{% static 'assets/Western_Mindanao_State_University.png' %}"
-                        class="w-10 h-10 object-contain" alt="WMSU Logo">
-                    <div>
-                        <p class="text-[0.92rem] font-bold leading-tight hidden sm:block"
-                            style="color:#7b1113;font-family:'Playfair Display',serif;">Western Mindanao State
-                            University</p>
-                        <p class="text-[0.92rem] font-bold leading-tight sm:hidden"
-                            style="color:#7b1113;font-family:'Playfair Display',serif;">WMSU</p>
-                        <p class="text-[10.5px] text-slate-400 tracking-wide"
-                            style="font-family:'JetBrains Mono',monospace;">MIT · Graduate School Admissions</p>
-                    </div>
-                </a>
-
-                <!-- Desktop Nav -->
-                <nav class="hidden lg:flex items-center gap-7">
-                    <a href="{% url 'about' %}" class="nav-link" style="color:#7b1113;">About</a>
-                    <a href="{% url 'index' %}#events-carousel" class="nav-link">Events</a>
-                    <a href="{% url 'index' %}#calendar" class="nav-link">Calendar</a>
-                    <a href="{% url 'index' %}#requirements" class="nav-link">Requirements</a>
-
-                    <!-- Programs dropdown -->
-                    <div class="dropdown-group" tabindex="0">
-                        <button class="nav-link flex items-center gap-1 focus:outline-none cursor-default">
-                            <span class="material-symbols-rounded"
-                                style="font-size:15px;color:#7b1113;opacity:0.7;">school</span>
-                            Programs
-                            <span class="material-symbols-rounded"
-                                style="font-size:14px;opacity:0.35;">expand_more</span>
-                        </button>
-                        <div class="dropdown-panel">
-                            <div class="panel-arrow"></div>
-                            <p class="panel-label">Our Graduate Programs</p>
-                            {% for prog in cms.programs %}{% if prog.visible %}
-                            <a href="{% url 'index' %}#requirements" class="prog-row">
-                                <div class="prog-icon"><span class="material-symbols-rounded">school</span></div>
-                                <div class="prog-text"><strong>{{ prog.name }}</strong><span>{{ prog.degree }}</span>
-                                </div>
-                            </a>
-                            {% endif %}{% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Downloadables dropdown -->
-                    <div class="dropdown-group" tabindex="0">
-                        <button class="nav-link flex items-center gap-1 focus:outline-none cursor-default">
-                            <span class="material-symbols-rounded"
-                                style="font-size:15px;color:#7b1113;opacity:0.7;">folder_open</span>
-                            Downloadables
-                            <span class="material-symbols-rounded"
-                                style="font-size:14px;opacity:0.35;">expand_more</span>
-                        </button>
-                        <div class="dropdown-panel">
-                            <div class="panel-arrow"></div>
-                            <p class="panel-label">Forms &amp; Documents</p>
-                            {% if cms.downloads %}
-                            {% for dl in cms.downloads %}
-                            <a href="{{ dl.url }}" download class="dl-row">
-                                <div class="pdf-icon">
-                                    <div class="pdf-icon-bg"></div><span class="pdf-icon-label">{{ dl.file_type
-                                        }}</span>
-                                </div>
-                                <div class="dl-text"><strong>{{ dl.name }}</strong><span></span></div>
-                                <div class="dl-download"><span class="material-symbols-rounded">download</span></div>
-                            </a>
-                            {% endfor %}
-                            {% else %}
-                            <div class="px-4 py-3 text-xs text-slate-400">No downloads available</div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <a href="{% url 'index' %}#contact" class="nav-link">Contact</a>
-
-                    <a href="{% url 'login' %}"
-                        class="flex items-center gap-1.5 text-[0.78rem] font-semibold text-white px-5 py-2.5 rounded-lg shadow transition-all"
-                        style="background:#7b1113;" onmouseover="this.style.background='#5a0c0e'"
-                        onmouseout="this.style.background='#7b1113'">
-                        <span class="material-symbols-rounded" style="font-size:15px;">edit_note</span>
-                        Apply Now
-                    </a>
-                </nav>
-
-                <!-- Hamburger -->
-                <button id="menu-btn" class="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
-                    aria-label="Toggle menu">
-                    <span id="ico-open" class="material-symbols-rounded"
-                        style="font-size:22px;color:#374151;">menu</span>
-                    <span id="ico-close" class="material-symbols-rounded hidden"
-                        style="font-size:22px;color:#374151;">close</span>
-                </button>
-            </div>
+    <!-- Top bar -->
+    <div class="flex items-center justify-between h-14">
+      <!-- Logo -->
+      <div class="flex items-center gap-2.5 flex-shrink-0">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--crimson)">
+          <span class="material-symbols-rounded text-white" style="font-size:17px">school</span>
         </div>
-
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="lg:hidden max-h-0 overflow-hidden opacity-0 bg-white border-t border-slate-100">
-            <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-0.5">
-                <a href="{% url 'about' %}"
-                    class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                    <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">info</span> About
-                </a>
-                <a href="{% url 'index' %}#events-carousel"
-                    class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                    <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">event</span> Events
-                </a>
-                <a href="{% url 'index' %}#calendar"
-                    class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                    <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">calendar_month</span>
-                    Calendar
-                </a>
-                <a href="{% url 'index' %}#requirements"
-                    class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                    <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">checklist</span>
-                    Requirements
-                </a>
-                <div>
-                    <button data-acc="downloads"
-                        class="w-full flex justify-between items-center px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                        <span class="flex items-center gap-2.5">
-                            <span class="material-symbols-rounded"
-                                style="font-size:17px;color:#7b1113;">folder_open</span>
-                            Downloadables
-                        </span>
-                        <span class="material-symbols-rounded mob-chevron"
-                            style="font-size:17px;opacity:0.4;">expand_more</span>
-                    </button>
-                    <div id="acc-downloads" class="hidden pl-4 pb-1 flex flex-col gap-0.5">
-                        {% if cms.downloads %}{% for dl in cms.downloads %}
-                        <a href="{{ dl.url }}" download
-                            class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-red-50 hover:text-red-700 transition-colors">
-                            <span class="material-symbols-rounded"
-                                style="font-size:17px;color:#7b1113;">description</span>
-                            <div>
-                                <p class="font-semibold text-xs">{{ dl.name }}</p>
-                                <p class="text-[10px] text-slate-400">{{ dl.file_type }}</p>
-                            </div>
-                        </a>
-                        {% endfor %}{% else %}
-                        <p class="px-3 py-2 text-xs text-slate-400">No downloads available</p>
-                        {% endif %}
-                    </div>
-                </div>
-                <a href="{% url 'index' %}#contact"
-                    class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-                    <span class="material-symbols-rounded" style="font-size:17px;color:#7b1113;">contact_mail</span>
-                    Contact
-                </a>
-                <a href="{% url 'login' %}"
-                    class="mt-2 flex items-center justify-center gap-2 text-sm font-semibold text-white px-5 py-3 rounded-xl"
-                    style="background:#7b1113;">
-                    <span class="material-symbols-rounded" style="font-size:16px;">edit_note</span> Apply Now
-                </a>
-            </div>
+        <div class="leading-tight hidden sm:block">
+          <p class="font-mono text-[10px] font-semibold uppercase tracking-widest leading-none" style="color:var(--crimson)">WMSU · CCS</p>
+          <p class="text-[11px] font-semibold text-gray-700 leading-none mt-0.5">MIT Program</p>
         </div>
-    </header>
+      </div>
 
-    <!-- Spacer so content doesn't hide under fixed navbar -->
-    <div style="height: 69px;"></div>
+      <!-- Desktop tabs -->
+      <div class="hidden md:flex items-center h-14" role="tablist">
+        <a href="index.html"
+           class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap">
+          <span class="material-symbols-rounded" style="font-size:15px">home</span>Home
+        </a>
+        <button class="tab-btn active flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap" data-tab="about">
+          <span class="material-symbols-rounded" style="font-size:15px">info</span>About
+        </button>
+        <button class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap" data-tab="courses">
+          <span class="material-symbols-rounded" style="font-size:15px">menu_book</span>Courses
+        </button>
+        <button class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap" data-tab="outcomes">
+          <span class="material-symbols-rounded" style="font-size:15px">emoji_events</span>Outcomes
+        </button>
+        <button class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap" data-tab="objectives">
+          <span class="material-symbols-rounded" style="font-size:15px">flag</span>Objectives
+        </button>
+        <button class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap" data-tab="faculty">
+          <span class="material-symbols-rounded" style="font-size:15px">people</span>Faculty
+        </button>
+      </div>
 
-
-    <!-- ── TAB NAV ──────────────────────────────────── -->
-    <nav class="tab-nav" role="tablist">
-        <button class="tab-btn active" data-tab="about">About</button>
-        <button class="tab-btn" data-tab="outcomes">Program Outcomes</button>
-        <button class="tab-btn" data-tab="objectives">Program Objectives</button>
-        <button class="tab-btn" data-tab="faculty">Meet the Faculty</button>
-    </nav>
-
-    <!-- ══════════════════════════════════════════════
-     ABOUT PANEL
-══════════════════════════════════════════════ -->
-    <div id="tab-about" class="panel active">
-        <div class="hero">
-            <p class="hero-label">Western Mindanao State University · College of Computing Studies</p>
-            <h1>Master in <span>Information Technology</span></h1>
-            <p class="hero-sub">
-                Preparing professionals for the industrial practice of systems integration, administration, planning,
-                implementation, and the maintenance of complex technology ecosystems.
-            </p>
-            <div class="hero-badge">
-                🎓 CHED Compliant · Effective S.Y. 2019–2020
-            </div>
-        </div>
-
-        <div class="section">
-            <p class="section-tag">Program Overview</p>
-            <h2 class="section-title">About the MIT Program</h2>
-            <div class="section-divider"></div>
-
-            <div class="about-grid">
-                <div>
-                    <p class="about-desc">
-                        The <strong>Master in Information Technology (MIT)</strong> at Western Mindanao State University
-                        emphasizes the acquisition of advanced concepts and technologies, preparing and enabling
-                        graduates for the industrial practice of <strong>systems integration</strong>, <strong>systems
-                            administration</strong>, <strong>systems planning</strong>, <strong>systems
-                            implementation</strong>, and other activities that maintain the integrity and proper
-                        functionality of a system and its components.
-                    </p>
-
-                    <div class="info-block">
-                        <div class="info-item">
-                            <div class="info-icon">🏫</div>
-                            <div class="info-text">
-                                <strong>Institution</strong>
-                                <span>Western Mindanao State University, Zamboanga City</span>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-icon">📋</div>
-                            <div class="info-text">
-                                <strong>COPC No.</strong>
-                                <span>017, Series of 2019 – issued August 28, 2019</span>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-icon">📅</div>
-                            <div class="info-text">
-                                <strong>Effective Academic Year</strong>
-                                <span>2019–2020</span>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-icon">🏛️</div>
-                            <div class="info-text">
-                                <strong>Accrediting Body</strong>
-                                <span>Commission on Higher Education (CHED), Republic of the Philippines</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="copc-notice">
-                        <div class="copc-icon">🏅</div>
-                        <div class="copc-text">
-                            <strong>CHED Certified Program</strong>
-                            <span>This program complies with the prescribed minimum requirements of CHED under
-                                Resolution No. 405-2019 and Republic Act No. 7722 (Higher Education Act of 1994).</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="about-stats">
-                        <div class="stat-card">
-                            <div class="stat-number">39</div>
-                            <div class="stat-label">Total Units</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number">2</div>
-                            <div class="stat-label">Years Duration</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number">12</div>
-                            <div class="stat-label">Core Course Units</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number">21</div>
-                            <div class="stat-label">Specialization Units</div>
-                        </div>
-                    </div>
-
-                    <div class="courses-wrap">
-                        <div class="course-group">
-                            <div class="course-group-title">IT Core Courses · 12 Units</div>
-                            <div class="course-list">
-                                <div class="course-pill"><span class="course-code">MIT 201</span><span
-                                        class="course-name">Adv. Operating System & Networking</span><span
-                                        class="course-units">3u</span></div>
-                                <div class="course-pill"><span class="course-code">MIT 202</span><span
-                                        class="course-name">Adv. Systems Design & Implementation</span><span
-                                        class="course-units">3u</span></div>
-                                <div class="course-pill"><span class="course-code">MIT 203</span><span
-                                        class="course-name">Advanced Database Systems</span><span
-                                        class="course-units">3u</span></div>
-                                <div class="course-pill"><span class="course-code">MIT 204</span><span
-                                        class="course-name">Technology & Project Management</span><span
-                                        class="course-units">3u</span></div>
-                            </div>
-                        </div>
-                        <div class="course-group">
-                            <div class="course-group-title">Specialization Courses · 21 Units</div>
-                            <div class="course-list">
-                                <div class="course-pill"><span class="course-code">MIT 205</span><span
-                                        class="course-name">Technical Research</span><span
-                                        class="course-units">3u</span></div>
-                                <div class="course-pill"><span class="course-code">MIT 206</span><span
-                                        class="course-name">Statistical Research</span><span
-                                        class="course-units">3u</span></div>
-                                <div class="course-pill"><span class="course-code">MIT 207</span><span
-                                        class="course-name">System Development</span><span
-                                        class="course-units">3u</span></div>
-                                <div class="course-pill"><span class="course-code">MIT 208</span><span
-                                        class="course-name">Information Management</span><span
-                                        class="course-units">3u</span></div>
-                                <div class="course-pill"><span class="course-code">MIT 209</span><span
-                                        class="course-name">Interactive Systems</span><span
-                                        class="course-units">3u</span></div>
-                                <div class="course-pill"><span class="course-code">MIT 210</span><span
-                                        class="course-name">Intelligent Systems</span><span
-                                        class="course-units">3u</span></div>
-                                <div class="course-pill"><span class="course-code">MIT 211</span><span
-                                        class="course-name">Emerging Trends in Computing</span><span
-                                        class="course-units">3u</span></div>
-                            </div>
-                        </div>
-                        <div class="course-group">
-                            <div class="course-group-title">Capstone Project · 6 Units</div>
-                            <div class="course-list">
-                                <div class="course-pill"><span class="course-code">MIT 212A</span><span
-                                        class="course-name">Capstone Project 1 – Directed Research</span><span
-                                        class="course-units">3u</span></div>
-                                <div class="course-pill"><span class="course-code">MIT 212B</span><span
-                                        class="course-name">Capstone Project 2 – Public Forum</span><span
-                                        class="course-units">3u</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <!-- Hamburger -->
+      <button id="hamburger" class="md:hidden flex items-center justify-center w-9 h-9 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors" aria-label="Toggle menu">
+        <span class="material-symbols-rounded" id="ham-icon" style="font-size:22px">menu</span>
+      </button>
     </div>
 
-    <!-- ══════════════════════════════════════════════
-     PROGRAM OUTCOMES PANEL
-══════════════════════════════════════════════ -->
-    <div id="tab-outcomes" class="panel">
-        <div class="hero">
-            <p class="hero-label">MIT Program · WMSU</p>
-            <h1>Program <span>Outcomes</span></h1>
-            <p class="hero-sub">What graduates of the MIT program are expected to know and be able to do upon
-                completion.</p>
-        </div>
+    <!-- Mobile nav drawer -->
+    <div id="mobile-menu" class="md:hidden border-t border-gray-100">
+      <div class="py-2 flex flex-col gap-0.5">
+        <a href="index.html"
+           class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors" style="hover:color:var(--crimson)">
+          <span class="material-symbols-rounded text-gray-400" style="font-size:18px">home</span>Home
+        </a>
+        <button class="mob-tab active-mob flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-lg mx-1" style="color:var(--crimson);background:rgba(123,17,19,.06)" data-tab="about">
+          <span class="material-symbols-rounded" style="font-size:18px;color:var(--crimson)">info</span>About
+        </button>
+        <button class="mob-tab flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors" data-tab="courses">
+          <span class="material-symbols-rounded text-gray-400" style="font-size:18px">menu_book</span>Courses
+        </button>
+        <button class="mob-tab flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors" data-tab="outcomes">
+          <span class="material-symbols-rounded text-gray-400" style="font-size:18px">emoji_events</span>Outcomes
+        </button>
+        <button class="mob-tab flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors" data-tab="objectives">
+          <span class="material-symbols-rounded text-gray-400" style="font-size:18px">flag</span>Objectives
+        </button>
+        <button class="mob-tab flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors" data-tab="faculty">
+          <span class="material-symbols-rounded text-gray-400" style="font-size:18px">people</span>Faculty
+        </button>
+      </div>
+    </div>
 
-        <div class="section">
-            <p class="section-tag">Graduate Competencies</p>
-            <h2 class="section-title">Program Outcomes</h2>
-            <div class="section-divider"></div>
+  </div>
+</nav>
 
-            <div class="outcomes-grid">
 
-                <div class="outcome-card">
-                    <div class="outcome-num">01</div>
-                    <div class="outcome-title">Advanced Systems Knowledge</div>
-                    <div class="outcome-desc">
-                        Demonstrate advanced understanding of operating systems, networking, database systems, and
-                        systems design principles applicable to complex IT environments.
-                    </div>
-                </div>
+<!-- ════════════════════════════════════════
+  ABOUT PANEL
+════════════════════════════════════════ -->
+<div id="tab-about" class="panel active">
 
-                <div class="outcome-card">
-                    <div class="outcome-num">02</div>
-                    <div class="outcome-title">Research Proficiency</div>
-                    <div class="outcome-desc">
-                        Conduct rigorous technical and statistical research, including proper methodology selection,
-                        data collection, analysis, interpretation, and academic writing of research proposals and
-                        reports.
-                    </div>
-                </div>
+  <!-- Hero -->
+  <div class="hero-bg">
+    <div class="relative max-w-4xl mx-auto px-6 py-20 sm:py-28 text-center" style="z-index:1;position:relative">
+      <p class="a1 eyebrow mb-3" style="color:rgba(201,168,76,.85)">Western Mindanao State University · College of Computing Studies</p>
+      <h1 class="a2 font-serif font-black text-white leading-tight mb-5" style="font-size:clamp(2rem,5vw,3.2rem)">
+        Master in <em class="italic" style="color:var(--gold-light)">Information Technology</em>
+      </h1>
+      <p class="a3 text-base sm:text-lg leading-relaxed max-w-xl mx-auto mb-7" style="color:rgba(255,255,255,.65)">
+        Preparing professionals for systems integration, administration, planning, implementation, and maintenance of complex technology ecosystems.
+      </p>
+      <div class="a4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs sm:text-sm font-medium" style="border:1px solid rgba(201,168,76,.35);background:rgba(201,168,76,.1);color:rgba(255,245,220,.9)">
+        <span class="material-symbols-rounded" style="font-size:15px;color:var(--gold-light)">verified</span>
+        CHED Compliant · Effective S.Y. 2019–2020
+      </div>
+    </div>
+  </div>
 
-                <div class="outcome-card">
-                    <div class="outcome-num">03</div>
-                    <div class="outcome-title">Systems Integration & Administration</div>
-                    <div class="outcome-desc">
-                        Apply advanced skills in systems integration, administration, planning, and implementation to
-                        maintain the integrity and proper functionality of IT systems and their components.
-                    </div>
-                </div>
+  <!-- Body -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
-                <div class="outcome-card">
-                    <div class="outcome-num">04</div>
-                    <div class="outcome-title">Specialization in IT Domains</div>
-                    <div class="outcome-desc">
-                        Demonstrate competency in at least one IT specialization — System Development, Information
-                        Management, Interactive Systems, Intelligent Systems, or Emerging Computing Technologies.
-                    </div>
-                </div>
+      <!-- Left column -->
+      <div>
+        <p class="eyebrow mb-1">Program Overview</p>
+        <h2 class="sh mb-3">About the MIT Program</h2>
+        <div class="gold-divider mb-7"></div>
 
-                <div class="outcome-card">
-                    <div class="outcome-num">05</div>
-                    <div class="outcome-title">Project Management Leadership</div>
-                    <div class="outcome-desc">
-                        Manage software development life cycles and technology projects using proven methodologies,
-                        including risk assessment, scheduling, budgeting, and team leadership.
-                    </div>
-                </div>
+        <p class="text-gray-600 leading-relaxed text-[.95rem] mb-8">
+          The <strong class="text-gray-900 font-semibold">Master in Information Technology (MIT)</strong> at Western Mindanao State University emphasizes the acquisition of advanced concepts and technologies, preparing graduates for the industrial practice of
+          <strong class="text-gray-900 font-semibold">systems integration</strong>,
+          <strong class="text-gray-900 font-semibold">systems administration</strong>,
+          <strong class="text-gray-900 font-semibold">systems planning</strong>, and
+          <strong class="text-gray-900 font-semibold">systems implementation</strong> — maintaining the integrity and proper functionality of complex systems.
+        </p>
 
-                <div class="outcome-card">
-                    <div class="outcome-num">06</div>
-                    <div class="outcome-title">Capstone Innovation</div>
-                    <div class="outcome-desc">
-                        Propose, develop, and present an innovative capstone project that introduces a new application,
-                        technology, or process addressing a real organizational or societal problem — presented in a
-                        national or international public forum.
-                    </div>
-                </div>
-
-                <div class="outcome-card">
-                    <div class="outcome-num">07</div>
-                    <div class="outcome-title">Emerging Technologies Literacy</div>
-                    <div class="outcome-desc">
-                        Apply knowledge of modern algorithms based on Machine Learning and Artificial Intelligence to
-                        solve complex, real-world problems and provide meaningful solutions.
-                    </div>
-                </div>
-
-                <div class="outcome-card">
-                    <div class="outcome-num">08</div>
-                    <div class="outcome-title">Information Management Expertise</div>
-                    <div class="outcome-desc">
-                        Design and implement well-planned IT-based systems for acquisition, organization,
-                        interpretation, and visualization of data that support medium to large-scale business
-                        transactions.
-                    </div>
-                </div>
-
+        <!-- Info card -->
+        <div class="info-card mb-6">
+          <div class="info-row">
+            <div class="info-icon">
+              <span class="material-symbols-rounded" style="font-size:18px">account_balance</span>
             </div>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════
-     PROGRAM OBJECTIVES PANEL
-══════════════════════════════════════════════ -->
-    <div id="tab-objectives" class="panel">
-        <div class="hero">
-            <p class="hero-label">MIT Program · WMSU</p>
-            <h1>Program <span>Objectives</span></h1>
-            <p class="hero-sub">The goals and aims that guide the Master in Information Technology program's design and
-                delivery.</p>
-        </div>
-
-        <div class="section">
-            <p class="section-tag">Program Goals</p>
-            <h2 class="section-title">Program Objectives</h2>
-            <div class="section-divider"></div>
-
-            <ul class="obj-list">
-
-                <li class="obj-item">
-                    <div class="obj-bullet">1</div>
-                    <div class="obj-text">
-                        Provide graduate-level education in Information Technology that emphasizes the acquisition of
-                        advanced concepts, tools, and technologies necessary for professional practice in the field.
-                    </div>
-                </li>
-
-                <li class="obj-item">
-                    <div class="obj-bullet">2</div>
-                    <div class="obj-text">
-                        Prepare graduates for the industrial practice of <strong>systems integration</strong>,
-                        <strong>systems administration</strong>, <strong>systems planning</strong>, and <strong>systems
-                            implementation</strong>, equipping them with the knowledge to maintain the integrity and
-                        proper functionality of complex systems and their components.
-                    </div>
-                </li>
-
-                <li class="obj-item">
-                    <div class="obj-bullet">3</div>
-                    <div class="obj-text">
-                        Develop students' capacity to conduct both <strong>technical</strong> and <strong>statistical
-                            research</strong>, enabling them to contribute original knowledge to the information
-                        technology discipline and address emerging challenges in the field.
-                    </div>
-                </li>
-
-                <li class="obj-item">
-                    <div class="obj-bullet">4</div>
-                    <div class="obj-text">
-                        Cultivate expertise in specialized IT domains including System Development, Information
-                        Management, Interactive Systems, Intelligent Systems, and Emerging Trends in Computing — with
-                        each student developing deep competence in chosen areas of specialization.
-                    </div>
-                </li>
-
-                <li class="obj-item">
-                    <div class="obj-bullet">5</div>
-                    <div class="obj-text">
-                        Train students in <strong>technology and project management</strong> principles and
-                        methodologies, covering the full software development life cycle, process models, risk
-                        assessment, scheduling, budget estimation, and team leadership and motivation.
-                    </div>
-                </li>
-
-                <li class="obj-item">
-                    <div class="obj-bullet">6</div>
-                    <div class="obj-text">
-                        Foster innovation through the <strong>Capstone Project</strong>, requiring students to propose,
-                        develop, and present a computing solution — introducing a new application, technology, or
-                        process that addresses a real organizational or societal problem — and to present their work in
-                        a national or international public forum.
-                    </div>
-                </li>
-
-                <li class="obj-item">
-                    <div class="obj-bullet">7</div>
-                    <div class="obj-text">
-                        Produce graduates who can effectively analyze user requirements and needs, and design and
-                        implement information systems that are practical, scalable, and aligned with current industry
-                        standards and best practices.
-                    </div>
-                </li>
-
-                <li class="obj-item">
-                    <div class="obj-bullet">8</div>
-                    <div class="obj-text">
-                        Comply with and exceed the minimum standards set by the <strong>Commission on Higher Education
-                            (CHED)</strong> for graduate IT programs in the Philippines, ensuring that graduates are
-                        globally competitive and ethically grounded professionals.
-                    </div>
-                </li>
-
-            </ul>
-        </div>
-    </div>
-
-    <!-- ══════════════════════════════════════════════
-     FACULTY PANEL
-══════════════════════════════════════════════ -->
-    <div id="tab-faculty" class="panel">
-        <div class="hero">
-            <p class="hero-label">MIT Program · WMSU</p>
-            <h1>Meet the <span>Faculty</span></h1>
-            <p class="hero-sub">Our dedicated team of educators and researchers guiding the next generation of IT
-                professionals.</p>
-        </div>
-
-        <div class="section">
-            <p class="section-tag">Our Educators</p>
-            <h2 class="section-title">Meet the Faculty</h2>
-            <div class="section-divider"></div>
-
-            <div class="faculty-grid">
-
-                <div class="faculty-card">
-                    <div class="faculty-avatar-placeholder">
-                        <span class="avatar-initials">JR</span>
-                        <span class="avatar-icon">Faculty</span>
-                    </div>
-                    <div class="faculty-info">
-                        <div class="faculty-name">Dr. Juan A. Reyes</div>
-                        <div class="faculty-title">Program Chair</div>
-                        <div class="faculty-spec">Ph.D. in Information Technology · Specializes in Advanced Database
-                            Systems and Systems Integration</div>
-                        <div class="faculty-tags">
-                            <span class="tag">MIT 203</span>
-                            <span class="tag">MIT 204</span>
-                            <span class="tag">Databases</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faculty-card">
-                    <div class="faculty-avatar-placeholder">
-                        <span class="avatar-initials">MLS</span>
-                        <span class="avatar-icon">Faculty</span>
-                    </div>
-                    <div class="faculty-info">
-                        <div class="faculty-name">Dr. Maria L. Santos</div>
-                        <div class="faculty-title">Associate Professor</div>
-                        <div class="faculty-spec">Ph.D. in Computer Science · Research focus on Intelligent Systems and
-                            Machine Learning</div>
-                        <div class="faculty-tags">
-                            <span class="tag">MIT 210</span>
-                            <span class="tag">MIT 211</span>
-                            <span class="tag">AI/ML</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faculty-card">
-                    <div class="faculty-avatar-placeholder">
-                        <span class="avatar-initials">RC</span>
-                        <span class="avatar-icon">Faculty</span>
-                    </div>
-                    <div class="faculty-info">
-                        <div class="faculty-name">Prof. Roberto B. Cruz</div>
-                        <div class="faculty-title">Assistant Professor</div>
-                        <div class="faculty-spec">M.S. in Information Technology · Expert in Network Administration and
-                            Operating Systems</div>
-                        <div class="faculty-tags">
-                            <span class="tag">MIT 201</span>
-                            <span class="tag">MIT 202</span>
-                            <span class="tag">Networking</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faculty-card">
-                    <div class="faculty-avatar-placeholder">
-                        <span class="avatar-initials">AG</span>
-                        <span class="avatar-icon">Faculty</span>
-                    </div>
-                    <div class="faculty-info">
-                        <div class="faculty-name">Dr. Ana P. Garcia</div>
-                        <div class="faculty-title">Associate Professor</div>
-                        <div class="faculty-spec">Ph.D. in Information Systems · Specializes in E-Commerce Solutions and
-                            System Development</div>
-                        <div class="faculty-tags">
-                            <span class="tag">MIT 207</span>
-                            <span class="tag">MIT 208</span>
-                            <span class="tag">E-Commerce</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faculty-card">
-                    <div class="faculty-avatar-placeholder">
-                        <span class="avatar-initials">FM</span>
-                        <span class="avatar-icon">Faculty</span>
-                    </div>
-                    <div class="faculty-info">
-                        <div class="faculty-name">Prof. Felix D. Mendoza</div>
-                        <div class="faculty-title">Assistant Professor</div>
-                        <div class="faculty-spec">M.S. in Computer Science · Focus on Human-Computer Interaction and
-                            Interactive Systems Design</div>
-                        <div class="faculty-tags">
-                            <span class="tag">MIT 209</span>
-                            <span class="tag">MIT 205</span>
-                            <span class="tag">HCI</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faculty-card">
-                    <div class="faculty-avatar-placeholder">
-                        <span class="avatar-initials">LT</span>
-                        <span class="avatar-icon">Faculty</span>
-                    </div>
-                    <div class="faculty-info">
-                        <div class="faculty-name">Dr. Lilia C. Torres</div>
-                        <div class="faculty-title">Research Coordinator</div>
-                        <div class="faculty-spec">Ph.D. in Applied Statistics · Leads the Statistical Research and
-                            Graduate Research Methodology courses</div>
-                        <div class="faculty-tags">
-                            <span class="tag">MIT 206</span>
-                            <span class="tag">MIT 205</span>
-                            <span class="tag">Research</span>
-                        </div>
-                    </div>
-                </div>
-
+            <div>
+              <p class="info-label">Institution</p>
+              <p class="info-val">Western Mindanao State University, Zamboanga City</p>
             </div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon">
+              <span class="material-symbols-rounded" style="font-size:18px">assignment</span>
+            </div>
+            <div>
+              <p class="info-label">COPC No.</p>
+              <p class="info-val">017, Series of 2019 — August 28, 2019</p>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon">
+              <span class="material-symbols-rounded" style="font-size:18px">calendar_today</span>
+            </div>
+            <div>
+              <p class="info-label">Effective Academic Year</p>
+              <p class="info-val">2019–2020</p>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon">
+              <span class="material-symbols-rounded" style="font-size:18px">gavel</span>
+            </div>
+            <div>
+              <p class="info-label">Accrediting Body</p>
+              <p class="info-val">Commission on Higher Education (CHED), Philippines</p>
+            </div>
+          </div>
         </div>
+
+        <!-- CHED badge -->
+        <div class="flex items-start gap-3 rounded-xl px-5 py-4" style="background:#fffbeb;border:1px solid #f5d97c">
+          <span class="material-symbols-rounded flex-shrink-0 mt-0.5" style="font-size:22px;color:#d4970a">workspace_premium</span>
+          <div>
+            <p class="text-sm font-semibold mb-0.5" style="color:#92600a">CHED Certified Program</p>
+            <p class="text-xs leading-relaxed" style="color:#a8751a">Complies with CHED Resolution No. 405-2019 and Republic Act No. 7722 (Higher Education Act of 1994).</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div>
+        <!-- Stats grid -->
+        <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-7">
+          <div class="stat-card">
+            <p class="stat-n">39</p>
+            <p class="stat-lbl">Total Units</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-n">2</p>
+            <p class="stat-lbl">Years Duration</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-n">12</p>
+            <p class="stat-lbl">Core Course Units</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-n">21</p>
+            <p class="stat-lbl">Specialization Units</p>
+          </div>
+        </div>
+
+        <!-- Course glance -->
+        <div class="bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+          <div class="glance-head hero-bg">
+            <span class="material-symbols-rounded" style="color:rgba(255,255,255,.7);font-size:16px">list_alt</span>
+            <span class="glance-head-txt">Course Structure at a Glance</span>
+          </div>
+          <div class="p-5">
+            <p class="glance-section-lbl">IT Core Courses · 12 Units</p>
+            <div class="course-row">
+              <span class="course-code">MIT 201</span>
+              <span class="course-name">Adv. Operating System &amp; Networking</span>
+              <span class="course-unit">3u</span>
+            </div>
+            <div class="course-row">
+              <span class="course-code">MIT 202</span>
+              <span class="course-name">Adv. Systems Design &amp; Implementation</span>
+              <span class="course-unit">3u</span>
+            </div>
+            <div class="course-row">
+              <span class="course-code">MIT 203</span>
+              <span class="course-name">Advanced Database Systems</span>
+              <span class="course-unit">3u</span>
+            </div>
+            <div class="course-row">
+              <span class="course-code">MIT 204</span>
+              <span class="course-name">Technology &amp; Project Management</span>
+              <span class="course-unit">3u</span>
+            </div>
+            <div class="text-center mt-4 pt-4" style="border-top:1px solid #f0ece5">
+              <button onclick="switchTab('courses')" class="text-xs font-semibold inline-flex items-center gap-1 transition-colors" style="color:var(--crimson)" onmouseover="this.style.color='var(--crimson-dark)'" onmouseout="this.style.color='var(--crimson)'">
+                View all courses with full descriptions
+                <span class="material-symbols-rounded" style="font-size:13px">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  COURSES PANEL
+════════════════════════════════════════ -->
+<div id="tab-courses" class="panel">
+  <div class="hero-bg">
+    <div class="relative max-w-4xl mx-auto px-6 py-20 sm:py-24 text-center" style="z-index:1;position:relative">
+      <p class="a1 eyebrow mb-3" style="color:rgba(201,168,76,.85)">MIT Program · WMSU</p>
+      <h1 class="a2 font-serif font-black text-white leading-tight mb-4" style="font-size:clamp(2rem,5vw,3rem)">Course <em class="italic" style="color:var(--gold-light)">Catalog</em></h1>
+      <p class="a3 text-base sm:text-lg" style="color:rgba(255,255,255,.65)">Click any course to read its full description and key topics.</p>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+    <!-- Core -->
+    <div class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style="background:var(--crimson)">
+          <span class="material-symbols-rounded text-white" style="font-size:17px">settings</span>
+        </div>
+        <div>
+          <p class="eyebrow">IT Core Courses</p>
+          <p class="text-sm font-semibold text-gray-800">12 Units Required</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="core-courses"></div>
     </div>
 
-    <div class="footer-strip">
-        © Western Mindanao State University · College of Computing Studies · MIT Program · S.Y. 2019–2020
+    <!-- Spec -->
+    <div class="mb-12">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style="background:var(--crimson)">
+          <span class="material-symbols-rounded text-white" style="font-size:17px">star</span>
+        </div>
+        <div>
+          <p class="eyebrow">Specialization Courses</p>
+          <p class="text-sm font-semibold text-gray-800">21 Units Required</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="spec-courses"></div>
     </div>
 
-    <script>
-        const tabs = document.querySelectorAll('.tab-btn');
-        const panels = document.querySelectorAll('.panel');
-
-        tabs.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const target = btn.dataset.tab;
-
-                tabs.forEach(t => t.classList.remove('active'));
-                panels.forEach(p => p.classList.remove('active'));
-
-                btn.classList.add('active');
-                document.getElementById('tab-' + target).classList.add('active');
-
-                // Scroll to top of content smoothly
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        });
-    </script>
+    <!-- Capstone -->
+    <div>
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style="background:var(--crimson)">
+          <span class="material-symbols-rounded text-white" style="font-size:17px">emoji_events</span>
+        </div>
+        <div>
+          <p class="eyebrow">Capstone Project</p>
+          <p class="text-sm font-semibold text-gray-800">6 Units Required</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="cap-courses"></div>
+    </div>
+  </div>
+</div>
 
 
-    <!-- Hamburger + mobile accordions -->
-    <script>
-        const menuBtn = document.getElementById('menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const icoOpen = document.getElementById('ico-open');
-        const icoClose = document.getElementById('ico-close');
-        let menuOpen = false;
-        function setMenu(o) {
-            menuOpen = o;
-            mobileMenu.style.maxHeight = o ? mobileMenu.scrollHeight + 'px' : '0';
-            mobileMenu.style.opacity = o ? '1' : '0';
-            icoOpen.classList.toggle('hidden', o);
-            icoClose.classList.toggle('hidden', !o);
-        }
-        menuBtn.addEventListener('click', () => setMenu(!menuOpen));
-        document.querySelectorAll('.mob-link').forEach(l => l.addEventListener('click', () => setMenu(false)));
-        document.querySelectorAll('[data-acc]').forEach(btn => {
-            const panel = document.getElementById('acc-' + btn.dataset.acc);
-            const chev = btn.querySelector('.mob-chevron');
-            let open = false;
-            btn.addEventListener('click', () => {
-                open = !open;
-                panel.classList.toggle('hidden', !open);
-                chev.classList.toggle('rotated', open);
-                if (menuOpen) { mobileMenu.style.maxHeight = 'none'; requestAnimationFrame(() => { mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px'; }); }
-            });
-        });
-    </script>
+<!-- ════════════════════════════════════════
+  OUTCOMES PANEL
+════════════════════════════════════════ -->
+<div id="tab-outcomes" class="panel">
+  <div class="hero-bg">
+    <div class="relative max-w-4xl mx-auto px-6 py-20 sm:py-24 text-center" style="z-index:1;position:relative">
+      <p class="a1 eyebrow mb-3" style="color:rgba(201,168,76,.85)">MIT Program · WMSU</p>
+      <h1 class="a2 font-serif font-black text-white leading-tight mb-4" style="font-size:clamp(2rem,5vw,3rem)">Program <em class="italic" style="color:var(--gold-light)">Outcomes</em></h1>
+      <p class="a3 text-base sm:text-lg" style="color:rgba(255,255,255,.65)">What graduates are expected to know and be able to do upon completion.</p>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+    <p class="eyebrow mb-1">Graduate Competencies</p>
+    <h2 class="sh mb-3">Program Outcomes</h2>
+    <div class="gold-divider mb-10"></div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)">
+            <span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">dns</span>
+          </div>
+          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">01</span>
+        </div>
+        <p class="font-semibold text-gray-900 text-sm mb-2">Advanced Systems Knowledge</p>
+        <p class="text-xs text-gray-500 leading-relaxed">Demonstrate advanced understanding of operating systems, networking, database systems, and systems design applicable to complex IT environments.</p>
+      </div>
+
+      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)">
+            <span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">science</span>
+          </div>
+          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">02</span>
+        </div>
+        <p class="font-semibold text-gray-900 text-sm mb-2">Research Proficiency</p>
+        <p class="text-xs text-gray-500 leading-relaxed">Conduct rigorous technical and statistical research including methodology selection, data collection, analysis, interpretation, and academic writing.</p>
+      </div>
+
+      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)">
+            <span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">hub</span>
+          </div>
+          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">03</span>
+        </div>
+        <p class="font-semibold text-gray-900 text-sm mb-2">Systems Integration &amp; Administration</p>
+        <p class="text-xs text-gray-500 leading-relaxed">Apply advanced skills in systems integration, administration, planning, and implementation to maintain integrity and functionality of IT systems.</p>
+      </div>
+
+      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)">
+            <span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">layers</span>
+          </div>
+          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">04</span>
+        </div>
+        <p class="font-semibold text-gray-900 text-sm mb-2">Specialization in IT Domains</p>
+        <p class="text-xs text-gray-500 leading-relaxed">Demonstrate competency in at least one IT specialization — System Development, Information Management, Interactive Systems, Intelligent Systems, or Emerging Technologies.</p>
+      </div>
+
+      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)">
+            <span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">manage_accounts</span>
+          </div>
+          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">05</span>
+        </div>
+        <p class="font-semibold text-gray-900 text-sm mb-2">Project Management Leadership</p>
+        <p class="text-xs text-gray-500 leading-relaxed">Manage software development life cycles and technology projects using proven methodologies including risk assessment, scheduling, budgeting, and team leadership.</p>
+      </div>
+
+      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)">
+            <span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">lightbulb</span>
+          </div>
+          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">06</span>
+        </div>
+        <p class="font-semibold text-gray-900 text-sm mb-2">Capstone Innovation</p>
+        <p class="text-xs text-gray-500 leading-relaxed">Propose, develop, and present an innovative capstone project addressing a real organizational or societal problem — presented at a national or international public forum.</p>
+      </div>
+
+      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)">
+            <span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">smart_toy</span>
+          </div>
+          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">07</span>
+        </div>
+        <p class="font-semibold text-gray-900 text-sm mb-2">Emerging Technologies Literacy</p>
+        <p class="text-xs text-gray-500 leading-relaxed">Apply knowledge of modern ML and AI algorithms to solve complex, real-world problems and provide meaningful, implementable solutions.</p>
+      </div>
+
+      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)">
+            <span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">storage</span>
+          </div>
+          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">08</span>
+        </div>
+        <p class="font-semibold text-gray-900 text-sm mb-2">Information Management Expertise</p>
+        <p class="text-xs text-gray-500 leading-relaxed">Design and implement IT-based systems for data acquisition, organization, interpretation, and visualization supporting medium to large-scale business transactions.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  OBJECTIVES PANEL
+════════════════════════════════════════ -->
+<div id="tab-objectives" class="panel">
+  <div class="hero-bg">
+    <div class="relative max-w-4xl mx-auto px-6 py-20 sm:py-24 text-center" style="z-index:1;position:relative">
+      <p class="a1 eyebrow mb-3" style="color:rgba(201,168,76,.85)">MIT Program · WMSU</p>
+      <h1 class="a2 font-serif font-black text-white leading-tight mb-4" style="font-size:clamp(2rem,5vw,3rem)">Program <em class="italic" style="color:var(--gold-light)">Objectives</em></h1>
+      <p class="a3 text-base sm:text-lg" style="color:rgba(255,255,255,.65)">The goals and aims that guide the MIT program's design and delivery.</p>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+    <p class="eyebrow mb-1">Program Goals</p>
+    <h2 class="sh mb-3">Program Objectives</h2>
+    <div class="gold-divider mb-10"></div>
+
+    <ul class="space-y-3">
+
+      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)">
+          <span class="text-white text-xs font-bold font-mono">1</span>
+        </div>
+        <p class="text-gray-600 leading-relaxed text-sm">Provide graduate-level education in Information Technology emphasizing the acquisition of advanced concepts, tools, and technologies necessary for professional practice.</p>
+      </li>
+
+      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)">
+          <span class="text-white text-xs font-bold font-mono">2</span>
+        </div>
+        <p class="text-gray-600 leading-relaxed text-sm">Prepare graduates for the industrial practice of <strong class="text-gray-900">systems integration</strong>, <strong class="text-gray-900">systems administration</strong>, <strong class="text-gray-900">systems planning</strong>, and <strong class="text-gray-900">systems implementation</strong>, maintaining the integrity and proper functionality of complex systems.</p>
+      </li>
+
+      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)">
+          <span class="text-white text-xs font-bold font-mono">3</span>
+        </div>
+        <p class="text-gray-600 leading-relaxed text-sm">Develop students' capacity to conduct both <strong class="text-gray-900">technical</strong> and <strong class="text-gray-900">statistical research</strong>, contributing original knowledge to the IT discipline and addressing emerging challenges in the field.</p>
+      </li>
+
+      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)">
+          <span class="text-white text-xs font-bold font-mono">4</span>
+        </div>
+        <p class="text-gray-600 leading-relaxed text-sm">Cultivate expertise in specialized IT domains including System Development, Information Management, Interactive Systems, Intelligent Systems, and Emerging Trends in Computing — each student developing deep competence in chosen areas.</p>
+      </li>
+
+      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)">
+          <span class="text-white text-xs font-bold font-mono">5</span>
+        </div>
+        <p class="text-gray-600 leading-relaxed text-sm">Train students in <strong class="text-gray-900">technology and project management</strong> principles and methodologies, covering the full software development life cycle, process models, risk assessment, scheduling, budget estimation, and team leadership.</p>
+      </li>
+
+      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)">
+          <span class="text-white text-xs font-bold font-mono">6</span>
+        </div>
+        <p class="text-gray-600 leading-relaxed text-sm">Foster innovation through the <strong class="text-gray-900">Capstone Project</strong>, requiring students to propose, develop, and present a computing solution addressing a real organizational or societal problem — with work presented in a national or international public forum.</p>
+      </li>
+
+      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)">
+          <span class="text-white text-xs font-bold font-mono">7</span>
+        </div>
+        <p class="text-gray-600 leading-relaxed text-sm">Produce graduates who can effectively analyze user requirements and needs, designing and implementing information systems that are practical, scalable, and aligned with current industry standards and best practices.</p>
+      </li>
+
+      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)">
+          <span class="text-white text-xs font-bold font-mono">8</span>
+        </div>
+        <p class="text-gray-600 leading-relaxed text-sm">Comply with and exceed the minimum standards set by the <strong class="text-gray-900">Commission on Higher Education (CHED)</strong> for graduate IT programs in the Philippines, ensuring graduates are globally competitive and ethically grounded.</p>
+      </li>
+
+    </ul>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  FACULTY PANEL
+════════════════════════════════════════ -->
+<div id="tab-faculty" class="panel">
+  <div class="hero-bg">
+    <div class="relative max-w-4xl mx-auto px-6 py-20 sm:py-24 text-center" style="z-index:1;position:relative">
+      <p class="a1 eyebrow mb-3" style="color:rgba(201,168,76,.85)">MIT Program · WMSU</p>
+      <h1 class="a2 font-serif font-black text-white leading-tight mb-4" style="font-size:clamp(2rem,5vw,3rem)">Meet the <em class="italic" style="color:var(--gold-light)">Faculty</em></h1>
+      <p class="a3 text-base sm:text-lg" style="color:rgba(255,255,255,.65)">Our dedicated educators and researchers guiding the next generation of IT professionals.</p>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+    <p class="eyebrow mb-1">Our Educators</p>
+    <h2 class="sh mb-3">Meet the Faculty</h2>
+    <div class="gold-divider mb-10"></div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+
+      <!-- Faculty 1 -->
+      <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <img src="YOUR_PHOTO_URL_HERE" alt="Lucy Felix-Sadiwa" class="h-44 w-full object-cover object-top" />
+        <div class="p-5">
+          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">Lucy Felix-Sadiwa, MSCS</p>
+          <p class="eyebrow mt-0.5 mb-2.5">Program Chair</p>
+          <p class="text-xs text-gray-500 leading-relaxed mb-3">Ph.D. in Information Technology · Specializes in Advanced Database Systems and Systems Integration</p>
+          <div class="flex flex-wrap gap-1.5">
+            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 203</span>
+            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 204</span>
+            <span class="tag bg-gray-100 text-gray-600">Databases</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Faculty 2 -->
+      <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <img src="YOUR_PHOTO_URL_HERE" alt="Faculty 2" class="h-44 w-full object-cover object-top" />
+        <div class="p-5">
+          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">Lucy Felix-Sadiwa, MSCS</p>
+          <p class="eyebrow mt-0.5 mb-2.5">Associate Professor</p>
+          <p class="text-xs text-gray-500 leading-relaxed mb-3">Ph.D. in Computer Science · Research focus on Intelligent Systems and Machine Learning</p>
+          <div class="flex flex-wrap gap-1.5">
+            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 210</span>
+            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 211</span>
+            <span class="tag bg-gray-100 text-gray-600">AI / ML</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Faculty 3 -->
+      <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <img src="YOUR_PHOTO_URL_HERE" alt="Faculty 3" class="h-44 w-full object-cover object-top" />
+        <div class="p-5">
+          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">Lucy Felix-Sadiwa, MSCS</p>
+          <p class="eyebrow mt-0.5 mb-2.5">Assistant Professor</p>
+          <p class="text-xs text-gray-500 leading-relaxed mb-3">M.S. in Information Technology · Expert in Network Administration and Operating Systems</p>
+          <div class="flex flex-wrap gap-1.5">
+            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 201</span>
+            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 202</span>
+            <span class="tag bg-gray-100 text-gray-600">Networking</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Faculty 4 -->
+      <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <img src="YOUR_PHOTO_URL_HERE" alt="Faculty 4" class="h-44 w-full object-cover object-top" />
+        <div class="p-5">
+          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">Lucy Felix-Sadiwa, MSCS</p>
+          <p class="eyebrow mt-0.5 mb-2.5">Associate Professor</p>
+          <p class="text-xs text-gray-500 leading-relaxed mb-3">Ph.D. in Information Systems · Specializes in E-Commerce Solutions and System Development</p>
+          <div class="flex flex-wrap gap-1.5">
+            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 207</span>
+            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 208</span>
+            <span class="tag bg-gray-100 text-gray-600">E-Commerce</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Faculty 5 -->
+      <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <img src="YOUR_PHOTO_URL_HERE" alt="Faculty 5" class="h-44 w-full object-cover object-top" />
+        <div class="p-5">
+          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">Lucy Felix-Sadiwa, MSCS</p>
+          <p class="eyebrow mt-0.5 mb-2.5">Assistant Professor</p>
+          <p class="text-xs text-gray-500 leading-relaxed mb-3">M.S. in Computer Science · Focus on Human-Computer Interaction and Interactive Systems Design</p>
+          <div class="flex flex-wrap gap-1.5">
+            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 209</span>
+            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 205</span>
+            <span class="tag bg-gray-100 text-gray-600">HCI</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Faculty 6 -->
+      <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <img src="YOUR_PHOTO_URL_HERE" alt="Faculty 6" class="h-44 w-full object-cover object-top" />
+        <div class="p-5">
+          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">Lucy Felix-Sadiwa, MSCS</p>
+          <p class="eyebrow mt-0.5 mb-2.5">Research Coordinator</p>
+          <p class="text-xs text-gray-500 leading-relaxed mb-3">Ph.D. in Applied Statistics · Leads Statistical Research and Graduate Research Methodology courses</p>
+          <div class="flex flex-wrap gap-1.5">
+            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 206</span>
+            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 205</span>
+            <span class="tag bg-gray-100 text-gray-600">Research</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="text-center py-5 px-4" style="background:#2a0406">
+  <p class="font-mono text-[10px] tracking-widest uppercase" style="color:rgba(201,168,76,.35)">
+    © Western Mindanao State University · College of Computing Studies · MIT Program · S.Y. 2019–2020
+  </p>
+</footer>
+
+
+<!-- ════════════════════════════════════════
+  COURSE MODAL
+════════════════════════════════════════ -->
+<div class="modal-bg" id="courseModal">
+  <div class="modal-box">
+    <div class="hero-bg px-6 sm:px-7 py-6 rounded-t-[18px]">
+      <div class="flex items-start justify-between gap-4" style="position:relative;z-index:1">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span class="eyebrow" style="color:rgba(201,168,76,.9)" id="modal-code">MIT 201</span>
+            <span class="tag text-[10px]" style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.8)" id="modal-type">Core Course</span>
+          </div>
+          <h3 class="font-serif text-xl sm:text-2xl font-bold text-white leading-tight" id="modal-title">Course Title</h3>
+        </div>
+        <button onclick="closeModal()" class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors" style="background:rgba(255,255,255,.12)" onmouseover="this.style.background='rgba(255,255,255,.22)'" onmouseout="this.style.background='rgba(255,255,255,.12)'">
+          <span class="material-symbols-rounded text-white" style="font-size:18px">close</span>
+        </button>
+      </div>
+      <div class="flex items-center gap-2 mt-4" style="position:relative;z-index:1">
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg" style="background:rgba(255,255,255,.12)">
+          <span class="material-symbols-rounded" style="color:var(--gold-light);font-size:13px">schedule</span>
+          <span class="text-[11px] font-medium" style="color:rgba(255,255,255,.85)" id="modal-units">3 Units</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 sm:px-7 py-6">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson)">description</span>
+        <p class="eyebrow">Course Description</p>
+      </div>
+      <p class="text-gray-600 leading-relaxed text-sm mb-6" id="modal-desc"></p>
+
+      <div id="topics-wrap" class="hidden">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson)">topic</span>
+          <p class="eyebrow">Key Topics</p>
+        </div>
+        <div class="flex flex-wrap gap-2 mb-6" id="modal-topics"></div>
+      </div>
+
+      <div class="flex items-center gap-3 rounded-xl px-4 py-3.5" style="background:#f6f5f3;border:1px solid #ede8e0">
+        <span class="material-symbols-rounded" style="font-size:18px;color:var(--crimson)">school</span>
+        <div>
+          <p class="eyebrow">Program</p>
+          <p class="text-xs text-gray-700 font-medium mt-0.5">Master in Information Technology · WMSU-CCS</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+const COURSES = {
+  core: [
+    {
+      code:'MIT 201', icon:'dns', units:'3 Units', type:'IT Core Course',
+      title:'Advanced Operating System and Networking',
+      desc:'This course provides operating system concepts, process scheduling, CPU scheduling, deadlock, memory management, and file systems. Students will study widely used operating systems such as Windows and UNIX and other types of operating systems. Topics include kernel design, the I/O system, scheduling algorithms, process control, inter-process communication, system calls, memory management, and protection and security issues. Also, this course covers the different network protocols, setting and managing network connectivity, and network topologies.',
+      topics:['Process Scheduling','CPU Scheduling','Memory Management','Deadlock','File Systems','Kernel Design','Network Protocols','Network Topologies','Security & Protection']
+    },
+    {
+      code:'MIT 202', icon:'architecture', units:'3 Units', type:'IT Core Course',
+      title:'Advanced Systems Design and Implementation',
+      desc:'This course focuses on the analysis, logical design, and implementation of computer-based information systems. The emphasis is placed upon the development of requirements specifications that serve the business needs of the organization and provide the necessary base for subsequent systems development. The course also provides advanced topics particularly on the design using an object-oriented approach bridging from analysis to implementation. At the end of the course, students will learn how to effectively analyze, design, and implement information systems based on user requirements and needs.',
+      topics:['Requirements Analysis','Logical Design','OOP Approach','Systems Implementation','Software Architecture','Scalability','UML Modeling']
+    },
+    {
+      code:'MIT 203', icon:'storage', units:'3 Units', type:'IT Core Course',
+      title:'Advanced Database Systems',
+      desc:'This course provides a solid foundation and advances in database technology and its implementation. The course covers fundamental concepts of database technology such as the different approaches to database application development, conceptual and logical data models, physical database design, relational algebra, functional dependencies, constraints and triggers, NoSQL, Parallel and Distributed Databases, Transactions, and SQL Query Optimization.',
+      topics:['Relational Algebra','Data Modeling','Physical Database Design','NoSQL','Distributed Databases','Query Optimization','Transactions','Constraints & Triggers']
+    },
+    {
+      code:'MIT 204', icon:'manage_accounts', units:'3 Units', type:'IT Core Course',
+      title:'Technology and Project Management',
+      desc:'The course covers the fundamental project management principles and methodologies for managing the software development life cycle and process models. It will also cover topics on process metrics, software project planning, monitoring, control, scheduling mechanisms, budget estimates, risk assessment, leadership, motivation, and teaching building.',
+      topics:['SDLC','Agile Methodologies','Risk Assessment','Project Scheduling','Budget Estimation','Team Leadership','Process Metrics','Quality Control']
+    }
+  ],
+  spec: [
+    {
+      code:'MIT 205', icon:'biotech', units:'3 Units', type:'Specialization Course',
+      title:'Technical Research',
+      desc:'This course introduces and discusses the fundamental concepts and methods of research particularly its meaning, types, methodology, review of literature and studies, analysis and interpretation of data, presentation of data, and writing conclusions and recommendations. In this course, the students will consider how to select the appropriate methodology to use in a chosen study. Additionally, these students will learn how to collect data based on different data collection methods, construct these tools, and pilot them before they become ready for use. Finally, this course elucidates the requirements for academic work, considering aspects related to language, writing style, and layout. Students will learn to write a comprehensive research proposal.',
+      topics:['Research Methodology','Literature Review','Data Collection','Data Analysis','Technical Writing','Research Proposal','Academic Presentation']
+    },
+    {
+      code:'MIT 206', icon:'bar_chart', units:'3 Units', type:'Specialization Course',
+      title:'Statistical Research',
+      desc:'The course deals with the basic principles of statistics, the presentation and analysis of data, and descriptive and inferential statistics that are necessary for the conduct of quantitative research. The subject also focuses on providing the students with the proper foundation to propose and conduct theoretical and empirical research to answer a broad array of questions related to theories and concepts of information and communications technology.',
+      topics:['Descriptive Statistics','Inferential Statistics','Hypothesis Testing','Regression Analysis','ANOVA','Survey Design','SPSS / R','Quantitative Research']
+    },
+    {
+      code:'MIT 207', icon:'code', units:'3 Units', type:'Specialization Course',
+      title:'Specialization Course 1 – System Development',
+      desc:'This course deals with the advanced study of methods and best practices in system development. It involves an in-depth analysis of different issues on organizational, business, and socio-technical issues in the implementation of IT, and how to effectively manage these issues related to theories and concepts of information technology. Tracks include E-Commerce Solutions and E-Learning Solutions.',
+      topics:['System Development Methods','E-Commerce Solutions','E-Learning Solutions','Socio-Technical Issues','IT Implementation','Design Patterns','API Development']
+    },
+    {
+      code:'MIT 208', icon:'inventory_2', units:'3 Units', type:'Specialization Course',
+      title:'Specialization Course 2 – Information Management',
+      desc:'This course focuses on the advancement of information management processes and their design and analysis using relevant data management technologies to efficiently perform the acquisition, organization, interpretation, and visualization of data among business industries. This also covers advances in data and process modeling techniques, database design, and query optimizations. Lastly, enables students to implement well-planned, IT-based systems for medium to large-scale business transactions. Tracks include IM Modelling & Design and IM Implementation, Configuration, and Administration.',
+      topics:['IM Modelling & Design','IM Implementation','Data Governance','Process Modeling','Query Optimization','Business Intelligence','Data Visualization']
+    },
+    {
+      code:'MIT 209', icon:'touch_app', units:'3 Units', type:'Specialization Course',
+      title:'Specialization Course 3 – Interactive Systems',
+      desc:'Interactive systems are computer systems characterized by significant amounts of interaction between humans and computers. This course concentrates solely on theories, principles, and methodologies of interactive system design and evaluation. Important topics include user-centered design, experience design, usability analysis, evaluation, and task analysis. Students gain the knowledge, skills, and techniques necessary to design innovative interactive products. Tracks include Multimedia Solutions and Human-Computer Interaction.',
+      topics:['HCI Principles','User-Centered Design','Usability Testing','Experience Design','Task Analysis','Multimedia Solutions','Accessibility','Prototyping']
+    },
+    {
+      code:'MIT 210', icon:'smart_toy', units:'3 Units', type:'Specialization Course',
+      title:'Specialization Course 4 – Intelligent Systems',
+      desc:'This course focuses on the advancement of information management processes and design using AI-driven technologies. Topics include machine learning, expert systems, neural networks, knowledge representation, and intelligent decision-making. Enables students to implement well-planned, AI-based systems. Tracks include Expert Systems and Artificial Intelligence.',
+      topics:['Machine Learning','Expert Systems','Neural Networks','Artificial Intelligence','Knowledge Representation','Intelligent Decision Systems','AI Ethics']
+    },
+    {
+      code:'MIT 211', icon:'rocket_launch', units:'3 Units', type:'Specialization Course',
+      title:'Specialization Course 5 – Emerging Trends in Computing',
+      desc:'This course introduces modern technologies used in the industry to solve complex and challenging problems. It involves discussions of modern algorithms based on Machine Learning and Artificial Intelligence, and their underlying concepts. At the end of the course, students will be able to apply these concepts to real-world problems to provide meaningful solutions.',
+      topics:['Cloud Computing','IoT','Blockchain','Quantum Computing','Edge Computing','Cybersecurity Trends','AI & ML Algorithms','Technology Assessment']
+    }
+  ],
+  cap: [
+    {
+      code:'MIT 212A', icon:'science', units:'3 Units', type:'Capstone Project',
+      title:'Capstone Project 1 – Directed Research',
+      desc:'Capstone Project focuses on the infrastructure application or processes involved in implementing a Computing solution to a problem. This course requires students to propose a capstone project that will introduce either a new application, technology, or process that can be used as a tool to solve an organizational or societal problem.',
+      topics:['Problem Identification','Research Design','Proposal Writing','System Design','Prototype Development','Faculty Mentorship','Feasibility Study']
+    },
+    {
+      code:'MIT 212B', icon:'emoji_events', units:'3 Units', type:'Capstone Project',
+      title:'Capstone Project 2 – National/International Forum',
+      desc:'This course requires students to present the final capstone project that includes the system and documentation. The capstone project should be able to produce innovative results, generate new knowledge or theories or explore new frontiers of knowledge or application areas. The final output is to be presented in a national or international public forum.',
+      topics:['Full Implementation','System Testing','Evaluation','Public Presentation','Oral Defense','Technical Documentation','Publication-Ready Output']
+    }
+  ]
+};
+
+function buildCourses(list, containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  list.forEach(course => {
+    const el = document.createElement('div');
+    el.className = 'cpill';
+    el.onclick = () => openModal(course);
+    el.innerHTML = `
+      <div class="cpill-icon flex-shrink-0">
+        <span class="material-symbols-rounded" style="font-size:17px">${course.icon}</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="font-mono text-[10px] font-medium mb-0.5" style="color:var(--crimson-light)">${course.code}</p>
+        <p class="text-sm font-semibold text-gray-800 leading-snug">${course.title}</p>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+        <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">${course.units.split(' ')[0]}u</span>
+        <span class="material-symbols-rounded text-gray-300" style="font-size:18px;transition:color .2s" onmouseover="this.style.color='#c9a84c'" onmouseout="this.style.color='#d1d5db'">chevron_right</span>
+      </div>`;
+    c.appendChild(el);
+  });
+}
+
+buildCourses(COURSES.core, 'core-courses');
+buildCourses(COURSES.spec, 'spec-courses');
+buildCourses(COURSES.cap,  'cap-courses');
+
+function openModal(c) {
+  document.getElementById('modal-code').textContent  = c.code;
+  document.getElementById('modal-title').textContent = c.title;
+  document.getElementById('modal-units').textContent = c.units;
+  document.getElementById('modal-type').textContent  = c.type;
+  document.getElementById('modal-desc').textContent  = c.desc;
+
+  const tw = document.getElementById('topics-wrap');
+  const tc = document.getElementById('modal-topics');
+  tc.innerHTML = '';
+  if (c.topics && c.topics.length) {
+    c.topics.forEach(t => {
+      const s = document.createElement('span');
+      s.className = 'tag';
+      s.style.cssText = 'background:rgba(123,17,19,.07);color:var(--crimson);border:1px solid rgba(123,17,19,.15);border-radius:999px;padding:.25rem .75rem';
+      s.textContent = t;
+      tc.appendChild(s);
+    });
+    tw.classList.remove('hidden');
+  } else {
+    tw.classList.add('hidden');
+  }
+
+  document.getElementById('courseModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('courseModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('courseModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function switchTab(target) {
+  document.querySelectorAll('.tab-btn[data-tab]').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === target);
+  });
+  document.querySelectorAll('.mob-tab').forEach(b => {
+    const isActive = b.dataset.tab === target;
+    b.classList.toggle('active-mob', isActive);
+    if (isActive) {
+      b.style.color = 'var(--crimson)';
+      b.style.background = 'rgba(123,17,19,.06)';
+    } else {
+      b.style.color = '';
+      b.style.background = '';
+    }
+  });
+  document.querySelectorAll('.panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'tab-' + target);
+  });
+  document.getElementById('mobile-menu').classList.remove('open');
+  document.getElementById('ham-icon').textContent = 'menu';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+document.querySelectorAll('.mob-tab').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+document.getElementById('hamburger').addEventListener('click', () => {
+  const menu = document.getElementById('mobile-menu');
+  const icon = document.getElementById('ham-icon');
+  const isOpen = menu.classList.toggle('open');
+  icon.textContent = isOpen ? 'close' : 'menu';
+});
+</script>
 </body>
-
 </html>
