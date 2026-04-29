@@ -12,10 +12,12 @@ from .views.privacynotice_views import privacy_notice
 from .views.reviews_views import review
 from .views.student_views import student
 from .views.login_views import logout_view
+from .views.about_views import about
 
 
 urlpatterns = [
     path("", index, name="index"),
+    path("about/", about, name="about"),
     path("login/", login_view, name="login"),
     path("register/", signup_view, name="signup"),
     path("verify/<str:token>/", verify_email_view, name="verify_email"),
