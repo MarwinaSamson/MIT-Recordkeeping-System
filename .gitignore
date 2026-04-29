@@ -206,3 +206,16 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# Python compiled files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django migrations (optional - comment out if you want to track migrations)
+# */migrations/*.py
+# !*/migrations/__init__.py
