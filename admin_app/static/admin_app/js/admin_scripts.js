@@ -183,58 +183,60 @@ function renderStudents(){
     grid.innerHTML=`<div class="col-span-3 py-16 text-center text-gray-400"><i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-40"></i><p class="text-sm">No students found.</p></div>`;
     lucide.createIcons(); return;
   }
-  grid.innerHTML=filtered.map(app=>`
+  grid.innerHTML=filtered.map(app=>{
+    // Account status
+    const isActive = app.accountActive !== undefined ? app.accountActive : true;
+    const accountBadge = isActive 
+      ? '<span class="px-2 py-0.5 text-xs rounded-full bg-green-50 border border-green-200 text-green-700 font-medium">Active</span>'
+      : '<span class="px-2 py-0.5 text-xs rounded-full bg-red-50 border border-red-200 text-red-700 font-medium">Inactive</span>';
+    
+    const esc = (s) => String(s||'').replace(/'/g,"\\'");
+    const userId = app.userId || 0;
+    const reason = esc(app.accountStatusReason || '');
+    const changedBy = esc(app.accountStatusChangedBy || '');
+    const changedAt = esc(app.accountStatusChangedAt || '');
+    
+    const toggleBtn = `
+      <button onclick="openToggleStatusModal(${userId},'${esc(app.name)}',${isActive},'${reason}','${changedBy}','${changedAt}')" 
+        class="text-xs font-medium px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 w-full justify-center
+        ${isActive ? 'text-red-600 border-red-200 hover:bg-red-50' : 'text-green-600 border-green-200 hover:bg-green-50'}">
+        <i data-lucide="${isActive ? 'user-x' : 'user-check'}" class="w-3 h-3"></i>
+        ${isActive ? 'Deactivate Account' : 'Activate Account'}
+      </button>`;
+    
+    const statusInfo = app.accountStatusReason 
+      ? `<p class="text-xs text-gray-400 mt-1.5">${esc(app.accountStatusChangedBy||'')}${app.accountStatusChangedBy && app.accountStatusChangedAt ? ' · ' : ''}${esc(app.accountStatusChangedAt||'')}</p>`
+      : '';
+    
+    return `
     <div class="bg-white rounded-2xl shadow-sm p-5 fade-in hover:shadow-md transition">
-      <div class="flex items-center gap-4 mb-4">
+      <div class="flex items-center gap-4 mb-3">
         <div class="w-12 h-12 rounded-full ${avatarBg(app.name)} flex items-center justify-center font-bold text-base flex-shrink-0">${initials(app.name)}</div>
         <div>
           <p class="font-bold text-gray-800 text-sm leading-tight">${app.name}</p>
           <p class="text-xs text-gray-400">${app.course} · ${app.id}</p>
         </div>
       </div>
-      <div class="space-y-1.5 text-xs text-gray-500 mb-4">
+      <div class="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-xs text-gray-500 font-semibold uppercase tracking-wide">Account</span>
+          ${accountBadge}
+        </div>
+        ${statusInfo}
+        <div class="mt-2">${toggleBtn}</div>
+      </div>
+      <div class="space-y-1.5 text-xs text-gray-500 mb-3">
         <p class="flex items-center gap-2"><i data-lucide="mail" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>${app.email}</p>
         <p class="flex items-center gap-2"><i data-lucide="phone" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>${app.mobile}</p>
         <p class="flex items-center gap-2"><i data-lucide="calendar" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>Submitted: ${app.submission_date}</p>
       </div>
       <div class="border-t border-gray-100 pt-3 flex items-center justify-between">
         ${statusBadge(app.status)}
-        <button onclick="switchPage('documents',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>openModal('${app.id}'),120)"
+        <button onclick="switchPage('documents',document.querySelectorAll('.nav-item')[1]);setTimeout(function(){openModal('${app.id}')},120)"
           class="text-xs text-red-700 font-semibold hover:underline flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i> View Docs</button>
       </div>
-    </div>`).join("");
-  lucide.createIcons();
-}
-
-/* ═══ HISTORY ═══ */
-function renderHistory(){
-  const tbody=document.getElementById("historyBody");
-  if(!tbody) return;
-  const search=(document.getElementById("historySearch")?.value||"").toLowerCase();
-  const filter=document.getElementById("historyFilter")?.value||"all";
-  let filtered=activityLog.filter(l=>
-    (l.appId.toLowerCase().includes(search)||l.doc.toLowerCase().includes(search)||l.admin.toLowerCase().includes(search)||l.action.toLowerCase().includes(search))&&
-    (filter==="all"||l.action===filter)
-  );
-  const ac={
-    "Verified Document":"badge-verified",
-    "Rejected Document":"badge-rejected",
-    "Marked Incomplete":"badge-incomplete",
-    "Requested Resubmission":"badge-pending",
-    "Updated Profile":"badge-review",
-    "Changed Profile Photo":"badge-review"
-  };
-  tbody.innerHTML=filtered.length
-    ? filtered.map(l=>`
-        <tr class="border-t border-gray-50 hover:bg-gray-50/70 transition-colors">
-          <td class="px-5 py-3.5 text-xs text-gray-400 whitespace-nowrap">${l.time}</td>
-          <td class="px-4 py-3.5 text-sm font-medium text-gray-700">${l.admin}</td>
-          <td class="px-4 py-3.5 text-sm text-red-700 font-semibold">${l.appId}</td>
-          <td class="px-4 py-3.5 text-sm text-gray-600">${l.doc}</td>
-          <td class="px-4 py-3.5"><span class="status-badge ${ac[l.action]||'badge-review'}">${l.action}</span></td>
-          <td class="px-4 py-3.5 text-xs text-gray-400">${l.notes}</td>
-        </tr>`).join("")
-    : `<tr><td colspan="6" class="px-5 py-12 text-center text-gray-400 text-sm">No activity logs found.</td></tr>`;
+    </div>`;
+  }).join("");
   lucide.createIcons();
 }
 
@@ -1662,3 +1664,96 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+/* ═══ TOGGLE STUDENT ACCOUNT STATUS ═══ */
+var toggleStudentId = null;
+var toggleStudentIsActive = null;
+
+function openToggleStatusModal(userId, fullName, isActive, reason, changedBy, changedAt) {
+  console.log('openToggleStatusModal called', userId, fullName, isActive);
+  
+  toggleStudentId = userId;
+  toggleStudentIsActive = isActive;
+  
+  var modal = document.getElementById('toggleStatusModal');
+  console.log('modal element:', modal);
+  
+  if (!modal) {
+    alert('Error: toggleStatusModal not found in the page HTML.');
+    return;
+  }
+  
+  document.getElementById('toggleStatusSubtitle').innerText = fullName;
+  
+  if (isActive) {
+    document.getElementById('toggleStatusIcon').className = 'w-10 h-10 rounded-xl flex items-center justify-center bg-red-100';
+    document.getElementById('toggleStatusIcon').innerHTML = '<i data-lucide="user-x" class="w-5 h-5 text-red-600"></i>';
+    document.getElementById('toggleStatusTitle').innerText = 'Deactivate Student Account';
+    document.getElementById('currentStatusBar').className = 'flex items-center gap-3 p-3 rounded-xl border text-sm font-medium bg-green-50 border-green-200 text-green-700';
+    document.getElementById('currentStatusBar').innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i><span>Account is currently <strong>Active</strong></span>';
+    document.getElementById('toggleActionLabel').innerHTML = 'This will <strong style="color:#dc2626">deactivate</strong> the student account.';
+    document.getElementById('toggleStatusConfirmBtn').className = 'flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition bg-red-600 hover:bg-red-700';
+    document.getElementById('toggleStatusConfirmBtn').innerHTML = '<i data-lucide="user-x" class="w-4 h-4"></i> Deactivate Account';
+  } else {
+    document.getElementById('toggleStatusIcon').className = 'w-10 h-10 rounded-xl flex items-center justify-center bg-green-100';
+    document.getElementById('toggleStatusIcon').innerHTML = '<i data-lucide="user-check" class="w-5 h-5 text-green-600"></i>';
+    document.getElementById('toggleStatusTitle').innerText = 'Activate Student Account';
+    document.getElementById('currentStatusBar').className = 'flex items-center gap-3 p-3 rounded-xl border text-sm font-medium bg-red-50 border-red-200 text-red-700';
+    document.getElementById('currentStatusBar').innerHTML = '<i data-lucide="x-circle" class="w-4 h-4"></i><span>Account is currently <strong>Inactive</strong></span>';
+    document.getElementById('toggleActionLabel').innerHTML = 'This will <strong style="color:#16a34a">activate</strong> the student account.';
+    document.getElementById('toggleStatusConfirmBtn').className = 'flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition bg-green-600 hover:bg-green-700';
+    document.getElementById('toggleStatusConfirmBtn').innerHTML = '<i data-lucide="user-check" class="w-4 h-4"></i> Activate Account';
+  }
+  
+  var lastNoteDiv = document.getElementById('lastStatusNote');
+  if (reason) {
+    lastNoteDiv.classList.remove('hidden');
+    document.getElementById('lastStatusNoteText').innerText = reason;
+    document.getElementById('lastStatusNoteBy').innerText = changedBy ? 'Changed by ' + changedBy : '';
+  } else {
+    lastNoteDiv.classList.add('hidden');
+  }
+  
+  document.getElementById('toggleStatusReason').value = '';
+  document.getElementById('toggleStatusReasonErr').classList.add('hidden');
+  
+  modal.style.display = 'flex';
+  lucide.createIcons();
+  console.log('Modal should be visible now');
+}
+
+function closeToggleStatusModal() {
+  var modal = document.getElementById('toggleStatusModal');
+  if (modal) modal.style.display = 'none';
+  toggleStudentId = null;
+  toggleStudentIsActive = null;
+}
+
+function confirmToggleStatus() {
+  var reason = document.getElementById('toggleStatusReason').value.trim();
+  var errorEl = document.getElementById('toggleStatusReasonErr');
+  
+  if (!reason) {
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
+  errorEl.classList.add('hidden');
+  
+  fetch('/admin-panel/api/student/toggle-status/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify({user_id: toggleStudentId, is_active: !toggleStudentIsActive, reason: reason})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      showToast(data.message, 'success');
+      closeToggleStatusModal();
+      setTimeout(function() { location.reload(); }, 1000);
+    } else {
+      showToast('Error: ' + data.message, 'warn');
+    }
+  })
+  .catch(function(e) { showToast('Error: ' + e.message, 'warn'); });
+}
