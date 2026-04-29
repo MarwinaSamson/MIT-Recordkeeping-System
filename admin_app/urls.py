@@ -10,6 +10,16 @@ from .views.api_views import (
     upload_admin_photo,
     update_cms_settings,
     upload_cms_file,
+    # Student requirement notification APIs
+    get_requirement_types,
+    create_requirement_type,
+    delete_requirement_type,
+    get_students_with_requirements,
+    add_student_requirement,
+    remove_student_requirement,
+    update_student_requirement_status,
+    send_requirement_notification,
+    get_all_students,
 )
 
 app_name = 'admin_app'
@@ -33,4 +43,15 @@ urlpatterns = [
          name='api_upload_admin_photo'),
     path('api/cms/update/', update_cms_settings, name='api_update_cms'),
     path('api/cms/upload-file/', upload_cms_file, name='api_upload_cms_file'),
+
+    # Student Requirement Notification APIs
+    path('api/requirements/types/', get_requirement_types, name='api_get_requirement_types'),
+    path('api/requirements/types/create/', create_requirement_type, name='api_create_requirement_type'),
+    path('api/requirements/types/delete/', delete_requirement_type, name='api_delete_requirement_type'),
+    path('api/requirements/students/', get_students_with_requirements, name='api_get_students_with_requirements'),
+    path('api/requirements/add/', add_student_requirement, name='api_add_student_requirement'),
+    path('api/requirements/remove/', remove_student_requirement, name='api_remove_student_requirement'),
+    path('api/requirements/update-status/', update_student_requirement_status, name='api_update_requirement_status'),
+    path('api/requirements/notify/', send_requirement_notification, name='api_send_notification'),
+    path('api/students/all/', get_all_students, name='api_get_all_students'),
 ]

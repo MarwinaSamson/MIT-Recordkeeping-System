@@ -506,3 +506,402 @@ def upload_cms_file(request):
             'success': False,
             'message': f'Error uploading file: {str(e)}'
         }, status=400)
+
+
+# ============== Student Requirement Notification APIs ==============
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def get_requirement_types(request):
+    """Get all active requirement types."""
+    from ..models import RequirementType
+    
+    types = RequirementType.objects.filter(is_active=True).order_by('name')
+    data = [{'id': t.id, 'name': t.name, 'description': t.description} for t in types]
+    return JsonResponse({'success': True, 'data': data})
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def create_requirement_type(request):
+    """Create a new requirement type."""
+    from ..models import RequirementType
+    
+    try:
+        data = json.loads(request.body)
+        name = data.get('name', '').strip()
+        description = data.get('description', '').strip()
+        
+        if not name:
+            return JsonResponse({'success': False, 'message': 'Requirement name is required.'}, status=400)
+        
+        # Check if already exists
+        if RequirementType.objects.filter(name__iexact=name).exists():
+            return JsonResponse({'success': False, 'message': 'A requirement type with this name already exists.'}, status=400)
+        
+        req_type = RequirementType.objects.create(name=name, description=description)
+        
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='note',
+            notes=f"Created requirement type: {name}"
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Requirement type created successfully.',
+            'data': {'id': req_type.id, 'name': req_type.name, 'description': req_type.description}
+        })
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON data.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def delete_requirement_type(request):
+    """Delete a requirement type."""
+    from ..models import RequirementType
+    
+    try:
+        data = json.loads(request.body)
+        type_id = data.get('requirement_type_id')
+        
+        if not type_id:
+            return JsonResponse({'success': False, 'message': 'Requirement type ID is required.'}, status=400)
+        
+        req_type = RequirementType.objects.get(id=type_id)
+        name = req_type.name
+        req_type.delete()
+        
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='note',
+            notes=f"Deleted requirement type: {name}"
+        )
+        
+        return JsonResponse({'success': True, 'message': 'Requirement type deleted successfully.'})
+    except RequirementType.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Requirement type not found.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def get_students_with_requirements(request):
+    """Get list of students with missing requirements."""
+    from ..models import StudentRequirement, RequirementType
+    from django.contrib.auth.models import User
+    
+    # Get filter parameters
+    status = request.GET.get('status', '')
+    requirement_id = request.GET.get('requirement_id', '')
+    
+    requirements = StudentRequirement.objects.select_related('user', 'requirement')
+    
+    if status:
+        requirements = requirements.filter(status=status)
+    if requirement_id:
+        requirements = requirements.filter(requirement_id=requirement_id)
+    
+    # Group by student
+    student_data = {}
+    for req in requirements:
+        user_id = req.user.id
+        if user_id not in student_data:
+            user = req.user
+            # Get application info
+            app = Application.objects.filter(user=user).first()
+            student_data[user_id] = {
+                'user_id': user_id,
+                'username': user.username,
+                'email': user.email,
+                'full_name': user.get_full_name() or user.email,
+                'application_id': app.application_id if app else None,
+                'requirements': []
+            }
+        
+        student_data[user_id]['requirements'].append({
+            'id': req.id,
+            'requirement_id': req.requirement.id,
+            'requirement_name': req.requirement.name,
+            'status': req.status,
+            'notes': req.notes,
+            'created_at': req.created_at.strftime('%Y-%m-%d %H:%M'),
+            'updated_at': req.updated_at.strftime('%Y-%m-%d %H:%M')
+        })
+    
+    return JsonResponse({'success': True, 'data': list(student_data.values())})
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def add_student_requirement(request):
+    """Add a missing requirement for a student."""
+    from ..models import StudentRequirement, RequirementType, RequirementNotification
+    from django.contrib.auth.models import User
+    
+    try:
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        requirement_id = data.get('requirement_id')
+        notes = data.get('notes', '').strip()
+        
+        if not user_id or not requirement_id:
+            return JsonResponse({'success': False, 'message': 'User ID and Requirement ID are required.'}, status=400)
+        
+        user = User.objects.get(id=user_id)
+        requirement = RequirementType.objects.get(id=requirement_id)
+        
+        # Check if already exists
+        if StudentRequirement.objects.filter(user=user, requirement=requirement).exists():
+            return JsonResponse({'success': False, 'message': 'This requirement is already marked for this student.'}, status=400)
+        
+        student_req = StudentRequirement.objects.create(
+            user=user,
+            requirement=requirement,
+            notes=notes,
+            status='pending'
+        )
+        
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='note',
+            application=Application.objects.filter(user=user).first(),
+            notes=f"Added missing requirement for {user.username}: {requirement.name}"
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Requirement added successfully.',
+            'data': {
+                'id': student_req.id,
+                'requirement_name': requirement.name,
+                'status': student_req.status
+            }
+        })
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'User not found.'}, status=404)
+    except RequirementType.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Requirement type not found.'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON data.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def remove_student_requirement(request):
+    """Remove a missing requirement from a student."""
+    from ..models import StudentRequirement
+    
+    try:
+        data = json.loads(request.body)
+        requirement_id = data.get('student_requirement_id')
+        
+        if not requirement_id:
+            return JsonResponse({'success': False, 'message': 'Student requirement ID is required.'}, status=400)
+        
+        student_req = StudentRequirement.objects.get(id=requirement_id)
+        user = student_req.user
+        req_name = student_req.requirement.name
+        student_req.delete()
+        
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='note',
+            application=Application.objects.filter(user=user).first(),
+            notes=f"Removed missing requirement for {user.username}: {req_name}"
+        )
+        
+        return JsonResponse({'success': True, 'message': 'Requirement removed successfully.'})
+    except StudentRequirement.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Student requirement not found.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def update_student_requirement_status(request):
+    """Update the status of a student requirement."""
+    from ..models import StudentRequirement
+    
+    try:
+        data = json.loads(request.body)
+        requirement_id = data.get('student_requirement_id')
+        new_status = data.get('status')
+        
+        if not requirement_id or not new_status:
+            return JsonResponse({'success': False, 'message': 'Requirement ID and status are required.'}, status=400)
+        
+        valid_statuses = ['pending', 'notified', 'submitted', 'waived']
+        if new_status not in valid_statuses:
+            return JsonResponse({'success': False, 'message': 'Invalid status.'}, status=400)
+        
+        student_req = StudentRequirement.objects.get(id=requirement_id)
+        old_status = student_req.status
+        student_req.status = new_status
+        
+        if new_status == 'notified':
+            student_req.notified_at = timezone.now()
+        
+        student_req.save()
+        
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='note',
+            application=Application.objects.filter(user=student_req.user).first(),
+            notes=f"Updated requirement status for {student_req.user.username}: {student_req.requirement.name} ({old_status} -> {new_status})"
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Status updated successfully.',
+            'data': {'status': student_req.status}
+        })
+    except StudentRequirement.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Student requirement not found.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def send_requirement_notification(request):
+    """Send a notification to a student about missing requirements."""
+    from ..models import StudentRequirement, RequirementNotification
+    from django.core.mail import send_mail
+    from django.conf import settings
+    
+    try:
+        data = json.loads(request.body)
+        student_requirement_ids = data.get('student_requirement_ids', [])
+        message = data.get('message', '').strip()
+        
+        if not student_requirement_ids:
+            return JsonResponse({'success': False, 'message': 'At least one student requirement is required.'}, status=400)
+        
+        if not message:
+            return JsonResponse({'success': False, 'message': 'Notification message is required.'}, status=400)
+        
+        # Group requirements by user
+        requirements_by_user = {}
+        for req_id in student_requirement_ids:
+            try:
+                req = StudentRequirement.objects.get(id=req_id)
+                user_id = req.user.id
+                if user_id not in requirements_by_user:
+                    requirements_by_user[user_id] = {
+                        'user': req.user,
+                        'requirements': [],
+                        'req_ids': []
+                    }
+                requirements_by_user[user_id]['requirements'].append(req.requirement.name)
+                requirements_by_user[user_id]['req_ids'].append(req_id)
+            except StudentRequirement.DoesNotExist:
+                continue
+        
+        # Send notifications to each student
+        notifications_sent = 0
+        for user_id, user_data in requirements_by_user.items():
+            user = user_data['user']
+            req_names = ', '.join(user_data['requirements'])
+            
+            # Update status to notified
+            for req_id in user_data['req_ids']:
+                StudentRequirement.objects.filter(id=req_id).update(
+                    status='notified',
+                    notified_at=timezone.now()
+                )
+            
+            # Create notification record
+            for req_id in user_data['req_ids']:
+                RequirementNotification.objects.create(
+                    student_requirement_id=req_id,
+                    sent_by=request.user,
+                    message=f"{message}\n\nMissing requirements: {req_names}"
+                )
+            
+            # Send email notification
+            try:
+                full_name = user.get_full_name() or user.email
+                email_message = f"""Dear {full_name},
+
+{message}
+
+Missing Requirements:
+- {req_names}
+
+Please submit the required documents as soon as possible.
+
+Best regards,
+Admissions Office
+"""
+                send_mail(
+                    subject='Action Required: Missing Admission Requirements',
+                    message=email_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=False,
+                )
+                notifications_sent += 1
+            except Exception as e:
+                # Log but continue with other students
+                print(f"Failed to send email to {user.email}: {e}")
+        
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='note',
+            notes=f"Sent {notifications_sent} requirement notifications to students."
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Notifications sent to {notifications_sent} student(s).'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def get_all_students(request):
+    """Get list of all students with applications for selection."""
+    from django.contrib.auth.models import User
+    from students_app.models import PersonalDetails
+    
+    users = User.objects.filter(
+        application__isnull=False
+    ).select_related('application').distinct().order_by('username')
+    
+    data = []
+    for user in users:
+        # Get personal details if available
+        personal = PersonalDetails.objects.filter(user=user).first()
+        full_name = personal.first_name + ' ' + personal.last_name if personal else user.get_full_name() or user.email
+        
+        app = Application.objects.filter(user=user).first()
+        
+        data.append({
+            'user_id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'full_name': full_name,
+            'application_id': app.application_id if app else None,
+            'program': app.program if app else None
+        })
+    
+    return JsonResponse({'success': True, 'data': data})

@@ -203,3 +203,79 @@ class CMSSettings(models.Model):
 
     def __str__(self):
         return 'Homepage CMS Settings'
+
+
+class RequirementType(models.Model):
+    """
+    Defines the types of requirements that students need to submit.
+    Admin can create, edit, and manage requirement types.
+    """
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="e.g., PSA Birth Certificate, Transcript of Records"
+    )
+    description = models.TextField(blank=True, help_text="Optional description")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Requirement Type'
+        verbose_name_plural = 'Requirement Types'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class StudentRequirement(models.Model):
+    """
+    Tracks which requirements a student is missing.
+    Admin can mark students as lacking specific requirements.
+    """
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('notified', 'Notified'),
+        ('submitted', 'Submitted'),
+        ('waived', 'Waived'),
+    ]
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='missing_requirements')
+    requirement = models.ForeignKey(
+        RequirementType, on_delete=models.CASCADE, related_name='student_requirements')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    notes = models.TextField(blank=True, help_text="Additional notes")
+    notified_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Student Requirement'
+        verbose_name_plural = 'Student Requirements'
+        unique_together = ['user', 'requirement']
+        ordering = ['-updated_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.requirement.name}"
+
+
+class RequirementNotification(models.Model):
+    """
+    Stores notification history sent to students about missing requirements.
+    """
+    student_requirement = models.ForeignKey(
+        StudentRequirement, on_delete=models.CASCADE, related_name='notifications')
+    sent_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sent_notifications')
+    message = models.TextField()
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Requirement Notification'
+        verbose_name_plural = 'Requirement Notifications'
+        ordering = ['-sent_at']
+
+    def __str__(self):
+        return f"Notification to {self.student_requirement.user.username} - {self.student_requirement.requirement.name}"

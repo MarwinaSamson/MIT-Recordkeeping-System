@@ -1187,3 +1187,478 @@ function getCSRFToken() {
   return document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
     document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='))?.split('=')[1] || '';
 }
+
+/* ═══ MISSING REQUIREMENTS NOTIFICATION FEATURE ═══ */
+
+// Initialize requirements page when switched
+function initRequirementsPage() {
+  loadStudentsWithRequirements();
+  loadRequirementTypes();
+}
+
+// Load students with missing requirements
+async function loadStudentsWithRequirements() {
+  try {
+    const response = await fetch('/admin-panel/api/requirements/students/', {
+      method: 'GET',
+      headers: { 'X-CSRFToken': getCSRFToken() }
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      renderMissingRequirements(data.data);
+      updateRequirementStats(data.data);
+    }
+  } catch (error) {
+    console.error('Error loading students with requirements:', error);
+    document.getElementById('missingRequirementsList').innerHTML = 
+      '<p class="text-gray-400 text-sm text-center py-8">Error loading data. Please refresh.</p>';
+  }
+}
+
+// Render the list of students with missing requirements
+function renderMissingRequirements(students) {
+  const container = document.getElementById('missingRequirementsList');
+  
+  if (!students || students.length === 0) {
+    container.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No students with missing requirements.</p>';
+    return;
+  }
+  
+  container.innerHTML = students.map(student => {
+    const reqsHtml = student.requirements.map(req => `
+      <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+        <div class="flex items-center gap-2">
+          <input type="checkbox" class="req-checkbox w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" 
+            data-student-id="${student.user_id}" data-requirement-id="${req.id}">
+          <span class="text-sm text-gray-700">${req.requirement_name}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 text-xs rounded-full ${getReqStatusClass(req.status)}">${req.status}</span>
+          <button onclick="removeRequirement(${req.id})" class="text-gray-400 hover:text-red-600">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    `).join('');
+    
+    return `
+      <div class="border border-gray-100 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-xs font-bold text-red-700">
+              ${getInitials(student.full_name)}
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-800">${student.full_name}</p>
+              <p class="text-xs text-gray-400">${student.email}</p>
+            </div>
+          </div>
+          <span class="text-xs text-gray-400">${student.application_id || 'No App'}</span>
+        </div>
+        <div class="pl-13">
+          ${reqsHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  lucide.createIcons();
+}
+
+// Get CSS class for requirement status
+function getReqStatusClass(status) {
+  const classes = {
+    'pending': 'bg-yellow-50 text-yellow-700',
+    'notified': 'bg-blue-50 text-blue-700',
+    'submitted': 'bg-green-50 text-green-700',
+    'waived': 'bg-gray-50 text-gray-700'
+  };
+  return classes[status] || 'bg-gray-50 text-gray-700';
+}
+
+// Update requirement statistics
+function updateRequirementStats(students) {
+  let total = 0, pending = 0, notified = 0, submitted = 0;
+  
+  students.forEach(student => {
+    student.requirements.forEach(req => {
+      total++;
+      if (req.status === 'pending') pending++;
+      else if (req.status === 'notified') notified++;
+      else if (req.status === 'submitted') submitted++;
+    });
+  });
+  
+  document.getElementById('reqTotalCount').textContent = total;
+  document.getElementById('reqPendingCount').textContent = pending;
+  document.getElementById('reqNotifiedCount').textContent = notified;
+  document.getElementById('reqSubmittedCount').textContent = submitted;
+}
+
+// Load requirement types for dropdowns
+async function loadRequirementTypes() {
+  try {
+    const response = await fetch('/admin-panel/api/requirements/types/', {
+      method: 'GET',
+      headers: { 'X-CSRFToken': getCSRFToken() }
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      populateRequirementDropdowns(data.data);
+    }
+  } catch (error) {
+    console.error('Error loading requirement types:', error);
+  }
+}
+
+// Populate requirement dropdowns
+function populateRequirementDropdowns(types) {
+  const select = document.getElementById('addReqRequirementSelect');
+  select.innerHTML = '<option value="">-- Select a requirement --</option>' + 
+    types.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+}
+
+// Open add requirement modal
+async function openAddRequirementModal() {
+  // Load all students
+  try {
+    const response = await fetch('/admin-panel/api/students/all/', {
+      method: 'GET',
+      headers: { 'X-CSRFToken': getCSRFToken() }
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      const select = document.getElementById('addReqStudentSelect');
+      select.innerHTML = '<option value="">-- Select a student --</option>' + 
+        data.data.map(s => `<option value="${s.user_id}">${s.full_name} (${s.email})</option>`).join('');
+    }
+  } catch (error) {
+    console.error('Error loading students:', error);
+  }
+  
+  // Load requirement types
+  await loadRequirementTypes();
+  
+  // Clear form
+  document.getElementById('addReqNotes').value = '';
+  document.getElementById('addReqError').classList.add('hidden');
+  
+  // Show modal
+  document.getElementById('addRequirementModal').style.display = 'flex';
+}
+
+function closeAddRequirementModal() {
+  document.getElementById('addRequirementModal').style.display = 'none';
+}
+
+// Save student requirement
+async function saveStudentRequirement() {
+  const studentId = document.getElementById('addReqStudentSelect').value;
+  const requirementId = document.getElementById('addReqRequirementSelect').value;
+  const notes = document.getElementById('addReqNotes').value;
+  const errorEl = document.getElementById('addReqError');
+  
+  if (!studentId || !requirementId) {
+    errorEl.textContent = 'Please select both a student and a requirement.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
+  errorEl.classList.add('hidden');
+  
+  try {
+    const response = await fetch('/admin-panel/api/requirements/add/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: parseInt(studentId),
+        requirement_id: parseInt(requirementId),
+        notes: notes
+      })
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast('Requirement added successfully!', 'success');
+      closeAddRequirementModal();
+      loadStudentsWithRequirements();
+    } else {
+      errorEl.textContent = data.message;
+      errorEl.classList.remove('hidden');
+    }
+  } catch (error) {
+    errorEl.textContent = 'An error occurred. Please try again.';
+    errorEl.classList.remove('hidden');
+  }
+}
+
+// Remove a student requirement
+async function removeRequirement(requirementId) {
+  if (!confirm('Are you sure you want to remove this requirement?')) return;
+  
+  try {
+    const response = await fetch('/admin-panel/api/requirements/remove/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ student_requirement_id: requirementId })
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast('Requirement removed successfully!', 'success');
+      loadStudentsWithRequirements();
+    } else {
+      showToast('Error: ' + data.message, 'warn');
+    }
+  } catch (error) {
+    showToast('Error removing requirement.', 'warn');
+  }
+}
+
+// Open manage requirements modal
+async function openManageRequirementsModal() {
+  await loadRequirementTypesForManagement();
+  document.getElementById('manageRequirementsModal').style.display = 'flex';
+}
+
+function closeManageRequirementsModal() {
+  document.getElementById('manageRequirementsModal').style.display = 'none';
+}
+
+// Load requirement types for management
+async function loadRequirementTypesForManagement() {
+  try {
+    const response = await fetch('/admin-panel/api/requirements/types/', {
+      method: 'GET',
+      headers: { 'X-CSRFToken': getCSRFToken() }
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      const container = document.getElementById('requirementTypesList');
+      if (data.data.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">No requirement types yet.</p>';
+      } else {
+        container.innerHTML = data.data.map(t => `
+          <div class="flex items-center justify-between p-2 border border-gray-100 rounded-lg">
+            <div>
+              <p class="text-sm font-medium text-gray-800">${t.name}</p>
+              <p class="text-xs text-gray-400">${t.description || ''}</p>
+            </div>
+            <button onclick="deleteRequirementType(${t.id})" class="text-gray-400 hover:text-red-600">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `).join('');
+        lucide.createIcons();
+      }
+    }
+  } catch (error) {
+    console.error('Error loading requirement types:', error);
+  }
+}
+
+// Create new requirement type
+async function createRequirementType() {
+  const name = document.getElementById('newReqTypeName').value.trim();
+  const errorEl = document.getElementById('manageReqError');
+  
+  if (!name) {
+    errorEl.textContent = 'Please enter a requirement name.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
+  errorEl.classList.add('hidden');
+  
+  try {
+    const response = await fetch('/admin-panel/api/requirements/types/create/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ name: name, description: '' })
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast('Requirement type created!', 'success');
+      document.getElementById('newReqTypeName').value = '';
+      await loadRequirementTypesForManagement();
+      await loadRequirementTypes();
+    } else {
+      errorEl.textContent = data.message;
+      errorEl.classList.remove('hidden');
+    }
+  } catch (error) {
+    errorEl.textContent = 'An error occurred. Please try again.';
+    errorEl.classList.remove('hidden');
+  }
+}
+
+// Delete requirement type
+async function deleteRequirementType(typeId) {
+  if (!confirm('Are you sure you want to delete this requirement type?')) return;
+  
+  try {
+    const response = await fetch('/admin-panel/api/requirements/types/delete/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ requirement_type_id: typeId })
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast('Requirement type deleted!', 'success');
+      await loadRequirementTypesForManagement();
+      await loadRequirementTypes();
+    } else {
+      showToast('Error: ' + data.message, 'warn');
+    }
+  } catch (error) {
+    showToast('Error deleting requirement type.', 'warn');
+  }
+}
+
+// Open notification modal
+async function openNotifyModal() {
+  // Load students with requirements
+  try {
+    const response = await fetch('/admin-panel/api/requirements/students/', {
+      method: 'GET',
+      headers: { 'X-CSRFToken': getCSRFToken() }
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      const container = document.getElementById('notifyStudentList');
+      if (data.data.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">No students with missing requirements.</p>';
+      } else {
+        container.innerHTML = data.data.map(student => {
+          const reqNames = student.requirements.map(r => r.requirement_name).join(', ');
+          return `
+            <div class="flex items-center gap-2 p-2 border border-gray-100 rounded-lg">
+              <input type="checkbox" class="notify-checkbox w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" 
+                data-student-id="${student.user_id}" data-requirements="${student.requirements.map(r => r.id).join(',')}">
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-800">${student.full_name}</p>
+                <p class="text-xs text-gray-400">${reqNames}</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+  } catch (error) {
+    console.error('Error loading students:', error);
+  }
+  
+  document.getElementById('notifyMessage').value = '';
+  document.getElementById('notifyError').classList.add('hidden');
+  document.getElementById('notifyModal').style.display = 'flex';
+}
+
+function closeNotifyModal() {
+  document.getElementById('notifyModal').style.display = 'none';
+}
+
+// Send notifications to selected students
+async function sendNotifications() {
+  const checkboxes = document.querySelectorAll('.notify-checkbox:checked');
+  const message = document.getElementById('notifyMessage').value.trim();
+  const errorEl = document.getElementById('notifyError');
+  
+  if (checkboxes.length === 0) {
+    errorEl.textContent = 'Please select at least one student.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
+  if (!message) {
+    errorEl.textContent = 'Please enter a notification message.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
+  errorEl.classList.add('hidden');
+  
+  // Collect all requirement IDs
+  const requirementIds = [];
+  checkboxes.forEach(cb => {
+    const reqIds = cb.dataset.requirements.split(',');
+    requirementIds.push(...reqIds);
+  });
+  
+  try {
+    const response = await fetch('/admin-panel/api/requirements/notify/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        student_requirement_ids: requirementIds.map(id => parseInt(id)),
+        message: message
+      })
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast(data.message, 'success');
+      closeNotifyModal();
+      loadStudentsWithRequirements();
+    } else {
+      errorEl.textContent = data.message;
+      errorEl.classList.remove('hidden');
+    }
+  } catch (error) {
+    errorEl.textContent = 'An error occurred. Please try again.';
+    errorEl.classList.remove('hidden');
+  }
+}
+
+// Add requirements page to switchPage function
+const originalSwitchPage = switchPage;
+switchPage = function(pageId, el) {
+  originalSwitchPage(pageId, el);
+  if (pageId === 'requirements') {
+    initRequirementsPage();
+  }
+};
+
+// Add backdrop close for new modals
+document.addEventListener('DOMContentLoaded', () => {
+  const addReqModal = document.getElementById('addRequirementModal');
+  const manageReqModal = document.getElementById('manageRequirementsModal');
+  const notifyModal = document.getElementById('notifyModal');
+  
+  if (addReqModal) {
+    addReqModal.addEventListener('click', function(e) {
+      if (e.target === this) closeAddRequirementModal();
+    });
+  }
+  if (manageReqModal) {
+    manageReqModal.addEventListener('click', function(e) {
+      if (e.target === this) closeManageRequirementsModal();
+    });
+  }
+  if (notifyModal) {
+    notifyModal.addEventListener('click', function(e) {
+      if (e.target === this) closeNotifyModal();
+    });
+  }
+});
