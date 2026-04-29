@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views.index_views import index
+from .views.index_views import index, about
 from .views.login_views import login_view
 from .views.signup_views import signup_view
 from .views.verify_email_views import verify_email_view
@@ -24,6 +24,7 @@ from .views.api_views import (
 
 urlpatterns = [
     path("", index, name="index"),
+    path("about/", about, name="about"),
     path("login/", login_view, name="login"),
     path("register/", signup_view, name="signup"),
     path("verify/<str:token>/", verify_email_view, name="verify_email"),
