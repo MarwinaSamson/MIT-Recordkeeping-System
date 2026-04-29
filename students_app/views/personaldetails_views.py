@@ -4,6 +4,13 @@ from ..models import PersonalDetails
 
 
 def personal_details(request):
+    # Check if SSO redirect URL is set and redirect accordingly
+    # This handles the case where SSO login determined a different redirect path
+    if request.user.is_authenticated and request.method == "GET":
+        redirect_url = request.session.pop('_redirect_after_login', None)
+        if redirect_url and redirect_url != request.path:
+            return redirect(redirect_url)
+    
     errors = {}
     form_data = {}
 
