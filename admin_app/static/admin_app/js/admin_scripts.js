@@ -75,6 +75,10 @@ function switchPage(pageId,el){
   if(pageId==='students')  renderStudents();
   if(pageId==='history')   renderHistory();
   if(pageId==='dashboard') renderDashboard();
+  if(pageId==='school-year') {
+    renderSchoolYears('active');
+    filterArchivedYears();
+  }
   lucide.createIcons();
 }
 
