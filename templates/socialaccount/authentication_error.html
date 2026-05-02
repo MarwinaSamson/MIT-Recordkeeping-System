@@ -1,0 +1,134 @@
+{% load i18n %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% trans "Authentication Error" %} - Graduate School Admission
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: "#A02724",
+              beige: "#F5F0EB",
+            },
+            fontFamily: {
+              heading: ["Merriweather", "serif"],
+              body: ['"Source Sans 3"', "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Source Sans 3", sans-serif;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: "Merriweather", serif;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-beige flex items-center justify-center px-4">
+    <div class="max-w-md w-full">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-brand mb-2">
+          {% trans "Authentication Error" %}
+        </h1>
+        <p class="text-gray-600 text-sm">
+          {% trans "We encountered an error during sign in" %}
+        </p>
+      </div>
+
+      <!-- Card -->
+      <div class="bg-white rounded-2xl shadow-lg p-8 space-y-6">
+        <!-- Error Icon -->
+        <div class="flex justify-center">
+          <div
+            class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center"
+          >
+            <svg
+              class="w-8 h-8 text-red-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div class="text-center space-y-2">
+          <p class="text-gray-700 font-medium">
+            {% trans "Authentication Failed" %}
+          </p>
+          <p class="text-sm text-gray-500">
+            {% trans "There was a problem signing you in with Google. Please try
+            again or contact support if the issue persists." %}
+          </p>
+        </div>
+
+        <!-- Error Details -->
+        {% if exception %}
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p class="text-xs text-red-700">
+            <strong>{% trans "Error Details:" %}</strong> {{ exception }}
+          </p>
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="space-y-3">
+          <a
+            href="{% url 'login' %}"
+            class="block w-full px-6 py-3 bg-brand text-white font-semibold rounded-lg hover:opacity-90 active:scale-[0.98] transition shadow-md text-center"
+          >
+            {% trans "Try Again" %}
+          </a>
+          <a
+            href="{% url 'signup' %}"
+            class="block w-full px-6 py-3 text-center border-2 border-brand text-brand font-semibold rounded-lg hover:bg-brand/5 active:scale-[0.98] transition"
+          >
+            {% trans "Sign Up Instead" %}
+          </a>
+        </div>
+
+        <!-- Footer Info -->
+        <div
+          class="text-center text-xs text-gray-500 pt-4 border-t border-gray-200"
+        >
+          <p>{% trans "Contact support if you need help" %}</p>
+        </div>
+      </div>
+
+      <!-- Help Link -->
+      <div class="text-center mt-6">
+        <p class="text-sm text-gray-600">
+          <a
+            href="{% url 'index' %}"
+            class="text-brand font-semibold hover:underline"
+          >
+            {% trans "Back to Home" %}
+          </a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

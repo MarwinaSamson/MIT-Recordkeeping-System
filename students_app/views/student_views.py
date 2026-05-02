@@ -41,7 +41,20 @@ def student(request):
     education = EducationalBackground.objects.filter(user=request.user)
     working = WorkingStudent.objects.filter(user=request.user).first()
     documents = Document.objects.filter(user=request.user)
-    privacy = PrivacyConsent.objects.filter(user=request.user).order_by("-updated_at").first()
+    privacy = PrivacyConsent.objects.filter(
+        user=request.user).order_by("-updated_at").first()
+
+    # Get application for status
+    from admin_app.models import Application, DocumentVerification
+    application = Application.objects.filter(user=request.user).first()
+
+    # Calculate document verification counts
+    verified_count = DocumentVerification.objects.filter(
+        document__user=request.user, status='verified'
+    ).count()
+    reviewing_count = DocumentVerification.objects.filter(
+        document__user=request.user, status='reviewing'
+    ).count()
 
     document_files = {
         "deansRec": None,
@@ -95,6 +108,8 @@ def student(request):
         "document_files": document_files,
         "uploaded_documents": documents.count(),
         "required_documents": len(document_files),
+        "verified_documents": verified_count,
+        "reviewing_documents": reviewing_count,
         "full_name": full_name,
         "initials": initials,
         "undergrad_school": education_summary["college"],
@@ -102,7 +117,9 @@ def student(request):
         "personal_json": json.dumps(personal_json),
         "document_files_json": json.dumps(document_files),
         "document_urls_json": json.dumps(document_urls),
+        "application": application,
+        "application_status": application.status if application else "pending",
+        "submission_deadline": application.submission_deadline.strftime('%B %d, %Y') if application and application.submission_deadline else "TBA",
     }
 
     return render(request, "students_app/student.html", context)
- 

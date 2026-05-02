@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
 
     "students_app",
+    "admin_app",
 ]
 
 # Authentication Backends
@@ -62,6 +63,14 @@ ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
+# Social Account Settings
+# Skip email verification for social accounts (Google already verified)
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+# Allow auto signup for social accounts
+SOCIALACCOUNT_AUTO_SIGNUP = True
+# Automatically connect social accounts to existing users by email
+SOCIALACCOUNT_EMAIL_REQUIRED = True
+
 # Custom adapters
 ACCOUNT_ADAPTER = "students_app.adapters.AccountAdapter"
 SOCIALACCOUNT_ADAPTER = "students_app.adapters.SocialAccountAdapter"
@@ -72,11 +81,6 @@ SOCIALACCOUNT_ADAPTER = "students_app.adapters.SocialAccountAdapter"
 # This is the recommended approach for django-allauth 0.61+
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
-        "APP": {
-            "client_id": "268150191505-7j2dc1d0jnd89at95qhp1f9o4cmm2rp8.apps.googleusercontent.com",
-            "secret": "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",
-            "key": "",
-        },
         "SCOPE": [
             "profile",
             "email",
@@ -90,6 +94,8 @@ SOCIALACCOUNT_PROVIDERS = {
 # Login redirect URLs
 LOGIN_REDIRECT_URL = "/personalDetails/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/login/"
+
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -131,7 +137,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "mit_recordkeeping_db",
         "USER": "postgres",
-        "PASSWORD": "060104",
+        "PASSWORD": "011304",
         "HOST": "localhost",
         "PORT": "5432",
     }

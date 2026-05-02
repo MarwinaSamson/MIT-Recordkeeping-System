@@ -242,7 +242,7 @@
       white-space: nowrap;
     }
 
-    #printForm .checkbox-item input[type=checkbox] {
+    #printForm .checkbox-item input[type="checkbox"] {
       width: 10px;
       height: 10px;
     }
@@ -331,26 +331,47 @@
 
   <!-- ===== OFFICIAL WMSU PRINT FORM (shown only during print) ===== -->
   <div id="printForm">
-    <div style="position:relative;">
-      <div class="ref-code">WMSU-AO-FR-002 01<br>EFFECTIVE DATE: 03-JULY-2023</div>
+    <div style="position: relative">
+      <div class="ref-code">
+        WMSU-AO-FR-002 01<br />EFFECTIVE DATE: 03-JULY-2023
+      </div>
       <div class="form-header">
         <div class="photo-box" id="pfPhotoBox">
-          <img id="pfPhotoImg" style="width:100%;height:100%;object-fit:cover;display:none;">
-          <span id="pfPhotoText">1 x 1<br>photo<br>with white<br>background</span>
+          <img id="pfPhotoImg" style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: none;
+              " />
+          <span id="pfPhotoText">1 x 1<br />photo<br />with white<br />background</span>
         </div>
         <div class="logo-row">
-          <div class="logo-placeholder" id="pfLogoWmsu" style="overflow:hidden;">
-            <img id="pfLogoWmsuImg" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:none;">
-            <span id="pfLogoWmsuText">WMSU<br>SEAL</span>
+          <div class="logo-placeholder" id="pfLogoWmsu" style="overflow: hidden">
+            <img id="pfLogoWmsuImg" style="
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                  border-radius: 50%;
+                  display: none;
+                " />
+            <span id="pfLogoWmsuText">WMSU<br />SEAL</span>
           </div>
           <div>
-            <p style="font-size:10pt;font-weight:bold;margin:0;">WESTERN MINDANAO STATE UNIVERSITY</p>
+            <p style="font-size: 10pt; font-weight: bold; margin: 0">
+              WESTERN MINDANAO STATE UNIVERSITY
+            </p>
             <h2>OFFICE OF THE DIRECTOR OF ADMISSIONS</h2>
             <p>Zamboanga City</p>
           </div>
-          <div class="logo-placeholder" id="pfLogoJab" style="overflow:hidden;">
-            <img id="pfLogoJabImg" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:none;">
-            <span id="pfLogoJabText">JAB<br>CERT</span>
+          <div class="logo-placeholder" id="pfLogoJab" style="overflow: hidden">
+            <img id="pfLogoJabImg" style="
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                  border-radius: 50%;
+                  display: none;
+                " />
+            <span id="pfLogoJabText">JAB<br />CERT</span>
           </div>
         </div>
         <h3>ADMISSION FORM FOR GRADUATE STUDENTS</h3>
@@ -360,29 +381,45 @@
     <div class="divider"></div>
 
     <!-- PART I - Left blank for admitting official -->
-    <div class="section-label">Part I. &nbsp;To be filled up by the WMSU admitting official:</div>
-    <div class="field-line">
-      <span class="field-label">COLLEGE:</span><span class="field-value" style="min-width:120px;flex:2;">&nbsp;</span>
-      <span class="field-label">SCHOOL YEAR:</span><span class="field-value" style="max-width:70px;">&nbsp;</span>
-      <span class="field-label">SEMESTER:</span><span class="field-value" style="max-width:50px;">&nbsp;</span>
+    <div class="section-label">
+      Part I. &nbsp;To be filled up by the WMSU admitting official:
     </div>
     <div class="field-line">
-      <span class="field-label">ACADEMIC PROGRAM:</span><span class="field-value">&nbsp;</span>
+      <span class="field-label">COLLEGE:</span>
+      <span class="field-value" style="min-width: 120px; flex: 2">&nbsp;</span>
+      <span class="field-label">SCHOOL YEAR:</span>
+      <span class="field-value" style="max-width: 70px">&nbsp;</span>
+      <span class="field-label">SEMESTER:</span>
+      <span class="field-value" style="max-width: 50px">&nbsp;</span>
     </div>
-    <div class="two-col" style="margin-top:4px;">
+    <div class="field-line">
+      <span class="field-label">ACADEMIC PROGRAM:</span>
+      <span class="field-value">&nbsp;</span>
+    </div>
+    <div class="two-col" style="margin-top: 4px">
       <div>
         <div class="field-label">Type of Admission:</div>
         <div class="checkbox-row">
-          <div class="checkbox-item"><input type="checkbox" disabled> Regular</div>
-          <div class="checkbox-item"><input type="checkbox" disabled> Probational</div>
+          <div class="checkbox-item">
+            <input type="checkbox" disabled /> Regular
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" disabled /> Probational
+          </div>
         </div>
       </div>
       <div>
         <div class="field-label">Enrollment Status</div>
         <div class="checkbox-row">
-          <div class="checkbox-item"><input type="checkbox" disabled> New student</div>
-          <div class="checkbox-item"><input type="checkbox" disabled> Transferee</div>
-          <div class="checkbox-item"><input type="checkbox" disabled> Returning student</div>
+          <div class="checkbox-item">
+            <input type="checkbox" disabled /> New student
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" disabled /> Transferee
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" disabled /> Returning student
+          </div>
         </div>
       </div>
     </div>
@@ -390,65 +427,105 @@
     <div class="divider"></div>
 
     <!-- PART II -->
-    <div class="section-label">Part II. &nbsp;To be filled up by the student <em>(Answers must be written legibly in
-        capital letters)</em></div>
+    <div class="section-label">
+      Part II. &nbsp;To be filled up by the student
+      <em>(Answers must be written legibly in capital letters)</em>
+    </div>
 
     <div class="section-label">Student's Personal Data:</div>
     <div class="two-col">
-      <div class="field-line"><span class="field-label">Family name:</span><span class="field-value" id="pf-ln"></span>
+      <div class="field-line">
+        <span class="field-label">Family name:</span>
+        <span class="field-value" id="pf-ln"></span>
       </div>
-      <div class="field-line"><span class="field-label">Given Name:</span><span class="field-value" id="pf-fn"></span>
-        <span class="field-label">Middle Name:</span><span class="field-value" id="pf-mn"></span>
-      </div>
-    </div>
-    <div class="two-col">
-      <div class="field-line"><span class="field-label">Date of Birth:</span><span class="field-value"
-          id="pf-dob"></span></div>
-      <div class="field-line"><span class="field-label">Age:</span><span class="field-value" id="pf-age"
-          style="max-width:40px;"></span>
-        <span class="field-label">Civil Status:</span><span class="field-value" id="pf-civil"></span>
+      <div class="field-line">
+        <span class="field-label">Given Name:</span>
+        <span class="field-value" id="pf-fn"></span>
+        <span class="field-label">Middle Name:</span>
+        <span class="field-value" id="pf-mn"></span>
       </div>
     </div>
     <div class="two-col">
-      <div class="field-line"><span class="field-label">Place of Birth:</span><span class="field-value"
-          id="pf-pob"></span></div>
-      <div class="field-line"><span class="field-label">Gender:</span><span class="field-value" id="pf-gender"></span>
-        <span class="field-label">Religion:</span><span class="field-value" id="pf-religion"></span>
+      <div class="field-line">
+        <span class="field-label">Date of Birth:</span>
+        <span class="field-value" id="pf-dob"></span>
+      </div>
+      <div class="field-line">
+        <span class="field-label">Age:</span>
+        <span class="field-value" id="pf-age" style="max-width: 40px"></span>
+        <span class="field-label">Civil Status:</span>
+        <span class="field-value" id="pf-civil"></span>
       </div>
     </div>
     <div class="two-col">
-      <div class="field-line"><span class="field-label">Ethnicity / Tribe:</span><span class="field-value"
-          id="pf-ethnicity"></span></div>
-      <div class="field-line"><span class="field-label">Nationality:</span><span class="field-value" id="pf-nat"></span>
-        <span class="field-label">Disability (if any):</span><span class="field-value" id="pf-disability"></span>
+      <div class="field-line">
+        <span class="field-label">Place of Birth:</span>
+        <span class="field-value" id="pf-pob"></span>
+      </div>
+      <div class="field-line">
+        <span class="field-label">Gender:</span>
+        <span class="field-value" id="pf-gender"></span>
+        <span class="field-label">Religion:</span>
+        <span class="field-value" id="pf-religion"></span>
       </div>
     </div>
-    <div class="field-line"><span class="field-label">Permanent Address:</span><span class="field-value"
-        id="pf-paddress"></span></div>
-    <div class="field-line"><span class="field-label">Current Address (if different from permanent address):</span><span
-        class="field-value" id="pf-caddress"></span></div>
-
     <div class="two-col">
-      <div class="field-line"><span class="field-label">Telephone/Cellphone No.:</span><span class="field-value"
-          id="pf-contact"></span></div>
-      <div class="field-line"><span class="field-label">Email address:</span><span class="field-value"
-          id="pf-email"></span></div>
+      <div class="field-line">
+        <span class="field-label">Ethnicity / Tribe:</span>
+        <span class="field-value" id="pf-ethnicity"></span>
+      </div>
+      <div class="field-line">
+        <span class="field-label">Nationality:</span>
+        <span class="field-value" id="pf-nat"></span>
+        <span class="field-label">Disability (if any):</span>
+        <span class="field-value" id="pf-disability"></span>
+      </div>
     </div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:baseline;margin:2px 0;">
-      <span class="field-label">Name of Parent or Guardian:</span><span class="field-value" id="pf-parent"
-        style="min-width:80px;flex:2;"></span>
-      <span class="field-label" style="white-space:nowrap;">Relationship:</span><span class="field-value" id="pf-rel"
-        style="min-width:50px;flex:1;"></span>
-      <span class="field-label" style="white-space:nowrap;">Income/mo.:</span><span class="field-value" id="pf-pincome"
-        style="min-width:40px;flex:1;max-width:55px;"></span>
+    <div class="field-line">
+      <span class="field-label">Permanent Address:</span>
+      <span class="field-value" id="pf-paddress"></span>
     </div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:baseline;margin:2px 0;">
-      <span class="field-label">Name of Spouse (if married):</span><span class="field-value" id="pf-spouse"
-        style="min-width:80px;flex:2;"></span>
-      <span class="field-label" style="white-space:nowrap;">Tel phone/CP No.:</span><span class="field-value"
-        id="pf-spcontact" style="min-width:50px;flex:1;"></span>
-      <span class="field-label" style="white-space:nowrap;">Income/mo.:</span><span class="field-value" id="pf-spincome"
-        style="min-width:40px;flex:1;max-width:55px;"></span>
+    <div class="field-line">
+      <span class="field-label">Current Address (if different from permanent address):</span>
+      <span class="field-value" id="pf-caddress"></span>
+    </div>
+    <div class="two-col">
+      <div class="field-line">
+        <span class="field-label">Telephone/Cellphone No.:</span>
+        <span class="field-value" id="pf-contact"></span>
+      </div>
+      <div class="field-line">
+        <span class="field-label">Email address:</span>
+        <span class="field-value" id="pf-email"></span>
+      </div>
+    </div>
+    <div style="
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+          align-items: baseline;
+          margin: 2px 0;
+        ">
+      <span class="field-label">Name of Parent or Guardian:</span>
+      <span class="field-value" id="pf-parent" style="min-width: 80px; flex: 2"></span>
+      <span class="field-label" style="white-space: nowrap">Relationship:</span>
+      <span class="field-value" id="pf-rel" style="min-width: 50px; flex: 1"></span>
+      <span class="field-label" style="white-space: nowrap">Income/mo.:</span>
+      <span class="field-value" id="pf-pincome" style="min-width: 40px; flex: 1; max-width: 55px"></span>
+    </div>
+    <div style="
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+          align-items: baseline;
+          margin: 2px 0;
+        ">
+      <span class="field-label">Name of Spouse (if married):</span>
+      <span class="field-value" id="pf-spouse" style="min-width: 80px; flex: 2"></span>
+      <span class="field-label" style="white-space: nowrap">Tel phone/CP No.:</span>
+      <span class="field-value" id="pf-spcontact" style="min-width: 50px; flex: 1"></span>
+      <span class="field-label" style="white-space: nowrap">Income/mo.:</span>
+      <span class="field-value" id="pf-spincome" style="min-width: 40px; flex: 1; max-width: 55px"></span>
     </div>
 
     <div class="divider"></div>
@@ -458,7 +535,7 @@
     <table>
       <thead>
         <tr>
-          <th style="width:30px;"></th>
+          <th style="width: 30px"></th>
           <th>Name of School</th>
           <th>Course / Degree</th>
           <th>Year Completed</th>
@@ -491,91 +568,165 @@
         </tr>
       </tbody>
     </table>
-    <div class="field-line"><span class="field-label">Scholarship (if any):</span><span class="field-value"
-        id="pf-scholarship"></span></div>
+    <div class="field-line">
+      <span class="field-label">Scholarship (if any):</span>
+      <span class="field-value" id="pf-scholarship"></span>
+    </div>
 
     <div class="divider"></div>
 
     <!-- WORKING STUDENT -->
     <div class="section-label">For working students only:</div>
     <div class="two-col">
-      <div class="field-line"><span class="field-label">Present Position:</span><span class="field-value"
-          id="pf-position"></span></div>
-      <div class="field-line"><span class="field-label">Income/month:</span><span class="field-value"
-          id="pf-wsincome"></span></div>
+      <div class="field-line">
+        <span class="field-label">Present Position:</span>
+        <span class="field-value" id="pf-position"></span>
+      </div>
+      <div class="field-line">
+        <span class="field-label">Income/month:</span>
+        <span class="field-value" id="pf-wsincome"></span>
+      </div>
     </div>
     <div class="field-line">
       <span class="field-label">Employment Status:</span>
       <div class="checkbox-row">
-        <div class="checkbox-item"><input type="checkbox" id="pf-emp-regular" disabled> Regular</div>
-        <div class="checkbox-item"><input type="checkbox" id="pf-emp-casual" disabled> Casual</div>
-        <div class="checkbox-item"><input type="checkbox" id="pf-emp-contractual" disabled> Contractual</div>
-        <div class="checkbox-item"><input type="checkbox" id="pf-emp-others" disabled> Others (Specify) <span
-            class="field-value" id="pf-emp-other-val"
-            style="min-width:60px;display:inline-block;border-bottom:1px solid #000;"></span></div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="pf-emp-regular" disabled /> Regular
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="pf-emp-casual" disabled /> Casual
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="pf-emp-contractual" disabled />
+          Contractual
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="pf-emp-others" disabled /> Others
+          (Specify)
+          <span class="field-value" id="pf-emp-other-val" style="
+                min-width: 60px;
+                display: inline-block;
+                border-bottom: 1px solid #000;
+              "></span>
+        </div>
       </div>
     </div>
-    <div class="field-line"><span class="field-label">Employer:</span><span class="field-value" id="pf-employer"></span>
+    <div class="field-line">
+      <span class="field-label">Employer:</span>
+      <span class="field-value" id="pf-employer"></span>
     </div>
-    <div class="field-line"><span class="field-label">Employer's address:</span><span class="field-value"
-        id="pf-empaddress"></span></div>
+    <div class="field-line">
+      <span class="field-label">Employer's address:</span>
+      <span class="field-value" id="pf-empaddress"></span>
+    </div>
     <div class="field-line">
       <span class="field-label">Employer's classification:</span>
       <div class="checkbox-row">
-        <div class="checkbox-item"><input type="checkbox" id="pf-ec-gov" disabled> Government agency</div>
-        <div class="checkbox-item"><input type="checkbox" id="pf-ec-priv" disabled> Private Company</div>
-        <div class="checkbox-item"><input type="checkbox" id="pf-ec-ngo" disabled> Non-Government Organization</div>
-        <div class="checkbox-item"><input type="checkbox" id="pf-ec-other" disabled> Others (Please specify) <span
-            class="field-value" id="pf-ec-other-val"
-            style="min-width:60px;display:inline-block;border-bottom:1px solid #000;"></span></div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="pf-ec-gov" disabled /> Government agency
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="pf-ec-priv" disabled /> Private Company
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="pf-ec-ngo" disabled /> Non-Government
+          Organization
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="pf-ec-other" disabled /> Others (Please
+          specify)
+          <span class="field-value" id="pf-ec-other-val" style="
+                min-width: 60px;
+                display: inline-block;
+                border-bottom: 1px solid #000;
+              "></span>
+        </div>
       </div>
     </div>
 
     <div class="divider"></div>
 
-    <!-- SIGNATURE AREA - auto-filled from privacy consent -->
-    <div style="display:flex;justify-content:space-between;margin-top:10px;gap:20px;align-items:flex-end;">
-      <div style="flex:2;text-align:center;">
-        <!-- Cursive signature rendered from privacy consent name -->
-        <div id="pf-sig-display"
-          style="min-height:32px;font-family:'Dancing Script',cursive;font-size:18pt;padding-bottom:2px;letter-spacing:1px;">
+    <!-- SIGNATURE AREA -->
+    <div style="
+          display: flex;
+          justify-content: space-between;
+          margin-top: 10px;
+          gap: 20px;
+          align-items: flex-end;
+        ">
+      <div style="flex: 2; text-align: center">
+        <div id="pf-sig-display" style="
+              min-height: 32px;
+              font-family: &quot;Dancing Script&quot;, cursive;
+              font-size: 18pt;
+              padding-bottom: 2px;
+              letter-spacing: 1px;
+            "></div>
+        <div style="border-top: 1px solid #000; padding-top: 3px; font-size: 8pt">
+          Signature of Applicant over Printed Name / Date
         </div>
-        <div style="border-top:1px solid #000;padding-top:3px;font-size:8pt;">Signature of Applicant over Printed Name /
-          Date</div>
-        <div id="pf-sig-date" style="font-size:7.5pt;color:#444;margin-top:2px;"></div>
+        <div id="pf-sig-date" style="font-size: 7.5pt; color: #444; margin-top: 2px"></div>
       </div>
-      <div style="flex:1;text-align:right;">
-        <div id="pf-appid" style="font-size:11pt;font-weight:bold;margin-bottom:2px;"></div>
-        <div style="font-size:8pt;color:#555;">Application No.</div>
+      <div style="flex: 1; text-align: right">
+        <div id="pf-appid" style="font-size: 11pt; font-weight: bold; margin-bottom: 2px"></div>
+        <div style="font-size: 8pt; color: #555">Application No.</div>
       </div>
     </div>
 
     <div class="page-num">Page 1 of 2</div>
 
-    <!-- ===== SEAL IMAGE UPLOAD PANEL (only shown on screen, hidden when printing) ===== -->
-    <div id="sealUploadPanel"
-      style="margin-top:16px;padding:10px;border:1px dashed #aaa;border-radius:6px;font-size:8.5pt;background:#f9f9f9;">
-      <strong style="font-size:9pt;">📎 Upload Official Seal Images (optional)</strong>
-      <p style="margin:4px 0 8px;color:#555;font-size:8pt;">These will appear in the printed form and downloaded PDF
-        instead of the placeholder circles.</p>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;">
-        <label style="cursor:pointer;">
-          <span style="font-weight:bold;">WMSU Seal:</span><br>
-          <input type="file" id="sealWmsuInput" accept="image/*" style="font-size:8pt;margin-top:3px;"><br>
-          <img id="sealWmsuPreview"
-            style="width:55px;height:55px;border-radius:50%;object-fit:cover;border:1px solid #ccc;margin-top:4px;display:none;">
+    <!-- ===== SEAL IMAGE UPLOAD PANEL (screen only, hidden when printing) ===== -->
+    <div id="sealUploadPanel" style="
+          margin-top: 16px;
+          padding: 10px;
+          border: 1px dashed #aaa;
+          border-radius: 6px;
+          font-size: 8.5pt;
+          background: #f9f9f9;
+        ">
+      <strong style="font-size: 9pt">📎 Upload Official Seal Images (optional)</strong>
+      <p style="margin: 4px 0 8px; color: #555; font-size: 8pt">
+        These will appear in the printed form and downloaded PDF instead of
+        the placeholder circles.
+      </p>
+      <div style="display: flex; gap: 16px; flex-wrap: wrap">
+        <label style="cursor: pointer">
+          <span style="font-weight: bold">WMSU Seal:</span><br />
+          <input type="file" id="sealWmsuInput" accept="image/*" style="font-size: 8pt; margin-top: 3px" /><br />
+          <img id="sealWmsuPreview" style="
+                width: 55px;
+                height: 55px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 1px solid #ccc;
+                margin-top: 4px;
+                display: none;
+              " />
         </label>
-        <label style="cursor:pointer;">
-          <span style="font-weight:bold;">JAB Cert Logo:</span><br>
-          <input type="file" id="sealJabInput" accept="image/*" style="font-size:8pt;margin-top:3px;"><br>
-          <img id="sealJabPreview"
-            style="width:45px;height:45px;border-radius:50%;object-fit:cover;border:1px solid #ccc;margin-top:4px;display:none;">
+        <label style="cursor: pointer">
+          <span style="font-weight: bold">JAB Cert Logo:</span><br />
+          <input type="file" id="sealJabInput" accept="image/*" style="font-size: 8pt; margin-top: 3px" /><br />
+          <img id="sealJabPreview" style="
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 1px solid #ccc;
+                margin-top: 4px;
+                display: none;
+              " />
         </label>
-        <label style="cursor:pointer;">
-          <span style="font-weight:bold;">1×1 Photo:</span><br>
-          <input type="file" id="photoInput" accept="image/*" style="font-size:8pt;margin-top:3px;"><br>
-          <img id="photoPreview"
-            style="width:38px;height:45px;object-fit:cover;border:1px solid #ccc;margin-top:4px;display:none;">
+        <label style="cursor: pointer">
+          <span style="font-weight: bold">1×1 Photo:</span><br />
+          <input type="file" id="photoInput" accept="image/*" style="font-size: 8pt; margin-top: 3px" /><br />
+          <img id="photoPreview" style="
+                width: 38px;
+                height: 45px;
+                object-fit: cover;
+                border: 1px solid #ccc;
+                margin-top: 4px;
+                display: none;
+              " />
         </label>
       </div>
     </div>
@@ -624,16 +775,17 @@
         if (done) cc = "bg-green-500 text-white";
         if (cur) cc = "bg-brand text-white shadow-lg scale-110";
         const lc = cur ? "text-brand font-bold" : "text-gray-400";
-        const conn = i < STEPS.length - 1
-          ? `<div class="flex-1 h-1 mx-2 rounded ${n < CURRENT_STEP ? "bg-green-500" : "bg-gray-300"}"></div>`
-          : "";
+        const conn =
+          i < STEPS.length - 1
+            ? `<div class="flex-1 h-1 mx-2 rounded ${n < CURRENT_STEP ? "bg-green-500" : "bg-gray-300"}"></div>`
+            : "";
         return `<div class="flex items-center ${i < STEPS.length - 1 ? "flex-1" : ""}">
-                <div class="flex flex-col items-center">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${cc}">${done ? "✓" : n}</div>
-                    <span class="text-xs mt-2 text-center hidden sm:block max-w-[80px] ${lc}">${step.label}</span>
-                </div>
-                ${conn}
-            </div>`;
+            <div class="flex flex-col items-center">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${cc}">${done ? "✓" : n}</div>
+              <span class="text-xs mt-2 text-center hidden sm:block max-w-[80px] ${lc}">${step.label}</span>
+            </div>
+            ${conn}
+          </div>`;
       }).join("");
     }
     renderProgress();
@@ -665,12 +817,7 @@
 
     function getFullName() {
       return (
-        [
-          personal.firstName,
-          personal.middleName,
-          personal.lastName,
-          personal.suffix,
-        ]
+        [personal.first_name, personal.middle_name, personal.last_name]
           .filter(Boolean)
           .join(" ") || "Not provided"
       );
@@ -690,33 +837,34 @@
         )
         .map(
           ([label, value]) => `
-                    <div class="border-b border-gray-100 pb-2 last:border-0">
-                        <span class="text-xs text-gray-400 uppercase tracking-wider">${label}</span>
-                        <p class="text-sm font-medium text-gray-800">${value}</p>
-                    </div>
-                `,
+            <div class="border-b border-gray-100 pb-2 last:border-0">
+              <span class="text-xs text-gray-400 uppercase tracking-wider">${label}</span>
+              <p class="text-sm font-medium text-gray-800">${value}</p>
+            </div>
+          `,
         )
         .join("");
 
       if (!rows) return "";
 
       return `
-                <div class="review-section border border-gray-200 rounded-xl p-5 space-y-3 bg-white hover:shadow-md transition-all">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-bold text-brand flex items-center" style="font-family:'Merriweather',serif">
-                            ${iconHtml}${title}
-                        </h3>
-                        <a href="${editPage}" class="text-sm font-semibold text-brand hover:underline flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                            Edit
-                        </a>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
-                        ${rows}
-                    </div>
-                </div>`;
+          <div class="review-section border border-gray-200 rounded-xl p-5 space-y-3 bg-white hover:shadow-md transition-all">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-bold text-brand flex items-center" style="font-family:'Merriweather',serif">
+                ${iconHtml}${title}
+              </h3>
+              <a href="${editPage}" class="text-sm font-semibold text-brand hover:underline flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Edit
+              </a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+              ${rows}
+            </div>
+          </div>`;
     }
 
     // ===== PERSONAL DETAILS SECTION =====
@@ -725,50 +873,50 @@
       ["Date of Birth", personal.dob],
       ["Age", personal.age],
       ["Gender", personal.gender],
-      ["Civil Status", personal.civilStatus],
-      ["Place of Birth", personal.placeOfBirth],
+      ["Civil Status", personal.civil_status],
+      ["Place of Birth", personal.place_of_birth],
       [
         "Religion",
         personal.religion === "Other"
-          ? personal.religionOther
+          ? personal.religion_other
           : personal.religion,
       ],
       [
         "Ethnicity",
         personal.ethnicity === "Other"
-          ? personal.ethnicityOther
+          ? personal.ethnicity_other
           : personal.ethnicity,
       ],
       [
         "Nationality",
         personal.nationality === "Other"
-          ? personal.nationalityOther
+          ? personal.nationality_other
           : personal.nationality,
       ],
       [
         "Disability",
         personal.disability === "Other"
-          ? personal.disabilityOther
+          ? personal.disability_other
           : personal.disability,
       ],
-      ["Permanent Address", personal.permanentAddress],
+      ["Permanent Address", personal.permanent_address],
       [
         "Current Address",
-        personal.currentAddress || personal.permanentAddress,
+        personal.current_address || personal.permanent_address,
       ],
-      ["Contact Number", personal.contactNumber],
+      ["Contact Number", personal.contact_number],
       ["Email Address", personal.email],
-      ["Name of Parent", personal.nameOfParent],
+      ["Name of Parent", personal.name_of_parent],
       ["Parent Relationship", personal.relationship],
       [
         "Parent Monthly Income",
-        personal.parentIncome ? `₱${personal.parentIncome}` : null,
+        personal.parent_income ? `₱${personal.parent_income}` : null,
       ],
-      ["Name of Spouse", personal.nameOfSpouse],
-      ["Spouse Contact", personal.spouseContactNumber],
+      ["Name of Spouse", personal.name_of_spouse],
+      ["Spouse Contact", personal.spouse_contact_number],
       [
         "Spouse Monthly Income",
-        personal.spouseIncome ? `₱${personal.spouseIncome}` : null,
+        personal.spouse_income ? `₱${personal.spouse_income}` : null,
       ],
     ];
 
@@ -898,15 +1046,117 @@
 
     // ===== SUBMIT FUNCTION =====
     function submitApplication() {
-      const submissionData = {
-        submittedAt: new Date().toISOString(),
-        fullName: getFullName(),
-        email: personal.email,
-        applicationId:
-          "WMSU-GS-" + Math.random().toString(36).substr(2, 9).toUpperCase(),
+      // Disable button to prevent double submission
+      const submitBtn = document.querySelector(
+        'button[onclick="submitApplication()"]',
+      );
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+      }
+
+      // Prepare the data payload for the backend
+      const payloadData = {
+        personalDetails: {
+          first_name: personal.first_name || "",
+          middle_name: personal.middle_name || "",
+          last_name: personal.last_name || "",
+          dob: personal.dob || "",
+          age: personal.age || "",
+          gender: personal.gender || "",
+          civil_status: personal.civil_status || "",
+          place_of_birth: personal.place_of_birth || "",
+          religion: personal.religion || "",
+          religion_other: personal.religion_other || "",
+          ethnicity: personal.ethnicity || "",
+          ethnicity_other: personal.ethnicity_other || "",
+          nationality: personal.nationality || "",
+          nationality_other: personal.nationality_other || "",
+          disability: personal.disability || "",
+          disability_other: personal.disability_other || "",
+          permanent_address: personal.permanent_address || "",
+          current_address: personal.current_address || "",
+          contact_number: personal.contact_number || "",
+          email: personal.email || "",
+          name_of_parent: personal.name_of_parent || "",
+          relationship: personal.relationship || "",
+          parent_income: personal.parent_income || "",
+          name_of_spouse: personal.name_of_spouse || "",
+          spouse_contact_number: personal.spouse_contact_number || "",
+          spouse_income: personal.spouse_income || "",
+        },
+        educationalBackground: {
+          program: education.program || "",
+        },
       };
-      localStorage.setItem("submissionData", JSON.stringify(submissionData));
-      document.getElementById("modal").classList.remove("hidden");
+
+      // Send POST request to the backend API
+      fetch("/api/submit-application/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify(payloadData),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            // Save submission data to localStorage for the success modal
+            const submissionData = {
+              submittedAt: new Date().toISOString(),
+              fullName: getFullName(),
+              email: personal.email,
+              applicationId: data.application_id,
+            };
+            localStorage.setItem(
+              "submissionData",
+              JSON.stringify(submissionData),
+            );
+
+            // Show success modal
+            document.getElementById("modal").classList.remove("hidden");
+          } else {
+            // Show error message
+            alert(
+              "Error submitting application: " +
+              (data.message || "Unknown error"),
+            );
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML =
+                '<i class="fas fa-paper-plane"></i> Submit Application';
+            }
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Error submitting application: " + error.message);
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML =
+              '<i class="fas fa-paper-plane"></i> Submit Application';
+          }
+        });
+    }
+
+    // Helper function to get CSRF token from cookies
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(
+              cookie.substring(name.length + 1),
+            );
+            break;
+          }
+        }
+      }
+      return cookieValue;
     }
 
     function finishSubmission() {
@@ -932,104 +1182,130 @@
       }
     });
 
-    // ===== IMAGE HANDLING - Load admin seals on page load =====
-    let sealWmsuB64 = localStorage.getItem('sealWmsu') || null;
-    let sealJabB64 = localStorage.getItem('sealJab') || null;
-    let photoB64 = localStorage.getItem('applicantPhoto') || null;
+    // ===== IMAGE HANDLING =====
+    let sealWmsuB64 = localStorage.getItem("sealWmsu") || null;
+    let sealJabB64 = localStorage.getItem("sealJab") || null;
+    let photoB64 = localStorage.getItem("applicantPhoto") || null;
 
-    // Server-provided seal URLs
     const WMSU_SEAL_URL = "{{ wmsu_seal_url }}";
     const JAB_SEAL_URL = "{{ jab_seal_url }}";
 
     function readFileAsB64(file, callback) {
       const r = new FileReader();
-      r.onload = e => callback(e.target.result);
+      r.onload = (e) => callback(e.target.result);
       r.readAsDataURL(file);
     }
 
-    // Load school seals from server
     async function loadSchoolSeals() {
       try {
         if (WMSU_SEAL_URL && !sealWmsuB64) {
           const response = await fetch(WMSU_SEAL_URL);
           if (response.ok) {
-            sealWmsuB64 = await response.blob().then(blob => 
-              new Promise(resolve => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(blob);
-              })
+            sealWmsuB64 = await response.blob().then(
+              (blob) =>
+                new Promise((resolve) => {
+                  const reader = new FileReader();
+                  reader.onloadend = () => resolve(reader.result);
+                  reader.readAsDataURL(blob);
+                }),
             );
           }
         }
         if (JAB_SEAL_URL && !sealJabB64) {
           const response = await fetch(JAB_SEAL_URL);
           if (response.ok) {
-            sealJabB64 = await response.blob().then(blob =>
-              new Promise(resolve => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(blob);
-              })
+            sealJabB64 = await response.blob().then(
+              (blob) =>
+                new Promise((resolve) => {
+                  const reader = new FileReader();
+                  reader.onloadend = () => resolve(reader.result);
+                  reader.readAsDataURL(blob);
+                }),
             );
           }
         }
         applyImages();
       } catch (error) {
-        console.log('School seals loaded successfully');
+        console.log("School seals loaded successfully");
       }
     }
 
     function applyImages() {
       if (sealWmsuB64) {
-        const img = document.getElementById('pfLogoWmsuImg');
-        const txt = document.getElementById('pfLogoWmsuText');
-        img.src = sealWmsuB64; img.style.display = 'block'; if (txt) txt.style.display = 'none';
-        const prev = document.getElementById('sealWmsuPreview');
-        if (prev) { prev.src = sealWmsuB64; prev.style.display = 'block'; }
+        const img = document.getElementById("pfLogoWmsuImg");
+        const txt = document.getElementById("pfLogoWmsuText");
+        img.src = sealWmsuB64;
+        img.style.display = "block";
+        if (txt) txt.style.display = "none";
+        const prev = document.getElementById("sealWmsuPreview");
+        if (prev) {
+          prev.src = sealWmsuB64;
+          prev.style.display = "block";
+        }
       }
       if (sealJabB64) {
-        const img = document.getElementById('pfLogoJabImg');
-        const txt = document.getElementById('pfLogoJabText');
-        img.src = sealJabB64; img.style.display = 'block'; if (txt) txt.style.display = 'none';
-        const prev = document.getElementById('sealJabPreview');
-        if (prev) { prev.src = sealJabB64; prev.style.display = 'block'; }
+        const img = document.getElementById("pfLogoJabImg");
+        const txt = document.getElementById("pfLogoJabText");
+        img.src = sealJabB64;
+        img.style.display = "block";
+        if (txt) txt.style.display = "none";
+        const prev = document.getElementById("sealJabPreview");
+        if (prev) {
+          prev.src = sealJabB64;
+          prev.style.display = "block";
+        }
       }
       if (photoB64) {
-        const img = document.getElementById('pfPhotoImg');
-        const txt = document.getElementById('pfPhotoText');
-        img.src = photoB64; img.style.display = 'block'; if (txt) txt.style.display = 'none';
-        const prev = document.getElementById('photoPreview');
-        if (prev) { prev.src = photoB64; prev.style.display = 'block'; }
+        const img = document.getElementById("pfPhotoImg");
+        const txt = document.getElementById("pfPhotoText");
+        img.src = photoB64;
+        img.style.display = "block";
+        if (txt) txt.style.display = "none";
+        const prev = document.getElementById("photoPreview");
+        if (prev) {
+          prev.src = photoB64;
+          prev.style.display = "block";
+        }
       }
     }
 
-    document.getElementById('sealWmsuInput').addEventListener('change', function (e) {
-      if (!e.target.files[0]) return;
-      readFileAsB64(e.target.files[0], b64 => {
-        sealWmsuB64 = b64; localStorage.setItem('sealWmsu', b64); applyImages();
+    document
+      .getElementById("sealWmsuInput")
+      .addEventListener("change", function (e) {
+        if (!e.target.files[0]) return;
+        readFileAsB64(e.target.files[0], (b64) => {
+          sealWmsuB64 = b64;
+          localStorage.setItem("sealWmsu", b64);
+          applyImages();
+        });
       });
-    });
-    document.getElementById('sealJabInput').addEventListener('change', function (e) {
-      if (!e.target.files[0]) return;
-      readFileAsB64(e.target.files[0], b64 => {
-        sealJabB64 = b64; localStorage.setItem('sealJab', b64); applyImages();
+    document
+      .getElementById("sealJabInput")
+      .addEventListener("change", function (e) {
+        if (!e.target.files[0]) return;
+        readFileAsB64(e.target.files[0], (b64) => {
+          sealJabB64 = b64;
+          localStorage.setItem("sealJab", b64);
+          applyImages();
+        });
       });
-    });
-    document.getElementById('photoInput').addEventListener('change', function (e) {
-      if (!e.target.files[0]) return;
-      readFileAsB64(e.target.files[0], b64 => {
-        photoB64 = b64; localStorage.setItem('applicantPhoto', b64); applyImages();
+    document
+      .getElementById("photoInput")
+      .addEventListener("change", function (e) {
+        if (!e.target.files[0]) return;
+        readFileAsB64(e.target.files[0], (b64) => {
+          photoB64 = b64;
+          localStorage.setItem("applicantPhoto", b64);
+          applyImages();
+        });
       });
-    });
 
-    // Load school seals and apply images (or use saved/uploaded ones)
     loadSchoolSeals();
 
     // ===== POPULATE PRINT FORM =====
     function setText(id, val, fallback) {
       const el = document.getElementById(id);
-      if (el) el.textContent = val || fallback || '';
+      if (el) el.textContent = val || fallback || "";
     }
     function setChecked(id, checked) {
       const el = document.getElementById(id);
@@ -1037,421 +1313,675 @@
     }
 
     function populatePrintForm() {
-      // Personal Data
-      setText('pf-ln', personal.lastName);
-      setText('pf-fn', personal.firstName);
-      setText('pf-mn', personal.middleName);
-      setText('pf-dob', personal.dob);
-      setText('pf-age', personal.age);
-      setText('pf-civil', personal.civilStatus);
-      setText('pf-pob', personal.placeOfBirth);
-      setText('pf-gender', personal.gender);
-      setText('pf-religion', personal.religion === 'Other' ? personal.religionOther : personal.religion);
-      setText('pf-ethnicity', personal.ethnicity === 'Other' ? personal.ethnicityOther : personal.ethnicity);
-      setText('pf-nat', personal.nationality === 'Other' ? personal.nationalityOther : personal.nationality);
-      setText('pf-disability', personal.disability === 'Other' ? personal.disabilityOther : personal.disability);
-      setText('pf-paddress', personal.permanentAddress);
-      setText('pf-caddress', personal.currentAddress || '');
-      setText('pf-contact', personal.contactNumber);
-      setText('pf-email', personal.email);
-      setText('pf-parent', personal.nameOfParent);
-      setText('pf-rel', personal.relationship);
-      setText('pf-pincome', personal.parentIncome ? '₱' + personal.parentIncome : '');
-      setText('pf-spouse', personal.nameOfSpouse);
-      setText('pf-spcontact', personal.spouseContactNumber);
-      setText('pf-spincome', personal.spouseIncome ? '₱' + personal.spouseIncome : '');
+      setText("pf-ln", personal.last_name);
+      setText("pf-fn", personal.first_name);
+      setText("pf-mn", personal.middle_name);
+      setText("pf-dob", personal.dob);
+      setText("pf-age", personal.age);
+      setText("pf-civil", personal.civil_status);
+      setText("pf-pob", personal.place_of_birth);
+      setText("pf-gender", personal.gender);
+      setText(
+        "pf-religion",
+        personal.religion === "Other"
+          ? personal.religion_other
+          : personal.religion,
+      );
+      setText(
+        "pf-ethnicity",
+        personal.ethnicity === "Other"
+          ? personal.ethnicity_other
+          : personal.ethnicity,
+      );
+      setText(
+        "pf-nat",
+        personal.nationality === "Other"
+          ? personal.nationality_other
+          : personal.nationality,
+      );
+      setText(
+        "pf-disability",
+        personal.disability === "Other"
+          ? personal.disability_other
+          : personal.disability,
+      );
+      setText("pf-paddress", personal.permanent_address);
+      setText("pf-caddress", personal.current_address || "");
+      setText("pf-contact", personal.contact_number);
+      setText("pf-email", personal.email);
+      setText("pf-parent", personal.name_of_parent);
+      setText("pf-rel", personal.relationship);
+      setText(
+        "pf-pincome",
+        personal.parent_income ? "₱" + personal.parent_income : "",
+      );
+      setText("pf-spouse", personal.name_of_spouse);
+      setText("pf-spcontact", personal.spouse_contact_number);
+      setText(
+        "pf-spincome",
+        personal.spouse_income ? "₱" + personal.spouse_income : "",
+      );
 
-      // Education
-      const edLevels = { elem: 'elementary', sec: 'secondary', col: 'college', grad: 'graduate' };
+      const edLevels = {
+        elem: "elementary",
+        sec: "secondary",
+        col: "college",
+        grad: "graduate",
+      };
       Object.entries(edLevels).forEach(([prefix, key]) => {
         const d = education[key] || {};
         setText(`pf-${prefix}-school`, d.schoolName);
         setText(`pf-${prefix}-degree`, d.degree);
         setText(`pf-${prefix}-year`, d.yearCompleted);
       });
-      setText('pf-scholarship', education.scholarship);
+      setText("pf-scholarship", education.scholarship);
 
-      // Working Student
-      setText('pf-position', working.position);
-      setText('pf-wsincome', working.monthlyIncome ? '₱' + working.monthlyIncome : '');
-      const empStatus = working.employmentStatus === 'Other' ? null : working.employmentStatus;
-      setChecked('pf-emp-regular', empStatus === 'Regular');
-      setChecked('pf-emp-casual', empStatus === 'Casual');
-      setChecked('pf-emp-contractual', empStatus === 'Contractual');
-      const isOtherEmp = working.employmentStatus === 'Other';
-      setChecked('pf-emp-others', isOtherEmp);
-      setText('pf-emp-other-val', isOtherEmp ? working.employmentStatusOther : '');
-      setText('pf-employer', working.employerName);
-      setText('pf-empaddress', working.employerAddress);
+      setText("pf-position", working.position);
+      setText(
+        "pf-wsincome",
+        working.monthlyIncome ? "₱" + working.monthlyIncome : "",
+      );
+      const empStatus =
+        working.employmentStatus === "Other"
+          ? null
+          : working.employmentStatus;
+      setChecked("pf-emp-regular", empStatus === "Regular");
+      setChecked("pf-emp-casual", empStatus === "Casual");
+      setChecked("pf-emp-contractual", empStatus === "Contractual");
+      const isOtherEmp = working.employmentStatus === "Other";
+      setChecked("pf-emp-others", isOtherEmp);
+      setText(
+        "pf-emp-other-val",
+        isOtherEmp ? working.employmentStatusOther : "",
+      );
+      setText("pf-employer", working.employerName);
+      setText("pf-empaddress", working.employerAddress);
 
-      const empClass = working.employerClassification === 'Other' ? null : working.employerClassification;
-      setChecked('pf-ec-gov', empClass === 'Government agency');
-      setChecked('pf-ec-priv', empClass === 'Private Company');
-      setChecked('pf-ec-ngo', empClass === 'Non-Government Organization');
-      const isOtherEc = working.employerClassification === 'Other';
-      setChecked('pf-ec-other', isOtherEc);
-      setText('pf-ec-other-val', isOtherEc ? working.employerClassificationOther : '');
+      const empClass =
+        working.employerClassification === "Other"
+          ? null
+          : working.employerClassification;
+      setChecked("pf-ec-gov", empClass === "Government agency");
+      setChecked("pf-ec-priv", empClass === "Private Company");
+      setChecked("pf-ec-ngo", empClass === "Non-Government Organization");
+      const isOtherEc = working.employerClassification === "Other";
+      setChecked("pf-ec-other", isOtherEc);
+      setText(
+        "pf-ec-other-val",
+        isOtherEc ? working.employerClassificationOther : "",
+      );
 
-      // App ID
-      const existingSub = JSON.parse(localStorage.getItem('submissionData') || 'null');
-      setText('pf-appid', existingSub ? existingSub.applicationId : ('WMSU-GS-' + Math.random().toString(36).substr(2, 9).toUpperCase()));
+      const existingSub = JSON.parse(
+        localStorage.getItem("submissionData") || "null",
+      );
+      setText(
+        "pf-appid",
+        existingSub ? existingSub.applicationId : "MIT-PENDING",
+      );
 
-      // ===== AUTO-SIGNATURE from privacy consent =====
+      // Auto-signature from privacy consent
       const consentData = privacyConsent || privacySignature;
-      const sigDisplay = document.getElementById('pf-sig-display');
-      const sigDate = document.getElementById('pf-sig-date');
+      const sigDisplay = document.getElementById("pf-sig-display");
+      const sigDate = document.getElementById("pf-sig-date");
       if (consentData && sigDisplay) {
-        const sigName = consentData.name || getFullName();
-        sigDisplay.textContent = sigName;
+        sigDisplay.textContent = consentData.name || getFullName();
         if (sigDate) {
           const cd = consentData.dateAgreed || consentData.date;
-          const dateStr = cd ? new Date(cd).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
-          sigDate.textContent = dateStr;
+          sigDate.textContent = cd
+            ? new Date(cd).toLocaleDateString("en-PH", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
+            : new Date().toLocaleDateString("en-PH", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            });
         }
       } else if (sigDisplay) {
-        // Fallback to applicant name
         sigDisplay.textContent = getFullName();
-        if (sigDate) sigDate.textContent = new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+        if (sigDate)
+          sigDate.textContent = new Date().toLocaleDateString("en-PH", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
       }
     }
 
     populatePrintForm();
 
-    // Fix print button to show print form
-    document.querySelector('button[onclick="window.print()"]').onclick = function () {
-      populatePrintForm();
-      document.getElementById('printForm').style.display = 'block';
-      window.print();
-      setTimeout(() => { document.getElementById('printForm').style.display = 'none'; }, 500);
-    };
+    // Fix print button
+    document.querySelector('button[onclick="window.print()"]').onclick =
+      function () {
+        populatePrintForm();
+        document.getElementById("printForm").style.display = "block";
+        window.print();
+        setTimeout(() => {
+          document.getElementById("printForm").style.display = "none";
+        }, 500);
+      };
 
-    // ===== PDF GENERATION - OFFICIAL WMSU FORM FORMAT =====
-    document.getElementById('downloadPdfBtn').addEventListener('click', function () {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-      const pageW = 210, pageH = 297;
-      const margin = 15, contentW = pageW - margin * 2;
-      let y = 12;
+    // ===== PDF GENERATION =====
+    document
+      .getElementById("downloadPdfBtn")
+      .addEventListener("click", function () {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: "mm", format: "a4" });
+        const pageW = 210,
+          pageH = 297;
+        const margin = 15,
+          contentW = pageW - margin * 2;
+        let y = 12;
 
-      // ---- Helpers ----
-      function line(x1, y1, x2, y2) { doc.line(x1, y1, x2, y2); }
-      function hline(yy) { line(margin, yy, pageW - margin, yy); }
-
-      function txt(text, x, yy, opts) {
-        doc.text(String(text || ''), x, yy, opts || {});
-      }
-
-      function fieldLine(label, value, x, yy, valueWidth) {
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
-        txt(label, x, yy);
-        const lw = doc.getTextWidth(label);
-        doc.setFont('helvetica', 'normal');
-        const vx = x + lw + 1;
-        const vw = valueWidth || 50;
-        const val = value || '';
-        txt(val, vx, yy);
-        line(vx, yy + 0.5, vx + vw, yy + 0.5);
-        return vx + vw + 2;
-      }
-
-      function checkBox(label, checked, x, yy) {
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        txt(checked ? '\u2611' : '\u2610', x, yy);
-        txt(label, x + 5, yy);
-        return x + 5 + doc.getTextWidth(label) + 5;
-      }
-
-      function newPage() {
-        doc.addPage();
-        y = 15;
-      }
-
-      function checkPageBreak(needed) {
-        if (y + needed > pageH - 15) newPage();
-      }
-
-      // ===== HEADER - embed seal images if available =====
-      doc.setFontSize(7); doc.setFont('helvetica', 'normal');
-      txt('WMSU-AO-FR-002 01', pageW - margin, y, { align: 'right' });
-      y += 4;
-      txt('EFFECTIVE DATE: 03-JULY-2023', pageW - margin, y, { align: 'right' });
-      y += 3;
-
-      // Photo box - embed uploaded photo or draw placeholder
-      const pbx = pageW - margin - 22, pby = 10, pbw = 22, pbh = 26;
-      if (photoB64) {
-        try { doc.addImage(photoB64, 'JPEG', pbx, pby, pbw, pbh); } catch (e) { }
-      }
-      doc.rect(pbx, pby, pbw, pbh);
-      if (!photoB64) {
-        doc.setFontSize(6.5);
-        txt('1 x 1', pbx + pbw / 2, pby + 7, { align: 'center' });
-        txt('photo', pbx + pbw / 2, pby + 11, { align: 'center' });
-        txt('with white', pbx + pbw / 2, pby + 15, { align: 'center' });
-        txt('background', pbx + pbw / 2, pby + 19, { align: 'center' });
-      }
-
-      // WMSU Seal
-      const sealY = 10, sealR = 7;
-      if (sealWmsuB64) {
-        try { doc.addImage(sealWmsuB64, 'PNG', margin + 1, sealY, sealR * 2, sealR * 2); } catch (e) {
-          try { doc.addImage(sealWmsuB64, 'JPEG', margin + 1, sealY, sealR * 2, sealR * 2); } catch (e2) { }
+        function line(x1, y1, x2, y2) {
+          doc.line(x1, y1, x2, y2);
         }
-      }
-      doc.circle(margin + 8, sealY + sealR, sealR);
-      if (!sealWmsuB64) {
-        doc.setFontSize(5.5);
-        txt('WMSU', margin + 8, sealY + sealR - 1, { align: 'center' });
-        txt('SEAL', margin + 8, sealY + sealR + 3, { align: 'center' });
-      }
-
-      // JAB Cert
-      if (sealJabB64) {
-        try { doc.addImage(sealJabB64, 'PNG', margin + 19, sealY + 2, 10, 10); } catch (e) {
-          try { doc.addImage(sealJabB64, 'JPEG', margin + 19, sealY + 2, 10, 10); } catch (e2) { }
+        function hline(yy) {
+          line(margin, yy, pageW - margin, yy);
         }
-      }
-      doc.circle(margin + 24, sealY + 7, 5);
-      if (!sealJabB64) {
-        doc.setFontSize(5);
-        txt('JAB', margin + 24, sealY + 6, { align: 'center' });
-        txt('CERT', margin + 24, sealY + 9, { align: 'center' });
-      }
+        function txt(text, x, yy, opts) {
+          doc.text(String(text || ""), x, yy, opts || {});
+        }
 
-      // University name
-      const cx = margin + 33;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9.5);
-      txt('WESTERN MINDANAO STATE UNIVERSITY', cx, 12, {});
-      doc.setFontSize(8.5);
-      txt('OFFICE OF THE DIRECTOR OF ADMISSIONS', cx, 17, {});
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8);
-      txt('Zamboanga City', cx, 22, {});
+        function fieldLine(label, value, x, yy, valueWidth) {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(8);
+          txt(label, x, yy);
+          const lw = doc.getTextWidth(label);
+          doc.setFont("helvetica", "normal");
+          const vx = x + lw + 1;
+          const vw = valueWidth || 50;
+          txt(value || "", vx, yy);
+          line(vx, yy + 0.5, vx + vw, yy + 0.5);
+          return vx + vw + 2;
+        }
 
-      y = 30;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
-      txt('ADMISSION FORM FOR GRADUATE STUDENTS', pageW / 2, y, { align: 'center' });
-      y += 5;
-      hline(y); y += 5;
+        function checkBox(label, checked, x, yy) {
+          doc.setFontSize(8);
+          doc.setFont("helvetica", "normal");
+          txt(checked ? "\u2611" : "\u2610", x, yy);
+          txt(label, x + 5, yy);
+          return x + 5 + doc.getTextWidth(label) + 5;
+        }
 
-      // ===== PART I =====
-      doc.setFontSize(8);
-      txt('Part I.  To be filled up by the WMSU admitting official:', margin, y);
-      y += 5;
+        function newPage() {
+          doc.addPage();
+          y = 15;
+        }
+        function checkPageBreak(needed) {
+          if (y + needed > pageH - 15) newPage();
+        }
 
-      // Part I - leave BLANK for admitting official to fill by hand
-      doc.setFont('helvetica', 'normal');
-      let nx = fieldLine('COLLEGE:', '', margin, y, 55);
-      nx = fieldLine('SCHOOL YEAR:', '', nx, y, 20);
-      fieldLine('SEMESTER:', '', nx, y, 15);
-      y += 5;
-      fieldLine('ACADEMIC PROGRAM:', '', margin, y, 100);
-      y += 7;
-
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
-      txt('Type of Admission:', margin, y);
-      doc.setFont('helvetica', 'normal');
-      let cx2 = margin + 32;
-      cx2 = checkBox('Regular', false, cx2, y);
-      cx2 = checkBox('Probational', false, cx2, y);
-      const exs = 120;
-      txt('Enrollment Status', exs, y); doc.setFont('helvetica', 'normal');
-      checkBox('New student', false, exs + 30, y);
-      y += 5;
-      checkBox('Transferee', false, exs + 30, y);
-      y += 5;
-      checkBox('Returning student', false, exs + 30, y);
-      y += 6;
-
-      hline(y); y += 5;
-
-      // ===== PART II =====
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
-      txt('Part II.  To be filled up by the student (Answers must be written legibly in capital letters)', margin, y);
-      y += 5;
-
-      doc.setFont('helvetica', 'bold');
-      txt("Student's Personal Data:", margin, y);
-      y += 5;
-
-      // Row: Family name / Given Name / Middle Name
-      let rx = fieldLine('Family name:', personal.lastName, margin, y, 40);
-      rx = fieldLine('Given Name:', personal.firstName, rx, y, 35);
-      fieldLine('Middle Name:', personal.middleName, rx, y, 25);
-      y += 5;
-
-      // Row: DOB / Age / Civil Status
-      rx = fieldLine('Date of Birth:', personal.dob, margin, y, 30);
-      rx = fieldLine('Age:', personal.age, rx, y, 12);
-      rx = fieldLine('Civil Status:', personal.civilStatus, rx, y, 28);
-      y += 5;
-
-      // Row: Place of Birth / Gender / Religion
-      rx = fieldLine('Place of Birth:', personal.placeOfBirth, margin, y, 38);
-      rx = fieldLine('Gender:', personal.gender, rx, y, 22);
-      fieldLine('Religion:', personal.religion === 'Other' ? personal.religionOther : personal.religion, rx, y, 28);
-      y += 5;
-
-      // Row: Ethnicity / Nationality / Disability
-      rx = fieldLine('Ethnicity / Tribe:', personal.ethnicity === 'Other' ? personal.ethnicityOther : personal.ethnicity, margin, y, 30);
-      rx = fieldLine('Nationality:', personal.nationality === 'Other' ? personal.nationalityOther : personal.nationality, rx, y, 28);
-      fieldLine('Disability (if any):', personal.disability === 'Other' ? personal.disabilityOther : personal.disability, rx, y, 28);
-      y += 5;
-
-      fieldLine('Permanent Address:', personal.permanentAddress, margin, y, contentW - 30);
-      y += 5;
-      fieldLine('Current Address (if different from permanent address):', personal.currentAddress || '', margin, y, 70);
-      y += 6;
-
-      rx = fieldLine('Telephone/Cellphone No.:', personal.contactNumber, margin, y, 35);
-      fieldLine('Email address:', personal.email, rx, y, 55);
-      y += 5;
-
-      // FIXED: income fields each on their own portion with proper spacing
-      rx = fieldLine('Name of Parent or Guardian:', personal.nameOfParent, margin, y, 38);
-      rx = fieldLine('Relationship:', personal.relationship, rx, y, 20);
-      rx = fieldLine('Income/mo.:', '', rx, y, 4); // label+short line
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
-      txt('₱ ' + (personal.parentIncome || ''), rx - 2, y);
-      line(rx - 2, y + 0.5, rx + 18, y + 0.5);
-      y += 5;
-
-      rx = fieldLine('Name of Spouse (if married):', personal.nameOfSpouse, margin, y, 38);
-      rx = fieldLine('Tel phone/CP No.:', personal.spouseContactNumber, rx, y, 22);
-      rx = fieldLine('Income/mo.:', '', rx, y, 4);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
-      txt('₱ ' + (personal.spouseIncome || ''), rx - 2, y);
-      line(rx - 2, y + 0.5, rx + 18, y + 0.5);
-      y += 7;
-
-      // ===== EDUCATIONAL BACKGROUND =====
-      checkPageBreak(55);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
-      txt("Student's Educational Background:", margin, y);
-      y += 5;
-
-      // Education table
-      const colsX = [margin, margin + 35, margin + 105, margin + 155];
-      const colsW = [35, 70, 50, contentW - (155 - margin + 5)];
-      const rowH = 6;
-
-      // Header row
-      doc.setFillColor(230, 230, 230);
-      doc.rect(margin, y, contentW, rowH, 'F');
-      doc.rect(margin, y, contentW, rowH);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
-      ['', 'Name of School', 'Course / Degree', 'Year Completed'].forEach((h, i) => {
-        txt(h, colsX[i] + 1, y + 4.2);
-        if (i > 0) line(colsX[i], y, colsX[i], y + rowH);
-      });
-      y += rowH;
-
-      const eduRows = [
-        ['Elementary', education.elementary],
-        ['Secondary', education.secondary],
-        ['Tertiary', education.college],
-        ['Graduate Studies', education.graduate],
-      ];
-
-      eduRows.forEach(([label, data]) => {
-        doc.rect(margin, y, contentW, rowH);
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
-        txt(label, colsX[0] + 1, y + 4.2);
-        doc.setFont('helvetica', 'normal');
-        colsX.slice(1).forEach((cx3, i) => {
-          line(cx3, y, cx3, y + rowH);
-          const val = data ? [data.schoolName, data.degree, data.yearCompleted][i] || '' : '';
-          txt(val, cx3 + 1, y + 4.2);
+        // Header
+        doc.setFontSize(7);
+        doc.setFont("helvetica", "normal");
+        txt("WMSU-AO-FR-002 01", pageW - margin, y, { align: "right" });
+        y += 4;
+        txt("EFFECTIVE DATE: 03-JULY-2023", pageW - margin, y, {
+          align: "right",
         });
+        y += 3;
+
+        const pbx = pageW - margin - 22,
+          pby = 10,
+          pbw = 22,
+          pbh = 26;
+        if (photoB64) {
+          try {
+            doc.addImage(photoB64, "JPEG", pbx, pby, pbw, pbh);
+          } catch (e) { }
+        }
+        doc.rect(pbx, pby, pbw, pbh);
+        if (!photoB64) {
+          doc.setFontSize(6.5);
+          txt("1 x 1", pbx + pbw / 2, pby + 7, { align: "center" });
+          txt("photo", pbx + pbw / 2, pby + 11, { align: "center" });
+          txt("with white", pbx + pbw / 2, pby + 15, { align: "center" });
+          txt("background", pbx + pbw / 2, pby + 19, { align: "center" });
+        }
+
+        const sealY = 10,
+          sealR = 7;
+        if (sealWmsuB64) {
+          try {
+            doc.addImage(
+              sealWmsuB64,
+              "PNG",
+              margin + 1,
+              sealY,
+              sealR * 2,
+              sealR * 2,
+            );
+          } catch (e) {
+            try {
+              doc.addImage(
+                sealWmsuB64,
+                "JPEG",
+                margin + 1,
+                sealY,
+                sealR * 2,
+                sealR * 2,
+              );
+            } catch (e2) { }
+          }
+        }
+        doc.circle(margin + 8, sealY + sealR, sealR);
+        if (!sealWmsuB64) {
+          doc.setFontSize(5.5);
+          txt("WMSU", margin + 8, sealY + sealR - 1, { align: "center" });
+          txt("SEAL", margin + 8, sealY + sealR + 3, { align: "center" });
+        }
+
+        if (sealJabB64) {
+          try {
+            doc.addImage(sealJabB64, "PNG", margin + 19, sealY + 2, 10, 10);
+          } catch (e) {
+            try {
+              doc.addImage(
+                sealJabB64,
+                "JPEG",
+                margin + 19,
+                sealY + 2,
+                10,
+                10,
+              );
+            } catch (e2) { }
+          }
+        }
+        doc.circle(margin + 24, sealY + 7, 5);
+        if (!sealJabB64) {
+          doc.setFontSize(5);
+          txt("JAB", margin + 24, sealY + 6, { align: "center" });
+          txt("CERT", margin + 24, sealY + 9, { align: "center" });
+        }
+
+        const cx = margin + 33;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9.5);
+        txt("WESTERN MINDANAO STATE UNIVERSITY", cx, 12);
+        doc.setFontSize(8.5);
+        txt("OFFICE OF THE DIRECTOR OF ADMISSIONS", cx, 17);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        txt("Zamboanga City", cx, 22);
+
+        y = 30;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        txt("ADMISSION FORM FOR GRADUATE STUDENTS", pageW / 2, y, {
+          align: "center",
+        });
+        y += 5;
+        hline(y);
+        y += 5;
+
+        // Part I
+        doc.setFontSize(8);
+        txt(
+          "Part I.  To be filled up by the WMSU admitting official:",
+          margin,
+          y,
+        );
+        y += 5;
+        doc.setFont("helvetica", "normal");
+        let nx = fieldLine("COLLEGE:", "", margin, y, 55);
+        nx = fieldLine("SCHOOL YEAR:", "", nx, y, 20);
+        fieldLine("SEMESTER:", "", nx, y, 15);
+        y += 5;
+        fieldLine("ACADEMIC PROGRAM:", "", margin, y, 100);
+        y += 7;
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        txt("Type of Admission:", margin, y);
+        doc.setFont("helvetica", "normal");
+        let cx2 = margin + 32;
+        cx2 = checkBox("Regular", false, cx2, y);
+        cx2 = checkBox("Probational", false, cx2, y);
+        const exs = 120;
+        txt("Enrollment Status", exs, y);
+        doc.setFont("helvetica", "normal");
+        checkBox("New student", false, exs + 30, y);
+        y += 5;
+        checkBox("Transferee", false, exs + 30, y);
+        y += 5;
+        checkBox("Returning student", false, exs + 30, y);
+        y += 6;
+
+        hline(y);
+        y += 5;
+
+        // Part II
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        txt(
+          "Part II.  To be filled up by the student (Answers must be written legibly in capital letters)",
+          margin,
+          y,
+        );
+        y += 5;
+        doc.setFont("helvetica", "bold");
+        txt("Student's Personal Data:", margin, y);
+        y += 5;
+
+        let rx = fieldLine("Family name:", personal.last_name, margin, y, 40);
+        rx = fieldLine("Given Name:", personal.first_name, rx, y, 35);
+        fieldLine("Middle Name:", personal.middle_name, rx, y, 25);
+        y += 5;
+
+        rx = fieldLine("Date of Birth:", personal.dob, margin, y, 30);
+        rx = fieldLine("Age:", personal.age, rx, y, 12);
+        fieldLine("Civil Status:", personal.civil_status, rx, y, 28);
+        y += 5;
+
+        rx = fieldLine(
+          "Place of Birth:",
+          personal.place_of_birth,
+          margin,
+          y,
+          38,
+        );
+        rx = fieldLine("Gender:", personal.gender, rx, y, 22);
+        fieldLine(
+          "Religion:",
+          personal.religion === "Other"
+            ? personal.religion_other
+            : personal.religion,
+          rx,
+          y,
+          28,
+        );
+        y += 5;
+
+        rx = fieldLine(
+          "Ethnicity / Tribe:",
+          personal.ethnicity === "Other"
+            ? personal.ethnicity_other
+            : personal.ethnicity,
+          margin,
+          y,
+          30,
+        );
+        rx = fieldLine(
+          "Nationality:",
+          personal.nationality === "Other"
+            ? personal.nationality_other
+            : personal.nationality,
+          rx,
+          y,
+          28,
+        );
+        fieldLine(
+          "Disability (if any):",
+          personal.disability === "Other"
+            ? personal.disability_other
+            : personal.disability,
+          rx,
+          y,
+          28,
+        );
+        y += 5;
+
+        fieldLine(
+          "Permanent Address:",
+          personal.permanent_address,
+          margin,
+          y,
+          contentW - 30,
+        );
+        y += 5;
+        fieldLine(
+          "Current Address (if different from permanent address):",
+          personal.current_address || "",
+          margin,
+          y,
+          70,
+        );
+        y += 6;
+
+        rx = fieldLine(
+          "Telephone/Cellphone No.:",
+          personal.contact_number,
+          margin,
+          y,
+          35,
+        );
+        fieldLine("Email address:", personal.email, rx, y, 55);
+        y += 5;
+
+        rx = fieldLine(
+          "Name of Parent or Guardian:",
+          personal.name_of_parent,
+          margin,
+          y,
+          38,
+        );
+        rx = fieldLine("Relationship:", personal.relationship, rx, y, 20);
+        rx = fieldLine("Income/mo.:", "", rx, y, 4);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        txt("₱ " + (personal.parent_income || ""), rx - 2, y);
+        line(rx - 2, y + 0.5, rx + 18, y + 0.5);
+        y += 5;
+
+        rx = fieldLine(
+          "Name of Spouse (if married):",
+          personal.name_of_spouse,
+          margin,
+          y,
+          38,
+        );
+        rx = fieldLine(
+          "Tel phone/CP No.:",
+          personal.spouse_contact_number,
+          rx,
+          y,
+          22,
+        );
+        rx = fieldLine("Income/mo.:", "", rx, y, 4);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        txt("₱ " + (personal.spouse_income || ""), rx - 2, y);
+        line(rx - 2, y + 0.5, rx + 18, y + 0.5);
+        y += 7;
+
+        // Educational Background
+        checkPageBreak(55);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        txt("Student's Educational Background:", margin, y);
+        y += 5;
+
+        const colsX = [margin, margin + 35, margin + 105, margin + 155];
+        const rowH = 6;
+
+        doc.setFillColor(230, 230, 230);
+        doc.rect(margin, y, contentW, rowH, "F");
+        doc.rect(margin, y, contentW, rowH);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(7.5);
+        ["", "Name of School", "Course / Degree", "Year Completed"].forEach(
+          (h, i) => {
+            txt(h, colsX[i] + 1, y + 4.2);
+            if (i > 0) line(colsX[i], y, colsX[i], y + rowH);
+          },
+        );
         y += rowH;
+
+        const eduRows = [
+          ["Elementary", education.elementary],
+          ["Secondary", education.secondary],
+          ["Tertiary", education.college],
+          ["Graduate Studies", education.graduate],
+        ];
+        eduRows.forEach(([label, data]) => {
+          doc.rect(margin, y, contentW, rowH);
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(7.5);
+          txt(label, colsX[0] + 1, y + 4.2);
+          doc.setFont("helvetica", "normal");
+          colsX.slice(1).forEach((cx3, i) => {
+            line(cx3, y, cx3, y + rowH);
+            const val = data
+              ? [data.schoolName, data.degree, data.yearCompleted][i] || ""
+              : "";
+            txt(val, cx3 + 1, y + 4.2);
+          });
+          y += rowH;
+        });
+        y += 4;
+
+        fieldLine(
+          "Scholarship (if any):",
+          education.scholarship,
+          margin,
+          y,
+          80,
+        );
+        y += 7;
+
+        // Working Student
+        checkPageBreak(45);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        txt("For working students only:", margin, y);
+        y += 5;
+        doc.setFont("helvetica", "normal");
+
+        rx = fieldLine("Present Position:", working.position, margin, y, 50);
+        fieldLine("Income/month: ₱", working.monthlyIncome, rx, y, 25);
+        y += 5;
+
+        const es = working.employmentStatus;
+        const esOther = es === "Other" ? working.employmentStatusOther : null;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        txt("Employment Status:", margin, y);
+        doc.setFont("helvetica", "normal");
+        let ex = margin + 34;
+        ex = checkBox("Regular", es === "Regular", ex, y);
+        ex = checkBox("Casual", es === "Casual", ex, y);
+        ex = checkBox("Contractual", es === "Contractual", ex, y);
+        ex = checkBox("Others (Specify)", esOther != null, ex, y);
+        if (esOther) {
+          txt(esOther, ex, y);
+          line(ex, y + 0.5, ex + 25, y + 0.5);
+        }
+        y += 5;
+
+        fieldLine(
+          "Employer:",
+          working.employerName,
+          margin,
+          y,
+          contentW - 25,
+        );
+        y += 5;
+        fieldLine(
+          "Employer's address:",
+          working.employerAddress,
+          margin,
+          y,
+          contentW - 35,
+        );
+        y += 6;
+
+        const ec = working.employerClassification;
+        const ecOther =
+          ec === "Other" ? working.employerClassificationOther : null;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        txt("Employer's classification:", margin, y);
+        doc.setFont("helvetica", "normal");
+        let ecx = margin + 44;
+        ecx = checkBox(
+          "Government agency",
+          ec === "Government agency",
+          ecx,
+          y,
+        );
+        ecx = checkBox("Private Company", ec === "Private Company", ecx, y);
+        y += 5;
+        ecx = margin + 44;
+        ecx = checkBox(
+          "Non-Government Organization",
+          ec === "Non-Government Organization",
+          ecx,
+          y,
+        );
+        ecx = checkBox("Others (Please specify)", ecOther != null, ecx, y);
+        if (ecOther) {
+          txt(ecOther, ecx, y);
+          line(ecx, y + 0.5, ecx + 30, y + 0.5);
+        }
+        y += 10;
+
+        // Signature
+        checkPageBreak(30);
+        hline(y);
+        y += 2;
+
+        const appNum =
+          JSON.parse(localStorage.getItem("submissionData") || "null")
+            ?.applicationId || "MIT-PENDING";
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        txt(appNum, pageW - margin, y + 12, { align: "right" });
+
+        const consentData2 = privacyConsent || privacySignature;
+        const sigName2 = consentData2
+          ? consentData2.name || getFullName()
+          : getFullName();
+        const sigLineX = margin + 5,
+          sigLineEnd2 = margin + 90;
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(13);
+        txt(sigName2, sigLineX, y + 14);
+        const consentDate2 = consentData2
+          ? consentData2.dateAgreed || consentData2.date
+          : null;
+        const sigDateStr = consentDate2
+          ? new Date(consentDate2).toLocaleDateString("en-PH", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })
+          : new Date().toLocaleDateString("en-PH", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7);
+        txt(sigDateStr, sigLineX, y + 19);
+        line(sigLineX, y + 20, sigLineEnd2, y + 20);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7);
+        txt(
+          "Signature of Applicant over Printed Name / Date",
+          sigLineX,
+          y + 24,
+        );
+
+        // Footer
+        doc.setFontSize(7.5);
+        doc.setTextColor(120);
+        txt(
+          `Generated: ${new Date().toLocaleString("en-PH")}`,
+          margin,
+          pageH - 8,
+        );
+        doc.setFont("helvetica", "normal");
+        txt("Page 1 of 1", pageW / 2, pageH - 8, { align: "center" });
+        doc.setTextColor(0);
+
+        doc.save(
+          `WMSU_AdmissionForm_${personal.last_name || "Application"}.pdf`,
+        );
       });
-      y += 4;
-
-      rx = fieldLine('Scholarship (if any):', education.scholarship, margin, y, 80);
-      y += 7;
-
-      // ===== WORKING STUDENT =====
-      checkPageBreak(45);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
-      txt('For working students only:', margin, y);
-      y += 5;
-      doc.setFont('helvetica', 'normal');
-
-      rx = fieldLine('Present Position:', working.position, margin, y, 50);
-      fieldLine('Income/month: ₱', working.monthlyIncome, rx, y, 25);
-      y += 5;
-
-      const es = working.employmentStatus;
-      const esOther = es === 'Other' ? working.employmentStatusOther : null;
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
-      txt('Employment Status:', margin, y);
-      doc.setFont('helvetica', 'normal');
-      let ex = margin + 34;
-      ex = checkBox('Regular', es === 'Regular', ex, y);
-      ex = checkBox('Casual', es === 'Casual', ex, y);
-      ex = checkBox('Contractual', es === 'Contractual', ex, y);
-      ex = checkBox('Others (Specify)', esOther != null, ex, y);
-      if (esOther) { txt(esOther, ex, y); line(ex, y + 0.5, ex + 25, y + 0.5); }
-      y += 5;
-
-      fieldLine('Employer:', working.employerName, margin, y, contentW - 25);
-      y += 5;
-      fieldLine("Employer's address:", working.employerAddress, margin, y, contentW - 35);
-      y += 6;
-
-      const ec = working.employerClassification;
-      const ecOther = ec === 'Other' ? working.employerClassificationOther : null;
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
-      txt("Employer's classification:", margin, y);
-      doc.setFont('helvetica', 'normal');
-      let ecx = margin + 44;
-      ecx = checkBox('Government agency', ec === 'Government agency', ecx, y);
-      ecx = checkBox('Private Company', ec === 'Private Company', ecx, y);
-      y += 5;
-      ecx = margin + 44;
-      ecx = checkBox('Non-Government Organization', ec === 'Non-Government Organization', ecx, y);
-      ecx = checkBox('Others (Please specify)', ecOther != null, ecx, y);
-      if (ecOther) { txt(ecOther, ecx, y); line(ecx, y + 0.5, ecx + 30, y + 0.5); }
-      y += 10;
-
-      // ===== SIGNATURE - auto from privacy consent =====
-      checkPageBreak(30);
-      hline(y); y += 2;
-
-      // Application number
-      const appNum = 'WMSU-GS-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(11);
-      txt(appNum, pageW - margin, y + 12, { align: 'right' });
-
-      // Auto-signature: use privacy consent name in italic style
-      const consentData2 = privacyConsent || privacySignature;
-      const sigName2 = consentData2 ? (consentData2.name || getFullName()) : getFullName();
-      const sigLineX = margin + 5, sigLineEnd2 = margin + 90;
-      // Write name in italic as signature substitute
-      doc.setFont('helvetica', 'italic'); doc.setFontSize(13);
-      txt(sigName2, sigLineX, y + 14);
-      const consentDate2 = consentData2 ? (consentData2.dateAgreed || consentData2.date) : null;
-      const sigDateStr = consentDate2 ? new Date(consentDate2).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
-      txt(sigDateStr, sigLineX, y + 19);
-      line(sigLineX, y + 20, sigLineEnd2, y + 20);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
-      txt('Signature of Applicant over Printed Name / Date', sigLineX, y + 24);
-
-      // ===== FOOTER =====
-      doc.setFontSize(7.5); doc.setTextColor(120);
-      txt(`Generated: ${new Date().toLocaleString('en-PH')}`, margin, pageH - 8);
-      doc.setFont('helvetica', 'normal');
-      txt('Page 1 of 1', pageW / 2, pageH - 8, { align: 'center' });
-      doc.setTextColor(0);
-
-      doc.save(`WMSU_AdmissionForm_${personal.lastName || 'Application'}.pdf`);
-    });
   </script>
-
 </body>
 
 </html>

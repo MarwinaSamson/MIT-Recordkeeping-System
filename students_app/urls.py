@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views.index_views import index
+from .views.index_views import index, about
 from .views.login_views import login_view
 from .views.signup_views import signup_view
 from .views.verify_email_views import verify_email_view
@@ -12,19 +12,40 @@ from .views.privacynotice_views import privacy_notice
 from .views.reviews_views import review
 from .views.student_views import student
 from .views.login_views import logout_view
+from .views.api_views import (
+    get_document_status,
+    get_document_details,
+    get_notifications,
+    mark_notification_read,
+    mark_all_notifications_read,
+    submit_application,
+)
 
 
 urlpatterns = [
     path("", index, name="index"),
+    path("about/", about, name="about"),
     path("login/", login_view, name="login"),
     path("register/", signup_view, name="signup"),
     path("verify/<str:token>/", verify_email_view, name="verify_email"),
     path("personalDetails/", personal_details, name="personalDetails"),
-    path("educationalBackground/", educational_background, name="educationalBackground"),
+    path("educationalBackground/", educational_background,
+         name="educationalBackground"),
     path("workingStudent/", working_student, name="workingStudent"),
     path("documents/", documents, name="documents"),
     path("privacyNotice/", privacy_notice, name="privacyNotice"),
     path("review/", review, name="review"),
     path("student/", student, name="student"),
     path("logout/", logout_view, name="logout"),
+    path("api/document-status/", get_document_status, name="document_status_api"),
+    path("api/document-details/", get_document_details,
+         name="document_details_api"),
+    path("api/student-notifications/", get_notifications,
+         name="student_notifications_api"),
+    path("api/notifications/read/", mark_notification_read,
+         name="mark_notification_read_api"),
+    path("api/notifications/read-all/", mark_all_notifications_read,
+         name="mark_all_notifications_read_api"),
+    path("api/submit-application/", submit_application,
+         name="submit_application_api"),
 ]

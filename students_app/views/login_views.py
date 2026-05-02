@@ -1,24 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
-from students_app.models import (
-    Document,
-    EducationalBackground,
-    PersonalDetails,
-    UserProfile,
-    WorkingStudent,
-)
-
-
-def _has_student_data(user):
-    return (
-        PersonalDetails.objects.filter(user=user).exists()
-        or EducationalBackground.objects.filter(user=user).exists()
-        or WorkingStudent.objects.filter(user=user).exists()
-        or Document.objects.filter(user=user).exists()
-    )
+from students_app.models import UserProfile
+from students_app.utils import get_user_redirect_url
 
 
 def login_view(request):
@@ -39,17 +25,17 @@ def login_view(request):
                 try:
                     profile = user.profile
                     if not profile.is_email_verified:
-                        messages.error(request, 'Please verify your email address before logging in. Check your inbox for the verification link.')
+                        messages.error(
+                            request, 'Please verify your email address before logging in. Check your inbox for the verification link.')
                         return render(request, "students_app/login.html")
                 except UserProfile.DoesNotExist:
                     # If no profile exists, allow login (for backwards compatibility)
                     pass
-                
+
                 login(request, user)
-                # If student has any saved data, go straight to the dashboard.
-                if _has_student_data(user):
-                    return redirect('student')
-                return redirect('personalDetails')
+                # Determine redirect based on application status
+                redirect_url = get_user_redirect_url(user)
+                return redirect(redirect_url)
             else:
                 messages.error(request, 'Your account is inactive.')
         else:
@@ -62,6 +48,12 @@ def login_view(request):
 
 @login_required
 def logout_view(request):
+    # Clear all previous messages to avoid showing old login messages
+    from django.contrib.messages.storage.fallback import FallbackStorage
+    storage = FallbackStorage(request)
+    for _ in storage:
+        pass  # Iterate through all messages to clear them
+
     profile = getattr(request.user, 'profile', None)
     if profile is not None:
         current_session_key = request.session.session_key
@@ -70,4 +62,6 @@ def logout_view(request):
             profile.save(update_fields=['current_session_key'])
 
     logout(request)
+    messages.success(
+        request, "You have signed out successfully. See you soon!")
     return redirect("index")
