@@ -629,6 +629,9 @@
                     <button class="cms-tab" onclick="switchCmsTab('contact', this)">
                         <i data-lucide="phone"></i> Contact
                     </button>
+                    <button class="cms-tab" onclick="switchCmsTab('about-page', this)">
+                        <i data-lucide="info"></i> About Page
+                    </button>
                 </div>
 
                 <!-- ══ CMS: Hero / General ══ -->
@@ -1503,7 +1506,800 @@
 
                 <!-- (Members/Staff and Footer panels removed — not part of index.html) -->
 
+                <!-- ══════════════════════════════════════════════════════════
+                     CMS: About Page
+                     Covers all tabs of about.html:
+                       1) Hero  2) Overview  3) Courses  4) Outcomes  5) Objectives  6) Faculty
+                ══════════════════════════════════════════════════════════ -->
+                <div id="cms-about-page" class="cms-panel hidden">
+
+                    <!-- About Page sub-tabs — uses .about-tab class + about-tab-{name} IDs to match admin_cms_scripts.js -->
+                    <div id="aboutSubTabRow"
+                        class="flex flex-wrap gap-2 mb-6 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <span
+                            class="text-xs font-bold text-gray-400 uppercase tracking-widest self-center mr-1">Section:</span>
+                        <button class="about-tab cms-tab active border-red-800 text-red-800"
+                            onclick="switchAboutTab('hero', this)">
+                            <i data-lucide="star"></i> Hero
+                        </button>
+                        <button class="about-tab cms-tab border-transparent text-gray-400"
+                            onclick="switchAboutTab('overview', this)">
+                            <i data-lucide="info"></i> Overview
+                        </button>
+                        <button class="about-tab cms-tab border-transparent text-gray-400"
+                            onclick="switchAboutTab('courses', this)">
+                            <i data-lucide="book-open"></i> Courses
+                        </button>
+                        <button class="about-tab cms-tab border-transparent text-gray-400"
+                            onclick="switchAboutTab('outcomes', this)">
+                            <i data-lucide="trophy"></i> Outcomes
+                        </button>
+                        <button class="about-tab cms-tab border-transparent text-gray-400"
+                            onclick="switchAboutTab('objectives', this)">
+                            <i data-lucide="flag"></i> Objectives
+                        </button>
+                        <button class="about-tab cms-tab border-transparent text-gray-400"
+                            onclick="switchAboutTab('faculty', this)">
+                            <i data-lucide="users"></i> Faculty
+                        </button>
+                    </div>
+
+                    <!-- ── About: Hero ── -->
+                    <div id="about-tab-hero" class="about-panel">
+                        <div class="cms-card">
+                            <p class="cms-card-title"><i data-lucide="star" class="w-4 h-4 text-red-700"></i> Hero
+                                Section — About Page</p>
+                            <p class="cms-card-subtitle">Controls the crimson banner shown at the top of the About tab
+                                in <code>about.html</code>.</p>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="lbl">Eyebrow / Breadcrumb Text</label>
+                                    <input type="text" id="aboutHeroEyebrow" class="field"
+                                        value="{{ cms.about_hero_eyebrow|default:'Western Mindanao State University · College of Computing Studies' }}"
+                                        placeholder="e.g. Western Mindanao State University · College of Computing Studies" />
+                                    <p class="lbl-hint mt-1">Small gold text shown above the heading.</p>
+                                </div>
+                                <div>
+                                    <label class="lbl">Program Name <span class="lbl-hint">(plain part, before
+                                            italic)</span></label>
+                                    <input type="text" id="aboutHeroTitle" class="field"
+                                        value="{{ cms.about_hero_title|default:'Master in' }}"
+                                        placeholder="e.g. Master in" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Program Name <span class="lbl-hint">(italic / highlighted
+                                            part)</span></label>
+                                    <input type="text" id="aboutHeroTitleItalic" class="field"
+                                        value="{{ cms.about_hero_title_italic|default:'Information Technology' }}"
+                                        placeholder="e.g. Information Technology" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Hero Tagline</label>
+                                    <textarea id="aboutHeroTagline" rows="3" class="field"
+                                        placeholder="Short description below the heading...">{{ cms.about_hero_tagline|default:'Preparing professionals for systems integration, administration, planning, implementation, and maintenance of complex technology ecosystems.' }}</textarea>
+                                </div>
+                                <div>
+                                    <label class="lbl">CHED Badge Text</label>
+                                    <input type="text" id="aboutHeroBadge" class="field"
+                                        value="{{ cms.about_hero_badge|default:'CHED Compliant · Effective S.Y. 2019–2020' }}"
+                                        placeholder="e.g. CHED Compliant · Effective S.Y. 2019–2020" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="saveAboutHero()" class="btn-primary"><i data-lucide="save"></i> Save
+                                Hero</button>
+                        </div>
+                    </div>
+
+                    <!-- ── About: Overview ── -->
+                    <div id="about-tab-overview" class="about-panel hidden">
+
+                        <!-- Program Description -->
+                        <div class="cms-card">
+                            <p class="cms-card-title"><i data-lucide="file-text" class="w-4 h-4 text-red-700"></i>
+                                Program Description</p>
+                            <p class="cms-card-subtitle">The paragraph shown in the left column of the About section.
+                            </p>
+                            <div>
+                                <label class="lbl">Overview Text</label>
+                                <textarea id="aboutOverviewText" rows="5" class="field"
+                                    placeholder="The Master in Information Technology (MIT) at Western Mindanao State University...">{{ cms.about_overview_text|default:'The Master in Information Technology (MIT) at Western Mindanao State University emphasizes the acquisition of advanced concepts and technologies, preparing graduates for the industrial practice of systems integration, systems administration, systems planning, and systems implementation — maintaining the integrity and proper functionality of complex systems.' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Info Card rows -->
+                        <div class="cms-card">
+                            <p class="cms-card-title"><i data-lucide="card-id" class="w-4 h-4 text-red-700"></i> Info
+                                Card Details</p>
+                            <p class="cms-card-subtitle">The four rows shown in the bordered info card (Institution,
+                                COPC No., Effective Year, Accrediting Body).</p>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="lbl">Institution</label>
+                                    <input type="text" id="aboutInfoInstitution" class="field"
+                                        value="{{ cms.about_info_institution|default:'Western Mindanao State University, Zamboanga City' }}"
+                                        placeholder="e.g. Western Mindanao State University, Zamboanga City" />
+                                </div>
+                                <div>
+                                    <label class="lbl">COPC Number</label>
+                                    <input type="text" id="aboutInfoCOPC" class="field"
+                                        value="{{ cms.about_info_copc|default:'017, Series of 2019 — August 28, 2019' }}"
+                                        placeholder="e.g. 017, Series of 2019 — August 28, 2019" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Effective Academic Year</label>
+                                    <input type="text" id="aboutInfoAY" class="field"
+                                        value="{{ cms.about_info_ay|default:'2019–2020' }}"
+                                        placeholder="e.g. 2019–2020" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Accrediting Body</label>
+                                    <input type="text" id="aboutInfoAccred" class="field"
+                                        value="{{ cms.about_info_accred|default:'Commission on Higher Education (CHED), Philippines' }}"
+                                        placeholder="e.g. Commission on Higher Education (CHED), Philippines" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CHED Badge -->
+                        <div class="cms-card">
+                            <p class="cms-card-title"><i data-lucide="award" class="w-4 h-4 text-red-700"></i> CHED
+                                Certificate Badge</p>
+                            <p class="cms-card-subtitle">Yellow highlight box shown below the info card.</p>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="lbl">Badge Heading</label>
+                                    <input type="text" id="aboutChedHeading" class="field"
+                                        value="{{ cms.about_ched_heading|default:'CHED Certified Program' }}"
+                                        placeholder="e.g. CHED Certified Program" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Badge Description</label>
+                                    <textarea id="aboutChedDesc" rows="2" class="field"
+                                        placeholder="Complies with CHED Resolution No. 405-2019...">{{ cms.about_ched_desc|default:'Complies with CHED Resolution No. 405-2019 and Republic Act No. 7722 (Higher Education Act of 1994).' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats Grid -->
+                        <div class="cms-card">
+                            <p class="cms-card-title"><i data-lucide="bar-chart-2" class="w-4 h-4 text-red-700"></i>
+                                Stats Grid</p>
+                            <p class="cms-card-subtitle">The four stat cards shown on the right column (Total Units,
+                                Years Duration, Core Units, Specialization Units).</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="lbl">Stat 1 — Number</label>
+                                    <input type="text" id="aboutStat1Val" class="field"
+                                        value="{{ cms.about_stat1_val|default:'39' }}" placeholder="e.g. 39" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Stat 1 — Label</label>
+                                    <input type="text" id="aboutStat1Lbl" class="field"
+                                        value="{{ cms.about_stat1_lbl|default:'Total Units' }}"
+                                        placeholder="e.g. Total Units" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Stat 2 — Number</label>
+                                    <input type="text" id="aboutStat2Val" class="field"
+                                        value="{{ cms.about_stat2_val|default:'2' }}" placeholder="e.g. 2" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Stat 2 — Label</label>
+                                    <input type="text" id="aboutStat2Lbl" class="field"
+                                        value="{{ cms.about_stat2_lbl|default:'Years Duration' }}"
+                                        placeholder="e.g. Years Duration" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Stat 3 — Number</label>
+                                    <input type="text" id="aboutStat3Val" class="field"
+                                        value="{{ cms.about_stat3_val|default:'12' }}" placeholder="e.g. 12" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Stat 3 — Label</label>
+                                    <input type="text" id="aboutStat3Lbl" class="field"
+                                        value="{{ cms.about_stat3_lbl|default:'Core Course Units' }}"
+                                        placeholder="e.g. Core Course Units" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Stat 4 — Number</label>
+                                    <input type="text" id="aboutStat4Val" class="field"
+                                        value="{{ cms.about_stat4_val|default:'21' }}" placeholder="e.g. 21" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Stat 4 — Label</label>
+                                    <input type="text" id="aboutStat4Lbl" class="field"
+                                        value="{{ cms.about_stat4_lbl|default:'Specialization Units' }}"
+                                        placeholder="e.g. Specialization Units" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button onclick="saveAboutOverview()" class="btn-primary"><i data-lucide="save"></i> Save
+                                Overview</button>
+                        </div>
+                    </div>
+
+                    <!-- ── About: Courses ── -->
+                    <div id="about-tab-courses" class="about-panel hidden">
+                        <div class="cms-card">
+                            <div class="flex items-center justify-between mb-1">
+                                <div>
+                                    <p class="cms-card-title"><i data-lucide="book-open"
+                                            class="w-4 h-4 text-red-700"></i> Course Catalog</p>
+                                    <p class="cms-card-subtitle">Manage all courses displayed in the Courses tab of
+                                        about.html. Click a course to edit it fully.</p>
+                                </div>
+                                <button onclick="openAddCourseModal()" class="btn-primary"><i data-lucide="plus"></i>
+                                    Add Course</button>
+                            </div>
+
+                            <!-- Course type tabs -->
+                            <div id="courseTypeTabRow" class="flex gap-2 mb-5 mt-2">
+                                <button class="cms-tab active" style="font-size:0.75rem;padding:5px 14px;"
+                                    onclick="switchCourseType('core', this)">IT Core (4)</button>
+                                <button class="cms-tab" style="font-size:0.75rem;padding:5px 14px;"
+                                    onclick="switchCourseType('spec', this)">Specialization (7)</button>
+                                <button class="cms-tab" style="font-size:0.75rem;padding:5px 14px;"
+                                    onclick="switchCourseType('cap', this)">Capstone (2)</button>
+                            </div>
+
+                            <!-- IT Core Courses list -->
+                            <div id="courseType-core">
+                                <table class="cms-table" id="coursesTableCore">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:90px">Code</th>
+                                            <th>Course Title</th>
+                                            <th style="width:70px">Units</th>
+                                            <th style="width:90px">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="coursesBodyCore">
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 201</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Advanced Operating System and Networking
+                                            </td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT201')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 202</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Advanced Systems Design and Implementation
+                                            </td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT202')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 203</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Advanced Database Systems</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT203')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 204</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Technology and Project Management</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT204')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Specialization Courses list -->
+                            <div id="courseType-spec" class="hidden">
+                                <table class="cms-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:90px">Code</th>
+                                            <th>Course Title</th>
+                                            <th style="width:70px">Units</th>
+                                            <th style="width:90px">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="coursesBodySpec">
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 205</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Technical Research</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT205')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 206</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Statistical Research</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT206')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 207</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Specialization Course 1 – System
+                                                Development</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT207')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 208</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Specialization Course 2 – Information
+                                                Management</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT208')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 209</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Specialization Course 3 – Interactive
+                                                Systems</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT209')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 210</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Specialization Course 4 – Intelligent
+                                                Systems</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT210')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 211</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Specialization Course 5 – Emerging Trends
+                                                in Computing</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT211')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Capstone Courses list -->
+                            <div id="courseType-cap" class="hidden">
+                                <table class="cms-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:90px">Code</th>
+                                            <th>Course Title</th>
+                                            <th style="width:70px">Units</th>
+                                            <th style="width:90px">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="coursesBodyCap">
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 212A</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Capstone Project 1 – Directed Research
+                                            </td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT212A')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 212B</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Capstone Project 2 –
+                                                National/International Forum</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT212B')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── About: Outcomes ── -->
+                    <div id="about-tab-outcomes" class="about-panel hidden">
+                        <div class="cms-card">
+                            <div class="flex items-center justify-between mb-1">
+                                <div>
+                                    <p class="cms-card-title"><i data-lucide="trophy" class="w-4 h-4 text-red-700"></i>
+                                        Program Outcomes</p>
+                                    <p class="cms-card-subtitle">Manage the outcome cards displayed in the Outcomes tab.
+                                        Each card has a number, title, and description.</p>
+                                </div>
+                                <button onclick="addOutcomeRow()" class="btn-primary"><i data-lucide="plus"></i> Add
+                                    Outcome</button>
+                            </div>
+
+                            <div id="outcomesList" class="space-y-3 mt-3">
+                                {% for outcome in cms.about_outcomes %}
+                                <div class="outcome-row row-card flex items-start gap-3">
+                                    <div
+                                        class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 outcome-num">
+                                        {{ forloop.counter|stringformat:"02d" }}</div>
+                                    <div class="flex-1 space-y-2">
+                                        <input type="text" class="field out-title" value="{{ outcome.title }}"
+                                            placeholder="Outcome title, e.g. Advanced IT Systems Competency" />
+                                        <textarea rows="2" class="field out-desc"
+                                            placeholder="Short description of this outcome...">{{ outcome.desc }}</textarea>
+                                    </div>
+                                    <button type="button" onclick="removeOutcomeRow(this)" class="btn-del mt-2"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                {% empty %}
+                                <div class="outcome-row row-card flex items-start gap-3">
+                                    <div
+                                        class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 outcome-num">
+                                        01</div>
+                                    <div class="flex-1 space-y-2">
+                                        <input type="text" class="field out-title"
+                                            placeholder="Outcome title, e.g. Advanced IT Systems Competency" />
+                                        <textarea rows="2" class="field out-desc"
+                                            placeholder="Short description of this outcome..."></textarea>
+                                    </div>
+                                    <button type="button" onclick="removeOutcomeRow(this)" class="btn-del mt-2"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                <div class="outcome-row row-card flex items-start gap-3">
+                                    <div
+                                        class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 outcome-num">
+                                        02</div>
+                                    <div class="flex-1 space-y-2">
+                                        <input type="text" class="field out-title"
+                                            value="Research and Innovation Capability" placeholder="Outcome title" />
+                                        <textarea rows="2" class="field out-desc"
+                                            placeholder="Short description...">Design and execute both technical and statistical research that contributes original knowledge to the IT discipline.</textarea>
+                                    </div>
+                                    <button type="button" onclick="removeOutcomeRow(this)" class="btn-del mt-2"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <p class="text-xs text-gray-400 mt-3">Numbers update automatically based on order.</p>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="saveAboutOutcomes()" class="btn-primary"><i data-lucide="save"></i> Save
+                                Outcomes</button>
+                        </div>
+                    </div>
+
+                    <!-- ── About: Objectives ── -->
+                    <div id="about-tab-objectives" class="about-panel hidden">
+                        <div class="cms-card">
+                            <div class="flex items-center justify-between mb-1">
+                                <div>
+                                    <p class="cms-card-title"><i data-lucide="flag" class="w-4 h-4 text-red-700"></i>
+                                        Program Objectives</p>
+                                    <p class="cms-card-subtitle">Manage the numbered list of objectives shown in the
+                                        Objectives tab. Each item is a sentence or paragraph.</p>
+                                </div>
+                                <button onclick="addObjectiveRow()" class="btn-primary"><i data-lucide="plus"></i> Add
+                                    Objective</button>
+                            </div>
+
+                            <div id="objectivesList" class="space-y-3 mt-3">
+                                {% for obj in cms.about_objectives %}
+                                <div class="objective-row row-card flex items-start gap-3">
+                                    <div
+                                        class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 obj-num">
+                                        {{ forloop.counter }}</div>
+                                    <textarea rows="3" class="field flex-1 obj-text"
+                                        placeholder="Objective text...">{{ obj.text }}</textarea>
+                                    <button type="button" onclick="removeObjectiveRow(this)" class="btn-del mt-2"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                {% empty %}
+                                <div class="objective-row row-card flex items-start gap-3">
+                                    <div
+                                        class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 obj-num">
+                                        1</div>
+                                    <textarea rows="3" class="field flex-1 obj-text"
+                                        placeholder="Objective text...">Provide graduate-level education in Information Technology emphasizing the acquisition of advanced concepts, tools, and technologies necessary for professional practice.</textarea>
+                                    <button type="button" onclick="removeObjectiveRow(this)" class="btn-del mt-2"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                <div class="objective-row row-card flex items-start gap-3">
+                                    <div
+                                        class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 obj-num">
+                                        2</div>
+                                    <textarea rows="3" class="field flex-1 obj-text"
+                                        placeholder="Objective text...">Prepare graduates for the industrial practice of systems integration, systems administration, systems planning, and systems implementation, maintaining the integrity and proper functionality of complex systems.</textarea>
+                                    <button type="button" onclick="removeObjectiveRow(this)" class="btn-del mt-2"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                <div class="objective-row row-card flex items-start gap-3">
+                                    <div
+                                        class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 obj-num">
+                                        3</div>
+                                    <textarea rows="3" class="field flex-1 obj-text"
+                                        placeholder="Objective text...">Develop students' capacity to conduct both technical and statistical research, contributing original knowledge to the IT discipline and addressing emerging challenges in the field.</textarea>
+                                    <button type="button" onclick="removeObjectiveRow(this)" class="btn-del mt-2"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <p class="text-xs text-gray-400 mt-3">Numbers update automatically based on order.</p>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="saveAboutObjectives()" class="btn-primary"><i data-lucide="save"></i> Save
+                                Objectives</button>
+                        </div>
+                    </div>
+
+                    <!-- ── About: Faculty ── -->
+                    <div id="about-tab-faculty" class="about-panel hidden">
+                        <div class="cms-card">
+                            <div class="flex items-center justify-between mb-1">
+                                <div>
+                                    <p class="cms-card-title"><i data-lucide="users" class="w-4 h-4 text-red-700"></i>
+                                        Faculty Members</p>
+                                    <p class="cms-card-subtitle">Manage the faculty cards shown in the Faculty tab. Each
+                                        card has a photo, name, title, bio, and subject tags.</p>
+                                </div>
+                                <button onclick="addFacultyCard()" class="btn-primary"><i data-lucide="plus"></i> Add
+                                    Faculty</button>
+                            </div>
+
+                            <div id="facultyList" class="space-y-5 mt-3">
+                                {% for fac in cms.about_faculty %}
+                                <div class="faculty-card-row cms-card"
+                                    style="background:#f9fafb;box-shadow:none;border:1.5px solid #f3f4f6;padding:18px 20px;margin-bottom:0;">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm flex-shrink-0">
+                                                {{ fac.name|slice:":1"|upper|default:"F" }}
+                                            </div>
+                                            <span class="font-bold text-gray-800 text-sm">{{ fac.name|default:"Faculty
+                                                Member" }}</span>
+                                        </div>
+                                        <button type="button" onclick="removeFacultyCard(this)" class="btn-del"><i
+                                                data-lucide="x"></i></button>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <!-- Photo upload -->
+                                        <div>
+                                            <label class="lbl">Photo</label>
+                                            <div class="border-2 border-dashed border-gray-200 rounded-xl bg-white flex flex-col items-center justify-center p-5 cursor-pointer hover:border-red-300 hover:bg-red-50 transition faculty-photo-upload"
+                                                onclick="this.querySelector('.fac-photo-input').click()">
+                                                <i data-lucide="user-circle" class="w-10 h-10 text-gray-300 mb-2"></i>
+                                                <p class="text-xs text-gray-400">Click to upload photo</p>
+                                                <p class="text-xs text-gray-300 mt-0.5">Recommended: square, 400×400px
+                                                </p>
+                                                <input type="file" class="fac-photo-input hidden" accept="image/*"
+                                                    onchange="previewFacultyPhoto(this)" />
+                                            </div>
+                                            {% if fac.photo_url %}
+                                            <p class="text-xs text-gray-400 mt-1 truncate">Current: {{ fac.photo_url }}
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                        <!-- Text fields -->
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="lbl">Full Name</label>
+                                                <input type="text" class="field fac-name" value="{{ fac.name }}"
+                                                    placeholder="e.g. Lucy Felix-Sadiwa, MSCS" />
+                                            </div>
+                                            <div>
+                                                <label class="lbl">Position / Title</label>
+                                                <input type="text" class="field fac-title" value="{{ fac.title }}"
+                                                    placeholder="e.g. Program Chair" />
+                                            </div>
+                                            <div>
+                                                <label class="lbl">Short Bio</label>
+                                                <textarea rows="2" class="field fac-bio"
+                                                    placeholder="e.g. Ph.D. in Information Technology · Specializes in Advanced Database Systems">{{ fac.bio }}</textarea>
+                                            </div>
+                                            <div>
+                                                <label class="lbl">Subject Tags <span class="lbl-hint">(comma-separated,
+                                                        e.g. MIT 203, Databases)</span></label>
+                                                <input type="text" class="field fac-tags"
+                                                    value="{{ fac.tags|join:', ' }}"
+                                                    placeholder="e.g. MIT 203, MIT 204, Databases" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <!-- Default blank faculty card -->
+                                <div class="faculty-card-row cms-card"
+                                    style="background:#f9fafb;box-shadow:none;border:1.5px solid #f3f4f6;padding:18px 20px;margin-bottom:0;">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm flex-shrink-0">
+                                                L</div>
+                                            <span class="font-bold text-gray-800 text-sm">Lucy Felix-Sadiwa, MSCS</span>
+                                        </div>
+                                        <button type="button" onclick="removeFacultyCard(this)" class="btn-del"><i
+                                                data-lucide="x"></i></button>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="lbl">Photo</label>
+                                            <div class="border-2 border-dashed border-gray-200 rounded-xl bg-white flex flex-col items-center justify-center p-5 cursor-pointer hover:border-red-300 hover:bg-red-50 transition faculty-photo-upload"
+                                                onclick="this.querySelector('.fac-photo-input').click()">
+                                                <i data-lucide="user-circle" class="w-10 h-10 text-gray-300 mb-2"></i>
+                                                <p class="text-xs text-gray-400">Click to upload photo</p>
+                                                <p class="text-xs text-gray-300 mt-0.5">Recommended: square, 400×400px
+                                                </p>
+                                                <input type="file" class="fac-photo-input hidden" accept="image/*"
+                                                    onchange="previewFacultyPhoto(this)" />
+                                            </div>
+                                        </div>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="lbl">Full Name</label>
+                                                <input type="text" class="field fac-name"
+                                                    value="Lucy Felix-Sadiwa, MSCS"
+                                                    placeholder="e.g. Lucy Felix-Sadiwa, MSCS" />
+                                            </div>
+                                            <div>
+                                                <label class="lbl">Position / Title</label>
+                                                <input type="text" class="field fac-title" value="Program Chair"
+                                                    placeholder="e.g. Program Chair" />
+                                            </div>
+                                            <div>
+                                                <label class="lbl">Short Bio</label>
+                                                <textarea rows="2" class="field fac-bio"
+                                                    placeholder="e.g. Ph.D. in Information Technology · Specializes in Advanced Database Systems">Ph.D. in Information Technology · Specializes in Advanced Database Systems and Systems Integration</textarea>
+                                            </div>
+                                            <div>
+                                                <label class="lbl">Subject Tags <span
+                                                        class="lbl-hint">(comma-separated)</span></label>
+                                                <input type="text" class="field fac-tags"
+                                                    value="MIT 203, MIT 204, Databases"
+                                                    placeholder="e.g. MIT 203, MIT 204, Databases" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="saveAboutFaculty()" class="btn-primary"><i data-lucide="save"></i> Save
+                                Faculty</button>
+                        </div>
+                    </div>
+
+                </div><!-- /cms-about-page -->
+
             </div><!-- /top-content -->
+
+            <!-- ═══════════════════════════════════════════════════════════
+                 COURSE MODAL — Add / Edit course for About Page
+            ═══════════════════════════════════════════════════════════ -->
+            <div id="courseModal"
+                style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(15,10,12,.55);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:1rem;">
+                <div
+                    style="background:#fff;border-radius:18px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.22);">
+                    <!-- Modal header -->
+                    <div class="hero-bg"
+                        style="background:linear-gradient(135deg,#3d0709,#7b1113);padding:20px 24px;border-radius:18px 18px 0 0;position:relative;">
+                        <div class="flex items-center justify-between">
+                            <p class="font-bold text-white text-base" id="courseModalTitle">Add Course</p>
+                            <button onclick="closeCourseModal()"
+                                style="background:rgba(255,255,255,.12);border:none;border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                                <i data-lucide="x" style="width:16px;height:16px;color:#fff;"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Modal body -->
+                    <div class="p-6 space-y-4">
+                        <input type="hidden" id="courseModalId" />
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="lbl">Course Code</label>
+                                <input type="text" id="courseCode" class="field" placeholder="e.g. MIT 201" />
+                            </div>
+                            <div>
+                                <label class="lbl">Units</label>
+                                <input type="text" id="courseUnits" class="field" placeholder="e.g. 3 Units" />
+                            </div>
+                        </div>
+                        <div>
+                            <label class="lbl">Course Type</label>
+                            <select id="courseType" class="field">
+                                <option value="core">IT Core Course</option>
+                                <option value="spec">Specialization Course</option>
+                                <option value="cap">Capstone Project</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="lbl">Course Title</label>
+                            <input type="text" id="courseTitle" class="field"
+                                placeholder="e.g. Advanced Operating System and Networking" />
+                        </div>
+                        <div>
+                            <label class="lbl">Course Description</label>
+                            <textarea id="courseDesc" rows="5" class="field"
+                                placeholder="Full course description..."></textarea>
+                        </div>
+                        <div>
+                            <label class="lbl">Key Topics <span class="lbl-hint">(comma-separated)</span></label>
+                            <input type="text" id="courseTopics" class="field"
+                                placeholder="e.g. Memory Management, Deadlock, File Systems" />
+                        </div>
+                        <div>
+                            <label class="lbl">Icon <span class="lbl-hint">(Material Symbols name, e.g. dns, storage,
+                                    architecture)</span></label>
+                            <input type="text" id="courseIcon" class="field" placeholder="e.g. dns" />
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6 flex gap-3 border-t border-gray-100 pt-4">
+                        <button onclick="closeCourseModal()"
+                            style="flex:1;padding:10px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:0.85rem;font-weight:600;color:#6b7280;background:#fff;cursor:pointer;">Cancel</button>
+                        <button onclick="saveCourse()" class="btn-primary" style="flex:1;justify-content:center;"><i
+                                data-lucide="save"></i> Save Course</button>
+                    </div>
+                </div>
+            </div>
 
             <!-- ── History Logs ── -->
             <div id="top-history" class="top-panel hidden">
@@ -1943,6 +2739,252 @@
                 body: JSON.stringify({ calendar_event: data })
             }).then(r => r.json()).then(d => { showCmsToast(d.message || 'Event saved!'); closeCalEventModal(); }).catch(() => showCmsToast('Save failed.', 'error'));
         }
+
+        /* ══════════════════════════════════════════════════════
+           ABOUT PAGE CMS — Course type sub-switcher (Core/Spec/Cap)
+           Note: switchAboutTab is handled by admin_cms_scripts.js
+        ══════════════════════════════════════════════════════ */
+        function switchCourseType(type, btn) {
+            ['core', 'spec', 'cap'].forEach(t => {
+                const el = document.getElementById('courseType-' + t);
+                if (el) el.classList.toggle('hidden', t !== type);
+            });
+            document.querySelectorAll('#courseTypeTabRow .cms-tab').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+        }
+
+        /* ── Course Modal ── */
+        function openAddCourseModal() {
+            document.getElementById('courseModalTitle').textContent = 'Add Course';
+            document.getElementById('courseModalId').value = '';
+            ['courseCode', 'courseUnits', 'courseTitle', 'courseDesc', 'courseTopics', 'courseIcon'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            const ct = document.getElementById('courseType');
+            if (ct) ct.value = 'core';
+            document.getElementById('courseModal').style.display = 'flex';
+        }
+
+        function editCourse(code) {
+            document.getElementById('courseModalTitle').textContent = 'Edit Course — ' + code;
+            document.getElementById('courseModalId').value = code;
+            document.getElementById('courseModal').style.display = 'flex';
+        }
+
+        function closeCourseModal() {
+            document.getElementById('courseModal').style.display = 'none';
+        }
+
+        function saveCourse() {
+            const data = {
+                id: document.getElementById('courseModalId').value || null,
+                code: document.getElementById('courseCode').value,
+                units: document.getElementById('courseUnits').value,
+                type: document.getElementById('courseType').value,
+                title: document.getElementById('courseTitle').value,
+                desc: document.getElementById('courseDesc').value,
+                topics: document.getElementById('courseTopics').value.split(',').map(t => t.trim()).filter(Boolean),
+                icon: document.getElementById('courseIcon').value,
+            };
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ about_course: data })
+            }).then(r => r.json()).then(d => {
+                showCmsToast(d.message || 'Course saved!');
+                closeCourseModal();
+            }).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        function deleteCourse(btn) {
+            if (!confirm('Delete this course?')) return;
+            btn.closest('tr').remove();
+            showCmsToast('Course removed.');
+        }
+
+        /* ── Outcomes ── */
+        function addOutcomeRow() {
+            const list = document.getElementById('outcomesList');
+            const num = String(list.querySelectorAll('.outcome-row').length + 1).padStart(2, '0');
+            const div = document.createElement('div');
+            div.className = 'outcome-row row-card flex items-start gap-3';
+            div.innerHTML = `
+                <div class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 outcome-num">${num}</div>
+                <div class="flex-1 space-y-2">
+                    <input type="text" class="field out-title" placeholder="Outcome title" />
+                    <textarea rows="2" class="field out-desc" placeholder="Short description..."></textarea>
+                </div>
+                <button type="button" onclick="removeOutcomeRow(this)" class="btn-del mt-2"><i data-lucide="x"></i></button>`;
+            list.appendChild(div);
+            lucide.createIcons();
+        }
+
+        function removeOutcomeRow(btn) {
+            if (document.querySelectorAll('.outcome-row').length <= 1) { alert('At least one outcome is needed.'); return; }
+            btn.closest('.outcome-row').remove();
+            document.querySelectorAll('.outcome-num').forEach((b, i) => b.textContent = String(i + 1).padStart(2, '0'));
+        }
+
+        function saveAboutOutcomes() {
+            const outcomes = [];
+            document.querySelectorAll('.outcome-row').forEach(row => {
+                outcomes.push({ title: row.querySelector('.out-title').value, desc: row.querySelector('.out-desc').value });
+            });
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ about_outcomes: outcomes })
+            }).then(r => r.json()).then(d => showCmsToast(d.message || 'Outcomes saved!')).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        /* ── Objectives ── */
+        function addObjectiveRow() {
+            const list = document.getElementById('objectivesList');
+            const num = list.querySelectorAll('.objective-row').length + 1;
+            const div = document.createElement('div');
+            div.className = 'objective-row row-card flex items-start gap-3';
+            div.innerHTML = `
+                <div class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 obj-num">${num}</div>
+                <textarea rows="3" class="field flex-1 obj-text" placeholder="Objective text..."></textarea>
+                <button type="button" onclick="removeObjectiveRow(this)" class="btn-del mt-2"><i data-lucide="x"></i></button>`;
+            list.appendChild(div);
+            lucide.createIcons();
+        }
+
+        function removeObjectiveRow(btn) {
+            if (document.querySelectorAll('.objective-row').length <= 1) { alert('At least one objective is needed.'); return; }
+            btn.closest('.objective-row').remove();
+            document.querySelectorAll('.obj-num').forEach((b, i) => b.textContent = i + 1);
+        }
+
+        function saveAboutObjectives() {
+            const objs = [];
+            document.querySelectorAll('.objective-row').forEach(row => {
+                objs.push({ text: row.querySelector('.obj-text').value });
+            });
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ about_objectives: objs })
+            }).then(r => r.json()).then(d => showCmsToast(d.message || 'Objectives saved!')).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        /* ── Faculty ── */
+        function addFacultyCard() {
+            const list = document.getElementById('facultyList');
+            const div = document.createElement('div');
+            div.className = 'faculty-card-row cms-card';
+            div.style.cssText = 'background:#f9fafb;box-shadow:none;border:1.5px solid #f3f4f6;padding:18px 20px;margin-bottom:0;';
+            div.innerHTML = `
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm flex-shrink-0">F</div>
+                        <span class="font-bold text-gray-800 text-sm">New Faculty Member</span>
+                    </div>
+                    <button type="button" onclick="removeFacultyCard(this)" class="btn-del"><i data-lucide="x"></i></button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="lbl">Photo</label>
+                        <div class="border-2 border-dashed border-gray-200 rounded-xl bg-white flex flex-col items-center justify-center p-5 cursor-pointer hover:border-red-300 hover:bg-red-50 transition faculty-photo-upload"
+                            onclick="this.querySelector('.fac-photo-input').click()">
+                            <i data-lucide="user-circle" class="w-10 h-10 text-gray-300 mb-2"></i>
+                            <p class="text-xs text-gray-400">Click to upload photo</p>
+                            <p class="text-xs text-gray-300 mt-0.5">Recommended: square, 400×400px</p>
+                            <input type="file" class="fac-photo-input hidden" accept="image/*" onchange="previewFacultyPhoto(this)" />
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div><label class="lbl">Full Name</label><input type="text" class="field fac-name" placeholder="e.g. Lucy Felix-Sadiwa, MSCS" /></div>
+                        <div><label class="lbl">Position / Title</label><input type="text" class="field fac-title" placeholder="e.g. Program Chair" /></div>
+                        <div><label class="lbl">Short Bio</label><textarea rows="2" class="field fac-bio" placeholder="e.g. Ph.D. in IT · Advanced Database Systems"></textarea></div>
+                        <div><label class="lbl">Subject Tags <span class="lbl-hint">(comma-separated)</span></label><input type="text" class="field fac-tags" placeholder="e.g. MIT 203, Databases" /></div>
+                    </div>
+                </div>`;
+            list.appendChild(div);
+            lucide.createIcons();
+        }
+
+        function removeFacultyCard(btn) {
+            if (!confirm('Remove this faculty member?')) return;
+            btn.closest('.faculty-card-row').remove();
+            showCmsToast('Faculty member removed.');
+        }
+
+        function previewFacultyPhoto(input) {
+            if (!input.files || !input.files[0]) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const upload = input.closest('.faculty-photo-upload');
+                upload.innerHTML = `<img src="${e.target.result}" style="width:100%;height:120px;object-fit:cover;border-radius:10px;" /><input type="file" class="fac-photo-input hidden" accept="image/*" onchange="previewFacultyPhoto(this)" />`;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        function saveAboutFaculty() {
+            const faculty = [];
+            document.querySelectorAll('.faculty-card-row').forEach(card => {
+                faculty.push({
+                    name: card.querySelector('.fac-name')?.value || '',
+                    title: card.querySelector('.fac-title')?.value || '',
+                    bio: card.querySelector('.fac-bio')?.value || '',
+                    tags: (card.querySelector('.fac-tags')?.value || '').split(',').map(t => t.trim()).filter(Boolean),
+                });
+            });
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ about_faculty: faculty })
+            }).then(r => r.json()).then(d => showCmsToast(d.message || 'Faculty saved!')).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        /* ── About Hero Save ── */
+        function saveAboutHero() {
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({
+                    about_hero_eyebrow: document.getElementById('aboutHeroEyebrow').value,
+                    about_hero_title: document.getElementById('aboutHeroTitle').value,
+                    about_hero_title_italic: document.getElementById('aboutHeroTitleItalic').value,
+                    about_hero_tagline: document.getElementById('aboutHeroTagline').value,
+                    about_hero_badge: document.getElementById('aboutHeroBadge').value,
+                })
+            }).then(r => r.json()).then(d => showCmsToast(d.message || 'Hero saved!')).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        /* ── About Overview Save ── */
+        function saveAboutOverview() {
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({
+                    about_overview_text: document.getElementById('aboutOverviewText').value,
+                    about_info_institution: document.getElementById('aboutInfoInstitution').value,
+                    about_info_copc: document.getElementById('aboutInfoCOPC').value,
+                    about_info_ay: document.getElementById('aboutInfoAY').value,
+                    about_info_accred: document.getElementById('aboutInfoAccred').value,
+                    about_ched_heading: document.getElementById('aboutChedHeading').value,
+                    about_ched_desc: document.getElementById('aboutChedDesc').value,
+                    about_stat1_val: document.getElementById('aboutStat1Val').value,
+                    about_stat1_lbl: document.getElementById('aboutStat1Lbl').value,
+                    about_stat2_val: document.getElementById('aboutStat2Val').value,
+                    about_stat2_lbl: document.getElementById('aboutStat2Lbl').value,
+                    about_stat3_val: document.getElementById('aboutStat3Val').value,
+                    about_stat3_lbl: document.getElementById('aboutStat3Lbl').value,
+                    about_stat4_val: document.getElementById('aboutStat4Val').value,
+                    about_stat4_lbl: document.getElementById('aboutStat4Lbl').value,
+                })
+            }).then(r => r.json()).then(d => showCmsToast(d.message || 'Overview saved!')).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        /* ── Close Course Modal on backdrop click ── */
+        window.addEventListener('DOMContentLoaded', () => {
+            const cm = document.getElementById('courseModal');
+            if (cm) cm.addEventListener('click', e => { if (e.target === cm) closeCourseModal(); });
+        });
+
         function filterCalendarEvents() {
             const month = document.getElementById('calFilterMonth').value.toLowerCase();
             const type = document.getElementById('calFilterType').value;
