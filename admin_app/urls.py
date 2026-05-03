@@ -1,4 +1,6 @@
 from django.urls import path
+
+from .views.cms_views import cms_settings
 from .views import admin_dashboard, logout_admin
 from .views.api_views import (
     verify_document,
@@ -79,4 +81,6 @@ urlpatterns = [
     path('api/faculty/update/', update_faculty_member, name='api_update_faculty'),
     path('api/faculty/delete/', delete_faculty_member, name='api_delete_faculty'),
     path('api/faculty/reorder/', reorder_faculty, name='api_reorder_faculty'),
+
+    path('settings/', cms_settings, name='cms_settings'),
 ]

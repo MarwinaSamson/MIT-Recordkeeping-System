@@ -14,7 +14,6 @@
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
   <style>
-    /* ===== DESIGN TOKENS ===== */
     :root {
       --crimson: #7b1113;
       --crimson-dark: #5a0c0e;
@@ -48,7 +47,7 @@
       line-height: 1;
     }
 
-    /* NAVBAR */
+    /* Navbar */
     .navbar-glass {
       background: rgba(255, 255, 255, 0.97);
       backdrop-filter: blur(20px);
@@ -92,7 +91,7 @@
       width: 100%;
     }
 
-    /* DROPDOWNS */
+    /* Dropdown */
     .dropdown-group {
       position: relative;
     }
@@ -141,7 +140,7 @@
       padding: 5px 12px 6px;
     }
 
-    /* DOWNLOAD ROW */
+    /* Download row */
     .dl-row {
       display: flex;
       align-items: center;
@@ -246,108 +245,85 @@
       color: var(--crimson);
     }
 
-    /* PROGRAMS DROPDOWN ROW */
-    .prog-row {
+    /* Prospectus sub-section */
+    .prospectus-parent {
+      position: relative;
+    }
+
+    .prospectus-trigger {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px;
+      gap: 11px;
+      padding: 9px 10px;
       border-radius: 10px;
-      text-decoration: none;
       color: #374151;
+      cursor: default;
       transition: background 0.15s;
+      min-width: 255px;
     }
 
-    .prog-row:hover {
+    .prospectus-parent:hover .prospectus-trigger {
       background: #fef2f2;
       color: var(--crimson);
     }
 
-    .prog-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 9px;
-      background: #fef2f2;
-      border: 1px solid #fecaca;
+    .prospectus-sub {
+      display: none;
+      flex-direction: column;
+      gap: 1px;
+      margin: 0 8px 4px 46px;
+      padding: 4px 0 2px 12px;
+      border-left: 2px solid #fecaca;
+    }
+
+    .prospectus-parent:hover .prospectus-sub {
+      display: flex;
+    }
+
+    .prospectus-item {
       display: flex;
       align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 7px;
+      text-decoration: none;
+      color: #6b7280;
+      font-size: 0.74rem;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
     }
 
-    .prog-row:hover .prog-icon {
-      background: #fee2e2;
-    }
-
-    .prog-icon .material-symbols-rounded {
-      font-size: 20px;
+    .prospectus-item:hover {
+      background: #fef2f2;
       color: var(--crimson);
     }
 
-    .prog-text strong {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 600;
+    .prospectus-item .material-symbols-rounded {
+      font-size: 13px;
+      color: var(--crimson);
     }
 
-    .prog-text span {
-      font-size: 0.68rem;
-      color: #9ca3af;
-    }
-
-    /* ANNOUNCEMENT TICKER */
-    #announcementTrack {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    #announcementText {
-      display: inline-block;
-      transition: opacity 0.35s ease, transform 0.35s ease;
-    }
-
-    #announcementText.slide-out {
-      opacity: 0;
-      transform: translateX(40px);
-    }
-
-    #announcementText.slide-in {
-      opacity: 0;
-      transform: translateX(-40px);
-    }
-
-    .pulse-dot {
-      animation: pulse-dot 1.8s ease-in-out infinite;
-    }
-
-    @keyframes pulse-dot {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.35;
-      }
-    }
-
-    /* HERO */
+    /* Hero */
     .hero-overlay {
-      background: linear-gradient(to right, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.50) 55%, rgba(0, 0, 0, 0.12) 100%);
+      background: linear-gradient(to right,
+          rgba(0, 0, 0, 0.78) 0%,
+          rgba(0, 0, 0, 0.50) 55%,
+          rgba(0, 0, 0, 0.12) 100%);
     }
 
+    /* Tech grid overlay for MIT feel */
     .hero-grid {
       position: absolute;
       inset: 0;
       z-index: 1;
-      background-image: linear-gradient(rgba(201, 168, 76, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(201, 168, 76, 0.04) 1px, transparent 1px);
+      background-image:
+        linear-gradient(rgba(201, 168, 76, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201, 168, 76, 0.04) 1px, transparent 1px);
       background-size: 48px 48px;
       pointer-events: none;
     }
 
-    /* EYEBROW / GOLD BAR */
+    /* Eyebrow */
     .eyebrow {
       display: inline-flex;
       align-items: center;
@@ -367,6 +343,7 @@
       border-radius: 1px;
     }
 
+    /* Gold bar */
     .gold-bar {
       width: 40px;
       height: 2.5px;
@@ -375,7 +352,7 @@
       margin: 8px 0 18px;
     }
 
-    /* TECH BADGE */
+    /* Tech badge — MIT feel */
     .tech-badge {
       display: inline-flex;
       align-items: center;
@@ -399,7 +376,166 @@
       animation: pulse-dot 2s infinite;
     }
 
-    /* FADE-UP */
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    /* Requirement item */
+    .req-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 13px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid #e9e4dc;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.18s;
+    }
+
+    .req-item:hover {
+      border-color: #fecaca;
+      box-shadow: 0 4px 16px rgba(123, 17, 19, 0.07);
+      transform: translateX(4px);
+    }
+
+    .req-num {
+      min-width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--crimson);
+      border-radius: 50%;
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      margin-top: 0.5px;
+    }
+
+    /* Info card */
+    .info-card {
+      background: linear-gradient(135deg, var(--crimson) 0%, #8c1315 100%);
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .info-card::after {
+      content: '';
+      position: absolute;
+      bottom: -50px;
+      right: -30px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(201, 168, 76, 0.08);
+      pointer-events: none;
+    }
+
+    /* Stat card */
+    .stat-card {
+      text-align: center;
+      padding: 18px 10px;
+      border-radius: 12px;
+      border: 1px solid #e9e4dc;
+      background: #fff;
+      transition: border-color 0.2s, box-shadow 0.18s;
+    }
+
+    .stat-card:hover {
+      border-color: #fecaca;
+      box-shadow: 0 4px 12px rgba(123, 17, 19, 0.07);
+    }
+
+    /* Tip box */
+    .tip-box {
+      border-radius: 12px;
+      border: 1px solid #f0e3b8;
+      background: #fffbef;
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .tip-icon {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      background: #fef3c7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tip-icon .material-symbols-rounded {
+      font-size: 16px;
+      color: #92400e;
+    }
+
+    /* Contact card */
+    .c-card {
+      padding: 22px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid #e9e4dc;
+      transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+    }
+
+    .c-card:hover {
+      box-shadow: 0 10px 28px rgba(123, 17, 19, 0.09);
+      transform: translateY(-3px);
+      border-color: #fecaca;
+    }
+
+    .c-icon {
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fef2f2;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #fecaca;
+    }
+
+    .c-icon .material-symbols-rounded {
+      font-size: 20px;
+      color: var(--crimson);
+    }
+
+    /* CTA banner */
+    .cta-banner {
+      background: linear-gradient(135deg, var(--crimson) 0%, #8c1315 100%);
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-banner::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      pointer-events: none;
+    }
+
+    /* Fade-up animation */
     @keyframes fadeUp {
       from {
         opacity: 0;
@@ -436,152 +572,7 @@
       opacity: 0;
     }
 
-    /* REQUIREMENT ITEM */
-    .req-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 13px;
-      padding: 14px 16px;
-      border-radius: 10px;
-      background: #fff;
-      border: 1px solid #e9e4dc;
-      transition: border-color 0.2s, box-shadow 0.2s, transform 0.18s;
-    }
-
-    .req-item:hover {
-      border-color: #fecaca;
-      box-shadow: 0 4px 16px rgba(123, 17, 19, 0.07);
-      transform: translateX(4px);
-    }
-
-    .req-num {
-      min-width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--crimson);
-      border-radius: 50%;
-      font-size: 10px;
-      font-weight: 700;
-      color: white;
-      flex-shrink: 0;
-      margin-top: 0.5px;
-    }
-
-    /* INFO / STAT / TIP CARDS */
-    .info-card {
-      background: linear-gradient(135deg, var(--crimson) 0%, #8c1315 100%);
-      border-radius: 18px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .info-card::after {
-      content: '';
-      position: absolute;
-      bottom: -50px;
-      right: -30px;
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      background: rgba(201, 168, 76, 0.08);
-      pointer-events: none;
-    }
-
-    .stat-card {
-      text-align: center;
-      padding: 18px 10px;
-      border-radius: 12px;
-      border: 1px solid #e9e4dc;
-      background: #fff;
-      transition: border-color 0.2s, box-shadow 0.18s;
-    }
-
-    .stat-card:hover {
-      border-color: #fecaca;
-      box-shadow: 0 4px 12px rgba(123, 17, 19, 0.07);
-    }
-
-    .tip-box {
-      border-radius: 12px;
-      border: 1px solid #f0e3b8;
-      background: #fffbef;
-      padding: 14px 16px;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
-
-    .tip-icon {
-      width: 32px;
-      height: 32px;
-      flex-shrink: 0;
-      border-radius: 8px;
-      background: #fef3c7;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .tip-icon .material-symbols-rounded {
-      font-size: 16px;
-      color: #92400e;
-    }
-
-    /* CONTACT CARDS */
-    .c-card {
-      padding: 22px;
-      border-radius: 14px;
-      background: #fff;
-      border: 1px solid #e9e4dc;
-      transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
-    }
-
-    .c-card:hover {
-      box-shadow: 0 10px 28px rgba(123, 17, 19, 0.09);
-      transform: translateY(-3px);
-      border-color: #fecaca;
-    }
-
-    .c-icon {
-      width: 42px;
-      height: 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #fef2f2;
-      border-radius: 10px;
-      margin-bottom: 12px;
-      border: 1px solid #fecaca;
-    }
-
-    .c-icon .material-symbols-rounded {
-      font-size: 20px;
-      color: var(--crimson);
-    }
-
-    /* CTA BANNER */
-    .cta-banner {
-      background: linear-gradient(135deg, var(--crimson) 0%, #8c1315 100%);
-      border-radius: 18px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cta-banner::before {
-      content: '';
-      position: absolute;
-      top: -60px;
-      right: -60px;
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.04);
-      pointer-events: none;
-    }
-
-    /* MOBILE MENU */
+    /* Mobile menu */
     #mobile-menu {
       transition: max-height 0.35s ease, opacity 0.28s ease;
     }
@@ -594,7 +585,103 @@
       transform: rotate(180deg);
     }
 
-    /* EVENTS CAROUSEL */
+    /* Programs section */
+    .program-card {
+      background: #fff;
+      border: 1px solid #e9e4dc;
+      border-radius: 18px;
+      overflow: hidden;
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.22s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .program-card:hover {
+      border-color: #fecaca;
+      box-shadow: 0 12px 36px rgba(123, 17, 19, 0.10);
+      transform: translateY(-5px);
+    }
+
+    .program-card-header {
+      background: linear-gradient(135deg, var(--crimson) 0%, #8c1315 100%);
+      padding: 24px 24px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .program-card-header::after {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      right: -20px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: rgba(201, 168, 76, 0.10);
+      pointer-events: none;
+    }
+
+    .program-card-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .program-card-icon .material-symbols-rounded {
+      font-size: 24px;
+      color: #fff;
+    }
+
+    .program-card-body {
+      padding: 20px 24px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .program-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      border: 1px solid #fecaca;
+      background: #fef2f2;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--crimson);
+      margin-bottom: 10px;
+    }
+
+    .program-feature {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: #6b7280;
+      padding: 5px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .program-feature:last-child {
+      border-bottom: none;
+    }
+
+    .program-feature .material-symbols-rounded {
+      font-size: 14px;
+      color: var(--crimson);
+      flex-shrink: 0;
+    }
+
+    /* Carousel */
     .carousel-outer {
       position: relative;
       overflow: hidden;
@@ -626,7 +713,7 @@
       box-shadow: 0 8px 32px rgba(123, 17, 19, 0.08);
     }
 
-    @media(min-width:768px) {
+    @media (min-width: 768px) {
       .cs-inner {
         grid-template-columns: 1.15fr 1fr;
       }
@@ -639,7 +726,7 @@
       min-height: 260px;
     }
 
-    @media(min-width:768px) {
+    @media (min-width: 768px) {
       .cs-img-side {
         min-height: 420px;
       }
@@ -735,7 +822,7 @@
       min-height: 260px;
     }
 
-    @media(min-width:768px) {
+    @media (min-width: 768px) {
       .cs-img-grid {
         min-height: 420px;
       }
@@ -754,7 +841,7 @@
     }
 
     .cs-img-main {
-      grid-column: 1/-1;
+      grid-column: 1 / -1;
     }
 
     .cs-img-sub {
@@ -876,7 +963,7 @@
       width: 24px;
     }
 
-    /* ACADEMIC CALENDAR */
+    /* Calendar section */
     .evt-section {
       background: #f7f5f1;
       padding: 80px 0 88px;
@@ -1027,7 +1114,7 @@
       margin-top: 8px;
     }
 
-    @media(max-width:640px) {
+    @media (max-width: 640px) {
       .evts-grid {
         grid-template-columns: 1fr;
       }
@@ -1270,7 +1357,8 @@
       color: #6b6b6b;
     }
 
-    @media(max-width:480px) {
+    /* Responsive helpers */
+    @media (max-width: 480px) {
       .cs-info-side {
         padding: 18px 16px;
       }
@@ -1284,45 +1372,8 @@
 
 <body class="text-slate-800 antialiased" style="background:var(--slate-soft);">
 
-  <!-- ===== ANNOUNCEMENT BAR (CMS) — fixed, z-70 ===== -->
-  {% if cms.show_announcement and cms.announcements %}
-  <div id="announcementBar"
-    class="w-full bg-[#7b1113] text-white text-sm py-2 px-4 text-center flex items-center justify-center gap-2 fixed top-0 left-0 z-[70]">
-    <div id="announcementTrack">
-      <span class="pulse-dot inline-block w-2 h-2 rounded-full bg-yellow-300 flex-shrink-0"></span>
-      <span id="announcementText" class="font-semibold tracking-wide">{{ cms.announcements.0.text }}</span>
-    </div>
-    {% if cms.admissions_open %}
-    <a href="{% url 'login' %}"
-      class="ml-2 underline underline-offset-2 font-bold hover:text-yellow-200 transition-colors whitespace-nowrap">Apply
-      Now →</a>
-    {% endif %}
-  </div>
-  <script>
-    (function () {
-      const anns = [{% for ann in cms.announcements %}{ text: "{{ ann.text|escapejs }}", duration: { { ann.duration } } } {% if not forloop.last %}, {% endif %} {% endfor %}];
-    if (anns.length <= 1) return;
-    let cur = 0;
-    function showNext() {
-      const el = document.getElementById('announcementText');
-      el.classList.add('slide-out');
-      setTimeout(() => {
-        cur = (cur + 1) % anns.length;
-        el.textContent = anns[cur].text;
-        el.classList.remove('slide-out');
-        el.classList.add('slide-in');
-        requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('slide-in')));
-        scheduleNext();
-      }, 380);
-    }
-    function scheduleNext() { setTimeout(showNext, anns[cur].duration * 1000); }
-    scheduleNext();
-}) ();
-  </script>
-  {% endif %}
-
-  <!-- ===== HEADER ===== -->
-  <header id="main-header" class="fixed top-0 w-full z-50 navbar-glass border-b border-slate-200/70 shadow-sm">
+  <!-- HEADER -->
+  <header class="fixed top-0 w-full z-50 navbar-glass border-b border-slate-200/70 shadow-sm">
     <div style="height:3px;background:linear-gradient(90deg,var(--crimson) 0%,var(--gold) 50%,var(--crimson) 100%);">
     </div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1334,7 +1385,9 @@
             alt="WMSU Logo">
           <div>
             <p class="text-[0.92rem] font-bold leading-tight hidden sm:block"
-              style="color:var(--crimson);font-family:'Playfair Display',serif;">Western Mindanao State University</p>
+              style="color:var(--crimson);font-family:'Playfair Display',serif;">
+              Western Mindanao State University
+            </p>
             <p class="text-[0.92rem] font-bold leading-tight sm:hidden"
               style="color:var(--crimson);font-family:'Playfair Display',serif;">WMSU</p>
             <p class="text-[10.5px] text-slate-400 tracking-wide" style="font-family:var(--mono);">MIT · Graduate School
@@ -1342,34 +1395,15 @@
           </div>
         </a>
 
-        <!-- Desktop Nav -->
-        <nav class="hidden lg:flex items-center gap-7">
+        <!-- Desktop nav -->
+        <nav class="hidden lg:flex items-center gap-8">
           <a href="{% url 'about' %}" class="nav-link">About</a>
           <a href="#events-carousel" class="nav-link">Events</a>
           <a href="#calendar" class="nav-link">Calendar</a>
           <a href="#requirements" class="nav-link">Requirements</a>
+          <a href="#contact" class="nav-link">Contact</a>
 
-          <!-- Programs dropdown (CMS-dynamic) -->
-          <div class="dropdown-group" tabindex="0">
-            <button class="nav-link flex items-center gap-1 focus:outline-none cursor-default">
-              <span class="material-symbols-rounded"
-                style="font-size:15px;color:var(--crimson);opacity:0.7;">school</span>
-              Programs
-              <span class="material-symbols-rounded" style="font-size:14px;opacity:0.35;">expand_more</span>
-            </button>
-            <div class="dropdown-panel">
-              <div class="panel-arrow"></div>
-              <p class="panel-label">Our Graduate Programs</p>
-              {% for prog in cms.programs %}{% if prog.visible %}
-              <a href="#requirements" class="prog-row">
-                <div class="prog-icon"><span class="material-symbols-rounded">school</span></div>
-                <div class="prog-text"><strong>{{ prog.name }}</strong><span>{{ prog.degree }}</span></div>
-              </a>
-              {% endif %}{% endfor %}
-            </div>
-          </div>
-
-          <!-- Downloadables dropdown (CMS-dynamic) -->
+          <!-- Downloadables dropdown -->
           <div class="dropdown-group" tabindex="0">
             <button class="nav-link flex items-center gap-1 focus:outline-none cursor-default">
               <span class="material-symbols-rounded"
@@ -1380,30 +1414,57 @@
             <div class="dropdown-panel">
               <div class="panel-arrow"></div>
               <p class="panel-label">Forms &amp; Documents</p>
-              {% if cms.downloads %}
-              {% for dl in cms.downloads %}
-              <a href="{{ dl.url }}" download class="dl-row">
+              <a href="{% static 'files/application_form.pdf' %}" download class="dl-row">
                 <div class="pdf-icon">
-                  <div class="pdf-icon-bg"></div><span class="pdf-icon-label">{{ dl.file_type }}</span>
+                  <div class="pdf-icon-bg"></div><span class="pdf-icon-label">PDF</span>
                 </div>
-                <div class="dl-text"><strong>{{ dl.name }}</strong><span></span></div>
+                <div class="dl-text"><strong>Admission Form</strong><span>Official admission form</span></div>
                 <div class="dl-download"><span class="material-symbols-rounded">download</span></div>
               </a>
-              {% endfor %}
-              {% else %}
-              <div class="px-4 py-3 text-xs text-slate-400">No downloads available</div>
-              {% endif %}
+              <a href="{% static 'files/application_form.pdf' %}" download class="dl-row">
+                <div class="pdf-icon">
+                  <div class="pdf-icon-bg"></div><span class="pdf-icon-label">PDF</span>
+                </div>
+                <div class="dl-text"><strong>Application Form</strong><span>Application Form (capstone)</span></div>
+                <div class="dl-download"><span class="material-symbols-rounded">download</span></div>
+              </a>
+              <a href="{% static 'files/recommendation_form.pdf' %}" download class="dl-row">
+                <div class="pdf-icon">
+                  <div class="pdf-icon-bg"></div><span class="pdf-icon-label">PDF</span>
+                </div>
+                <div class="dl-text"><strong>Dean's Recommendation Form</strong><span>For your references</span></div>
+                <div class="dl-download"><span class="material-symbols-rounded">download</span></div>
+              </a>
+              <div class="prospectus-parent">
+                <div class="prospectus-trigger">
+                  <div class="pdf-icon">
+                    <div class="pdf-icon-bg"></div><span class="pdf-icon-label">PDF</span>
+                  </div>
+                  <div class="dl-text"><strong>Prospectus</strong><span>2 editions — hover to expand</span></div>
+                  <span class="material-symbols-rounded"
+                    style="font-size:15px;color:#d1d5db;flex-shrink:0;">chevron_right</span>
+                </div>
+                <div class="prospectus-sub">
+                  <a href="{% static 'files/prospectus_1.jpg' %}" download class="prospectus-item">
+                    <span class="material-symbols-rounded">picture_as_pdf</span>MIT Curriculum — Effective 2019-2020
+                  </a>
+                  <a href="{% static 'files/prospectus_2.jpg' %}" download class="prospectus-item">
+                    <span class="material-symbols-rounded">picture_as_pdf</span>MIT Curriculum — Effective 2023-2024
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
 
-          <a href="#contact" class="nav-link">Contact</a>
+          <!-- <a href="#programs-section" class="nav-link">Programs</a> -->
+
 
           <a href="{% url 'login' %}"
             class="flex items-center gap-1.5 text-[0.78rem] font-semibold text-white px-5 py-2.5 rounded-lg shadow transition-all"
             style="background:var(--crimson);" onmouseover="this.style.background='var(--crimson-dark)'"
             onmouseout="this.style.background='var(--crimson)'">
             <span class="material-symbols-rounded" style="font-size:15px;">edit_note</span>
-            Log In
+            Log in
           </a>
         </nav>
 
@@ -1417,12 +1478,17 @@
       </div>
     </div>
 
-    <!-- Mobile Menu -->
+    <!-- Mobile menu -->
     <div id="mobile-menu" class="lg:hidden max-h-0 overflow-hidden opacity-0 bg-white border-t border-slate-100">
       <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-0.5">
         <a href="{% url 'about' %}"
           class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
           <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson);">home</span> About
+        </a>
+        <a href="#requirements"
+          class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+          <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson);">checklist</span>
+          Requirements
         </a>
         <a href="#events-carousel"
           class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
@@ -1433,11 +1499,7 @@
           <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson);">calendar_month</span>
           Calendar
         </a>
-        <a href="#requirements"
-          class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-          <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson);">checklist</span>
-          Requirements
-        </a>
+
         <!-- Downloads accordion -->
         <div>
           <button data-acc="downloads"
@@ -1449,20 +1511,65 @@
             <span class="material-symbols-rounded mob-chevron" style="font-size:17px;opacity:0.4;">expand_more</span>
           </button>
           <div id="acc-downloads" class="hidden pl-4 pb-1 flex flex-col gap-0.5">
-            {% if cms.downloads %}{% for dl in cms.downloads %}
-            <a href="{{ dl.url }}" download
+            <a href="{% static 'files/application_form.pdf' %}" download
               class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-red-50 hover:text-red-700 transition-colors">
               <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson);">description</span>
               <div>
-                <p class="font-semibold text-xs">{{ dl.name }}</p>
-                <p class="text-[10px] text-slate-400">{{ dl.file_type }}</p>
+                <p class="font-semibold text-xs">Admission Form</p>
+                <p class="text-[10px] text-slate-400">Official admission form</p>
               </div>
             </a>
-            {% endfor %}{% else %}
-            <p class="px-3 py-2 text-xs text-slate-400">No downloads available</p>
-            {% endif %}
+            <a href="{% static 'files/application_form.pdf' %}" download
+              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-red-50 hover:text-red-700 transition-colors">
+              <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson);">assignment</span>
+              <div>
+                <p class="font-semibold text-xs">Application Form</p>
+                <p class="text-[10px] text-slate-400">Capstone application form</p>
+              </div>
+            </a>
+            <a href="{% static 'files/recommendation_form.pdf' %}" download
+              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-red-50 hover:text-red-700 transition-colors">
+              <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson);">person_check</span>
+              <div>
+                <p class="font-semibold text-xs">Dean's Recommendation Form</p>
+                <p class="text-[10px] text-slate-400">For your references</p>
+              </div>
+            </a>
+            <div>
+              <button data-acc="prospectus-mob"
+                class="w-full flex justify-between items-center px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-red-50 transition-colors">
+                <span class="flex items-center gap-3">
+                  <span class="material-symbols-rounded"
+                    style="font-size:17px;color:var(--crimson);">auto_stories</span>
+                  <div class="text-left">
+                    <p class="font-semibold text-xs">Prospectus</p>
+                    <p class="text-[10px] text-slate-400">2 editions available</p>
+                  </div>
+                </span>
+                <span class="material-symbols-rounded mob-chevron"
+                  style="font-size:15px;opacity:0.4;">expand_more</span>
+              </button>
+              <div id="acc-prospectus-mob"
+                class="hidden pl-8 pb-1 flex flex-col gap-0.5 border-l-2 border-red-100 ml-5 mt-1">
+                <a href="{% static 'files/prospectus_1.jpg' %}" download
+                  class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-600 hover:bg-red-50 hover:text-red-700 transition-colors">
+                  <span class="material-symbols-rounded"
+                    style="font-size:14px;color:var(--crimson);">picture_as_pdf</span> MIT Curriculum 2019–2020
+                </a>
+                <a href="{% static 'files/prospectus_2.jpg' %}" download
+                  class="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-slate-600 hover:bg-red-50 hover:text-red-700 transition-colors">
+                  <span class="material-symbols-rounded"
+                    style="font-size:14px;color:var(--crimson);">picture_as_pdf</span> MIT Curriculum 2023–2024
+                </a>
+              </div>
+            </div>
           </div>
         </div>
+
+        <a href="#programs-section"
+          class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+          <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson);">layers</span> Programs
+        </a>
         <a href="#contact"
           class="mob-link flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
           <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson);">contact_mail</span>
@@ -1478,42 +1585,47 @@
   </header>
 
 
-  <!-- ===== HERO ===== -->
+  <!-- HERO -->
   <section id="hero" class="relative h-screen flex items-center overflow-hidden">
     <img src="{% static 'assets/WMSU.jpg' %}" class="absolute w-full h-full object-cover" alt="WMSU Campus">
     <div class="absolute inset-0 hero-overlay"></div>
     <div class="hero-grid"></div>
 
-    <div id="hero-content" class="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 w-full">
+    <div class="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 w-full">
       <div class="max-w-xl">
+
+        <!-- Tech badge — MIT feel -->
         <div class="flex items-center gap-3 mb-5 fu d1">
           <div style="width:36px;height:2px;background:var(--gold);border-radius:1px;"></div>
           <div class="tech-badge">
-            <div class="tech-badge-dot"></div>Graduate School · Information Technology
+            <div class="tech-badge-dot"></div>
+            Graduate School · Information Technology
           </div>
         </div>
-       
-        
+
         <!-- Heading -->
-        <h1 class="fu d2"
-            style="font-family:'Playfair Display',serif;
-                  font-size:clamp(2.8rem,6vw,4.8rem);
-                  font-weight:900;
-                  line-height:1.05;
-                  color:#ffffff;
-                  text-shadow:0 2px 16px rgba(0,0,0,0.4);">
+        <h1 class="fu d2" style="font-family:'Playfair Display',serif;
+                 font-size:clamp(2.8rem,6vw,4.8rem);
+                 font-weight:900;
+                 line-height:1.05;
+                 color:#ffffff;
+                 text-shadow:0 2px 16px rgba(0,0,0,0.4);">
           The University<br>
           <em style="color:var(--gold-light);font-style:italic;">of Choice</em>
         </h1>
 
 
-        <p class="fu d3 mt-5 mb-8 leading-relaxed"
-          style="font-size:1.05rem;color:rgba(255,255,255,0.85);max-width:400px;text-shadow:0 1px 6px rgba(0,0,0,0.3);">
-          Advance your professional journey with the <strong style="color:#fff;font-weight:600;">Master of Information
-            Technology</strong> program at WMSU Graduate School.
+
+        <!-- Description -->
+        <p class="fu d3 mt-4 mb-8 leading-relaxed"
+          style="font-size:1.05rem;color:rgba(255,255,255,0.82);max-width:400px;text-shadow:0 1px 6px rgba(0,0,0,0.3);">
+          Advance your professional journey with the
+          <strong style="color:#fff;font-weight:600;">Master of Information Technology</strong>
+          program at WMSU Graduate School.
         </p>
+
+        <!-- Buttons -->
         <div class="flex flex-col sm:flex-row gap-3 fu d4">
-          {% if cms.admissions_open %}
           <a href="{% url 'login' %}"
             class="inline-flex items-center justify-center gap-2 font-semibold px-8 py-3.5 rounded-xl text-sm shadow-lg transition-all"
             style="background:var(--crimson);color:#fff;"
@@ -1523,11 +1635,6 @@
             Start Your Application
             <span class="material-symbols-rounded" style="font-size:16px;">arrow_forward</span>
           </a>
-          {% else %}
-          <button disabled
-            class="inline-flex items-center justify-center gap-2 font-semibold px-8 py-3.5 rounded-xl text-sm shadow-lg opacity-50 cursor-not-allowed"
-            style="background:var(--crimson);color:#fff;">Applications Closed</button>
-          {% endif %}
           <a href="#requirements"
             class="inline-flex items-center justify-center gap-2 font-semibold px-8 py-3.5 rounded-xl text-sm transition-all"
             style="background:rgba(255,255,255,0.14);color:#fff;border:1.5px solid rgba(255,255,255,0.38);backdrop-filter:blur(8px);"
@@ -1537,14 +1644,18 @@
             Learn More
           </a>
         </div>
+
       </div>
     </div>
   </section>
 
 
-  <!-- ===== EVENTS CAROUSEL (Pearl) ===== -->
+
+  <!-- EVENTS CAROUSEL -->
   <section id="events-carousel" class="py-20 sm:py-28 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Header row -->
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
         <div>
           <div class="eyebrow mb-2"><span class="eyebrow-line"></span>Latest Happenings</div>
@@ -1557,14 +1668,17 @@
             Event <span id="evt-cur" style="color:var(--crimson);">1</span> of <span id="evt-tot">6</span>
           </span>
           <div class="flex gap-2">
-            <button class="carousel-btn" id="evt-prev" aria-label="Previous"><span
-                class="material-symbols-rounded">chevron_left</span></button>
-            <button class="carousel-btn" id="evt-next" aria-label="Next"><span
-                class="material-symbols-rounded">chevron_right</span></button>
+            <button class="carousel-btn" id="evt-prev" aria-label="Previous event">
+              <span class="material-symbols-rounded">chevron_left</span>
+            </button>
+            <button class="carousel-btn" id="evt-next" aria-label="Next event">
+              <span class="material-symbols-rounded">chevron_right</span>
+            </button>
           </div>
         </div>
       </div>
 
+      <!-- Carousel -->
       <div class="carousel-outer">
         <div class="carousel-track-wrap">
           <div class="carousel-track" id="evt-track">
@@ -1580,21 +1694,28 @@
                   <div class="cs-caption">WMSU Main Campus — Graduate Orientation Ceremony, July 2026</div>
                 </div>
                 <div class="cs-info-side">
-                  <div class="cs-event-meta"><span class="material-symbols-rounded">calendar_month</span> July 12,
-                    2026<span class="dot">·</span><span class="material-symbols-rounded">schedule</span> 8:00 AM – 12:00
-                    NN</div>
+                  <div class="cs-event-meta">
+                    <span class="material-symbols-rounded">calendar_month</span> July 12, 2026
+                    <span class="dot">·</span>
+                    <span class="material-symbols-rounded">schedule</span> 8:00 AM – 12:00 NN
+                  </div>
                   <h3 class="text-xl sm:text-2xl font-bold leading-snug mb-3"
-                    style="font-family:'Playfair Display',serif;color:#1e293b;">MIT New Student Orientation &amp;
-                    Welcome Ceremony</h3>
-                  <p class="text-slate-500 text-sm leading-relaxed">All incoming MIT graduate students are expected to
-                    attend the official orientation. Program coordinators, faculty members, and student representatives
-                    will be present to welcome the new cohort and facilitate initial academic advising sessions.</p>
-                  <div class="cs-venue-pill"><span class="material-symbols-rounded">location_on</span>WMSU University
-                    Gymnasium, Baliwasan</div>
+                    style="font-family:'Playfair Display',serif;color:#1e293b;">
+                    MIT New Student Orientation &amp; Welcome Ceremony
+                  </h3>
+                  <p class="text-slate-500 text-sm leading-relaxed">
+                    All incoming MIT graduate students are expected to attend the official orientation. Program
+                    coordinators, faculty members, and student representatives will be present to welcome the new cohort
+                    and facilitate initial academic advising sessions.
+                  </p>
+                  <div class="cs-venue-pill">
+                    <span class="material-symbols-rounded">location_on</span>
+                    WMSU University Gymnasium, Baliwasan
+                  </div>
                   <div
                     style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;background:#fffbef;border:1px solid #f0e3b8;font-size:0.65rem;color:#92400e;margin-top:8px;width:fit-content;">
-                    <span class="material-symbols-rounded" style="font-size:11px;color:#92400e;">groups</span>Open to
-                    All Incoming Students
+                    <span class="material-symbols-rounded" style="font-size:11px;color:#92400e;">groups</span>
+                    Open to All Incoming Students
                   </div>
                 </div>
               </div>
@@ -1610,17 +1731,23 @@
                   <div class="cs-caption">Panel of examiners during the MIT Capstone Defense, 2025 cohort</div>
                 </div>
                 <div class="cs-info-side">
-                  <div class="cs-event-meta"><span class="material-symbols-rounded">calendar_month</span> August 24,
-                    2026<span class="dot">·</span><span class="material-symbols-rounded">schedule</span> 9:00 AM onwards
+                  <div class="cs-event-meta">
+                    <span class="material-symbols-rounded">calendar_month</span> August 24, 2026
+                    <span class="dot">·</span>
+                    <span class="material-symbols-rounded">schedule</span> 9:00 AM onwards
                   </div>
                   <h3 class="text-xl sm:text-2xl font-bold leading-snug mb-3"
-                    style="font-family:'Playfair Display',serif;color:#1e293b;">MIT Capstone &amp; Thesis Defense Day
+                    style="font-family:'Playfair Display',serif;color:#1e293b;">
+                    MIT Capstone &amp; Thesis Defense Day
                   </h3>
-                  <p class="text-slate-500 text-sm leading-relaxed">Final oral defense sessions for thesis and
-                    non-thesis capstone projects. All candidates must submit a complete defense manuscript at least 10
-                    days prior to the scheduled defense date.</p>
-                  <div class="cs-venue-pill"><span class="material-symbols-rounded">location_on</span>MIT Department
-                    Conference Room</div>
+                  <p class="text-slate-500 text-sm leading-relaxed">
+                    Final oral defense sessions for thesis and non-thesis capstone projects. All candidates must submit
+                    a complete defense manuscript at least 10 days prior to the scheduled defense date.
+                  </p>
+                  <div class="cs-venue-pill">
+                    <span class="material-symbols-rounded">location_on</span>
+                    MIT Department Conference Room
+                  </div>
                 </div>
               </div>
             </div>
@@ -1633,12 +1760,15 @@
                   <div class="cs-date-chip" style="z-index:4;"><span class="day">05</span><span class="month">Sep</span>
                   </div>
                   <div class="cs-img-grid">
-                    <div class="cs-img-main" style="overflow:hidden;max-height:200px;"><img
-                        src="{% static 'assets/WMSU.jpg' %}" alt="Colloquium main"></div>
-                    <div class="cs-img-sub"><img src="{% static 'assets/WMSU.jpg' %}" alt="Colloquium 2"
-                        style="filter:brightness(0.85) hue-rotate(10deg);"></div>
-                    <div class="cs-img-sub"><img src="{% static 'assets/WMSU.jpg' %}" alt="Colloquium 3"
-                        style="filter:sepia(0.3);">
+                    <div class="cs-img-main" style="overflow:hidden;max-height:200px;">
+                      <img src="{% static 'assets/WMSU.jpg' %}" alt="Colloquium main">
+                    </div>
+                    <div class="cs-img-sub">
+                      <img src="{% static 'assets/WMSU.jpg' %}" alt="Colloquium 2"
+                        style="filter:brightness(0.85) hue-rotate(10deg);">
+                    </div>
+                    <div class="cs-img-sub">
+                      <img src="{% static 'assets/WMSU.jpg' %}" alt="Colloquium 3" style="filter:sepia(0.3);">
                       <div class="cs-img-more">+4</div>
                     </div>
                   </div>
@@ -1646,16 +1776,23 @@
                     annual colloquium</div>
                 </div>
                 <div class="cs-info-side">
-                  <div class="cs-event-meta"><span class="material-symbols-rounded">calendar_month</span> September 5,
-                    2026<span class="dot">·</span><span class="material-symbols-rounded">schedule</span> 1:00 PM – 5:00
-                    PM</div>
+                  <div class="cs-event-meta">
+                    <span class="material-symbols-rounded">calendar_month</span> September 5, 2026
+                    <span class="dot">·</span>
+                    <span class="material-symbols-rounded">schedule</span> 1:00 PM – 5:00 PM
+                  </div>
                   <h3 class="text-xl sm:text-2xl font-bold leading-snug mb-3"
-                    style="font-family:'Playfair Display',serif;color:#1e293b;">Annual MIT Research Colloquium</h3>
-                  <p class="text-slate-500 text-sm leading-relaxed">Faculty and graduate students present ongoing
-                    research work. Open to all MIT students, undergraduate partners, and invited industry guests
-                    attending in-person or via livestream.</p>
-                  <div class="cs-venue-pill"><span class="material-symbols-rounded">location_on</span>CCS Auditorium,
-                    WMSU Campus</div>
+                    style="font-family:'Playfair Display',serif;color:#1e293b;">
+                    Annual MIT Research Colloquium
+                  </h3>
+                  <p class="text-slate-500 text-sm leading-relaxed">
+                    Faculty and graduate students present ongoing research work. Open to all MIT students, undergraduate
+                    partners, and invited industry guests attending in-person or via livestream.
+                  </p>
+                  <div class="cs-venue-pill">
+                    <span class="material-symbols-rounded">location_on</span>
+                    CCS Auditorium, WMSU Campus
+                  </div>
                 </div>
               </div>
             </div>
@@ -1670,16 +1807,23 @@
                   <div class="cs-caption">Registrar's Office — Enrollment for AY 2026–2027</div>
                 </div>
                 <div class="cs-info-side">
-                  <div class="cs-event-meta"><span class="material-symbols-rounded">calendar_month</span> July 7–18,
-                    2026<span class="dot">·</span><span class="material-symbols-rounded">schedule</span> 8:00 AM – 5:00
-                    PM</div>
+                  <div class="cs-event-meta">
+                    <span class="material-symbols-rounded">calendar_month</span> July 7–18, 2026
+                    <span class="dot">·</span>
+                    <span class="material-symbols-rounded">schedule</span> 8:00 AM – 5:00 PM
+                  </div>
                   <h3 class="text-xl sm:text-2xl font-bold leading-snug mb-3"
-                    style="font-family:'Playfair Display',serif;color:#1e293b;">Graduate School Enrollment Period</h3>
-                  <p class="text-slate-500 text-sm leading-relaxed">Official enrollment window for newly admitted and
-                    continuing MIT graduate students. Bring your Admission Slip, valid ID, and complete documentary
-                    requirements to the Graduate School Office.</p>
-                  <div class="cs-venue-pill"><span class="material-symbols-rounded">location_on</span>WMSU Registrar's
-                    Office &amp; Graduate School Office</div>
+                    style="font-family:'Playfair Display',serif;color:#1e293b;">
+                    Graduate School Enrollment Period
+                  </h3>
+                  <p class="text-slate-500 text-sm leading-relaxed">
+                    Official enrollment window for newly admitted and continuing MIT graduate students. Bring your
+                    Admission Slip, valid ID, and complete documentary requirements to the Graduate School Office.
+                  </p>
+                  <div class="cs-venue-pill">
+                    <span class="material-symbols-rounded">location_on</span>
+                    WMSU Registrar's Office &amp; Graduate School Office
+                  </div>
                 </div>
               </div>
             </div>
@@ -1694,17 +1838,23 @@
                   <div class="cs-caption">MIT faculty during a recent professional development seminar</div>
                 </div>
                 <div class="cs-info-side">
-                  <div class="cs-event-meta"><span class="material-symbols-rounded">calendar_month</span> September 19,
-                    2026<span class="dot">·</span><span class="material-symbols-rounded">schedule</span> 8:30 AM – 12:00
-                    NN</div>
+                  <div class="cs-event-meta">
+                    <span class="material-symbols-rounded">calendar_month</span> September 19, 2026
+                    <span class="dot">·</span>
+                    <span class="material-symbols-rounded">schedule</span> 8:30 AM – 12:00 NN
+                  </div>
                   <h3 class="text-xl sm:text-2xl font-bold leading-snug mb-3"
-                    style="font-family:'Playfair Display',serif;color:#1e293b;">Faculty Development Seminar on AI in
-                    Education</h3>
-                  <p class="text-slate-500 text-sm leading-relaxed">A half-day professional development session for
-                    graduate faculty exploring AI tools, adaptive learning platforms, and ethical use of technology in
-                    higher education.</p>
-                  <div class="cs-venue-pill"><span class="material-symbols-rounded">location_on</span>CCS Faculty Room,
-                    WMSU Campus</div>
+                    style="font-family:'Playfair Display',serif;color:#1e293b;">
+                    Faculty Development Seminar on AI in Education
+                  </h3>
+                  <p class="text-slate-500 text-sm leading-relaxed">
+                    A half-day professional development session for graduate faculty exploring AI tools, adaptive
+                    learning platforms, and ethical use of technology in higher education.
+                  </p>
+                  <div class="cs-venue-pill">
+                    <span class="material-symbols-rounded">location_on</span>
+                    CCS Faculty Room, WMSU Campus
+                  </div>
                 </div>
               </div>
             </div>
@@ -1720,16 +1870,23 @@
                   <div class="cs-caption">WMSU Graduate School Commencement Exercises — Class of 2025</div>
                 </div>
                 <div class="cs-info-side">
-                  <div class="cs-event-meta"><span class="material-symbols-rounded">calendar_month</span> October 10,
-                    2026<span class="dot">·</span><span class="material-symbols-rounded">schedule</span> 9:00 AM – 12:00
-                    NN</div>
+                  <div class="cs-event-meta">
+                    <span class="material-symbols-rounded">calendar_month</span> October 10, 2026
+                    <span class="dot">·</span>
+                    <span class="material-symbols-rounded">schedule</span> 9:00 AM – 12:00 NN
+                  </div>
                   <h3 class="text-xl sm:text-2xl font-bold leading-snug mb-3"
-                    style="font-family:'Playfair Display',serif;color:#1e293b;">MIT Commencement Exercises 2026</h3>
-                  <p class="text-slate-500 text-sm leading-relaxed">Culminating ceremony awarding the degree of Master
-                    of Information Technology to the Class of 2026. Families, guests, and distinguished members of the
-                    university community are warmly welcome.</p>
-                  <div class="cs-venue-pill"><span class="material-symbols-rounded">location_on</span>WMSU University
-                    Gymnasium</div>
+                    style="font-family:'Playfair Display',serif;color:#1e293b;">
+                    MIT Commencement Exercises 2026
+                  </h3>
+                  <p class="text-slate-500 text-sm leading-relaxed">
+                    Culminating ceremony awarding the degree of Master of Information Technology to the Class of 2026.
+                    Families, guests, and distinguished members of the university community are warmly welcome.
+                  </p>
+                  <div class="cs-venue-pill">
+                    <span class="material-symbols-rounded">location_on</span>
+                    WMSU University Gymnasium
+                  </div>
                 </div>
               </div>
             </div>
@@ -1738,6 +1895,7 @@
         </div>
       </div>
 
+      <!-- Dot indicators -->
       <div class="carousel-dots" id="evt-dots">
         <button class="carousel-dot active" data-idx="0" aria-label="Slide 1"></button>
         <button class="carousel-dot" data-idx="1" aria-label="Slide 2"></button>
@@ -1746,22 +1904,26 @@
         <button class="carousel-dot" data-idx="4" aria-label="Slide 5"></button>
         <button class="carousel-dot" data-idx="5" aria-label="Slide 6"></button>
       </div>
+
     </div>
   </section>
 
 
-  <!-- ===== ACADEMIC CALENDAR (Pearl) ===== -->
+  <!-- CALENDAR -->
   <section id="calendar" class="evt-section">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div style="margin-bottom:40px;">
         <div class="eyebrow mb-2"><span class="eyebrow-line"></span>Academic Calendar</div>
-        <h2 class="text-3xl sm:text-4xl font-bold mt-2" style="color:var(--crimson);">Events &amp; Schedule</h2>
+        <h2 class="text-3xl sm:text-4xl font-bold mt-2" style="color:var(--crimson);">Events &amp; <span
+            style="color:var(--crimson);">Schedule</span></h2>
         <div class="gold-bar mt-3 mb-2"></div>
         <p class="text-slate-500 text-sm leading-relaxed max-w-lg">Orientation, training, capacity-building workshops,
           defenses, and key dates for the MIT program — AY 2026–2027.</p>
       </div>
+
       <div class="month-tabs" id="monthTabs"></div>
       <div class="cal-grid" id="calGrid"></div>
+
       <div class="legend-row">
         <div class="leg-item">
           <div class="leg-dot" style="background:#7b1113;"></div>Orientation / Ceremony
@@ -1776,6 +1938,7 @@
           <div class="leg-dot" style="background:#16a34a;"></div>Defense / Assessment
         </div>
       </div>
+
       <div class="detail-panel" id="detailPanel">
         <div class="detail-strip" id="detailStrip"></div>
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
@@ -1805,6 +1968,7 @@
         </div>
         <p class="detail-desc" id="detailDesc"></p>
       </div>
+
       <div style="margin-top:28px;">
         <div style="margin-bottom:12px;"><span class="evt-count-label" id="evtListLabel"></span></div>
         <div class="evts-grid" id="evtList"></div>
@@ -1812,53 +1976,62 @@
     </div>
   </section>
 
-
-  <!-- ===== REQUIREMENTS (CMS) ===== -->
+  <!-- REQUIREMENTS -->
   <section id="requirements" class="py-20 sm:py-28 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid lg:grid-cols-2 gap-14 lg:gap-20 items-start">
 
         <!-- Left -->
         <div>
-          <div class="eyebrow mb-2"><span class="eyebrow-line"></span>How to Apply</div>
+          <div class="eyebrow mb-2">
+            <span class="eyebrow-line"></span>
+            How to Apply
+          </div>
           <h2 class="text-3xl sm:text-4xl font-bold leading-tight mt-2" style="color:var(--crimson);">
-            Admission<br />Requirements</h2>
+            Admission<br />Requirements
+          </h2>
           <div class="gold-bar"></div>
-          <p class="text-slate-500 mb-7 text-sm leading-relaxed max-w-sm">Prepare the following documents carefully.
-            Incomplete submissions will not be processed by the Graduate School.</p>
+          <p class="text-slate-500 mb-7 text-sm leading-relaxed max-w-sm">
+            Prepare the following documents carefully. Incomplete submissions will not be processed by the Graduate
+            School.
+          </p>
           <ul class="space-y-2.5">
-            <li class="req-item"><span class="req-num">1</span>
+            <li class="req-item">
+              <span class="req-num">1</span>
               <div>
                 <p class="font-semibold text-sm text-slate-800">Official Transcript of Records (TOR)</p>
                 <p class="text-xs text-slate-400 mt-0.5">Certified true copy from your institution</p>
               </div>
             </li>
-            <li class="req-item"><span class="req-num">2</span>
+            <li class="req-item">
+              <span class="req-num">2</span>
               <div>
                 <p class="font-semibold text-sm text-slate-800">Completed Application Form</p>
                 <p class="text-xs text-slate-400 mt-0.5">Available in the Downloadables menu above</p>
               </div>
             </li>
-            <li class="req-item"><span class="req-num">3</span>
+            <li class="req-item">
+              <span class="req-num">3</span>
               <div>
                 <p class="font-semibold text-sm text-slate-800">Valid Government-Issued ID</p>
                 <p class="text-xs text-slate-400 mt-0.5">Photocopy and original for verification</p>
               </div>
             </li>
-            <li class="req-item"><span class="req-num">4</span>
+            <li class="req-item">
+              <span class="req-num">4</span>
               <div>
                 <p class="font-semibold text-sm text-slate-800">Two Letters of Recommendation</p>
                 <p class="text-xs text-slate-400 mt-0.5">From academic or professional references</p>
               </div>
             </li>
-            <li class="req-item"><span class="req-num">5</span>
+            <li class="req-item">
+              <span class="req-num">5</span>
               <div>
                 <p class="font-semibold text-sm text-slate-800">Statement of Purpose</p>
                 <p class="text-xs text-slate-400 mt-0.5">500–800 words outlining your academic goals</p>
               </div>
             </li>
           </ul>
-          {% if cms.admissions_open %}
           <a href="{% url 'login' %}"
             class="inline-flex items-center gap-2 mt-7 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-md transition-all"
             style="background:var(--crimson);" onmouseover="this.style.background='var(--crimson-dark)'"
@@ -1867,7 +2040,6 @@
             Begin Application
             <span class="material-symbols-rounded" style="font-size:16px;">arrow_forward</span>
           </a>
-          {% endif %}
         </div>
 
         <!-- Right -->
@@ -1888,12 +2060,8 @@
                 style="background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.12);padding:16px;border-radius:12px;">
                 <p class="text-white/50 text-[10px] uppercase tracking-widest mb-1" style="font-family:var(--mono);">
                   Deadline</p>
-                <p class="text-white font-black text-2xl" style="font-family:'Playfair Display',serif;">
-                  {% if cms.application_deadline %}{{ cms.application_deadline|date:"F j" }}{% else %}June 30{% endif %}
-                </p>
-                <p class="text-white/45 text-xs" style="font-family:var(--mono);">
-                  {% if cms.application_deadline %}{{ cms.application_deadline|date:"Y" }}{% else %}2026{% endif %}
-                </p>
+                <p class="text-white font-black text-2xl" style="font-family:'Playfair Display',serif;">June 30</p>
+                <p class="text-white/45 text-xs" style="font-family:var(--mono);">2026</p>
               </div>
               <div
                 style="background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.12);padding:16px;border-radius:12px;">
@@ -1919,8 +2087,10 @@
           </div>
           <div class="tip-box">
             <div class="tip-icon"><span class="material-symbols-rounded">lightbulb</span></div>
-            <p class="text-xs text-amber-800 leading-relaxed">Use the <strong>Programs</strong> menu to browse available
-              programs, or <strong>Downloadables</strong> for admission and recommendation forms.</p>
+            <p class="text-xs text-amber-800 leading-relaxed">
+              Use the <strong>Programs</strong> menu to download curriculum PDFs, or <strong>Downloadables</strong> for
+              admission and recommendation forms.
+            </p>
           </div>
         </div>
 
@@ -1929,17 +2099,24 @@
   </section>
 
 
-  <!-- ===== CONTACT (CMS) ===== -->
+
+
+
+  <!-- CONTACT -->
   <section id="contact" class="py-20 sm:py-28" style="background:var(--slate-soft);">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
       <div class="text-center mb-12">
-        <div class="eyebrow justify-center mb-2"><span class="eyebrow-line"></span>Get in Touch<span
-            class="eyebrow-line"></span></div>
+        <div class="eyebrow justify-center mb-2">
+          <span class="eyebrow-line"></span>Get in Touch<span class="eyebrow-line"></span>
+        </div>
         <h2 class="text-3xl sm:text-4xl font-bold mt-2" style="color:var(--crimson);">Contact the Graduate School</h2>
         <div class="gold-bar mx-auto mt-3"></div>
-        <p class="text-slate-500 max-w-sm mx-auto text-sm leading-relaxed">Our admissions team is ready to guide you
-          through every step of the process.</p>
+        <p class="text-slate-500 max-w-sm mx-auto text-sm leading-relaxed">
+          Our admissions team is ready to guide you through every step of the process.
+        </p>
       </div>
+
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div class="c-card">
           <div class="c-icon"><span class="material-symbols-rounded">mail</span></div>
@@ -1963,37 +2140,34 @@
           <div class="c-icon"><span class="material-symbols-rounded">location_on</span></div>
           <p class="text-[10px] text-slate-400 uppercase tracking-widest mb-1.5" style="font-family:var(--mono);">Visit
             Us</p>
-          <p class="font-semibold text-sm text-slate-800">WMSU Main Campus</p>
+          <p class="font-semibold text-sm text-slate-800">WMSU Main Campus </p>
           <p class="text-xs text-slate-400 mt-0.5">Normal Road, Baliwasan<br>Zamboanga City</p>
         </div>
       </div>
+
       <div class="cta-banner shadow-xl">
         <div class="px-6 sm:px-10 py-9 flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
           <div>
             <h3 class="text-white font-bold text-xl sm:text-2xl" style="font-family:'Playfair Display',serif;">Ready to
               take the next step?</h3>
-            <p class="text-white/55 text-sm mt-1" style="font-family:var(--mono);">Applications open for AY 2026–2027.
+            <p class="text-white/55 text-sm mt-1" style="font-family:var(--mono);">Applications open for AY 2026–2027
             </p>
           </div>
-          {% if cms.admissions_open %}
           <a href="{% url 'login' %}"
             class="shrink-0 inline-flex items-center gap-2 bg-white font-semibold px-7 py-3 rounded-xl text-sm hover:bg-slate-50 transition-all shadow"
             style="color:var(--crimson);">
-            <span class="material-symbols-rounded" style="font-size:16px;">edit_note</span>Apply Now<span
-              class="material-symbols-rounded" style="font-size:16px;">arrow_forward</span>
+            <span class="material-symbols-rounded" style="font-size:16px;">edit_note</span>
+            Apply Now
+            <span class="material-symbols-rounded" style="font-size:16px;">arrow_forward</span>
           </a>
-          {% else %}
-          <button disabled
-            class="shrink-0 inline-flex items-center gap-2 bg-white/50 font-semibold px-7 py-3 rounded-xl text-sm cursor-not-allowed"
-            style="color:var(--crimson);">Applications Closed</button>
-          {% endif %}
         </div>
       </div>
+
     </div>
   </section>
 
 
-  <!-- ===== FOOTER ===== -->
+  <!-- FOOTER -->
   <footer class="bg-white border-t border-slate-100 py-6">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3">
@@ -2005,12 +2179,13 @@
       <div class="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs text-slate-400">
         <a href="{% url 'about' %}" class="flex items-center gap-1 hover:text-slate-600 transition-colors"><span
             class="material-symbols-rounded" style="font-size:13px;">home</span> About</a>
+        <a href="#requirements" class="flex items-center gap-1 hover:text-slate-600 transition-colors"><span
+            class="material-symbols-rounded" style="font-size:13px;">checklist</span> Requirements</a>
+        <!-- <a href="#programs-section" class="flex items-center gap-1 hover:text-slate-600 transition-colors"><span class="material-symbols-rounded" style="font-size:13px;">school</span> Programs</a> -->
         <a href="#events-carousel" class="flex items-center gap-1 hover:text-slate-600 transition-colors"><span
             class="material-symbols-rounded" style="font-size:13px;">event</span> Events</a>
         <a href="#calendar" class="flex items-center gap-1 hover:text-slate-600 transition-colors"><span
             class="material-symbols-rounded" style="font-size:13px;">calendar_month</span> Calendar</a>
-        <a href="#requirements" class="flex items-center gap-1 hover:text-slate-600 transition-colors"><span
-            class="material-symbols-rounded" style="font-size:13px;">checklist</span> Requirements</a>
         <a href="#contact" class="flex items-center gap-1 hover:text-slate-600 transition-colors"><span
             class="material-symbols-rounded" style="font-size:13px;">contact_mail</span> Contact</a>
       </div>
@@ -2018,90 +2193,88 @@
   </footer>
 
 
-  <!-- ===== SCRIPTS ===== -->
-
-  <!-- 1. Layout offset (announcement bar + header) -->
+  <!-- SCRIPTS -->
   <script>
-    (function () {
-      function fix() {
-        const bar = document.getElementById('announcementBar');
-        const hdr = document.getElementById('main-header');
-        const hero = document.getElementById('hero-content');
-        const bH = bar ? bar.offsetHeight : 0;
-        const hH = hdr ? hdr.offsetHeight : 69;
-        if (hdr) hdr.style.top = bH + 'px';
-        if (hero) hero.style.paddingTop = (bH + hH) + 'px';
-      }
-      fix();
-      window.addEventListener('resize', fix);
-    })();
-  </script>
-
-  <!-- 2. Hamburger + mobile accordions -->
-  <script>
+    // Hamburger toggle
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
     const icoOpen = document.getElementById('ico-open');
     const icoClose = document.getElementById('ico-close');
     let menuOpen = false;
-    function setMenu(o) {
-      menuOpen = o;
-      mobileMenu.style.maxHeight = o ? mobileMenu.scrollHeight + 'px' : '0';
-      mobileMenu.style.opacity = o ? '1' : '0';
-      icoOpen.classList.toggle('hidden', o);
-      icoClose.classList.toggle('hidden', !o);
+
+    function setMenu(open) {
+      menuOpen = open;
+      mobileMenu.style.maxHeight = open ? mobileMenu.scrollHeight + 'px' : '0';
+      mobileMenu.style.opacity = open ? '1' : '0';
+      icoOpen.classList.toggle('hidden', open);
+      icoClose.classList.toggle('hidden', !open);
     }
+
     menuBtn.addEventListener('click', () => setMenu(!menuOpen));
     document.querySelectorAll('.mob-link').forEach(l => l.addEventListener('click', () => setMenu(false)));
+
+    // Mobile accordions
     document.querySelectorAll('[data-acc]').forEach(btn => {
       const panel = document.getElementById('acc-' + btn.dataset.acc);
-      const chev = btn.querySelector('.mob-chevron');
+      const chevron = btn.querySelector('.mob-chevron');
       let open = false;
       btn.addEventListener('click', () => {
         open = !open;
         panel.classList.toggle('hidden', !open);
-        chev.classList.toggle('rotated', open);
-        if (menuOpen) { mobileMenu.style.maxHeight = 'none'; requestAnimationFrame(() => { mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px'; }); }
+        chevron.classList.toggle('rotated', open);
+        if (menuOpen) {
+          mobileMenu.style.maxHeight = 'none';
+          requestAnimationFrame(() => { mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px'; });
+        }
       });
     });
-  </script>
 
-  <!-- 3. Events carousel -->
-  <script>
+    // Events carousel
     (function () {
       const track = document.getElementById('evt-track');
       const slides = track.querySelectorAll('.carousel-slide');
       const dots = document.querySelectorAll('#evt-dots .carousel-dot');
-      const prev = document.getElementById('evt-prev');
-      const next = document.getElementById('evt-next');
+      const prevBtn = document.getElementById('evt-prev');
+      const nextBtn = document.getElementById('evt-next');
       const curEl = document.getElementById('evt-cur');
       const totEl = document.getElementById('evt-tot');
       const total = slides.length;
-      let cur = 0, timer;
+      let current = 0, autoTimer;
+
       totEl.textContent = total;
-      function goTo(i) {
-        slides[cur].classList.remove('is-active');
-        dots[cur].classList.remove('active');
-        cur = (i + total) % total;
-        slides[cur].classList.add('is-active');
-        dots[cur].classList.add('active');
-        track.style.transform = `translateX(-${cur * 100}%)`;
-        curEl.textContent = cur + 1;
+
+      function goTo(idx) {
+        slides[current].classList.remove('is-active');
+        dots[current].classList.remove('active');
+        current = (idx + total) % total;
+        slides[current].classList.add('is-active');
+        dots[current].classList.add('active');
+        track.style.transform = `translateX(-${current * 100}%)`;
+        curEl.textContent = current + 1;
       }
-      function startAuto() { clearInterval(timer); timer = setInterval(() => goTo(cur + 1), 5500); }
-      prev.addEventListener('click', () => { goTo(cur - 1); startAuto(); });
-      next.addEventListener('click', () => { goTo(cur + 1); startAuto(); });
-      dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.idx); startAuto(); }));
-      let sx = 0;
+
+      function startAuto() {
+        clearInterval(autoTimer);
+        autoTimer = setInterval(() => goTo(current + 1), 5500);
+      }
+
+      prevBtn.addEventListener('click', () => { goTo(current - 1); startAuto(); });
+      nextBtn.addEventListener('click', () => { goTo(current + 1); startAuto(); });
+      dots.forEach(dot => dot.addEventListener('click', () => { goTo(+dot.dataset.idx); startAuto(); }));
+
+      // Swipe support
+      let startX = 0;
       const wrap = track.parentElement;
-      wrap.addEventListener('pointerdown', e => { sx = e.clientX; });
-      wrap.addEventListener('pointerup', e => { const dx = e.clientX - sx; if (Math.abs(dx) > 40) { goTo(dx < 0 ? cur + 1 : cur - 1); startAuto(); } });
+      wrap.addEventListener('pointerdown', e => { startX = e.clientX; });
+      wrap.addEventListener('pointerup', e => {
+        const dx = e.clientX - startX;
+        if (Math.abs(dx) > 40) { goTo(dx < 0 ? current + 1 : current - 1); startAuto(); }
+      });
+
       startAuto();
     })();
-  </script>
 
-  <!-- 4. Academic calendar -->
-  <script>
+    // Academic calendar — all 12 months
     (function () {
       const EVENTS = [
         { id: 1, month: 1, day: 15, title: "Spring Term Advising Opens", type: "cr", tag: "Admin", time: "8:00 AM", venue: "Graduate School Office", audience: "All Students", desc: "Academic advisors are available for course load planning and thesis/capstone consultations for the spring term." },
@@ -2135,10 +2308,18 @@
         { id: 29, month: 12, day: 5, title: "End-of-Semester Review & Evaluation", type: "go", tag: "Seminar", time: "1:00 PM – 4:00 PM", venue: "MIT Department Room", audience: "All MIT Students & Faculty", desc: "End-of-year academic performance review. Student feedback forms distributed. Faculty evaluations open until December 12." },
         { id: 30, month: 12, day: 18, title: "Christmas Break Begins", type: "cr", tag: "Holiday", time: "All Day", venue: "N/A", audience: "All", desc: "University Christmas break. Graduate School Office closed December 18 – January 3, 2027. Classes resume January 5, 2027." },
       ];
+
       const MN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
       const MNS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const DL = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      const TC = { cr: { dot: "ed-cr", card: "tc-cr", tag: "et-cr", strip: "#7b1113" }, go: { dot: "ed-go", card: "tc-go", tag: "et-go", strip: "#c9a84c" }, bl: { dot: "ed-bl", card: "tc-bl", tag: "et-bl", strip: "#2563eb" }, gr: { dot: "ed-gr", card: "tc-gr", tag: "et-gr", strip: "#16a34a" } };
+      const TC = {
+        cr: { dot: "ed-cr", card: "tc-cr", tag: "et-cr", strip: "#7b1113" },
+        go: { dot: "ed-go", card: "tc-go", tag: "et-go", strip: "#c9a84c" },
+        bl: { dot: "ed-bl", card: "tc-bl", tag: "et-bl", strip: "#2563eb" },
+        gr: { dot: "ed-gr", card: "tc-gr", tag: "et-gr", strip: "#16a34a" }
+      };
+
+      // Default to current month, clamped to 1–12
       let cur = new Date().getMonth() + 1;
 
       function buildTabs() {
@@ -2151,34 +2332,44 @@
           w.appendChild(b);
         }
       }
+
       function buildCal() {
         const g = document.getElementById("calGrid"); g.innerHTML = "";
-        DL.forEach(d => { const c = document.createElement("div"); c.className = "cal-day-hdr"; c.textContent = d; g.appendChild(c); });
+        DL.forEach(d => {
+          const c = document.createElement("div"); c.className = "cal-day-hdr"; c.textContent = d; g.appendChild(c);
+        });
         const y = 2026, fd = new Date(y, cur - 1, 1).getDay(), dim = new Date(y, cur, 0).getDate(), dip = new Date(y, cur - 1, 0).getDate();
         const me = EVENTS.filter(e => e.month === cur), ebd = {};
         me.forEach(e => { if (!ebd[e.day]) ebd[e.day] = []; ebd[e.day].push(e); });
-        const td = new Date(), isCM = td.getFullYear() === y && (td.getMonth() + 1) === cur;
+        const td = new Date(), isCurMo = td.getFullYear() === y && (td.getMonth() + 1) === cur;
         let cells = [];
-        for (let i = 0; i < fd; i++)cells.push({ d: dip - fd + 1 + i, t: "p" });
-        for (let d = 1; d <= dim; d++)cells.push({ d, t: "c" });
+        for (let i = 0; i < fd; i++) cells.push({ d: dip - fd + 1 + i, t: "p" });
+        for (let d = 1; d <= dim; d++) cells.push({ d, t: "c" });
         while (cells.length % 7 !== 0) cells.push({ d: cells.length - fd - dim + 1, t: "n" });
         cells.forEach(c => {
           const el = document.createElement("div"); el.className = "cal-cell" + (c.t !== "c" ? " other-mo" : "");
           const evs = c.t === "c" ? (ebd[c.d] || []) : [];
           if (evs.length) el.classList.add("has-ev");
-          const isTo = isCM && c.d === td.getDate() && c.t === "c";
-          el.innerHTML = (isTo ? `<div class="cnum-today">${c.d}</div>` : `<div class="cnum">${c.d}</div>`) + evs.slice(0, 2).map(e => `<div class="edot ${TC[e.type].dot}">${e.tag}</div>`).join("");
+          const isTo = isCurMo && c.d === td.getDate() && c.t === "c";
+          const numH = isTo ? `<div class="cnum-today">${c.d}</div>` : `<div class="cnum">${c.d}</div>`;
+          const dotsH = evs.slice(0, 2).map(e => `<div class="edot ${TC[e.type].dot}">${e.tag}</div>`).join("");
+          el.innerHTML = numH + dotsH;
           if (evs.length) el.onclick = () => showDet(evs[0]);
           g.appendChild(el);
         });
       }
+
       function buildList() {
         const l = document.getElementById("evtList"), lb = document.getElementById("evtListLabel");
         const me = EVENTS.filter(e => e.month === cur).sort((a, b) => a.day - b.day);
         lb.textContent = `${me.length} event${me.length !== 1 ? "s" : ""} — ${MN[cur - 1]} 2026`;
-        l.innerHTML = me.length ? me.map(e => `<div class="ecard ${TC[e.type].card}" onclick="showEvtDet(${e.id})"><div class="ecard-date"><div class="dn">${String(e.day).padStart(2, "0")}</div><div class="dm">${MNS[e.month - 1]}</div></div><div><div class="etag ${TC[e.type].tag}">${e.tag}</div><div class="ecard-title">${e.title}</div><div class="ecard-time">${e.time}</div></div></div>`).join("") : `<p style="font-family:var(--mono);font-size:12px;color:#9ca3af;grid-column:1/-1;padding:16px 0;">No scheduled events this month.</p>`;
+        l.innerHTML = me.length
+          ? me.map(e => `<div class="ecard ${TC[e.type].card}" onclick="showEvtDet(${e.id})"><div class="ecard-date"><div class="dn">${String(e.day).padStart(2, "0")}</div><div class="dm">${MNS[e.month - 1]}</div></div><div><div class="etag ${TC[e.type].tag}">${e.tag}</div><div class="ecard-title">${e.title}</div><div class="ecard-time">${e.time}</div></div></div>`).join("")
+          : `<p style="font-family:var(--mono);font-size:12px;color:#9ca3af;grid-column:1/-1;padding:16px 0;">No scheduled events this month.</p>`;
       }
+
       window.showEvtDet = function (id) { const e = EVENTS.find(x => x.id === id); if (e) showDet(e); };
+
       function showDet(e) {
         const tc = TC[e.type], p = document.getElementById("detailPanel");
         document.getElementById("detailStrip").style.background = tc.strip;
@@ -2192,7 +2383,9 @@
         p.classList.add("vis");
         p.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
+
       window.closeEvtDetail = function () { document.getElementById("detailPanel").classList.remove("vis"); };
+
       function buildAll() { buildTabs(); buildCal(); buildList(); closeEvtDetail(); }
       buildAll();
     })();

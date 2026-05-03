@@ -7,24 +7,28 @@ let curriculumData = [];
 let statisticsData = [];
 let facultyData = [];
 
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+        document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='))?.split('=')[1] || '';
+}
+
 // Load program CMS data
 async function loadProgramCMS() {
-  try {
-    const response = await fetch('/admin/api/program/cms/');
-    const result = await response.json();
-    if (result.success) {
-      programCMSData = result.data;
-      populateProgramForms();
-      loadObjectives();
-      loadOutcomes();
-      loadCurriculum();
-      loadStatistics();
-      loadFaculty();
+    try {
+        const response = await fetch('/admin-panel/api/program/cms/', {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': getCSRFToken()
+            }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            populateProgramInfo(data.data);
+        }
+    } catch (error) {
+        console.error('Error loading program CMS:', error);
     }
-  } catch (e) {
-    console.error('Error loading program CMS:', e);
-    showToast('Error loading program data', 'error');
-  }
 }
 
 // Switch tabs in program section
@@ -52,15 +56,18 @@ function switchProgramTab(tabName, button) {
 }
 
 // Populate program info forms
-function populateProgramForms() {
-  document.getElementById('programName').value = programCMSData.program_name || '';
-  document.getElementById('programDegree').value = programCMSData.program_degree || '';
-  document.getElementById('programTagline').value = programCMSData.program_tagline || '';
-  document.getElementById('programDescription').value = programCMSData.program_description || '';
-  document.getElementById('programInstitution').value = programCMSData.program_institution || '';
-  document.getElementById('programCOPC').value = programCMSData.program_copc_number || '';
-  document.getElementById('programEffectiveYear').value = programCMSData.program_effective_year || '';
-  document.getElementById('programAccreditor').value = programCMSData.program_accreditor || '';
+function populateProgramInfo(data) {
+    // Fill in the program info fields if they exist
+    const fields = ['program_name', 'program_degree', 'program_title', 'program_tagline', 
+                    'program_description', 'program_institution', 'program_copc_number', 
+                    'program_effective_year', 'program_accreditor'];
+    
+    fields.forEach(field => {
+        const element = document.getElementById(field);
+        if (element && data[field]) {
+            element.value = data[field];
+        }
+    });
 }
 
 // Save program basic info
@@ -419,8 +426,4 @@ async function saveProgramCMS() {
 }
 
 // Load data when page loads
-document.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('page-program')) {
-    loadProgramCMS();
-  }
-});
+document.addEventListener('DOMContentLoaded', loadProgramCMS);

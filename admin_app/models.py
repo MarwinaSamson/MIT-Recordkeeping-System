@@ -45,6 +45,20 @@ class Application(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    program_level = models.CharField(
+    max_length=50,
+    blank=True,
+    choices=[('masters', 'Master\'s Degree'), ('doctoral',
+                                                'Doctoral Degree'), ('certificate', 'Certificate Program')],
+    help_text="Program level (Masters, Doctoral, etc.)"
+    )
+
+    curriculum_data = models.JSONField(
+    default=dict,
+    blank=True,
+    help_text="Structured curriculum data including courses, units, prerequisites, and level distribution"
+    )
+
     class Meta:
         ordering = ['-submission_date']
 

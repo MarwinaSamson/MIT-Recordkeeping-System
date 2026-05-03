@@ -182,8 +182,10 @@ def update_application_status(request):
             app.semester = data.get('semester', '').strip()
         if 'year_admitted' in data:
             app.year_admitted = data.get('year_admitted', '').strip()
-        if 'curriculum' in data:
-            app.curriculum = data.get('curriculum', '').strip()
+        if 'program_level' in data:
+            app.program_level = data.get('program_level', '').strip()
+        if 'curriculum_data' in data:
+            app.curriculum_data = data.get('curriculum_data', {})
 
         app.save()
 
@@ -210,7 +212,6 @@ def update_application_status(request):
             'success': False,
             'message': str(e)
         }, status=400)
-
 
 @login_required(login_url='login')
 @user_passes_test(is_superuser, login_url='login')
