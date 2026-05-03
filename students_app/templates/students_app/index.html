@@ -1300,24 +1300,24 @@
   </div>
   <script>
     (function () {
-      const anns = [{% for ann in cms.announcements %}{ text: "{{ ann.text|escapejs }}", duration: { { ann.duration } } } {% if not forloop.last %}, {% endif %} {% endfor %}];
-    if (anns.length <= 1) return;
-    let cur = 0;
-    function showNext() {
-      const el = document.getElementById('announcementText');
-      el.classList.add('slide-out');
-      setTimeout(() => {
-        cur = (cur + 1) % anns.length;
-        el.textContent = anns[cur].text;
-        el.classList.remove('slide-out');
-        el.classList.add('slide-in');
-        requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('slide-in')));
-        scheduleNext();
-      }, 380);
-    }
-    function scheduleNext() { setTimeout(showNext, anns[cur].duration * 1000); }
-    scheduleNext();
-}) ();
+      const anns = [{% for ann in cms.announcements %}{ text: "{{ ann.text|escapejs }}", duration: {{ ann.duration }} }{% if not forloop.last %}, {% endif %}{% endfor %}];
+      if (anns.length <= 1) return;
+      let cur = 0;
+      function showNext() {
+        const el = document.getElementById('announcementText');
+        el.classList.add('slide-out');
+        setTimeout(() => {
+          cur = (cur + 1) % anns.length;
+          el.textContent = anns[cur].text;
+          el.classList.remove('slide-out');
+          el.classList.add('slide-in');
+          requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('slide-in')));
+          scheduleNext();
+        }, 380);
+      }
+      function scheduleNext() { setTimeout(showNext, anns[cur].duration * 1000); }
+      scheduleNext();
+    })();
   </script>
   {% endif %}
 

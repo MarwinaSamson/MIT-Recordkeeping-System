@@ -81,6 +81,20 @@
     .or-divider span {
       padding: 0 10px;
     }
+
+    .curriculum-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      padding-right: 2.5rem;
+    }
+
+    .curriculum-select:focus {
+      outline: none;
+      border-color: #A02724;
+      box-shadow: 0 0 0 3px rgba(160, 39, 36, 0.1);
+    }
   </style>
 </head>
 
@@ -109,6 +123,29 @@
           {% endfor %}
         </div>
         {% endif %}
+
+        <!-- MIT Curriculum Dropdown -->
+        <div class="border border-gray-200 rounded-xl p-5 bg-amber-50/40">
+          <div class="flex items-center gap-2 mb-3">
+            <i class="fas fa-graduation-cap text-brand text-sm"></i>
+            <label for="mitCurriculum" class="block text-sm font-semibold text-gray-700">
+              MIT Curriculum
+            </label>
+            <span class="text-xs font-medium text-red-500 ml-1">*Required</span>
+          </div>
+          <p class="text-xs text-gray-500 mb-3">Select the MIT Curriculum year you are currently enrolled in.</p>
+          <select
+            name="mitCurriculum"
+            id="mitCurriculum"
+            required
+            class="curriculum-select w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 bg-white transition hover:border-gray-400 focus:border-brand">
+            <option value="" disabled selected>— Select Curriculum —</option>
+            <option value="2019-2020">MIT Curriculum effective 2019 – 2020</option>
+            <option value="2023-2024">MIT Curriculum effective 2023 – 2024</option>
+          </select>
+          <p class="text-xs text-red-500 mt-1.5 hidden" id="mitCurriculumError">Please select a curriculum.</p>
+        </div>
+
         <!-- Dean's Recommendation with Preview -->
         <div class="border border-gray-200 rounded-xl p-5">
           <label class="block text-sm font-semibold mb-2 text-gray-700">

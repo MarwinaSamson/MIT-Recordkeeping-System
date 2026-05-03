@@ -432,6 +432,12 @@
       <em>(Answers must be written legibly in capital letters)</em>
     </div>
 
+    <!-- ===== MIT CURRICULUM (Print Form) ===== -->
+    <div class="field-line" style="margin-bottom: 4px;">
+      <span class="field-label">MIT Curriculum:</span>
+      <span class="field-value" id="pf-mit-curriculum" style="font-weight: normal; max-width: 220px;"></span>
+    </div>
+
     <div class="section-label">Student's Personal Data:</div>
     <div class="two-col">
       <div class="field-line">
@@ -823,6 +829,12 @@
       );
     }
 
+    // ===== MIT CURRICULUM LABEL HELPER =====
+    function getMITCurriculumLabel(value) {
+      if (!value) return null;
+      return `MIT Curriculum effective ${value}`;
+    }
+
     // ===== RENDER REVIEW =====
     const content = document.getElementById("reviewContent");
 
@@ -989,7 +1001,9 @@
     }
 
     // ===== DOCUMENTS SECTION =====
+    // ===== MIT CURRICULUM added at top of documents section =====
     const documentItems = [
+      ["MIT Curriculum", getMITCurriculumLabel(documents.mitCurriculum) || "Not selected"],
       ["Dean's Recommendation", documents.deansRec || "Not uploaded"],
       ["TOR", documents.tor || "Not uploaded"],
       ["Honorable Dismissal", documents.honorableDismissal || "Not uploaded"],
@@ -1313,6 +1327,9 @@
     }
 
     function populatePrintForm() {
+      // ===== MIT Curriculum =====
+      setText("pf-mit-curriculum", getMITCurriculumLabel(documents.mitCurriculum) || "Not selected");
+
       setText("pf-ln", personal.last_name);
       setText("pf-fn", personal.first_name);
       setText("pf-mn", personal.middle_name);
@@ -1661,7 +1678,18 @@
           margin,
           y,
         );
-        y += 5;
+        y += 6;
+
+        // ===== MIT Curriculum in PDF =====
+        fieldLine(
+          "MIT Curriculum:",
+          getMITCurriculumLabel(documents.mitCurriculum) || "Not selected",
+          margin,
+          y,
+          contentW - 30,
+        );
+        y += 7;
+
         doc.setFont("helvetica", "bold");
         txt("Student's Personal Data:", margin, y);
         y += 5;
