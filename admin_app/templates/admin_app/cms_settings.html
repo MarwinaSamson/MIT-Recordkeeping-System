@@ -1131,6 +1131,98 @@
                                 <textarea id="calEvtDesc" rows="4" class="field"
                                     placeholder="Full event description shown in the detail panel..."></textarea>
                             </div>
+
+                            <!-- ── Attachments ── -->
+                            <div>
+                                <label class="lbl">Attachments <span class="lbl-hint">— attendance sheets, memos,
+                                        photos, etc.</span></label>
+
+                                <!-- Drop zone -->
+                                <div id="calEvtDropZone" onclick="document.getElementById('calEvtFileInput').click()"
+                                    ondragover="calEvtDragOver(event)" ondragleave="calEvtDragLeave(event)"
+                                    ondrop="calEvtDrop(event)"
+                                    style="border:2px dashed #e5e7eb;border-radius:12px;padding:18px 14px;text-align:center;cursor:pointer;background:#fafafa;transition:border-color .15s,background .15s;margin-bottom:10px;">
+                                    <i data-lucide="upload-cloud"
+                                        style="width:28px;height:28px;color:#d1d5db;margin:0 auto 6px;display:block;"></i>
+                                    <p style="font-size:0.78rem;color:#9ca3af;margin:0;">Click or drag &amp; drop files
+                                        here</p>
+                                    <p style="font-size:0.7rem;color:#d1d5db;margin:3px 0 0;">JPG, PNG, WEBP, GIF, PDF ·
+                                        max 20 MB each</p>
+                                    <input type="file" id="calEvtFileInput" multiple accept="image/*,application/pdf"
+                                        style="display:none;" onchange="calEvtHandleFiles(this.files)" />
+                                </div>
+
+                                <!-- Staging row (shown when a file is picked) -->
+                                <div id="calEvtStagingRow" style="display:none;margin-bottom:10px;">
+                                    <div
+                                        style="background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:12px;padding:12px 14px;">
+
+                                        <!-- Row 1: Category dropdown -->
+                                        <div style="margin-bottom:10px;">
+                                            <label class="lbl" style="margin-bottom:5px;">Document Type</label>
+                                            <select id="calEvtAttachCategory" class="field"
+                                                onchange="calEvtCategoryChanged()">
+                                                <option value="Attendance Sheet">📋 Attendance Sheet</option>
+                                                <option value="Memo">📄 Memo / Memorandum</option>
+                                                <option value="Event Photo">📷 Event Photo</option>
+                                                <option value="Program">📑 Program / Itinerary</option>
+                                                <option value="Certificate">🏅 Certificate</option>
+                                                <option value="Report">📊 Report / Summary</option>
+                                                <option value="Notice">📢 Notice / Announcement</option>
+                                                <option value="Other">✏️ Other (specify below)</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Row 2: Custom label (only visible when "Other" selected) -->
+                                        <div id="calEvtCustomLabelRow" style="display:none;margin-bottom:10px;">
+                                            <label class="lbl" style="margin-bottom:5px;">Custom Label</label>
+                                            <input type="text" id="calEvtAttachLabel" class="field"
+                                                placeholder="e.g. Signed MOA, Waiver Form…" />
+                                        </div>
+
+                                        <!-- Row 3: Visibility + action buttons -->
+                                        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                                            <label
+                                                style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#374151;cursor:pointer;flex:1;min-width:140px;">
+                                                <input type="checkbox" id="calEvtAttachPublic"
+                                                    style="width:15px;height:15px;accent-color:#9B1C1C;cursor:pointer;" />
+                                                Show on public site
+                                            </label>
+                                            <button type="button" onclick="calEvtConfirmAttach()" class="btn-primary"
+                                                style="padding:7px 16px;font-size:0.78rem;">
+                                                <i data-lucide="plus"></i> Add
+                                            </button>
+                                            <button type="button" onclick="calEvtCancelStaging()" class="btn-del"
+                                                title="Cancel">
+                                                <i data-lucide="x"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Staged file preview -->
+                                    <div id="calEvtStagedPreview"
+                                        style="margin-top:8px;display:flex;align-items:center;gap:10px;background:#f3f4f6;border-radius:9px;padding:8px 12px;">
+                                        <div id="calEvtStagedThumb"
+                                            style="width:44px;height:44px;border-radius:7px;overflow:hidden;flex-shrink:0;background:#e5e7eb;display:flex;align-items:center;justify-content:center;">
+                                            <i data-lucide="file" style="width:20px;height:20px;color:#9ca3af;"></i>
+                                        </div>
+                                        <div style="flex:1;min-width:0;">
+                                            <p id="calEvtStagedName"
+                                                style="font-size:0.78rem;font-weight:700;color:#111827;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                            </p>
+                                            <p id="calEvtStagedSize"
+                                                style="font-size:0.7rem;color:#9ca3af;margin:2px 0 0;"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Attached files list -->
+                                <div id="calEvtAttachmentsList" style="display:flex;flex-direction:column;gap:6px;">
+                                </div>
+                                <p id="calEvtNoAttachMsg"
+                                    style="font-size:0.75rem;color:#d1d5db;text-align:center;padding:6px 0;display:none;">
+                                    No attachments yet.</p>
+                            </div>
+
                         </div>
                         <div class="px-6 pb-6 flex gap-3 sticky bottom-0 bg-white border-t border-gray-100 pt-4">
                             <button onclick="closeCalEventModal()"
@@ -1617,6 +1709,12 @@
 
         /* ── Calendar Events ── */
         let _calEvents = [];
+        /* ─────────────────────────────────────────────
+           Attachment state for the currently open modal
+        ───────────────────────────────────────────── */
+        let _calAttachments = [];   // confirmed attachments list
+        let _calStagedFile = null; // file object waiting for label
+
         function openAddCalendarEvent() {
             document.getElementById('calEvtId').value = '';
             document.getElementById('calModalTitle').textContent = 'Add Calendar Event';
@@ -1624,8 +1722,188 @@
             document.getElementById('calEvtMonth').value = '7';
             document.getElementById('calEvtDay').value = '';
             document.getElementById('calEvtType').value = 'cr';
+            // Reset attachments
+            _calAttachments = [];
+            _calStagedFile = null;
+            calEvtRenderAttachments();
+            calEvtCancelStaging();
             document.getElementById('calEventModal').style.display = 'flex';
             lucide.createIcons();
+        }
+
+        /* ── Drop-zone helpers ── */
+        function calEvtDragOver(e) {
+            e.preventDefault();
+            const z = document.getElementById('calEvtDropZone');
+            z.style.borderColor = '#9B1C1C';
+            z.style.background = '#fef2f2';
+        }
+        function calEvtDragLeave(e) {
+            const z = document.getElementById('calEvtDropZone');
+            z.style.borderColor = '#e5e7eb';
+            z.style.background = '#fafafa';
+        }
+        function calEvtDrop(e) {
+            e.preventDefault();
+            calEvtDragLeave(e);
+            calEvtHandleFiles(e.dataTransfer.files);
+        }
+
+        /* ── File picked / dropped ── */
+        function calEvtHandleFiles(files) {
+            if (!files || !files.length) return;
+            const file = files[0]; // handle one at a time for label entry
+            const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+            if (!allowed.includes(file.type)) {
+                showCmsToast('Only images and PDFs are allowed.', 'error'); return;
+            }
+            if (file.size > 20 * 1024 * 1024) {
+                showCmsToast('File must be under 20 MB.', 'error'); return;
+            }
+            _calStagedFile = file;
+
+            // Default label = filename without extension
+            document.getElementById('calEvtAttachLabel').value = file.name.replace(/\.[^.]+$/, '');
+            document.getElementById('calEvtAttachPublic').checked = false;
+
+            // Thumbnail preview
+            const thumb = document.getElementById('calEvtStagedThumb');
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    thumb.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                thumb.innerHTML = `<i data-lucide="file-text" style="width:22px;height:22px;color:#9B1C1C;"></i>`;
+            }
+            document.getElementById('calEvtStagedName').textContent = file.name;
+            document.getElementById('calEvtStagedSize').textContent = calEvtFmtSize(file.size);
+            document.getElementById('calEvtStagingRow').style.display = 'block';
+            lucide.createIcons();
+
+            // Reset file input so same file can be re-selected
+            document.getElementById('calEvtFileInput').value = '';
+        }
+
+        /* ── Show/hide custom label field based on category selection ── */
+        function calEvtCategoryChanged() {
+            const cat = document.getElementById('calEvtAttachCategory').value;
+            document.getElementById('calEvtCustomLabelRow').style.display = cat === 'Other' ? 'block' : 'none';
+        }
+
+        /* ── Confirm staged file → add to list ── */
+        function calEvtConfirmAttach() {
+            if (!_calStagedFile) return;
+            const category = document.getElementById('calEvtAttachCategory').value;
+            const customLabel = document.getElementById('calEvtAttachLabel')?.value.trim();
+            const label = category === 'Other' ? (customLabel || 'Other Document') : category;
+            const isPublic = document.getElementById('calEvtAttachPublic').checked;
+            const isImage = _calStagedFile.type.startsWith('image/');
+            const ext = _calStagedFile.name.split('.').pop().toUpperCase();
+
+            // Build a local object URL so the thumbnail works in the list
+            const objectUrl = URL.createObjectURL(_calStagedFile);
+
+            _calAttachments.push({
+                label, category, isPublic, ext, isImage,
+                name: _calStagedFile.name,
+                size: _calStagedFile.size,
+                objectUrl,
+                file: _calStagedFile,   // keep reference for actual upload later
+            });
+
+            calEvtRenderAttachments();
+            calEvtCancelStaging();
+            showCmsToast('Attachment added — save the event to persist.');
+        }
+
+        /* ── Cancel staging (hide the staging row) ── */
+        function calEvtCancelStaging() {
+            _calStagedFile = null;
+            document.getElementById('calEvtStagingRow').style.display = 'none';
+            document.getElementById('calEvtAttachCategory').value = 'Attendance Sheet';
+            document.getElementById('calEvtCustomLabelRow').style.display = 'none';
+            document.getElementById('calEvtAttachLabel').value = '';
+            document.getElementById('calEvtAttachPublic').checked = false;
+            document.getElementById('calEvtStagedThumb').innerHTML =
+                `<i data-lucide="file" style="width:20px;height:20px;color:#9ca3af;"></i>`;
+            lucide.createIcons();
+        }
+
+        /* ── Remove a confirmed attachment ── */
+        function calEvtRemoveAttach(idx) {
+            _calAttachments.splice(idx, 1);
+            calEvtRenderAttachments();
+        }
+
+        /* ── Toggle public/private on confirmed item ── */
+        function calEvtTogglePublic(idx) {
+            _calAttachments[idx].isPublic = !_calAttachments[idx].isPublic;
+            calEvtRenderAttachments();
+        }
+
+        /* ── Render the confirmed attachments list ── */
+        function calEvtRenderAttachments() {
+            const list = document.getElementById('calEvtAttachmentsList');
+            const noMsg = document.getElementById('calEvtNoAttachMsg');
+            if (!_calAttachments.length) {
+                list.innerHTML = '';
+                noMsg.style.display = 'block';
+                return;
+            }
+            noMsg.style.display = 'none';
+
+            // Category → badge colour map
+            const catColors = {
+                'Attendance Sheet': { bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
+                'Memo': { bg: '#fefce8', color: '#854d0e', border: '#fde68a' },
+                'Event Photo': { bg: '#f0fdf4', color: '#15803d', border: '#bbf7d0' },
+                'Program': { bg: '#fdf4ff', color: '#7e22ce', border: '#e9d5ff' },
+                'Certificate': { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa' },
+                'Report': { bg: '#f8fafc', color: '#475569', border: '#e2e8f0' },
+                'Notice': { bg: '#fff1f2', color: '#9f1239', border: '#fecdd3' },
+                'Other': { bg: '#f9fafb', color: '#6b7280', border: '#e5e7eb' },
+            };
+
+            list.innerHTML = _calAttachments.map((a, i) => {
+                const c = catColors[a.category] || catColors['Other'];
+                return `
+                <div style="display:flex;align-items:center;gap:10px;background:#f9fafb;border:1.5px solid #f3f4f6;border-radius:10px;padding:8px 12px;">
+                    <!-- thumb -->
+                    <div style="width:40px;height:40px;border-radius:7px;overflow:hidden;flex-shrink:0;background:#e5e7eb;display:flex;align-items:center;justify-content:center;">
+                        ${a.isImage
+                        ? `<img src="${a.objectUrl}" style="width:100%;height:100%;object-fit:cover;">`
+                        : `<span style="font-size:0.6rem;font-weight:800;color:#9B1C1C;">${a.ext}</span>`}
+                    </div>
+                    <!-- info -->
+                    <div style="flex:1;min-width:0;">
+                        <!-- Category badge as subheading -->
+                        <span style="display:inline-block;font-size:0.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:${c.bg};color:${c.color};border:1px solid ${c.border};margin-bottom:3px;">${a.label}</span>
+                        <p style="font-size:0.75rem;font-weight:600;color:#111827;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.name}</p>
+                        <p style="font-size:0.68rem;color:#9ca3af;margin:1px 0 0;">${calEvtFmtSize(a.size)}</p>
+                    </div>
+                    <!-- visibility toggle -->
+                    <button type="button" onclick="calEvtTogglePublic(${i})" title="${a.isPublic ? 'Click to make admin-only' : 'Click to show on public site'}"
+                        style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;border:1.5px solid ${a.isPublic ? '#bbf7d0' : '#e5e7eb'};background:${a.isPublic ? '#f0fdf4' : '#f9fafb'};font-size:0.67rem;font-weight:700;color:${a.isPublic ? '#15803d' : '#9ca3af'};cursor:pointer;white-space:nowrap;transition:all .15s;">
+                        ${a.isPublic
+                        ? `<i data-lucide="globe" style="width:11px;height:11px;"></i> Public`
+                        : `<i data-lucide="lock" style="width:11px;height:11px;"></i> Admin only`}
+                    </button>
+                    <!-- remove -->
+                    <button type="button" onclick="calEvtRemoveAttach(${i})" class="btn-del" title="Remove">
+                        <i data-lucide="trash-2"></i>
+                    </button>
+                </div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        /* ── Utility: format bytes ── */
+        function calEvtFmtSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         }
         function closeCalEventModal() { document.getElementById('calEventModal').style.display = 'none'; }
         function editCalendarEvent(id) { openAddCalendarEvent(); document.getElementById('calModalTitle').textContent = 'Edit Calendar Event'; document.getElementById('calEvtId').value = id; }
@@ -1648,6 +1926,16 @@
                 venue: document.getElementById('calEvtVenue').value,
                 audience: document.getElementById('calEvtAudience').value,
                 desc: document.getElementById('calEvtDesc').value,
+                // Attachments: strip the non-serialisable `file` and `objectUrl` references
+                attachments: _calAttachments.map(a => ({
+                    label: a.label,
+                    category: a.category,
+                    name: a.name,
+                    ext: a.ext,
+                    size: a.size,
+                    isPublic: a.isPublic,
+                    // url will be set by the backend after actual upload
+                })),
             };
             fetch('/admin/api/cms/update/', {
                 method: 'POST',
