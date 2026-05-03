@@ -539,7 +539,7 @@
       </div>
 
       <div class="hidden md:flex items-center h-14" role="tablist">
-        <a href="index.html" class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap">
+        <a href="{% url 'index' %}" class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap">
           <span class="material-symbols-rounded" style="font-size:15px">home</span>Home
         </a>
         <button class="tab-btn active flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap" data-tab="about">
@@ -566,7 +566,7 @@
 
     <div id="mobile-menu" class="md:hidden border-t border-gray-100">
       <div class="py-2 flex flex-col gap-0.5">
-        <a href="index.html" class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors">
+        <a href="{% url 'index' %}" class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors">
           <span class="material-symbols-rounded text-gray-400" style="font-size:18px">home</span>Home
         </a>
         <button class="mob-tab active-mob flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-lg mx-1" style="color:var(--crimson);background:rgba(123,17,19,.06)" data-tab="about">

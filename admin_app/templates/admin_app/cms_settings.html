@@ -1,0 +1,3062 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CMS Settings – WMSU Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap"
+        rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link href="{% static 'admin_app/ccs/admin_style.css' %}" rel="stylesheet" />
+    <style>
+        /* ── TAB PILL STYLE ── */
+        .cms-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 18px;
+            border-radius: 999px;
+            border: 1.5px solid #e5e7eb;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all .18s;
+            background: #fff;
+            white-space: nowrap;
+        }
+
+        .cms-tab:hover {
+            border-color: #9B1C1C;
+            color: #9B1C1C;
+            background: #fff5f5;
+        }
+
+        .cms-tab.active {
+            border-color: #9B1C1C;
+            background: #fef2f2;
+            color: #9B1C1C;
+        }
+
+        .cms-tab svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        /* ── SECTION PANELS ── */
+        .cms-panel {
+            display: none;
+        }
+
+        .cms-panel.active {
+            display: block;
+        }
+
+        /* ── INPUT SHARED ── */
+        .field {
+            width: 100%;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 9px 14px;
+            font-size: 0.85rem;
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+            background: #fff;
+            color: #1f2937;
+        }
+
+        .field:focus {
+            border-color: #9B1C1C;
+            box-shadow: 0 0 0 3px rgba(155, 28, 28, .10);
+        }
+
+        textarea.field {
+            resize: vertical;
+        }
+
+        /* ── LABEL ── */
+        .lbl {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: 6px;
+        }
+
+        .lbl-hint {
+            font-size: 0.72rem;
+            color: #9ca3af;
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
+            margin-top: 2px;
+        }
+
+        /* ── CARD ── */
+        .cms-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, .06);
+            padding: 24px 28px;
+            margin-bottom: 20px;
+        }
+
+        .cms-card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cms-card-subtitle {
+            font-size: 0.78rem;
+            color: #9ca3af;
+            margin-bottom: 18px;
+        }
+
+        /* ── TOGGLE ── */
+        .toggle-track {
+            width: 42px;
+            height: 24px;
+            border-radius: 999px;
+            background: #d1d5db;
+            position: relative;
+            cursor: pointer;
+            transition: background .2s;
+            flex-shrink: 0;
+        }
+
+        .toggle-track.on {
+            background: var(--crimson, #9B1C1C);
+        }
+
+        .toggle-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: left .2s;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .2);
+        }
+
+        .toggle-track.on .toggle-thumb {
+            left: 21px;
+        }
+
+        /* ── ROW CARDS (announcement, program, download) ── */
+        .row-card {
+            background: #f9fafb;
+            border: 1.5px solid #f3f4f6;
+            border-radius: 12px;
+            padding: 14px 16px;
+        }
+
+        .row-card:hover {
+            border-color: #e5e7eb;
+        }
+
+        /* ── BTN PRIMARY ── */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 22px;
+            background: #9B1C1C;
+            color: #fff;
+            border-radius: 10px;
+            font-size: 0.83rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .btn-primary:hover {
+            background: #7B0F0F;
+        }
+
+        .btn-primary svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        /* ── BTN OUTLINE ── */
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            background: #fff;
+            color: #9B1C1C;
+            border-radius: 8px;
+            border: 1.5px solid #9B1C1C;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .btn-outline:hover {
+            background: #fef2f2;
+        }
+
+        .btn-outline svg {
+            width: 13px;
+            height: 13px;
+        }
+
+        /* ── BTN GHOST DELETE ── */
+        .btn-del {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: #ef4444;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: background .15s;
+            flex-shrink: 0;
+        }
+
+        .btn-del:hover {
+            background: #fee2e2;
+        }
+
+        .btn-del svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        /* ── BADGE TYPE ── */
+        .badge-mandatory {
+            background: #fee2e2;
+            color: #b91c1c;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 999px;
+        }
+
+        .badge-optional {
+            background: #f3f4f6;
+            color: #6b7280;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 999px;
+        }
+
+        .badge-active {
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 999px;
+        }
+
+        /* ── TABLE ── */
+        .cms-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+
+        .cms-table th {
+            background: #9B1C1C;
+            color: #fff;
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.78rem;
+        }
+
+        .cms-table th:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .cms-table th:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .cms-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f3f4f6;
+            color: #374151;
+            vertical-align: middle;
+        }
+
+        .cms-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .cms-table tr:hover td {
+            background: #fafafa;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .prog-bar {
+            height: 6px;
+            background: #f3f4f6;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .prog-fill {
+            height: 100%;
+            border-radius: 999px;
+        }
+
+        /* ── TOAST ── */
+        #cmsToast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            background: #111827;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.83rem;
+            font-weight: 600;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, .18);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all .25s ease;
+            pointer-events: none;
+        }
+
+        #cmsToast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        #cmsToast.success svg {
+            color: #4ade80;
+        }
+
+        #cmsToast.error svg {
+            color: #f87171;
+        }
+
+        /* ── SECTION DIVIDER ── */
+        .divider {
+            border: none;
+            border-top: 1.5px solid #f3f4f6;
+            margin: 22px 0;
+        }
+
+        /* ── SEARCH BOX ── */
+        .search-box {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 10px;
+            width: 15px;
+            height: 15px;
+            color: #9ca3af;
+            pointer-events: none;
+        }
+
+        .search-box input {
+            padding-left: 34px;
+            width: 220px;
+            height: 36px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        .search-box input:focus {
+            border-color: #9B1C1C;
+        }
+
+        /* slide-in animation */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cms-panel.active {
+            animation: slideIn .18s ease both;
+        }
+    </style>
+</head>
+
+<body class="flex" style="min-height: 100vh; font-family:'DM Sans',sans-serif; background:#f3f4f6;">
+
+    <!-- ══════════════ SIDEBAR ══════════════ -->
+    <aside class="sidebar shadow-2xl z-20">
+        <div class="flex flex-col items-center gap-2 py-6 px-4 border-b border-white/10 mb-2">
+            <div class="w-14 h-14 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-lg">
+                <img src="{% static 'admin_app/img/logowithcap.png' %}" alt="WMSU" class="w-12 h-12 object-contain"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" />
+                <span class="text-red-800 font-bold text-sm" style="display:none">W</span>
+            </div>
+            <div class="text-center mt-1">
+                <p class="text-white font-bold text-xs">WMSU</p>
+                <p class="text-white/65 text-xs">Graduate School</p>
+                <p class="text-white/65 text-xs">Zamboanga City</p>
+            </div>
+        </div>
+
+        <nav class="flex flex-col flex-1 px-2 gap-0.5">
+            <p class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-2 pb-1">Main</p>
+            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+                <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+            </a>
+            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+                <i data-lucide="file-check"></i><span>Document Verification</span>
+            </a>
+            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+                <i data-lucide="users"></i><span>Students</span>
+            </a>
+            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+                <i data-lucide="alert-circle"></i><span>Missing Requirements</span>
+            </a>
+            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+                <i data-lucide="clock"></i><span>Activity History</span>
+            </a>
+            <p class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-4 pb-1">System</p>
+            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+                <i data-lucide="calendar"></i><span>School Year Management</span>
+            </a>
+            <a href="{% url 'admin_app:cms_settings' %}" class="nav-item active">
+                <i data-lucide="settings-2"></i><span>CMS Settings</span>
+            </a>
+            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+                <i data-lucide="user-cog"></i><span>Profile Settings</span>
+            </a>
+        </nav>
+
+        <div class="px-2 pb-5 mt-auto border-t border-white/10 pt-3">
+            <div class="flex items-center gap-3 px-3 mb-3">
+                <div
+                    class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                    {% if admin_name %}{{ admin_name|slice:":1"|upper }}{% endif %}
+                </div>
+                <div class="min-w-0">
+                    <p class="text-white text-xs font-semibold truncate">{{ admin_name }}</p>
+                    <p class="text-white/50 text-xs truncate">Administrator</p>
+                </div>
+            </div>
+            <a href="{% url 'admin_app:logout' %}" class="nav-item text-red-300 hover:text-white hover:bg-red-900/50">
+                <i data-lucide="log-out"></i><span>Log Out</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ══════════════ MAIN ══════════════ -->
+    <main class="flex-1 flex flex-col min-w-0">
+
+        <!-- TOP BAR -->
+        <header
+            class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+            <div>
+                <h1 class="text-xl font-bold text-gray-900" style="font-family:'Playfair Display',serif">Settings</h1>
+                <p class="text-xs text-gray-400 mt-0.5">Manage system settings and configurations</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div
+                    class="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl border border-gray-100 text-xs font-semibold text-gray-500">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                    School Year: <span class="text-gray-800 ml-0.5">{{ cms.application_deadline|date:"Y"|default:"2025"
+                        }}–{{ cms.application_deadline|date:"Y"|default:"2026" }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-800 font-bold text-xs">
+                        {% if admin_name %}{{ admin_name|slice:":1"|upper }}{% endif %}
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-800">{{ admin_name }}</p>
+                        <p class="text-xs text-red-600 font-semibold">Admin</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- PAGE BODY -->
+        <div class="flex-1 p-8 overflow-y-auto">
+
+            <!-- ─── TOP-LEVEL TABS (matching screenshots) ─── -->
+            <div class="flex gap-2 border-b border-gray-200 mb-7 overflow-x-auto pb-0">
+                <button
+                    class="settings-top-tab px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-800 transition whitespace-nowrap"
+                    onclick="switchTopTab('account', this)">Account Management</button>
+                <button
+                    class="settings-top-tab px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-800 transition whitespace-nowrap"
+                    onclick="switchTopTab('teacher', this)">Teacher Management</button>
+                <button
+                    class="settings-top-tab active px-5 py-2.5 text-sm font-semibold border-b-2 border-red-800 text-red-800 whitespace-nowrap"
+                    onclick="switchTopTab('content', this)">Content Management</button>
+                <button
+                    class="settings-top-tab px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-800 transition whitespace-nowrap"
+                    onclick="switchTopTab('history', this)">History Logs</button>
+                <button
+                    class="settings-top-tab px-5 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-500 hover:text-gray-800 transition whitespace-nowrap"
+                    onclick="switchTopTab('others', this)">Others</button>
+            </div>
+
+            <!-- ════ TOP-LEVEL PANELS ════ -->
+
+            <!-- ── Account Management ── -->
+            <div id="top-account" class="top-panel hidden">
+                <div class="cms-card">
+                    <p class="cms-card-title"><i data-lucide="users" class="w-4 h-4 text-red-700"></i> All Users</p>
+                    <p class="cms-card-subtitle">Manage user accounts and access levels.</p>
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="search-box">
+                            <i data-lucide="search"></i>
+                            <input type="text" placeholder="Search users..." />
+                        </div>
+                        <button class="btn-primary"><i data-lucide="plus"></i> Add New User</button>
+                    </div>
+                    <table class="cms-table">
+                        <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>Access</th>
+                                <th>Last Active</th>
+                                <th>Date Added</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr>
+                                <td colspan="5" class="text-center text-gray-400 py-8 text-sm">No users found.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── Teacher Management ── -->
+            <div id="top-teacher" class="top-panel hidden">
+                <div class="cms-card">
+                    <p class="cms-card-title"><i data-lucide="graduation-cap" class="w-4 h-4 text-red-700"></i> Teacher
+                        Accounts</p>
+                    <p class="cms-card-subtitle">Manage faculty and teacher records.</p>
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="search-box">
+                            <i data-lucide="search"></i>
+                            <input type="text" placeholder="Search teachers..." />
+                        </div>
+                        <button class="btn-primary"><i data-lucide="plus"></i> Add Teacher</button>
+                    </div>
+                    <table class="cms-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" class="text-center text-gray-400 py-8 text-sm">No teachers found.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── Content Management ── -->
+            <div id="top-content" class="top-panel">
+
+                <!-- CMS Sub-tabs (pill style) — mirrors index.html sections -->
+                <div class="flex flex-wrap gap-2 mb-7">
+                    <button class="cms-tab active" onclick="switchCmsTab('homepage', this)">
+                        <i data-lucide="home"></i> Hero / General
+                    </button>
+                    <button class="cms-tab" onclick="switchCmsTab('announcement', this)">
+                        <i data-lucide="megaphone"></i> Announcement
+                    </button>
+                    <button class="cms-tab" onclick="switchCmsTab('events-carousel', this)">
+                        <i data-lucide="calendar-heart"></i> Upcoming &amp; Recent Events
+                    </button>
+                    <button class="cms-tab" onclick="switchCmsTab('events-calendar', this)">
+                        <i data-lucide="calendar-days"></i> Events &amp; Schedule
+                    </button>
+                    <button class="cms-tab" onclick="switchCmsTab('requirements', this)">
+                        <i data-lucide="clipboard-list"></i> Admission Requirements
+                    </button>
+                    <button class="cms-tab" onclick="switchCmsTab('application-window', this)">
+                        <i data-lucide="calendar-clock"></i> Application Window
+                    </button>
+                    <button class="cms-tab" onclick="switchCmsTab('downloads', this)">
+                        <i data-lucide="download"></i> Downloads
+                    </button>
+                    <button class="cms-tab" onclick="switchCmsTab('contact', this)">
+                        <i data-lucide="phone"></i> Contact
+                    </button>
+                    <button class="cms-tab" onclick="switchCmsTab('about-page', this)">
+                        <i data-lucide="info"></i> About Page
+                    </button>
+                </div>
+
+                <!-- ══ CMS: Hero / General ══ -->
+                <div id="cms-homepage" class="cms-panel active">
+                    <div class="cms-card">
+                        <p class="cms-card-title"><i data-lucide="toggle-left" class="w-4 h-4 text-red-700"></i>
+                            Admissions Status</p>
+                        <p class="cms-card-subtitle">Control the application portal visibility on the public homepage.
+                        </p>
+
+                        <div class="flex items-center justify-between py-3 border-b border-gray-50">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Admissions Open</p>
+                                <p class="text-xs text-gray-400 mt-0.5">Show "Apply Now" and open the application portal
+                                </p>
+                            </div>
+                            <div class="toggle-track {% if cms.admissions_open %}on{% endif %}" id="cmsAdmissionsToggle"
+                                onclick="this.classList.toggle('on')">
+                                <div class="toggle-thumb"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between py-3">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Show Announcement Bar</p>
+                                <p class="text-xs text-gray-400 mt-0.5">Display the rotating banner at the top of the
+                                    homepage</p>
+                            </div>
+                            <div class="toggle-track {% if cms.show_announcement %}on{% endif %}"
+                                id="cmsAnnouncementToggle" onclick="this.classList.toggle('on')">
+                                <div class="toggle-thumb"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cms-card">
+                        <p class="cms-card-title"><i data-lucide="type" class="w-4 h-4 text-red-700"></i> Hero Section
+                        </p>
+                        <p class="cms-card-subtitle">Edit the main headline and tagline shown on the homepage hero
+                            banner.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="lbl">Hero Tagline <span class="lbl-hint">(shown below the
+                                        heading)</span></label>
+                                <textarea id="cmsHeroTagline" rows="3" class="field"
+                                    placeholder="e.g. Advance your professional journey with the Master of Information Technology program at WMSU Graduate School.">{{ cms.hero_tagline|default:"Advance your professional journey with the Master of Information Technology program at WMSU Graduate School." }}</textarea>
+                            </div>
+                            <div>
+                                <label class="lbl">Hero Background Image</label>
+                                <div class="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center justify-center p-8 cursor-pointer hover:border-red-300 hover:bg-red-50 transition"
+                                    onclick="document.getElementById('heroImageInput').click()">
+                                    <i data-lucide="image" class="w-8 h-8 text-gray-300 mb-2"></i>
+                                    <p class="text-xs text-gray-400">Click to upload hero background image</p>
+                                    <p class="text-xs text-gray-300 mt-1">Recommended: 1920×1080px</p>
+                                    <input type="file" id="heroImageInput" accept="image/*" class="hidden" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="saveHomepageSettings()" class="btn-primary">
+                            <i data-lucide="save"></i> Save Hero Settings
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ══ CMS: Announcement ══ -->
+                <div id="cms-announcement" class="cms-panel hidden">
+                    <div class="cms-card">
+                        <div class="flex items-center justify-between mb-1">
+                            <div>
+                                <p class="cms-card-title"><i data-lucide="megaphone" class="w-4 h-4 text-red-700"></i>
+                                    School Announcements</p>
+                                <p class="cms-card-subtitle">Manage the rotating announcement banner displayed on the
+                                    homepage.</p>
+                            </div>
+                            <button onclick="addAnnouncementRow()" class="btn-primary"><i data-lucide="plus"></i> Add
+                                Another Announcement</button>
+                        </div>
+
+                        <div class="cms-card"
+                            style="background:#f9fafb; box-shadow:none; border:1.5px solid #f3f4f6; padding:16px 20px; margin-bottom:0;">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">CAPTION</p>
+
+                            <!-- Rich text toolbar (decorative) -->
+                            <div
+                                class="flex items-center gap-1 mb-3 p-2 border border-gray-200 rounded-lg bg-white w-fit">
+                                <button type="button"
+                                    class="w-7 h-7 flex items-center justify-center rounded font-bold text-gray-600 hover:bg-gray-100 text-sm">B</button>
+                                <button type="button"
+                                    class="w-7 h-7 flex items-center justify-center rounded italic text-gray-600 hover:bg-gray-100 text-sm">I</button>
+                                <button type="button"
+                                    class="w-7 h-7 flex items-center justify-center rounded underline text-gray-600 hover:bg-gray-100 text-sm">U</button>
+                                <div class="w-px h-5 bg-gray-200 mx-1"></div>
+                                <button type="button"
+                                    class="w-7 h-7 flex items-center justify-center rounded text-gray-600 hover:bg-gray-100"><i
+                                        data-lucide="list" class="w-4 h-4"></i></button>
+                                <button type="button"
+                                    class="w-7 h-7 flex items-center justify-center rounded text-gray-600 hover:bg-gray-100"><i
+                                        data-lucide="list-ordered" class="w-4 h-4"></i></button>
+                                <button type="button"
+                                    class="w-7 h-7 flex items-center justify-center rounded text-gray-600 hover:bg-gray-100"><i
+                                        data-lucide="link" class="w-4 h-4"></i></button>
+                            </div>
+
+                            <div id="announcementsList" class="space-y-3">
+                                {% for ann in cms.announcements %}
+                                <div class="announcement-row flex items-center gap-3">
+                                    <input type="text" placeholder="Announcement text…" value="{{ ann.text }}"
+                                        class="ann-text field flex-1" />
+                                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                                        <input type="number" placeholder="sec" value="{{ ann.duration }}" min="3"
+                                            max="30" class="ann-duration field text-center" style="width:64px;" />
+                                        <span class="text-xs text-gray-400">sec</span>
+                                    </div>
+                                    <button type="button" onclick="removeAnnouncementRow(this)" class="btn-del"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                {% empty %}
+                                <div class="announcement-row flex items-center gap-3">
+                                    <input type="text" placeholder="Announcement text…" class="ann-text field flex-1" />
+                                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                                        <input type="number" placeholder="sec" value="5" min="3" max="30"
+                                            class="ann-duration field text-center" style="width:64px;" />
+                                        <span class="text-xs text-gray-400">sec</span>
+                                    </div>
+                                    <button type="button" onclick="removeAnnouncementRow(this)" class="btn-del"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <p class="text-xs text-gray-400 mt-3">Each announcement slides in for the number of seconds
+                                you set (min 3s).</p>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="saveAnnouncementSettings()" class="btn-primary">
+                            <i data-lucide="save"></i> Save Announcements
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ══ CMS: Upcoming & Recent Events (Carousel) ══ -->
+                <div id="cms-events-carousel" class="cms-panel hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <div>
+                            <h2 class="text-base font-bold text-gray-800">Upcoming &amp; Recent Events — Carousel</h2>
+                            <p class="text-xs text-gray-400 mt-0.5">Each slide shows in the "Latest Happenings" carousel
+                                on the homepage.</p>
+                        </div>
+                        <button onclick="addEventSlide()" class="btn-primary"><i data-lucide="plus"></i> Add Event
+                            Slide</button>
+                    </div>
+
+                    <div id="eventSlidesList" class="space-y-5">
+                        {% for evt in cms.event_slides %}
+                        <div class="cms-card event-slide-row" data-idx="{{ forloop.counter }}">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{{
+                                        forloop.counter }}</span>
+                                    <span class="font-bold text-gray-800 text-sm">Event Slide {{ forloop.counter
+                                        }}</span>
+                                </div>
+                                <button type="button" onclick="removeEventSlide(this)" class="btn-del"><i
+                                        data-lucide="x"></i></button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="lbl">Event Image</label>
+                                    <div class="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center justify-center p-6 cursor-pointer hover:border-red-300 hover:bg-red-50 transition"
+                                        onclick="this.querySelector('input').click()">
+                                        <i data-lucide="image" class="w-8 h-8 text-gray-300 mb-2"></i>
+                                        <p class="text-xs text-gray-400">Click to upload image</p>
+                                        <p class="text-xs text-gray-300 mt-0.5">Recommended: 16:9 ratio</p>
+                                        <input type="file" accept="image/*" class="hidden evt-slide-img" />
+                                    </div>
+                                    {% if evt.image_url %}
+                                    <p class="text-xs text-gray-400 mt-2 truncate">Current: {{ evt.image_url }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="lbl">Event Title</label>
+                                        <input type="text" class="field evt-title" value="{{ evt.title }}"
+                                            placeholder="e.g. MIT New Student Orientation" />
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="lbl">Date</label>
+                                            <input type="date" class="field evt-date" value="{{ evt.date }}" />
+                                        </div>
+                                        <div>
+                                            <label class="lbl">Day Label</label>
+                                            <input type="text" class="field evt-day" value="{{ evt.day_label }}"
+                                                placeholder="e.g. 12" style="max-width:100px;" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="lbl">Time</label>
+                                        <input type="text" class="field evt-time" value="{{ evt.time }}"
+                                            placeholder="e.g. 8:00 AM – 12:00 NN" />
+                                    </div>
+                                    <div>
+                                        <label class="lbl">Venue</label>
+                                        <input type="text" class="field evt-venue" value="{{ evt.venue }}"
+                                            placeholder="e.g. WMSU University Gymnasium" />
+                                    </div>
+                                    <div>
+                                        <label class="lbl">Description</label>
+                                        <textarea rows="3" class="field evt-desc"
+                                            placeholder="Short event description...">{{ evt.description }}</textarea>
+                                    </div>
+                                    <div>
+                                        <label class="lbl">Audience Tag <span class="lbl-hint">(optional)</span></label>
+                                        <input type="text" class="field evt-audience" value="{{ evt.audience }}"
+                                            placeholder="e.g. Open to All Incoming Students" />
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="toggle-track {% if evt.featured %}on{% endif %} evt-featured-toggle"
+                                            onclick="this.classList.toggle('on')">
+                                            <div class="toggle-thumb"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-500 font-medium">Mark as Featured</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <!-- Default blank slide -->
+                        <div class="cms-card event-slide-row" data-idx="1">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">1</span>
+                                    <span class="font-bold text-gray-800 text-sm">Event Slide 1</span>
+                                </div>
+                                <button type="button" onclick="removeEventSlide(this)" class="btn-del"><i
+                                        data-lucide="x"></i></button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="lbl">Event Image</label>
+                                    <div class="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center justify-center p-6 cursor-pointer hover:border-red-300 hover:bg-red-50 transition"
+                                        onclick="this.querySelector('input').click()">
+                                        <i data-lucide="image" class="w-8 h-8 text-gray-300 mb-2"></i>
+                                        <p class="text-xs text-gray-400">Click to upload image</p>
+                                        <p class="text-xs text-gray-300 mt-0.5">Recommended: 16:9 ratio</p>
+                                        <input type="file" accept="image/*" class="hidden evt-slide-img" />
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="lbl">Event Title</label>
+                                        <input type="text" class="field evt-title"
+                                            placeholder="e.g. MIT New Student Orientation" />
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="lbl">Date</label>
+                                            <input type="date" class="field evt-date" />
+                                        </div>
+                                        <div>
+                                            <label class="lbl">Day Label</label>
+                                            <input type="text" class="field evt-day" placeholder="e.g. 12"
+                                                style="max-width:100px;" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="lbl">Time</label>
+                                        <input type="text" class="field evt-time"
+                                            placeholder="e.g. 8:00 AM – 12:00 NN" />
+                                    </div>
+                                    <div>
+                                        <label class="lbl">Venue</label>
+                                        <input type="text" class="field evt-venue"
+                                            placeholder="e.g. WMSU University Gymnasium" />
+                                    </div>
+                                    <div>
+                                        <label class="lbl">Description</label>
+                                        <textarea rows="3" class="field evt-desc"
+                                            placeholder="Short event description..."></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="lbl">Audience Tag <span class="lbl-hint">(optional)</span></label>
+                                        <input type="text" class="field evt-audience"
+                                            placeholder="e.g. Open to All Incoming Students" />
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="toggle-track evt-featured-toggle"
+                                            onclick="this.classList.toggle('on')">
+                                            <div class="toggle-thumb"></div>
+                                        </div>
+                                        <span class="text-xs text-gray-500 font-medium">Mark as Featured</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="flex justify-end mt-4">
+                        <button onclick="saveEventSlides()" class="btn-primary">
+                            <i data-lucide="save"></i> Save Event Slides
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ══ CMS: Events & Schedule (Calendar) ══ -->
+                <div id="cms-events-calendar" class="cms-panel hidden">
+                    <div class="cms-card">
+                        <div class="flex items-center justify-between mb-1">
+                            <div>
+                                <p class="cms-card-title"><i data-lucide="calendar-days"
+                                        class="w-4 h-4 text-red-700"></i> Events &amp; Schedule</p>
+                                <p class="cms-card-subtitle">Manage all calendar events shown in the "Events &amp;
+                                    Schedule" section on the homepage. Supports month-tab navigation and color-coded
+                                    categories.</p>
+                            </div>
+                            <button onclick="openAddCalendarEvent()" class="btn-primary"><i data-lucide="plus"></i> Add
+                                Event</button>
+                        </div>
+
+                        <!-- Category legend -->
+                        <div class="flex flex-wrap gap-4 mb-5 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                            <span
+                                class="text-xs font-semibold text-gray-500 uppercase tracking-wide self-center">Categories:</span>
+                            <div class="flex items-center gap-1.5 text-xs text-gray-600"><span
+                                    class="w-3 h-3 rounded-sm flex-shrink-0" style="background:#7b1113;"></span>
+                                Orientation / Ceremony</div>
+                            <div class="flex items-center gap-1.5 text-xs text-gray-600"><span
+                                    class="w-3 h-3 rounded-sm flex-shrink-0" style="background:#c9a84c;"></span>
+                                Training / Seminar</div>
+                            <div class="flex items-center gap-1.5 text-xs text-gray-600"><span
+                                    class="w-3 h-3 rounded-sm flex-shrink-0" style="background:#2563eb;"></span>
+                                Capacity Building</div>
+                            <div class="flex items-center gap-1.5 text-xs text-gray-600"><span
+                                    class="w-3 h-3 rounded-sm flex-shrink-0" style="background:#16a34a;"></span> Defense
+                                / Assessment</div>
+                        </div>
+
+                        <!-- Filter bar -->
+                        <div class="flex items-center gap-3 mb-4">
+                            <select id="calFilterMonth" class="field"
+                                style="width:140px; height:36px; padding:6px 12px;" onchange="filterCalendarEvents()">
+                                <option value="">All Months</option>
+                                <option>January</option>
+                                <option>February</option>
+                                <option>March</option>
+                                <option>April</option>
+                                <option>May</option>
+                                <option>June</option>
+                                <option>July</option>
+                                <option>August</option>
+                                <option>September</option>
+                                <option>October</option>
+                                <option>November</option>
+                                <option>December</option>
+                            </select>
+                            <select id="calFilterType" class="field" style="width:160px; height:36px; padding:6px 12px;"
+                                onchange="filterCalendarEvents()">
+                                <option value="">All Categories</option>
+                                <option value="cr">Orientation / Ceremony</option>
+                                <option value="go">Training / Seminar</option>
+                                <option value="bl">Capacity Building</option>
+                                <option value="gr">Defense / Assessment</option>
+                            </select>
+                            <div class="search-box">
+                                <i data-lucide="search"></i>
+                                <input type="text" id="calSearchInput" placeholder="Search events..."
+                                    oninput="filterCalendarEvents()" />
+                            </div>
+                        </div>
+
+                        <table class="cms-table" id="calendarEventsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:60px;">Date</th>
+                                    <th>Event Title</th>
+                                    <th style="width:130px;">Category</th>
+                                    <th>Time</th>
+                                    <th>Venue</th>
+                                    <th style="width:80px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calendarEventsBody">
+                                {% for evt in cms.calendar_events %}
+                                <tr data-evt-id="{{ evt.id }}" data-month="{{ evt.month }}" data-type="{{ evt.type }}">
+                                    <td class="font-bold text-red-700" style="font-family:monospace;">{{ evt.month }}/{{
+                                        evt.day }}</td>
+                                    <td class="font-semibold">{{ evt.title }}</td>
+                                    <td>
+                                        {% if evt.type == "cr" %}<span style="background:#fde8e8;color:#7b1113;"
+                                            class="text-xs font-bold px-2 py-0.5 rounded-full">{{ evt.tag }}</span>
+                                        {% elif evt.type == "go" %}<span style="background:#fdf3e0;color:#8a6614;"
+                                            class="text-xs font-bold px-2 py-0.5 rounded-full">{{ evt.tag }}</span>
+                                        {% elif evt.type == "bl" %}<span style="background:#e8f0fd;color:#1a4494;"
+                                            class="text-xs font-bold px-2 py-0.5 rounded-full">{{ evt.tag }}</span>
+                                        {% elif evt.type == "gr" %}<span style="background:#e6f5ec;color:#1a6633;"
+                                            class="text-xs font-bold px-2 py-0.5 rounded-full">{{ evt.tag }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-gray-500 text-xs" style="font-family:monospace;">{{ evt.time }}</td>
+                                    <td class="text-gray-500 text-xs">{{ evt.venue }}</td>
+                                    <td class="flex gap-1">
+                                        <button class="btn-del text-blue-500"
+                                            onclick="editCalendarEvent({{ evt.id }})"><i
+                                                data-lucide="pencil"></i></button>
+                                        <button class="btn-del" onclick="deleteCalendarEvent({{ evt.id }})"><i
+                                                data-lucide="trash-2"></i></button>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr id="calNoEventsRow">
+                                    <td colspan="6" class="text-center text-gray-400 py-8 text-sm">No calendar events
+                                        yet. Click "Add Event" to get started.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ── Calendar Event Modal ── -->
+                <div id="calEventModal" style="display:none;"
+                    class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                        <div
+                            class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 sticky top-0 bg-white">
+                            <h2 class="text-lg font-bold text-gray-800" id="calModalTitle">Add Calendar Event</h2>
+                            <button onclick="closeCalEventModal()"
+                                class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 text-xl">×</button>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <input type="hidden" id="calEvtId" />
+                            <div>
+                                <label class="lbl">Event Title</label>
+                                <input type="text" id="calEvtTitle" class="field"
+                                    placeholder="e.g. MIT New Student Orientation" />
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="lbl">Month <span class="lbl-hint">(1–12)</span></label>
+                                    <select id="calEvtMonth" class="field">
+                                        <option value="1">January</option>
+                                        <option value="2">February</option>
+                                        <option value="3">March</option>
+                                        <option value="4">April</option>
+                                        <option value="5">May</option>
+                                        <option value="6">June</option>
+                                        <option value="7">July</option>
+                                        <option value="8">August</option>
+                                        <option value="9">September</option>
+                                        <option value="10">October</option>
+                                        <option value="11">November</option>
+                                        <option value="12">December</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="lbl">Day</label>
+                                    <input type="number" id="calEvtDay" class="field" min="1" max="31"
+                                        placeholder="e.g. 12" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="lbl">Category</label>
+                                <select id="calEvtType" class="field">
+                                    <option value="cr">Orientation / Ceremony</option>
+                                    <option value="go">Training / Seminar</option>
+                                    <option value="bl">Capacity Building</option>
+                                    <option value="gr">Defense / Assessment</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="lbl">Tag Label <span class="lbl-hint">(short, e.g.
+                                        "Orientation")</span></label>
+                                <input type="text" id="calEvtTag" class="field" placeholder="e.g. Orientation" />
+                            </div>
+                            <div>
+                                <label class="lbl">Time</label>
+                                <input type="text" id="calEvtTime" class="field"
+                                    placeholder="e.g. 8:00 AM – 12:00 NN" />
+                            </div>
+                            <div>
+                                <label class="lbl">Venue</label>
+                                <input type="text" id="calEvtVenue" class="field"
+                                    placeholder="e.g. WMSU University Gymnasium, Baliwasan" />
+                            </div>
+                            <div>
+                                <label class="lbl">Audience</label>
+                                <input type="text" id="calEvtAudience" class="field"
+                                    placeholder="e.g. All Incoming MIT Students" />
+                            </div>
+                            <div>
+                                <label class="lbl">Description</label>
+                                <textarea id="calEvtDesc" rows="4" class="field"
+                                    placeholder="Full event description shown in the detail panel..."></textarea>
+                            </div>
+
+                            <!-- ── Attachments ── -->
+                            <div>
+                                <label class="lbl">Attachments <span class="lbl-hint">— attendance sheets, memos,
+                                        photos, etc.</span></label>
+
+                                <!-- Drop zone -->
+                                <div id="calEvtDropZone" onclick="document.getElementById('calEvtFileInput').click()"
+                                    ondragover="calEvtDragOver(event)" ondragleave="calEvtDragLeave(event)"
+                                    ondrop="calEvtDrop(event)"
+                                    style="border:2px dashed #e5e7eb;border-radius:12px;padding:18px 14px;text-align:center;cursor:pointer;background:#fafafa;transition:border-color .15s,background .15s;margin-bottom:10px;">
+                                    <i data-lucide="upload-cloud"
+                                        style="width:28px;height:28px;color:#d1d5db;margin:0 auto 6px;display:block;"></i>
+                                    <p style="font-size:0.78rem;color:#9ca3af;margin:0;">Click or drag &amp; drop files
+                                        here</p>
+                                    <p style="font-size:0.7rem;color:#d1d5db;margin:3px 0 0;">JPG, PNG, WEBP, GIF, PDF ·
+                                        max 20 MB each</p>
+                                    <input type="file" id="calEvtFileInput" multiple accept="image/*,application/pdf"
+                                        style="display:none;" onchange="calEvtHandleFiles(this.files)" />
+                                </div>
+
+                                <!-- Staging row (shown when a file is picked) -->
+                                <div id="calEvtStagingRow" style="display:none;margin-bottom:10px;">
+                                    <div
+                                        style="background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:12px;padding:12px 14px;">
+
+                                        <!-- Row 1: Category dropdown -->
+                                        <div style="margin-bottom:10px;">
+                                            <label class="lbl" style="margin-bottom:5px;">Document Type</label>
+                                            <select id="calEvtAttachCategory" class="field"
+                                                onchange="calEvtCategoryChanged()">
+                                                <option value="Attendance Sheet">📋 Attendance Sheet</option>
+                                                <option value="Memo">📄 Memo / Memorandum</option>
+                                                <option value="Event Photo">📷 Event Photo</option>
+                                                <option value="Program">📑 Program / Itinerary</option>
+                                                <option value="Certificate">🏅 Certificate</option>
+                                                <option value="Report">📊 Report / Summary</option>
+                                                <option value="Notice">📢 Notice / Announcement</option>
+                                                <option value="Other">✏️ Other (specify below)</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Row 2: Custom label (only visible when "Other" selected) -->
+                                        <div id="calEvtCustomLabelRow" style="display:none;margin-bottom:10px;">
+                                            <label class="lbl" style="margin-bottom:5px;">Custom Label</label>
+                                            <input type="text" id="calEvtAttachLabel" class="field"
+                                                placeholder="e.g. Signed MOA, Waiver Form…" />
+                                        </div>
+
+                                        <!-- Row 3: Visibility + action buttons -->
+                                        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                                            <label
+                                                style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:#374151;cursor:pointer;flex:1;min-width:140px;">
+                                                <input type="checkbox" id="calEvtAttachPublic"
+                                                    style="width:15px;height:15px;accent-color:#9B1C1C;cursor:pointer;" />
+                                                Show on public site
+                                            </label>
+                                            <button type="button" onclick="calEvtConfirmAttach()" class="btn-primary"
+                                                style="padding:7px 16px;font-size:0.78rem;">
+                                                <i data-lucide="plus"></i> Add
+                                            </button>
+                                            <button type="button" onclick="calEvtCancelStaging()" class="btn-del"
+                                                title="Cancel">
+                                                <i data-lucide="x"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Staged file preview -->
+                                    <div id="calEvtStagedPreview"
+                                        style="margin-top:8px;display:flex;align-items:center;gap:10px;background:#f3f4f6;border-radius:9px;padding:8px 12px;">
+                                        <div id="calEvtStagedThumb"
+                                            style="width:44px;height:44px;border-radius:7px;overflow:hidden;flex-shrink:0;background:#e5e7eb;display:flex;align-items:center;justify-content:center;">
+                                            <i data-lucide="file" style="width:20px;height:20px;color:#9ca3af;"></i>
+                                        </div>
+                                        <div style="flex:1;min-width:0;">
+                                            <p id="calEvtStagedName"
+                                                style="font-size:0.78rem;font-weight:700;color:#111827;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                            </p>
+                                            <p id="calEvtStagedSize"
+                                                style="font-size:0.7rem;color:#9ca3af;margin:2px 0 0;"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Attached files list -->
+                                <div id="calEvtAttachmentsList" style="display:flex;flex-direction:column;gap:6px;">
+                                </div>
+                                <p id="calEvtNoAttachMsg"
+                                    style="font-size:0.75rem;color:#d1d5db;text-align:center;padding:6px 0;display:none;">
+                                    No attachments yet.</p>
+                            </div>
+
+                        </div>
+                        <div class="px-6 pb-6 flex gap-3 sticky bottom-0 bg-white border-t border-gray-100 pt-4">
+                            <button onclick="closeCalEventModal()"
+                                class="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50">Cancel</button>
+                            <button onclick="saveCalendarEvent()" class="flex-1 btn-primary justify-center"><i
+                                    data-lucide="save"></i> Save Event</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══ CMS: Admission Requirements ══ -->
+                <div id="cms-requirements" class="cms-panel hidden">
+                    <div class="cms-card">
+                        <div class="flex items-center justify-between mb-1">
+                            <div>
+                                <p class="cms-card-title"><i data-lucide="clipboard-list"
+                                        class="w-4 h-4 text-red-700"></i> Admission Requirements</p>
+                                <p class="cms-card-subtitle">Manage the numbered list of admission requirements shown on
+                                    the homepage. Drag to reorder.</p>
+                            </div>
+                            <button onclick="addRequirementRow()" class="btn-primary"><i data-lucide="plus"></i> Add
+                                Requirement</button>
+                        </div>
+
+                        <div id="requirementsList" class="space-y-3 mt-2">
+                            {% for req in cms.admission_requirements %}
+                            <div class="requirement-row row-card flex items-start gap-3">
+                                <div
+                                    class="flex items-center justify-center w-6 h-6 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 req-num-badge">
+                                    {{ forloop.counter }}
+                                </div>
+                                <div class="flex-1 space-y-2">
+                                    <input type="text" class="field req-name" value="{{ req.name }}"
+                                        placeholder="e.g. Official Transcript of Records (TOR)" />
+                                    <input type="text" class="field req-hint" value="{{ req.hint }}"
+                                        placeholder="Hint text (e.g. Certified true copy from your institution)" />
+                                </div>
+                                <button type="button" onclick="removeRequirementRow(this)" class="btn-del mt-2"><i
+                                        data-lucide="x"></i></button>
+                            </div>
+                            {% empty %}
+                            <div class="requirement-row row-card flex items-start gap-3">
+                                <div
+                                    class="flex items-center justify-center w-6 h-6 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 req-num-badge">
+                                    1</div>
+                                <div class="flex-1 space-y-2">
+                                    <input type="text" class="field req-name"
+                                        placeholder="e.g. Official Transcript of Records (TOR)" />
+                                    <input type="text" class="field req-hint"
+                                        placeholder="Hint text (e.g. Certified true copy from your institution)" />
+                                </div>
+                                <button type="button" onclick="removeRequirementRow(this)" class="btn-del mt-2"><i
+                                        data-lucide="x"></i></button>
+                            </div>
+                            <div class="requirement-row row-card flex items-start gap-3">
+                                <div
+                                    class="flex items-center justify-center w-6 h-6 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 req-num-badge">
+                                    2</div>
+                                <div class="flex-1 space-y-2">
+                                    <input type="text" class="field req-name"
+                                        placeholder="e.g. Completed Application Form" />
+                                    <input type="text" class="field req-hint"
+                                        placeholder="Hint text (e.g. Available in the Downloadables menu above)" />
+                                </div>
+                                <button type="button" onclick="removeRequirementRow(this)" class="btn-del mt-2"><i
+                                        data-lucide="x"></i></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <p class="text-xs text-gray-400 mt-3">Numbers update automatically based on order.</p>
+                    </div>
+
+                    <div class="cms-card">
+                        <p class="cms-card-title"><i data-lucide="lightbulb" class="w-4 h-4 text-red-700"></i> Tip Box
+                        </p>
+                        <p class="cms-card-subtitle">The yellow info box shown alongside the requirements list.</p>
+                        <div>
+                            <label class="lbl">Tip Text</label>
+                            <textarea id="requirementsTip" rows="3" class="field"
+                                placeholder="e.g. Use the Programs menu to download curriculum PDFs, or Downloadables for admission and recommendation forms.">{{ cms.requirements_tip|default:"Use the Programs menu to download curriculum PDFs, or Downloadables for admission and recommendation forms." }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="saveRequirementsSettings()" class="btn-primary">
+                            <i data-lucide="save"></i> Save Requirements
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ══ CMS: Application Window ══ -->
+                <div id="cms-application-window" class="cms-panel hidden">
+                    <div class="cms-card">
+                        <p class="cms-card-title"><i data-lucide="calendar-clock" class="w-4 h-4 text-red-700"></i>
+                            Application Window Card</p>
+                        <p class="cms-card-subtitle">Controls the "Application Window" info card shown in the
+                            Requirements section of the homepage (Academic Year, Deadline, Enrollment dates).</p>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="lbl">Academic Year Label</label>
+                                <input type="text" id="appWindowAY"
+                                    value="{{ cms.app_window_ay|default:'Academic Year 2026–2027' }}" class="field"
+                                    placeholder="e.g. Academic Year 2026–2027" />
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="lbl">Application Deadline Date</label>
+                                    <input type="date" id="appWindowDeadline"
+                                        value="{{ cms.application_deadline|default:'' }}" class="field" />
+                                    <p class="text-xs text-gray-400 mt-1">Displayed as "June 30" in the card (day &amp;
+                                        month extracted automatically)</p>
+                                </div>
+                                <div>
+                                    <label class="lbl">Enrollment Month</label>
+                                    <input type="text" id="appWindowEnrollment"
+                                        value="{{ cms.app_window_enrollment|default:'July' }}" class="field"
+                                        placeholder="e.g. July" />
+                                    <p class="text-xs text-gray-400 mt-1">Shown as the enrollment period month label</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="lbl">Deadline Year</label>
+                                    <input type="text" id="appWindowDeadlineYear"
+                                        value="{{ cms.app_window_deadline_year|default:'2026' }}" class="field"
+                                        placeholder="e.g. 2026" style="max-width:120px;" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Enrollment Year</label>
+                                    <input type="text" id="appWindowEnrollmentYear"
+                                        value="{{ cms.app_window_enrollment_year|default:'2026' }}" class="field"
+                                        placeholder="e.g. 2026" style="max-width:120px;" />
+                                </div>
+                            </div>
+                            <hr class="divider">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-700 mb-3">Stat Badges</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="lbl">Badge 1 — Value</label>
+                                        <input type="text" id="appStatVal1"
+                                            value="{{ cms.app_stat_val1|default:'MIT' }}" class="field"
+                                            placeholder="e.g. MIT" />
+                                    </div>
+                                    <div>
+                                        <label class="lbl">Badge 1 — Label</label>
+                                        <input type="text" id="appStatLabel1"
+                                            value="{{ cms.app_stat_label1|default:'Program' }}" class="field"
+                                            placeholder="e.g. Program" />
+                                    </div>
+                                    <div>
+                                        <label class="lbl">Badge 2 — Value</label>
+                                        <input type="text" id="appStatVal2"
+                                            value="{{ cms.app_stat_val2|default:'2 yrs' }}" class="field"
+                                            placeholder="e.g. 2 yrs" />
+                                    </div>
+                                    <div>
+                                        <label class="lbl">Badge 2 — Label</label>
+                                        <input type="text" id="appStatLabel2"
+                                            value="{{ cms.app_stat_label2|default:'Duration' }}" class="field"
+                                            placeholder="e.g. Duration" />
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="divider">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-700 mb-3">CTA Banner <span
+                                        class="lbl-hint font-normal">(bottom of Requirements section)</span></p>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="lbl">CTA Heading</label>
+                                        <input type="text" id="ctaHeading"
+                                            value="{{ cms.cta_heading|default:'Ready to take the next step?' }}"
+                                            class="field" placeholder="e.g. Ready to take the next step?" />
+                                    </div>
+                                    <div>
+                                        <label class="lbl">CTA Sub-label</label>
+                                        <input type="text" id="ctaSubLabel"
+                                            value="{{ cms.cta_sublabel|default:'Applications open for AY 2026–2027' }}"
+                                            class="field" placeholder="e.g. Applications open for AY 2026–2027" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button onclick="saveApplicationWindowSettings()" class="btn-primary">
+                            <i data-lucide="save"></i> Save Application Window
+                        </button>
+                    </div>
+                </div>
+
+                <!-- (Programs section removed — not present in index.html) -->
+
+                <!-- ══ CMS: Downloads ══ -->
+                <div id="cms-downloads" class="cms-panel hidden">
+                    <div class="cms-card">
+                        <div class="flex items-center justify-between mb-1">
+                            <div>
+                                <p class="cms-card-title"><i data-lucide="download" class="w-4 h-4 text-red-700"></i>
+                                    Downloadable Files</p>
+                                <p class="cms-card-subtitle">Manage downloadable files displayed on the homepage.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button id="uploadDownloadBtn" class="btn-outline"><i data-lucide="upload"></i> Upload
+                                    File</button>
+                                <input type="file" id="downloadFileInput" style="display:none;"
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.txt,.jpg,.png" />
+                            </div>
+                        </div>
+
+                        <div id="downloadsList" class="space-y-2 mt-2">
+                            {% for download in cms.downloads %}
+                            <div class="download-row flex items-center gap-3 row-card">
+                                <div
+                                    class="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0 text-xs font-bold text-red-700 uppercase">
+                                    {{ download.file_type }}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-gray-800 truncate">{{ download.name }}</p>
+                                    <p class="text-xs text-gray-400 truncate">{{ download.url }}</p>
+                                </div>
+                                <button type="button" onclick="removeDownloadRow(this)" class="btn-del"><i
+                                        data-lucide="x"></i></button>
+                            </div>
+                            {% empty %}
+                            <p class="text-xs text-gray-400 py-4 text-center">No downloads yet. Upload files to display
+                                them on the homepage.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (About Page, Members/Staff, Footer panels removed — managed on their own pages, not part of index.html) -->
+
+                <!-- ══ CMS: Contact US ══ -->
+                <div id="cms-contact" class="cms-panel hidden">
+                    <div class="cms-card">
+                        <p class="cms-card-title"><i data-lucide="map-pin" class="w-4 h-4 text-red-700"></i> Contact US
+                        </p>
+                        <p class="cms-card-subtitle">Update the contact information displayed on the public site.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="lbl">School Address</label>
+                                <input type="text" id="contactAddress" value="{{ cms.contact_address|default:'' }}"
+                                    class="field" placeholder="e.g., R.T. Lim Boulevard Zamboanga City, Philippines" />
+                            </div>
+                            <div>
+                                <label class="lbl">Phone Number</label>
+                                <input type="text" id="contactPhone" value="{{ cms.contact_phone|default:'' }}"
+                                    class="field" placeholder="+63 9XXXXXXXXX" />
+                            </div>
+                            <div>
+                                <label class="lbl">Email Address</label>
+                                <input type="email" id="contactEmail" value="{{ cms.contact_email|default:'' }}"
+                                    class="field" placeholder="e.g., school@gmail.com" />
+                            </div>
+                            <div>
+                                <label class="lbl">Facebook Page</label>
+                                <input type="url" id="contactFacebook" value="{{ cms.contact_facebook|default:'' }}"
+                                    class="field" placeholder="https://web.facebook.com/..." />
+                            </div>
+                            <div>
+                                <label class="lbl">Operating Hours</label>
+                                <textarea id="contactHours" rows="3" class="field"
+                                    placeholder="Monday to Friday: 7:00 AM - 4:00 PM&#10;Saturday: 7:00 AM - 5:00 PM">{{ cms.contact_hours|default:'' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button onclick="saveContactSettings()" class="btn-primary"><i data-lucide="save"></i> Save
+                            Contact Info</button>
+                    </div>
+                </div>
+
+                <!-- (Members/Staff and Footer panels removed — not part of index.html) -->
+
+                <!-- ══════════════════════════════════════════════════════════
+                     CMS: About Page
+                     Covers all tabs of about.html:
+                       1) Hero  2) Overview  3) Courses  4) Outcomes  5) Objectives  6) Faculty
+                ══════════════════════════════════════════════════════════ -->
+                <div id="cms-about-page" class="cms-panel hidden">
+
+                    <!-- About Page sub-tabs — uses .about-tab class + about-tab-{name} IDs to match admin_cms_scripts.js -->
+                    <div id="aboutSubTabRow"
+                        class="flex flex-wrap gap-2 mb-6 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                        <span
+                            class="text-xs font-bold text-gray-400 uppercase tracking-widest self-center mr-1">Section:</span>
+                        <button class="about-tab cms-tab active border-red-800 text-red-800"
+                            onclick="switchAboutTab('hero', this)">
+                            <i data-lucide="star"></i> Hero
+                        </button>
+                        <button class="about-tab cms-tab border-transparent text-gray-400"
+                            onclick="switchAboutTab('overview', this)">
+                            <i data-lucide="info"></i> Overview
+                        </button>
+                        <button class="about-tab cms-tab border-transparent text-gray-400"
+                            onclick="switchAboutTab('courses', this)">
+                            <i data-lucide="book-open"></i> Courses
+                        </button>
+                        <button class="about-tab cms-tab border-transparent text-gray-400"
+                            onclick="switchAboutTab('outcomes', this)">
+                            <i data-lucide="trophy"></i> Outcomes
+                        </button>
+                        <button class="about-tab cms-tab border-transparent text-gray-400"
+                            onclick="switchAboutTab('objectives', this)">
+                            <i data-lucide="flag"></i> Objectives
+                        </button>
+                        <button class="about-tab cms-tab border-transparent text-gray-400"
+                            onclick="switchAboutTab('faculty', this)">
+                            <i data-lucide="users"></i> Faculty
+                        </button>
+                    </div>
+
+                    <!-- ── About: Hero ── -->
+                    <div id="about-tab-hero" class="about-panel">
+                        <div class="cms-card">
+                            <p class="cms-card-title"><i data-lucide="star" class="w-4 h-4 text-red-700"></i> Hero
+                                Section — About Page</p>
+                            <p class="cms-card-subtitle">Controls the crimson banner shown at the top of the About tab
+                                in <code>about.html</code>.</p>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="lbl">Eyebrow / Breadcrumb Text</label>
+                                    <input type="text" id="aboutHeroEyebrow" class="field"
+                                        value="{{ cms.about_hero_eyebrow|default:'Western Mindanao State University · College of Computing Studies' }}"
+                                        placeholder="e.g. Western Mindanao State University · College of Computing Studies" />
+                                    <p class="lbl-hint mt-1">Small gold text shown above the heading.</p>
+                                </div>
+                                <div>
+                                    <label class="lbl">Program Name <span class="lbl-hint">(plain part, before
+                                            italic)</span></label>
+                                    <input type="text" id="aboutHeroTitle" class="field"
+                                        value="{{ cms.about_hero_title|default:'Master in' }}"
+                                        placeholder="e.g. Master in" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Program Name <span class="lbl-hint">(italic / highlighted
+                                            part)</span></label>
+                                    <input type="text" id="aboutHeroTitleItalic" class="field"
+                                        value="{{ cms.about_hero_title_italic|default:'Information Technology' }}"
+                                        placeholder="e.g. Information Technology" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Hero Tagline</label>
+                                    <textarea id="aboutHeroTagline" rows="3" class="field"
+                                        placeholder="Short description below the heading...">{{ cms.about_hero_tagline|default:'Preparing professionals for systems integration, administration, planning, implementation, and maintenance of complex technology ecosystems.' }}</textarea>
+                                </div>
+                                <div>
+                                    <label class="lbl">CHED Badge Text</label>
+                                    <input type="text" id="aboutHeroBadge" class="field"
+                                        value="{{ cms.about_hero_badge|default:'CHED Compliant · Effective S.Y. 2019–2020' }}"
+                                        placeholder="e.g. CHED Compliant · Effective S.Y. 2019–2020" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="saveAboutHero()" class="btn-primary"><i data-lucide="save"></i> Save
+                                Hero</button>
+                        </div>
+                    </div>
+
+                    <!-- ── About: Overview ── -->
+                    <div id="about-tab-overview" class="about-panel hidden">
+
+                        <!-- Program Description -->
+                        <div class="cms-card">
+                            <p class="cms-card-title"><i data-lucide="file-text" class="w-4 h-4 text-red-700"></i>
+                                Program Description</p>
+                            <p class="cms-card-subtitle">The paragraph shown in the left column of the About section.
+                            </p>
+                            <div>
+                                <label class="lbl">Overview Text</label>
+                                <textarea id="aboutOverviewText" rows="5" class="field"
+                                    placeholder="The Master in Information Technology (MIT) at Western Mindanao State University...">{{ cms.about_overview_text|default:'The Master in Information Technology (MIT) at Western Mindanao State University emphasizes the acquisition of advanced concepts and technologies, preparing graduates for the industrial practice of systems integration, systems administration, systems planning, and systems implementation — maintaining the integrity and proper functionality of complex systems.' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Info Card rows -->
+                        <div class="cms-card">
+                            <p class="cms-card-title"><i data-lucide="card-id" class="w-4 h-4 text-red-700"></i> Info
+                                Card Details</p>
+                            <p class="cms-card-subtitle">The four rows shown in the bordered info card (Institution,
+                                COPC No., Effective Year, Accrediting Body).</p>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="lbl">Institution</label>
+                                    <input type="text" id="aboutInfoInstitution" class="field"
+                                        value="{{ cms.about_info_institution|default:'Western Mindanao State University, Zamboanga City' }}"
+                                        placeholder="e.g. Western Mindanao State University, Zamboanga City" />
+                                </div>
+                                <div>
+                                    <label class="lbl">COPC Number</label>
+                                    <input type="text" id="aboutInfoCOPC" class="field"
+                                        value="{{ cms.about_info_copc|default:'017, Series of 2019 — August 28, 2019' }}"
+                                        placeholder="e.g. 017, Series of 2019 — August 28, 2019" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Effective Academic Year</label>
+                                    <input type="text" id="aboutInfoAY" class="field"
+                                        value="{{ cms.about_info_ay|default:'2019–2020' }}"
+                                        placeholder="e.g. 2019–2020" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Accrediting Body</label>
+                                    <input type="text" id="aboutInfoAccred" class="field"
+                                        value="{{ cms.about_info_accred|default:'Commission on Higher Education (CHED), Philippines' }}"
+                                        placeholder="e.g. Commission on Higher Education (CHED), Philippines" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CHED Badge -->
+                        <div class="cms-card">
+                            <p class="cms-card-title"><i data-lucide="award" class="w-4 h-4 text-red-700"></i> CHED
+                                Certificate Badge</p>
+                            <p class="cms-card-subtitle">Yellow highlight box shown below the info card.</p>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="lbl">Badge Heading</label>
+                                    <input type="text" id="aboutChedHeading" class="field"
+                                        value="{{ cms.about_ched_heading|default:'CHED Certified Program' }}"
+                                        placeholder="e.g. CHED Certified Program" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Badge Description</label>
+                                    <textarea id="aboutChedDesc" rows="2" class="field"
+                                        placeholder="Complies with CHED Resolution No. 405-2019...">{{ cms.about_ched_desc|default:'Complies with CHED Resolution No. 405-2019 and Republic Act No. 7722 (Higher Education Act of 1994).' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats Grid -->
+                        <div class="cms-card">
+                            <p class="cms-card-title"><i data-lucide="bar-chart-2" class="w-4 h-4 text-red-700"></i>
+                                Stats Grid</p>
+                            <p class="cms-card-subtitle">The four stat cards shown on the right column (Total Units,
+                                Years Duration, Core Units, Specialization Units).</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="lbl">Stat 1 — Number</label>
+                                    <input type="text" id="aboutStat1Val" class="field"
+                                        value="{{ cms.about_stat1_val|default:'39' }}" placeholder="e.g. 39" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Stat 1 — Label</label>
+                                    <input type="text" id="aboutStat1Lbl" class="field"
+                                        value="{{ cms.about_stat1_lbl|default:'Total Units' }}"
+                                        placeholder="e.g. Total Units" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Stat 2 — Number</label>
+                                    <input type="text" id="aboutStat2Val" class="field"
+                                        value="{{ cms.about_stat2_val|default:'2' }}" placeholder="e.g. 2" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Stat 2 — Label</label>
+                                    <input type="text" id="aboutStat2Lbl" class="field"
+                                        value="{{ cms.about_stat2_lbl|default:'Years Duration' }}"
+                                        placeholder="e.g. Years Duration" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Stat 3 — Number</label>
+                                    <input type="text" id="aboutStat3Val" class="field"
+                                        value="{{ cms.about_stat3_val|default:'12' }}" placeholder="e.g. 12" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Stat 3 — Label</label>
+                                    <input type="text" id="aboutStat3Lbl" class="field"
+                                        value="{{ cms.about_stat3_lbl|default:'Core Course Units' }}"
+                                        placeholder="e.g. Core Course Units" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Stat 4 — Number</label>
+                                    <input type="text" id="aboutStat4Val" class="field"
+                                        value="{{ cms.about_stat4_val|default:'21' }}" placeholder="e.g. 21" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Stat 4 — Label</label>
+                                    <input type="text" id="aboutStat4Lbl" class="field"
+                                        value="{{ cms.about_stat4_lbl|default:'Specialization Units' }}"
+                                        placeholder="e.g. Specialization Units" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button onclick="saveAboutOverview()" class="btn-primary"><i data-lucide="save"></i> Save
+                                Overview</button>
+                        </div>
+                    </div>
+
+                    <!-- ── About: Courses ── -->
+                    <div id="about-tab-courses" class="about-panel hidden">
+                        <div class="cms-card">
+                            <div class="flex items-center justify-between mb-1">
+                                <div>
+                                    <p class="cms-card-title"><i data-lucide="book-open"
+                                            class="w-4 h-4 text-red-700"></i> Course Catalog</p>
+                                    <p class="cms-card-subtitle">Manage all courses displayed in the Courses tab of
+                                        about.html. Click a course to edit it fully.</p>
+                                </div>
+                                <button onclick="openAddCourseModal()" class="btn-primary"><i data-lucide="plus"></i>
+                                    Add Course</button>
+                            </div>
+
+                            <!-- Course type tabs -->
+                            <div id="courseTypeTabRow" class="flex gap-2 mb-5 mt-2">
+                                <button class="cms-tab active" style="font-size:0.75rem;padding:5px 14px;"
+                                    onclick="switchCourseType('core', this)">IT Core (4)</button>
+                                <button class="cms-tab" style="font-size:0.75rem;padding:5px 14px;"
+                                    onclick="switchCourseType('spec', this)">Specialization (7)</button>
+                                <button class="cms-tab" style="font-size:0.75rem;padding:5px 14px;"
+                                    onclick="switchCourseType('cap', this)">Capstone (2)</button>
+                            </div>
+
+                            <!-- IT Core Courses list -->
+                            <div id="courseType-core">
+                                <table class="cms-table" id="coursesTableCore">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:90px">Code</th>
+                                            <th>Course Title</th>
+                                            <th style="width:70px">Units</th>
+                                            <th style="width:90px">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="coursesBodyCore">
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 201</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Advanced Operating System and Networking
+                                            </td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT201')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 202</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Advanced Systems Design and Implementation
+                                            </td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT202')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 203</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Advanced Database Systems</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT203')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 204</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Technology and Project Management</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT204')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Specialization Courses list -->
+                            <div id="courseType-spec" class="hidden">
+                                <table class="cms-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:90px">Code</th>
+                                            <th>Course Title</th>
+                                            <th style="width:70px">Units</th>
+                                            <th style="width:90px">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="coursesBodySpec">
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 205</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Technical Research</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT205')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 206</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Statistical Research</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT206')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 207</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Specialization Course 1 – System
+                                                Development</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT207')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 208</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Specialization Course 2 – Information
+                                                Management</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT208')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 209</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Specialization Course 3 – Interactive
+                                                Systems</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT209')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 210</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Specialization Course 4 – Intelligent
+                                                Systems</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT210')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 211</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Specialization Course 5 – Emerging Trends
+                                                in Computing</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT211')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Capstone Courses list -->
+                            <div id="courseType-cap" class="hidden">
+                                <table class="cms-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:90px">Code</th>
+                                            <th>Course Title</th>
+                                            <th style="width:70px">Units</th>
+                                            <th style="width:90px">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="coursesBodyCap">
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 212A</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Capstone Project 1 – Directed Research
+                                            </td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT212A')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="font-mono text-xs font-bold text-red-700">MIT 212B</span>
+                                            </td>
+                                            <td class="font-semibold text-sm">Capstone Project 2 –
+                                                National/International Forum</td>
+                                            <td class="text-gray-500 text-sm">3</td>
+                                            <td class="flex gap-2">
+                                                <button onclick="editCourse('MIT212B')" class="btn-del text-blue-500"
+                                                    title="Edit"><i data-lucide="pencil"></i></button>
+                                                <button onclick="deleteCourse(this)" class="btn-del" title="Delete"><i
+                                                        data-lucide="trash-2"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── About: Outcomes ── -->
+                    <div id="about-tab-outcomes" class="about-panel hidden">
+                        <div class="cms-card">
+                            <div class="flex items-center justify-between mb-1">
+                                <div>
+                                    <p class="cms-card-title"><i data-lucide="trophy" class="w-4 h-4 text-red-700"></i>
+                                        Program Outcomes</p>
+                                    <p class="cms-card-subtitle">Manage the outcome cards displayed in the Outcomes tab.
+                                        Each card has a number, title, and description.</p>
+                                </div>
+                                <button onclick="addOutcomeRow()" class="btn-primary"><i data-lucide="plus"></i> Add
+                                    Outcome</button>
+                            </div>
+
+                            <div id="outcomesList" class="space-y-3 mt-3">
+                                {% for outcome in cms.about_outcomes %}
+                                <div class="outcome-row row-card flex items-start gap-3">
+                                    <div
+                                        class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 outcome-num">
+                                        {{ forloop.counter|stringformat:"02d" }}</div>
+                                    <div class="flex-1 space-y-2">
+                                        <input type="text" class="field out-title" value="{{ outcome.title }}"
+                                            placeholder="Outcome title, e.g. Advanced IT Systems Competency" />
+                                        <textarea rows="2" class="field out-desc"
+                                            placeholder="Short description of this outcome...">{{ outcome.desc }}</textarea>
+                                    </div>
+                                    <button type="button" onclick="removeOutcomeRow(this)" class="btn-del mt-2"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                {% empty %}
+                                <div class="outcome-row row-card flex items-start gap-3">
+                                    <div
+                                        class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 outcome-num">
+                                        01</div>
+                                    <div class="flex-1 space-y-2">
+                                        <input type="text" class="field out-title"
+                                            placeholder="Outcome title, e.g. Advanced IT Systems Competency" />
+                                        <textarea rows="2" class="field out-desc"
+                                            placeholder="Short description of this outcome..."></textarea>
+                                    </div>
+                                    <button type="button" onclick="removeOutcomeRow(this)" class="btn-del mt-2"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                <div class="outcome-row row-card flex items-start gap-3">
+                                    <div
+                                        class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 outcome-num">
+                                        02</div>
+                                    <div class="flex-1 space-y-2">
+                                        <input type="text" class="field out-title"
+                                            value="Research and Innovation Capability" placeholder="Outcome title" />
+                                        <textarea rows="2" class="field out-desc"
+                                            placeholder="Short description...">Design and execute both technical and statistical research that contributes original knowledge to the IT discipline.</textarea>
+                                    </div>
+                                    <button type="button" onclick="removeOutcomeRow(this)" class="btn-del mt-2"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <p class="text-xs text-gray-400 mt-3">Numbers update automatically based on order.</p>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="saveAboutOutcomes()" class="btn-primary"><i data-lucide="save"></i> Save
+                                Outcomes</button>
+                        </div>
+                    </div>
+
+                    <!-- ── About: Objectives ── -->
+                    <div id="about-tab-objectives" class="about-panel hidden">
+                        <div class="cms-card">
+                            <div class="flex items-center justify-between mb-1">
+                                <div>
+                                    <p class="cms-card-title"><i data-lucide="flag" class="w-4 h-4 text-red-700"></i>
+                                        Program Objectives</p>
+                                    <p class="cms-card-subtitle">Manage the numbered list of objectives shown in the
+                                        Objectives tab. Each item is a sentence or paragraph.</p>
+                                </div>
+                                <button onclick="addObjectiveRow()" class="btn-primary"><i data-lucide="plus"></i> Add
+                                    Objective</button>
+                            </div>
+
+                            <div id="objectivesList" class="space-y-3 mt-3">
+                                {% for obj in cms.about_objectives %}
+                                <div class="objective-row row-card flex items-start gap-3">
+                                    <div
+                                        class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 obj-num">
+                                        {{ forloop.counter }}</div>
+                                    <textarea rows="3" class="field flex-1 obj-text"
+                                        placeholder="Objective text...">{{ obj.text }}</textarea>
+                                    <button type="button" onclick="removeObjectiveRow(this)" class="btn-del mt-2"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                {% empty %}
+                                <div class="objective-row row-card flex items-start gap-3">
+                                    <div
+                                        class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 obj-num">
+                                        1</div>
+                                    <textarea rows="3" class="field flex-1 obj-text"
+                                        placeholder="Objective text...">Provide graduate-level education in Information Technology emphasizing the acquisition of advanced concepts, tools, and technologies necessary for professional practice.</textarea>
+                                    <button type="button" onclick="removeObjectiveRow(this)" class="btn-del mt-2"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                <div class="objective-row row-card flex items-start gap-3">
+                                    <div
+                                        class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 obj-num">
+                                        2</div>
+                                    <textarea rows="3" class="field flex-1 obj-text"
+                                        placeholder="Objective text...">Prepare graduates for the industrial practice of systems integration, systems administration, systems planning, and systems implementation, maintaining the integrity and proper functionality of complex systems.</textarea>
+                                    <button type="button" onclick="removeObjectiveRow(this)" class="btn-del mt-2"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                <div class="objective-row row-card flex items-start gap-3">
+                                    <div
+                                        class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 obj-num">
+                                        3</div>
+                                    <textarea rows="3" class="field flex-1 obj-text"
+                                        placeholder="Objective text...">Develop students' capacity to conduct both technical and statistical research, contributing original knowledge to the IT discipline and addressing emerging challenges in the field.</textarea>
+                                    <button type="button" onclick="removeObjectiveRow(this)" class="btn-del mt-2"><i
+                                            data-lucide="x"></i></button>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <p class="text-xs text-gray-400 mt-3">Numbers update automatically based on order.</p>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="saveAboutObjectives()" class="btn-primary"><i data-lucide="save"></i> Save
+                                Objectives</button>
+                        </div>
+                    </div>
+
+                    <!-- ── About: Faculty ── -->
+                    <div id="about-tab-faculty" class="about-panel hidden">
+                        <div class="cms-card">
+                            <div class="flex items-center justify-between mb-1">
+                                <div>
+                                    <p class="cms-card-title"><i data-lucide="users" class="w-4 h-4 text-red-700"></i>
+                                        Faculty Members</p>
+                                    <p class="cms-card-subtitle">Manage the faculty cards shown in the Faculty tab. Each
+                                        card has a photo, name, title, bio, and subject tags.</p>
+                                </div>
+                                <button onclick="addFacultyCard()" class="btn-primary"><i data-lucide="plus"></i> Add
+                                    Faculty</button>
+                            </div>
+
+                            <div id="facultyList" class="space-y-5 mt-3">
+                                {% for fac in cms.about_faculty %}
+                                <div class="faculty-card-row cms-card"
+                                    style="background:#f9fafb;box-shadow:none;border:1.5px solid #f3f4f6;padding:18px 20px;margin-bottom:0;">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm flex-shrink-0">
+                                                {{ fac.name|slice:":1"|upper|default:"F" }}
+                                            </div>
+                                            <span class="font-bold text-gray-800 text-sm">{{ fac.name|default:"Faculty
+                                                Member" }}</span>
+                                        </div>
+                                        <button type="button" onclick="removeFacultyCard(this)" class="btn-del"><i
+                                                data-lucide="x"></i></button>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <!-- Photo upload -->
+                                        <div>
+                                            <label class="lbl">Photo</label>
+                                            <div class="border-2 border-dashed border-gray-200 rounded-xl bg-white flex flex-col items-center justify-center p-5 cursor-pointer hover:border-red-300 hover:bg-red-50 transition faculty-photo-upload"
+                                                onclick="this.querySelector('.fac-photo-input').click()">
+                                                <i data-lucide="user-circle" class="w-10 h-10 text-gray-300 mb-2"></i>
+                                                <p class="text-xs text-gray-400">Click to upload photo</p>
+                                                <p class="text-xs text-gray-300 mt-0.5">Recommended: square, 400×400px
+                                                </p>
+                                                <input type="file" class="fac-photo-input hidden" accept="image/*"
+                                                    onchange="previewFacultyPhoto(this)" />
+                                            </div>
+                                            {% if fac.photo_url %}
+                                            <p class="text-xs text-gray-400 mt-1 truncate">Current: {{ fac.photo_url }}
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                        <!-- Text fields -->
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="lbl">Full Name</label>
+                                                <input type="text" class="field fac-name" value="{{ fac.name }}"
+                                                    placeholder="e.g. Lucy Felix-Sadiwa, MSCS" />
+                                            </div>
+                                            <div>
+                                                <label class="lbl">Position / Title</label>
+                                                <input type="text" class="field fac-title" value="{{ fac.title }}"
+                                                    placeholder="e.g. Program Chair" />
+                                            </div>
+                                            <div>
+                                                <label class="lbl">Short Bio</label>
+                                                <textarea rows="2" class="field fac-bio"
+                                                    placeholder="e.g. Ph.D. in Information Technology · Specializes in Advanced Database Systems">{{ fac.bio }}</textarea>
+                                            </div>
+                                            <div>
+                                                <label class="lbl">Subject Tags <span class="lbl-hint">(comma-separated,
+                                                        e.g. MIT 203, Databases)</span></label>
+                                                <input type="text" class="field fac-tags"
+                                                    value="{{ fac.tags|join:', ' }}"
+                                                    placeholder="e.g. MIT 203, MIT 204, Databases" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <!-- Default blank faculty card -->
+                                <div class="faculty-card-row cms-card"
+                                    style="background:#f9fafb;box-shadow:none;border:1.5px solid #f3f4f6;padding:18px 20px;margin-bottom:0;">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm flex-shrink-0">
+                                                L</div>
+                                            <span class="font-bold text-gray-800 text-sm">Lucy Felix-Sadiwa, MSCS</span>
+                                        </div>
+                                        <button type="button" onclick="removeFacultyCard(this)" class="btn-del"><i
+                                                data-lucide="x"></i></button>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div>
+                                            <label class="lbl">Photo</label>
+                                            <div class="border-2 border-dashed border-gray-200 rounded-xl bg-white flex flex-col items-center justify-center p-5 cursor-pointer hover:border-red-300 hover:bg-red-50 transition faculty-photo-upload"
+                                                onclick="this.querySelector('.fac-photo-input').click()">
+                                                <i data-lucide="user-circle" class="w-10 h-10 text-gray-300 mb-2"></i>
+                                                <p class="text-xs text-gray-400">Click to upload photo</p>
+                                                <p class="text-xs text-gray-300 mt-0.5">Recommended: square, 400×400px
+                                                </p>
+                                                <input type="file" class="fac-photo-input hidden" accept="image/*"
+                                                    onchange="previewFacultyPhoto(this)" />
+                                            </div>
+                                        </div>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="lbl">Full Name</label>
+                                                <input type="text" class="field fac-name"
+                                                    value="Lucy Felix-Sadiwa, MSCS"
+                                                    placeholder="e.g. Lucy Felix-Sadiwa, MSCS" />
+                                            </div>
+                                            <div>
+                                                <label class="lbl">Position / Title</label>
+                                                <input type="text" class="field fac-title" value="Program Chair"
+                                                    placeholder="e.g. Program Chair" />
+                                            </div>
+                                            <div>
+                                                <label class="lbl">Short Bio</label>
+                                                <textarea rows="2" class="field fac-bio"
+                                                    placeholder="e.g. Ph.D. in Information Technology · Specializes in Advanced Database Systems">Ph.D. in Information Technology · Specializes in Advanced Database Systems and Systems Integration</textarea>
+                                            </div>
+                                            <div>
+                                                <label class="lbl">Subject Tags <span
+                                                        class="lbl-hint">(comma-separated)</span></label>
+                                                <input type="text" class="field fac-tags"
+                                                    value="MIT 203, MIT 204, Databases"
+                                                    placeholder="e.g. MIT 203, MIT 204, Databases" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button onclick="saveAboutFaculty()" class="btn-primary"><i data-lucide="save"></i> Save
+                                Faculty</button>
+                        </div>
+                    </div>
+
+                </div><!-- /cms-about-page -->
+
+            </div><!-- /top-content -->
+
+            <!-- ═══════════════════════════════════════════════════════════
+                 COURSE MODAL — Add / Edit course for About Page
+            ═══════════════════════════════════════════════════════════ -->
+            <div id="courseModal"
+                style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(15,10,12,.55);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:1rem;">
+                <div
+                    style="background:#fff;border-radius:18px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.22);">
+                    <!-- Modal header -->
+                    <div class="hero-bg"
+                        style="background:linear-gradient(135deg,#3d0709,#7b1113);padding:20px 24px;border-radius:18px 18px 0 0;position:relative;">
+                        <div class="flex items-center justify-between">
+                            <p class="font-bold text-white text-base" id="courseModalTitle">Add Course</p>
+                            <button onclick="closeCourseModal()"
+                                style="background:rgba(255,255,255,.12);border:none;border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                                <i data-lucide="x" style="width:16px;height:16px;color:#fff;"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Modal body -->
+                    <div class="p-6 space-y-4">
+                        <input type="hidden" id="courseModalId" />
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="lbl">Course Code</label>
+                                <input type="text" id="courseCode" class="field" placeholder="e.g. MIT 201" />
+                            </div>
+                            <div>
+                                <label class="lbl">Units</label>
+                                <input type="text" id="courseUnits" class="field" placeholder="e.g. 3 Units" />
+                            </div>
+                        </div>
+                        <div>
+                            <label class="lbl">Course Type</label>
+                            <select id="courseType" class="field">
+                                <option value="core">IT Core Course</option>
+                                <option value="spec">Specialization Course</option>
+                                <option value="cap">Capstone Project</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="lbl">Course Title</label>
+                            <input type="text" id="courseTitle" class="field"
+                                placeholder="e.g. Advanced Operating System and Networking" />
+                        </div>
+                        <div>
+                            <label class="lbl">Course Description</label>
+                            <textarea id="courseDesc" rows="5" class="field"
+                                placeholder="Full course description..."></textarea>
+                        </div>
+                        <div>
+                            <label class="lbl">Key Topics <span class="lbl-hint">(comma-separated)</span></label>
+                            <input type="text" id="courseTopics" class="field"
+                                placeholder="e.g. Memory Management, Deadlock, File Systems" />
+                        </div>
+                        <div>
+                            <label class="lbl">Icon <span class="lbl-hint">(Material Symbols name, e.g. dns, storage,
+                                    architecture)</span></label>
+                            <input type="text" id="courseIcon" class="field" placeholder="e.g. dns" />
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6 flex gap-3 border-t border-gray-100 pt-4">
+                        <button onclick="closeCourseModal()"
+                            style="flex:1;padding:10px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:0.85rem;font-weight:600;color:#6b7280;background:#fff;cursor:pointer;">Cancel</button>
+                        <button onclick="saveCourse()" class="btn-primary" style="flex:1;justify-content:center;"><i
+                                data-lucide="save"></i> Save Course</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── History Logs ── -->
+            <div id="top-history" class="top-panel hidden">
+                <div class="cms-card">
+                    <p class="cms-card-title"><i data-lucide="clock" class="w-4 h-4 text-red-700"></i> History Logs</p>
+                    <p class="cms-card-subtitle">View all admin activity and change history.</p>
+                    <table class="cms-table">
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Admin</th>
+                                <th>Target</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <tr>
+                                <td colspan="4" class="text-center text-gray-400 py-8 text-sm">No history yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── Others ── -->
+            <div id="top-others" class="top-panel hidden">
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button class="cms-tab active" onclick="switchOthersTab('schoolyear', this)"><i
+                            data-lucide="calendar"></i> School Year</button>
+                    <button class="cms-tab" onclick="switchOthersTab('requirements', this)"><i
+                            data-lucide="calendar-check"></i> Document Requirements</button>
+                </div>
+
+                <!-- School Year (default visible in Others tab) -->
+                <div id="others-schoolyear" class="others-panel">
+                    <div class="cms-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <p class="cms-card-title"><i data-lucide="calendar" class="w-4 h-4 text-red-700"></i> School
+                                Year Management</p>
+                            <div class="flex items-center gap-3">
+                                <div class="search-box"><i data-lucide="search"></i><input type="text"
+                                        placeholder="Search school years..." /></div>
+                                <button class="btn-primary"><i data-lucide="plus"></i> Add School Year</button>
+                            </div>
+                        </div>
+                        <table class="cms-table">
+                            <thead>
+                                <tr>
+                                    <th>School Year</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="5" class="text-center text-gray-400 py-8 text-sm">No school years
+                                        found.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Document Requirements -->
+                <div id="others-requirements" class="others-panel hidden">
+                    <div class="cms-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <p class="cms-card-title"><i data-lucide="calendar-check" class="w-4 h-4 text-red-700"></i>
+                                Document Requirements</p>
+                            <div class="flex items-center gap-3">
+                                <select class="field" style="width:160px; height:36px; padding:6px 12px;">
+                                    <option>2027-2028</option>
+                                    <option>2026-2027</option>
+                                    <option>2025-2026</option>
+                                </select>
+                                <div class="search-box"><i data-lucide="search"></i><input type="text"
+                                        placeholder="Search requirements..." /></div>
+                                <button class="btn-primary"><i data-lucide="plus"></i> Add Requirement</button>
+                            </div>
+                        </div>
+                        <table class="cms-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Formats</th>
+                                    <th>Max Size (MB)</th>
+                                    <th>Active</th>
+                                    <th>Order</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-semibold">Birth Certificate (PSA)</td>
+                                    <td><span class="badge-mandatory">mandatory</span></td>
+                                    <td class="text-gray-500">jpg, jpeg, png</td>
+                                    <td>5.00</td>
+                                    <td><span class="badge-active">Active</span></td>
+                                    <td class="text-gray-500">1</td>
+                                    <td class="flex gap-2">
+                                        <button class="btn-del text-blue-500"><i data-lucide="pencil"></i></button>
+                                        <button class="btn-del"><i data-lucide="trash-2"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-semibold">Report Card</td>
+                                    <td><span class="badge-mandatory">mandatory</span></td>
+                                    <td class="text-gray-500">jpg, jpeg, png</td>
+                                    <td>5.00</td>
+                                    <td><span class="badge-active">Active</span></td>
+                                    <td class="text-gray-500">2</td>
+                                    <td class="flex gap-2">
+                                        <button class="btn-del text-blue-500"><i data-lucide="pencil"></i></button>
+                                        <button class="btn-del"><i data-lucide="trash-2"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="font-semibold">Good Moral</td>
+                                    <td><span class="badge-mandatory">mandatory</span></td>
+                                    <td class="text-gray-500">jpg, jpeg, png</td>
+                                    <td>5.00</td>
+                                    <td><span class="badge-active">Active</span></td>
+                                    <td class="text-gray-500">3</td>
+                                    <td class="flex gap-2">
+                                        <button class="btn-del text-blue-500"><i data-lucide="pencil"></i></button>
+                                        <button class="btn-del"><i data-lucide="trash-2"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div><!-- /top-others -->
+
+        </div><!-- /page body -->
+    </main>
+
+    <!-- ══ TOAST ══ -->
+    <div id="cmsToast">
+        <i data-lucide="check-circle" id="cmsToastIcon" style="width:16px;height:16px;"></i>
+        <span id="cmsToastText"></span>
+    </div>
+
+    <!-- Django-injected data for JS consumption -->
+    <script>
+        window.CMS_ACTIVITIES = {{ all_activities | safe }};
+    </script>
+
+    <!-- Stubs for new CMS sections (wire to API in admin_cms_scripts.js) -->
+    <script>
+        /* ── Events Carousel ── */
+        function addEventSlide() {
+            const list = document.getElementById('eventSlidesList');
+            const idx = list.querySelectorAll('.event-slide-row').length + 1;
+            const tpl = document.querySelector('.event-slide-row').cloneNode(true);
+            tpl.dataset.idx = idx;
+            tpl.querySelector('.w-7.h-7').textContent = idx;
+            tpl.querySelector('.font-bold.text-gray-800.text-sm').textContent = 'Event Slide ' + idx;
+            tpl.querySelectorAll('input, textarea').forEach(el => el.value = '');
+            tpl.querySelectorAll('.toggle-track').forEach(t => t.classList.remove('on'));
+            list.appendChild(tpl);
+            lucide.createIcons();
+        }
+        function removeEventSlide(btn) {
+            const row = btn.closest('.event-slide-row');
+            if (document.querySelectorAll('.event-slide-row').length > 1) row.remove();
+            else alert('At least one event slide is required.');
+            reindexEventSlides();
+        }
+        function reindexEventSlides() {
+            document.querySelectorAll('.event-slide-row').forEach((row, i) => {
+                row.dataset.idx = i + 1;
+                const badge = row.querySelector('.w-7.h-7.rounded-full');
+                if (badge) badge.textContent = i + 1;
+                const lbl = row.querySelector('.font-bold.text-gray-800.text-sm');
+                if (lbl) lbl.textContent = 'Event Slide ' + (i + 1);
+            });
+        }
+        function saveEventSlides() {
+            const slides = [];
+            document.querySelectorAll('.event-slide-row').forEach(row => {
+                slides.push({
+                    title: row.querySelector('.evt-title')?.value || '',
+                    date: row.querySelector('.evt-date')?.value || '',
+                    day_label: row.querySelector('.evt-day')?.value || '',
+                    time: row.querySelector('.evt-time')?.value || '',
+                    venue: row.querySelector('.evt-venue')?.value || '',
+                    desc: row.querySelector('.evt-desc')?.value || '',
+                    audience: row.querySelector('.evt-audience')?.value || '',
+                    featured: row.querySelector('.evt-featured-toggle')?.classList.contains('on') || false,
+                });
+            });
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ event_slides: slides })
+            }).then(r => r.json()).then(d => showCmsToast(d.message || 'Event slides saved!')).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        /* ── Calendar Events ── */
+        let _calEvents = [];
+        /* ─────────────────────────────────────────────
+           Attachment state for the currently open modal
+        ───────────────────────────────────────────── */
+        let _calAttachments = [];   // confirmed attachments list
+        let _calStagedFile = null; // file object waiting for label
+
+        function openAddCalendarEvent() {
+            document.getElementById('calEvtId').value = '';
+            document.getElementById('calModalTitle').textContent = 'Add Calendar Event';
+            ['calEvtTitle', 'calEvtTag', 'calEvtTime', 'calEvtVenue', 'calEvtAudience', 'calEvtDesc'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('calEvtMonth').value = '7';
+            document.getElementById('calEvtDay').value = '';
+            document.getElementById('calEvtType').value = 'cr';
+            // Reset attachments
+            _calAttachments = [];
+            _calStagedFile = null;
+            calEvtRenderAttachments();
+            calEvtCancelStaging();
+            document.getElementById('calEventModal').style.display = 'flex';
+            lucide.createIcons();
+        }
+
+        /* ── Drop-zone helpers ── */
+        function calEvtDragOver(e) {
+            e.preventDefault();
+            const z = document.getElementById('calEvtDropZone');
+            z.style.borderColor = '#9B1C1C';
+            z.style.background = '#fef2f2';
+        }
+        function calEvtDragLeave(e) {
+            const z = document.getElementById('calEvtDropZone');
+            z.style.borderColor = '#e5e7eb';
+            z.style.background = '#fafafa';
+        }
+        function calEvtDrop(e) {
+            e.preventDefault();
+            calEvtDragLeave(e);
+            calEvtHandleFiles(e.dataTransfer.files);
+        }
+
+        /* ── File picked / dropped ── */
+        function calEvtHandleFiles(files) {
+            if (!files || !files.length) return;
+            const file = files[0]; // handle one at a time for label entry
+            const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+            if (!allowed.includes(file.type)) {
+                showCmsToast('Only images and PDFs are allowed.', 'error'); return;
+            }
+            if (file.size > 20 * 1024 * 1024) {
+                showCmsToast('File must be under 20 MB.', 'error'); return;
+            }
+            _calStagedFile = file;
+
+            // Default label = filename without extension
+            document.getElementById('calEvtAttachLabel').value = file.name.replace(/\.[^.]+$/, '');
+            document.getElementById('calEvtAttachPublic').checked = false;
+
+            // Thumbnail preview
+            const thumb = document.getElementById('calEvtStagedThumb');
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    thumb.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                thumb.innerHTML = `<i data-lucide="file-text" style="width:22px;height:22px;color:#9B1C1C;"></i>`;
+            }
+            document.getElementById('calEvtStagedName').textContent = file.name;
+            document.getElementById('calEvtStagedSize').textContent = calEvtFmtSize(file.size);
+            document.getElementById('calEvtStagingRow').style.display = 'block';
+            lucide.createIcons();
+
+            // Reset file input so same file can be re-selected
+            document.getElementById('calEvtFileInput').value = '';
+        }
+
+        /* ── Show/hide custom label field based on category selection ── */
+        function calEvtCategoryChanged() {
+            const cat = document.getElementById('calEvtAttachCategory').value;
+            document.getElementById('calEvtCustomLabelRow').style.display = cat === 'Other' ? 'block' : 'none';
+        }
+
+        /* ── Confirm staged file → add to list ── */
+        function calEvtConfirmAttach() {
+            if (!_calStagedFile) return;
+            const category = document.getElementById('calEvtAttachCategory').value;
+            const customLabel = document.getElementById('calEvtAttachLabel')?.value.trim();
+            const label = category === 'Other' ? (customLabel || 'Other Document') : category;
+            const isPublic = document.getElementById('calEvtAttachPublic').checked;
+            const isImage = _calStagedFile.type.startsWith('image/');
+            const ext = _calStagedFile.name.split('.').pop().toUpperCase();
+
+            // Build a local object URL so the thumbnail works in the list
+            const objectUrl = URL.createObjectURL(_calStagedFile);
+
+            _calAttachments.push({
+                label, category, isPublic, ext, isImage,
+                name: _calStagedFile.name,
+                size: _calStagedFile.size,
+                objectUrl,
+                file: _calStagedFile,   // keep reference for actual upload later
+            });
+
+            calEvtRenderAttachments();
+            calEvtCancelStaging();
+            showCmsToast('Attachment added — save the event to persist.');
+        }
+
+        /* ── Cancel staging (hide the staging row) ── */
+        function calEvtCancelStaging() {
+            _calStagedFile = null;
+            document.getElementById('calEvtStagingRow').style.display = 'none';
+            document.getElementById('calEvtAttachCategory').value = 'Attendance Sheet';
+            document.getElementById('calEvtCustomLabelRow').style.display = 'none';
+            document.getElementById('calEvtAttachLabel').value = '';
+            document.getElementById('calEvtAttachPublic').checked = false;
+            document.getElementById('calEvtStagedThumb').innerHTML =
+                `<i data-lucide="file" style="width:20px;height:20px;color:#9ca3af;"></i>`;
+            lucide.createIcons();
+        }
+
+        /* ── Remove a confirmed attachment ── */
+        function calEvtRemoveAttach(idx) {
+            _calAttachments.splice(idx, 1);
+            calEvtRenderAttachments();
+        }
+
+        /* ── Toggle public/private on confirmed item ── */
+        function calEvtTogglePublic(idx) {
+            _calAttachments[idx].isPublic = !_calAttachments[idx].isPublic;
+            calEvtRenderAttachments();
+        }
+
+        /* ── Render the confirmed attachments list ── */
+        function calEvtRenderAttachments() {
+            const list = document.getElementById('calEvtAttachmentsList');
+            const noMsg = document.getElementById('calEvtNoAttachMsg');
+            if (!_calAttachments.length) {
+                list.innerHTML = '';
+                noMsg.style.display = 'block';
+                return;
+            }
+            noMsg.style.display = 'none';
+
+            // Category → badge colour map
+            const catColors = {
+                'Attendance Sheet': { bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
+                'Memo': { bg: '#fefce8', color: '#854d0e', border: '#fde68a' },
+                'Event Photo': { bg: '#f0fdf4', color: '#15803d', border: '#bbf7d0' },
+                'Program': { bg: '#fdf4ff', color: '#7e22ce', border: '#e9d5ff' },
+                'Certificate': { bg: '#fff7ed', color: '#c2410c', border: '#fed7aa' },
+                'Report': { bg: '#f8fafc', color: '#475569', border: '#e2e8f0' },
+                'Notice': { bg: '#fff1f2', color: '#9f1239', border: '#fecdd3' },
+                'Other': { bg: '#f9fafb', color: '#6b7280', border: '#e5e7eb' },
+            };
+
+            list.innerHTML = _calAttachments.map((a, i) => {
+                const c = catColors[a.category] || catColors['Other'];
+                return `
+                <div style="display:flex;align-items:center;gap:10px;background:#f9fafb;border:1.5px solid #f3f4f6;border-radius:10px;padding:8px 12px;">
+                    <!-- thumb -->
+                    <div style="width:40px;height:40px;border-radius:7px;overflow:hidden;flex-shrink:0;background:#e5e7eb;display:flex;align-items:center;justify-content:center;">
+                        ${a.isImage
+                        ? `<img src="${a.objectUrl}" style="width:100%;height:100%;object-fit:cover;">`
+                        : `<span style="font-size:0.6rem;font-weight:800;color:#9B1C1C;">${a.ext}</span>`}
+                    </div>
+                    <!-- info -->
+                    <div style="flex:1;min-width:0;">
+                        <!-- Category badge as subheading -->
+                        <span style="display:inline-block;font-size:0.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:${c.bg};color:${c.color};border:1px solid ${c.border};margin-bottom:3px;">${a.label}</span>
+                        <p style="font-size:0.75rem;font-weight:600;color:#111827;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.name}</p>
+                        <p style="font-size:0.68rem;color:#9ca3af;margin:1px 0 0;">${calEvtFmtSize(a.size)}</p>
+                    </div>
+                    <!-- visibility toggle -->
+                    <button type="button" onclick="calEvtTogglePublic(${i})" title="${a.isPublic ? 'Click to make admin-only' : 'Click to show on public site'}"
+                        style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;border:1.5px solid ${a.isPublic ? '#bbf7d0' : '#e5e7eb'};background:${a.isPublic ? '#f0fdf4' : '#f9fafb'};font-size:0.67rem;font-weight:700;color:${a.isPublic ? '#15803d' : '#9ca3af'};cursor:pointer;white-space:nowrap;transition:all .15s;">
+                        ${a.isPublic
+                        ? `<i data-lucide="globe" style="width:11px;height:11px;"></i> Public`
+                        : `<i data-lucide="lock" style="width:11px;height:11px;"></i> Admin only`}
+                    </button>
+                    <!-- remove -->
+                    <button type="button" onclick="calEvtRemoveAttach(${i})" class="btn-del" title="Remove">
+                        <i data-lucide="trash-2"></i>
+                    </button>
+                </div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        /* ── Utility: format bytes ── */
+        function calEvtFmtSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+        function closeCalEventModal() { document.getElementById('calEventModal').style.display = 'none'; }
+        function editCalendarEvent(id) { openAddCalendarEvent(); document.getElementById('calModalTitle').textContent = 'Edit Calendar Event'; document.getElementById('calEvtId').value = id; }
+        function deleteCalendarEvent(id) {
+            if (!confirm('Delete this event?')) return;
+            const row = document.querySelector(`#calendarEventsBody tr[data-evt-id="${id}"]`);
+            if (row) row.remove();
+            showCmsToast('Event deleted.');
+        }
+        function saveCalendarEvent() {
+            const id = document.getElementById('calEvtId').value;
+            const data = {
+                id: id || null,
+                title: document.getElementById('calEvtTitle').value,
+                month: parseInt(document.getElementById('calEvtMonth').value),
+                day: parseInt(document.getElementById('calEvtDay').value),
+                type: document.getElementById('calEvtType').value,
+                tag: document.getElementById('calEvtTag').value,
+                time: document.getElementById('calEvtTime').value,
+                venue: document.getElementById('calEvtVenue').value,
+                audience: document.getElementById('calEvtAudience').value,
+                desc: document.getElementById('calEvtDesc').value,
+                // Attachments: strip the non-serialisable `file` and `objectUrl` references
+                attachments: _calAttachments.map(a => ({
+                    label: a.label,
+                    category: a.category,
+                    name: a.name,
+                    ext: a.ext,
+                    size: a.size,
+                    isPublic: a.isPublic,
+                    // url will be set by the backend after actual upload
+                })),
+            };
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ calendar_event: data })
+            }).then(r => r.json()).then(d => { showCmsToast(d.message || 'Event saved!'); closeCalEventModal(); }).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        /* ══════════════════════════════════════════════════════
+           ABOUT PAGE CMS — Course type sub-switcher (Core/Spec/Cap)
+           Note: switchAboutTab is handled by admin_cms_scripts.js
+        ══════════════════════════════════════════════════════ */
+        function switchCourseType(type, btn) {
+            ['core', 'spec', 'cap'].forEach(t => {
+                const el = document.getElementById('courseType-' + t);
+                if (el) el.classList.toggle('hidden', t !== type);
+            });
+            document.querySelectorAll('#courseTypeTabRow .cms-tab').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+        }
+
+        /* ── Course Modal ── */
+        function openAddCourseModal() {
+            document.getElementById('courseModalTitle').textContent = 'Add Course';
+            document.getElementById('courseModalId').value = '';
+            ['courseCode', 'courseUnits', 'courseTitle', 'courseDesc', 'courseTopics', 'courseIcon'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            const ct = document.getElementById('courseType');
+            if (ct) ct.value = 'core';
+            document.getElementById('courseModal').style.display = 'flex';
+        }
+
+        function editCourse(code) {
+            document.getElementById('courseModalTitle').textContent = 'Edit Course — ' + code;
+            document.getElementById('courseModalId').value = code;
+            document.getElementById('courseModal').style.display = 'flex';
+        }
+
+        function closeCourseModal() {
+            document.getElementById('courseModal').style.display = 'none';
+        }
+
+        function saveCourse() {
+            const data = {
+                id: document.getElementById('courseModalId').value || null,
+                code: document.getElementById('courseCode').value,
+                units: document.getElementById('courseUnits').value,
+                type: document.getElementById('courseType').value,
+                title: document.getElementById('courseTitle').value,
+                desc: document.getElementById('courseDesc').value,
+                topics: document.getElementById('courseTopics').value.split(',').map(t => t.trim()).filter(Boolean),
+                icon: document.getElementById('courseIcon').value,
+            };
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ about_course: data })
+            }).then(r => r.json()).then(d => {
+                showCmsToast(d.message || 'Course saved!');
+                closeCourseModal();
+            }).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        function deleteCourse(btn) {
+            if (!confirm('Delete this course?')) return;
+            btn.closest('tr').remove();
+            showCmsToast('Course removed.');
+        }
+
+        /* ── Outcomes ── */
+        function addOutcomeRow() {
+            const list = document.getElementById('outcomesList');
+            const num = String(list.querySelectorAll('.outcome-row').length + 1).padStart(2, '0');
+            const div = document.createElement('div');
+            div.className = 'outcome-row row-card flex items-start gap-3';
+            div.innerHTML = `
+                <div class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 outcome-num">${num}</div>
+                <div class="flex-1 space-y-2">
+                    <input type="text" class="field out-title" placeholder="Outcome title" />
+                    <textarea rows="2" class="field out-desc" placeholder="Short description..."></textarea>
+                </div>
+                <button type="button" onclick="removeOutcomeRow(this)" class="btn-del mt-2"><i data-lucide="x"></i></button>`;
+            list.appendChild(div);
+            lucide.createIcons();
+        }
+
+        function removeOutcomeRow(btn) {
+            if (document.querySelectorAll('.outcome-row').length <= 1) { alert('At least one outcome is needed.'); return; }
+            btn.closest('.outcome-row').remove();
+            document.querySelectorAll('.outcome-num').forEach((b, i) => b.textContent = String(i + 1).padStart(2, '0'));
+        }
+
+        function saveAboutOutcomes() {
+            const outcomes = [];
+            document.querySelectorAll('.outcome-row').forEach(row => {
+                outcomes.push({ title: row.querySelector('.out-title').value, desc: row.querySelector('.out-desc').value });
+            });
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ about_outcomes: outcomes })
+            }).then(r => r.json()).then(d => showCmsToast(d.message || 'Outcomes saved!')).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        /* ── Objectives ── */
+        function addObjectiveRow() {
+            const list = document.getElementById('objectivesList');
+            const num = list.querySelectorAll('.objective-row').length + 1;
+            const div = document.createElement('div');
+            div.className = 'objective-row row-card flex items-start gap-3';
+            div.innerHTML = `
+                <div class="flex items-center justify-center w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 obj-num">${num}</div>
+                <textarea rows="3" class="field flex-1 obj-text" placeholder="Objective text..."></textarea>
+                <button type="button" onclick="removeObjectiveRow(this)" class="btn-del mt-2"><i data-lucide="x"></i></button>`;
+            list.appendChild(div);
+            lucide.createIcons();
+        }
+
+        function removeObjectiveRow(btn) {
+            if (document.querySelectorAll('.objective-row').length <= 1) { alert('At least one objective is needed.'); return; }
+            btn.closest('.objective-row').remove();
+            document.querySelectorAll('.obj-num').forEach((b, i) => b.textContent = i + 1);
+        }
+
+        function saveAboutObjectives() {
+            const objs = [];
+            document.querySelectorAll('.objective-row').forEach(row => {
+                objs.push({ text: row.querySelector('.obj-text').value });
+            });
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ about_objectives: objs })
+            }).then(r => r.json()).then(d => showCmsToast(d.message || 'Objectives saved!')).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        /* ── Faculty ── */
+        function addFacultyCard() {
+            const list = document.getElementById('facultyList');
+            const div = document.createElement('div');
+            div.className = 'faculty-card-row cms-card';
+            div.style.cssText = 'background:#f9fafb;box-shadow:none;border:1.5px solid #f3f4f6;padding:18px 20px;margin-bottom:0;';
+            div.innerHTML = `
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm flex-shrink-0">F</div>
+                        <span class="font-bold text-gray-800 text-sm">New Faculty Member</span>
+                    </div>
+                    <button type="button" onclick="removeFacultyCard(this)" class="btn-del"><i data-lucide="x"></i></button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="lbl">Photo</label>
+                        <div class="border-2 border-dashed border-gray-200 rounded-xl bg-white flex flex-col items-center justify-center p-5 cursor-pointer hover:border-red-300 hover:bg-red-50 transition faculty-photo-upload"
+                            onclick="this.querySelector('.fac-photo-input').click()">
+                            <i data-lucide="user-circle" class="w-10 h-10 text-gray-300 mb-2"></i>
+                            <p class="text-xs text-gray-400">Click to upload photo</p>
+                            <p class="text-xs text-gray-300 mt-0.5">Recommended: square, 400×400px</p>
+                            <input type="file" class="fac-photo-input hidden" accept="image/*" onchange="previewFacultyPhoto(this)" />
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div><label class="lbl">Full Name</label><input type="text" class="field fac-name" placeholder="e.g. Lucy Felix-Sadiwa, MSCS" /></div>
+                        <div><label class="lbl">Position / Title</label><input type="text" class="field fac-title" placeholder="e.g. Program Chair" /></div>
+                        <div><label class="lbl">Short Bio</label><textarea rows="2" class="field fac-bio" placeholder="e.g. Ph.D. in IT · Advanced Database Systems"></textarea></div>
+                        <div><label class="lbl">Subject Tags <span class="lbl-hint">(comma-separated)</span></label><input type="text" class="field fac-tags" placeholder="e.g. MIT 203, Databases" /></div>
+                    </div>
+                </div>`;
+            list.appendChild(div);
+            lucide.createIcons();
+        }
+
+        function removeFacultyCard(btn) {
+            if (!confirm('Remove this faculty member?')) return;
+            btn.closest('.faculty-card-row').remove();
+            showCmsToast('Faculty member removed.');
+        }
+
+        function previewFacultyPhoto(input) {
+            if (!input.files || !input.files[0]) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const upload = input.closest('.faculty-photo-upload');
+                upload.innerHTML = `<img src="${e.target.result}" style="width:100%;height:120px;object-fit:cover;border-radius:10px;" /><input type="file" class="fac-photo-input hidden" accept="image/*" onchange="previewFacultyPhoto(this)" />`;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        function saveAboutFaculty() {
+            const faculty = [];
+            document.querySelectorAll('.faculty-card-row').forEach(card => {
+                faculty.push({
+                    name: card.querySelector('.fac-name')?.value || '',
+                    title: card.querySelector('.fac-title')?.value || '',
+                    bio: card.querySelector('.fac-bio')?.value || '',
+                    tags: (card.querySelector('.fac-tags')?.value || '').split(',').map(t => t.trim()).filter(Boolean),
+                });
+            });
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ about_faculty: faculty })
+            }).then(r => r.json()).then(d => showCmsToast(d.message || 'Faculty saved!')).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        /* ── About Hero Save ── */
+        function saveAboutHero() {
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({
+                    about_hero_eyebrow: document.getElementById('aboutHeroEyebrow').value,
+                    about_hero_title: document.getElementById('aboutHeroTitle').value,
+                    about_hero_title_italic: document.getElementById('aboutHeroTitleItalic').value,
+                    about_hero_tagline: document.getElementById('aboutHeroTagline').value,
+                    about_hero_badge: document.getElementById('aboutHeroBadge').value,
+                })
+            }).then(r => r.json()).then(d => showCmsToast(d.message || 'Hero saved!')).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        /* ── About Overview Save ── */
+        function saveAboutOverview() {
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({
+                    about_overview_text: document.getElementById('aboutOverviewText').value,
+                    about_info_institution: document.getElementById('aboutInfoInstitution').value,
+                    about_info_copc: document.getElementById('aboutInfoCOPC').value,
+                    about_info_ay: document.getElementById('aboutInfoAY').value,
+                    about_info_accred: document.getElementById('aboutInfoAccred').value,
+                    about_ched_heading: document.getElementById('aboutChedHeading').value,
+                    about_ched_desc: document.getElementById('aboutChedDesc').value,
+                    about_stat1_val: document.getElementById('aboutStat1Val').value,
+                    about_stat1_lbl: document.getElementById('aboutStat1Lbl').value,
+                    about_stat2_val: document.getElementById('aboutStat2Val').value,
+                    about_stat2_lbl: document.getElementById('aboutStat2Lbl').value,
+                    about_stat3_val: document.getElementById('aboutStat3Val').value,
+                    about_stat3_lbl: document.getElementById('aboutStat3Lbl').value,
+                    about_stat4_val: document.getElementById('aboutStat4Val').value,
+                    about_stat4_lbl: document.getElementById('aboutStat4Lbl').value,
+                })
+            }).then(r => r.json()).then(d => showCmsToast(d.message || 'Overview saved!')).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        /* ── Close Course Modal on backdrop click ── */
+        window.addEventListener('DOMContentLoaded', () => {
+            const cm = document.getElementById('courseModal');
+            if (cm) cm.addEventListener('click', e => { if (e.target === cm) closeCourseModal(); });
+        });
+
+        function filterCalendarEvents() {
+            const month = document.getElementById('calFilterMonth').value.toLowerCase();
+            const type = document.getElementById('calFilterType').value;
+            const q = document.getElementById('calSearchInput').value.toLowerCase();
+            const MN = ['', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+            document.querySelectorAll('#calendarEventsBody tr[data-evt-id]').forEach(row => {
+                const mMatch = !month || MN[parseInt(row.dataset.month)] === month;
+                const tMatch = !type || row.dataset.type === type;
+                const qMatch = !q || row.textContent.toLowerCase().includes(q);
+                row.style.display = (mMatch && tMatch && qMatch) ? '' : 'none';
+            });
+        }
+
+        /* ── Admission Requirements ── */
+        function addRequirementRow() {
+            const list = document.getElementById('requirementsList');
+            const num = list.querySelectorAll('.requirement-row').length + 1;
+            const div = document.createElement('div');
+            div.className = 'requirement-row row-card flex items-start gap-3';
+            div.innerHTML = `
+                <div class="flex items-center justify-center w-6 h-6 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 req-num-badge">${num}</div>
+                <div class="flex-1 space-y-2">
+                    <input type="text" class="field req-name" placeholder="e.g. Official Transcript of Records (TOR)" />
+                    <input type="text" class="field req-hint" placeholder="Hint text..." />
+                </div>
+                <button type="button" onclick="removeRequirementRow(this)" class="btn-del mt-2"><i data-lucide="x"></i></button>`;
+            list.appendChild(div);
+            lucide.createIcons();
+        }
+        function removeRequirementRow(btn) {
+            const row = btn.closest('.requirement-row');
+            if (document.querySelectorAll('.requirement-row').length > 1) { row.remove(); reindexRequirements(); }
+            else alert('At least one requirement is needed.');
+        }
+        function reindexRequirements() {
+            document.querySelectorAll('.req-num-badge').forEach((b, i) => b.textContent = i + 1);
+        }
+        function saveRequirementsSettings() {
+            const reqs = [];
+            document.querySelectorAll('.requirement-row').forEach(row => {
+                reqs.push({ name: row.querySelector('.req-name').value, hint: row.querySelector('.req-hint').value });
+            });
+            const tip = document.getElementById('requirementsTip')?.value || '';
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ admission_requirements: reqs, requirements_tip: tip })
+            }).then(r => r.json()).then(d => showCmsToast(d.message || 'Requirements saved!')).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
+        /* ── Application Window ── */
+        function saveApplicationWindowSettings() {
+            const data = {
+                app_window_ay: document.getElementById('appWindowAY').value,
+                application_deadline: document.getElementById('appWindowDeadline').value,
+                app_window_enrollment: document.getElementById('appWindowEnrollment').value,
+                app_window_deadline_year: document.getElementById('appWindowDeadlineYear').value,
+                app_window_enrollment_year: document.getElementById('appWindowEnrollmentYear').value,
+                app_stat_val1: document.getElementById('appStatVal1').value,
+                app_stat_label1: document.getElementById('appStatLabel1').value,
+                app_stat_val2: document.getElementById('appStatVal2').value,
+                app_stat_label2: document.getElementById('appStatLabel2').value,
+                cta_heading: document.getElementById('ctaHeading').value,
+                cta_sublabel: document.getElementById('ctaSubLabel').value,
+            };
+            fetch('/admin/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify(data)
+            }).then(r => r.json()).then(d => showCmsToast(d.message || 'Application window saved!')).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+    </script>
+
+    <!-- All CMS logic lives in admin_cms_scripts.js -->
+    <script src="{% static 'admin_app/js/admin_cms_scripts.js' %}" defer></script>
+</body>
+
+</html>

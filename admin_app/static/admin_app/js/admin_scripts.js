@@ -75,6 +75,10 @@ function switchPage(pageId,el){
   if(pageId==='students')  renderStudents();
   if(pageId==='history')   renderHistory();
   if(pageId==='dashboard') renderDashboard();
+  if(pageId==='school-year') {
+    renderSchoolYears('active');
+    filterArchivedYears();
+  }
   lucide.createIcons();
 }
 
@@ -183,58 +187,60 @@ function renderStudents(){
     grid.innerHTML=`<div class="col-span-3 py-16 text-center text-gray-400"><i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-40"></i><p class="text-sm">No students found.</p></div>`;
     lucide.createIcons(); return;
   }
-  grid.innerHTML=filtered.map(app=>`
+  grid.innerHTML=filtered.map(app=>{
+    // Account status
+    const isActive = app.accountActive !== undefined ? app.accountActive : true;
+    const accountBadge = isActive 
+      ? '<span class="px-2 py-0.5 text-xs rounded-full bg-green-50 border border-green-200 text-green-700 font-medium">Active</span>'
+      : '<span class="px-2 py-0.5 text-xs rounded-full bg-red-50 border border-red-200 text-red-700 font-medium">Inactive</span>';
+    
+    const esc = (s) => String(s||'').replace(/'/g,"\\'");
+    const userId = app.userId || 0;
+    const reason = esc(app.accountStatusReason || '');
+    const changedBy = esc(app.accountStatusChangedBy || '');
+    const changedAt = esc(app.accountStatusChangedAt || '');
+    
+    const toggleBtn = `
+      <button onclick="openToggleStatusModal(${userId},'${esc(app.name)}',${isActive},'${reason}','${changedBy}','${changedAt}')" 
+        class="text-xs font-medium px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 w-full justify-center
+        ${isActive ? 'text-red-600 border-red-200 hover:bg-red-50' : 'text-green-600 border-green-200 hover:bg-green-50'}">
+        <i data-lucide="${isActive ? 'user-x' : 'user-check'}" class="w-3 h-3"></i>
+        ${isActive ? 'Deactivate Account' : 'Activate Account'}
+      </button>`;
+    
+    const statusInfo = app.accountStatusReason 
+      ? `<p class="text-xs text-gray-400 mt-1.5">${esc(app.accountStatusChangedBy||'')}${app.accountStatusChangedBy && app.accountStatusChangedAt ? ' · ' : ''}${esc(app.accountStatusChangedAt||'')}</p>`
+      : '';
+    
+    return `
     <div class="bg-white rounded-2xl shadow-sm p-5 fade-in hover:shadow-md transition">
-      <div class="flex items-center gap-4 mb-4">
+      <div class="flex items-center gap-4 mb-3">
         <div class="w-12 h-12 rounded-full ${avatarBg(app.name)} flex items-center justify-center font-bold text-base flex-shrink-0">${initials(app.name)}</div>
         <div>
           <p class="font-bold text-gray-800 text-sm leading-tight">${app.name}</p>
           <p class="text-xs text-gray-400">${app.course} · ${app.id}</p>
         </div>
       </div>
-      <div class="space-y-1.5 text-xs text-gray-500 mb-4">
+      <div class="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-xs text-gray-500 font-semibold uppercase tracking-wide">Account</span>
+          ${accountBadge}
+        </div>
+        ${statusInfo}
+        <div class="mt-2">${toggleBtn}</div>
+      </div>
+      <div class="space-y-1.5 text-xs text-gray-500 mb-3">
         <p class="flex items-center gap-2"><i data-lucide="mail" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>${app.email}</p>
         <p class="flex items-center gap-2"><i data-lucide="phone" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>${app.mobile}</p>
         <p class="flex items-center gap-2"><i data-lucide="calendar" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>Submitted: ${app.submission_date}</p>
       </div>
       <div class="border-t border-gray-100 pt-3 flex items-center justify-between">
         ${statusBadge(app.status)}
-        <button onclick="switchPage('documents',document.querySelectorAll('.nav-item')[1]);setTimeout(()=>openModal('${app.id}'),120)"
+        <button onclick="switchPage('documents',document.querySelectorAll('.nav-item')[1]);setTimeout(function(){openModal('${app.id}')},120)"
           class="text-xs text-red-700 font-semibold hover:underline flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i> View Docs</button>
       </div>
-    </div>`).join("");
-  lucide.createIcons();
-}
-
-/* ═══ HISTORY ═══ */
-function renderHistory(){
-  const tbody=document.getElementById("historyBody");
-  if(!tbody) return;
-  const search=(document.getElementById("historySearch")?.value||"").toLowerCase();
-  const filter=document.getElementById("historyFilter")?.value||"all";
-  let filtered=activityLog.filter(l=>
-    (l.appId.toLowerCase().includes(search)||l.doc.toLowerCase().includes(search)||l.admin.toLowerCase().includes(search)||l.action.toLowerCase().includes(search))&&
-    (filter==="all"||l.action===filter)
-  );
-  const ac={
-    "Verified Document":"badge-verified",
-    "Rejected Document":"badge-rejected",
-    "Marked Incomplete":"badge-incomplete",
-    "Requested Resubmission":"badge-pending",
-    "Updated Profile":"badge-review",
-    "Changed Profile Photo":"badge-review"
-  };
-  tbody.innerHTML=filtered.length
-    ? filtered.map(l=>`
-        <tr class="border-t border-gray-50 hover:bg-gray-50/70 transition-colors">
-          <td class="px-5 py-3.5 text-xs text-gray-400 whitespace-nowrap">${l.time}</td>
-          <td class="px-4 py-3.5 text-sm font-medium text-gray-700">${l.admin}</td>
-          <td class="px-4 py-3.5 text-sm text-red-700 font-semibold">${l.appId}</td>
-          <td class="px-4 py-3.5 text-sm text-gray-600">${l.doc}</td>
-          <td class="px-4 py-3.5"><span class="status-badge ${ac[l.action]||'badge-review'}">${l.action}</span></td>
-          <td class="px-4 py-3.5 text-xs text-gray-400">${l.notes}</td>
-        </tr>`).join("")
-    : `<tr><td colspan="6" class="px-5 py-12 text-center text-gray-400 text-sm">No activity logs found.</td></tr>`;
+    </div>`;
+  }).join("");
   lucide.createIcons();
 }
 
@@ -1186,4 +1192,1044 @@ function removeDownloadRow(btn) {
 function getCSRFToken() {
   return document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
     document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='))?.split('=')[1] || '';
+}
+
+/* ═══ MISSING REQUIREMENTS NOTIFICATION FEATURE ═══ */
+
+// Initialize requirements page when switched
+function initRequirementsPage() {
+  loadStudentsWithRequirements();
+  loadRequirementTypes();
+}
+
+// Load students with missing requirements
+async function loadStudentsWithRequirements() {
+  try {
+    const response = await fetch('/admin-panel/api/requirements/students/', {
+      method: 'GET',
+      headers: { 'X-CSRFToken': getCSRFToken() }
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      renderMissingRequirements(data.data);
+      updateRequirementStats(data.data);
+    }
+  } catch (error) {
+    console.error('Error loading students with requirements:', error);
+    document.getElementById('missingRequirementsList').innerHTML = 
+      '<p class="text-gray-400 text-sm text-center py-8">Error loading data. Please refresh.</p>';
+  }
+}
+
+// Render the list of students with missing requirements
+function renderMissingRequirements(students) {
+  const container = document.getElementById('missingRequirementsList');
+  
+  if (!students || students.length === 0) {
+    container.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No students with missing requirements.</p>';
+    return;
+  }
+  
+  container.innerHTML = students.map(student => {
+    const reqsHtml = student.requirements.map(req => `
+      <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+        <div class="flex items-center gap-2">
+          <input type="checkbox" class="req-checkbox w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" 
+            data-student-id="${student.user_id}" data-requirement-id="${req.id}">
+          <span class="text-sm text-gray-700">${req.requirement_name}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 text-xs rounded-full ${getReqStatusClass(req.status)}">${req.status}</span>
+          <button onclick="removeRequirement(${req.id})" class="text-gray-400 hover:text-red-600">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    `).join('');
+    
+    return `
+      <div class="border border-gray-100 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-xs font-bold text-red-700">
+              ${getInitials(student.full_name)}
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-800">${student.full_name}</p>
+              <p class="text-xs text-gray-400">${student.email}</p>
+            </div>
+          </div>
+          <span class="text-xs text-gray-400">${student.application_id || 'No App'}</span>
+        </div>
+        <div class="pl-13">
+          ${reqsHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  lucide.createIcons();
+}
+
+// Get CSS class for requirement status
+function getReqStatusClass(status) {
+  const classes = {
+    'pending': 'bg-yellow-50 text-yellow-700',
+    'notified': 'bg-blue-50 text-blue-700',
+    'submitted': 'bg-green-50 text-green-700',
+    'waived': 'bg-gray-50 text-gray-700'
+  };
+  return classes[status] || 'bg-gray-50 text-gray-700';
+}
+
+// Update requirement statistics
+function updateRequirementStats(students) {
+  let total = 0, pending = 0, notified = 0, submitted = 0;
+  
+  students.forEach(student => {
+    student.requirements.forEach(req => {
+      total++;
+      if (req.status === 'pending') pending++;
+      else if (req.status === 'notified') notified++;
+      else if (req.status === 'submitted') submitted++;
+    });
+  });
+  
+  document.getElementById('reqTotalCount').textContent = total;
+  document.getElementById('reqPendingCount').textContent = pending;
+  document.getElementById('reqNotifiedCount').textContent = notified;
+  document.getElementById('reqSubmittedCount').textContent = submitted;
+}
+
+// Load requirement types for dropdowns
+async function loadRequirementTypes() {
+  try {
+    const response = await fetch('/admin-panel/api/requirements/types/', {
+      method: 'GET',
+      headers: { 'X-CSRFToken': getCSRFToken() }
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      populateRequirementDropdowns(data.data);
+    }
+  } catch (error) {
+    console.error('Error loading requirement types:', error);
+  }
+}
+
+// Populate requirement dropdowns
+function populateRequirementDropdowns(types) {
+  const select = document.getElementById('addReqRequirementSelect');
+  select.innerHTML = '<option value="">-- Select a requirement --</option>' + 
+    types.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+}
+
+// Open add requirement modal
+async function openAddRequirementModal() {
+  // Load all students
+  try {
+    const response = await fetch('/admin-panel/api/students/all/', {
+      method: 'GET',
+      headers: { 'X-CSRFToken': getCSRFToken() }
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      const select = document.getElementById('addReqStudentSelect');
+      select.innerHTML = '<option value="">-- Select a student --</option>' + 
+        data.data.map(s => `<option value="${s.user_id}">${s.full_name} (${s.email})</option>`).join('');
+    }
+  } catch (error) {
+    console.error('Error loading students:', error);
+  }
+  
+  // Load requirement types
+  await loadRequirementTypes();
+  
+  // Clear form
+  document.getElementById('addReqNotes').value = '';
+  document.getElementById('addReqError').classList.add('hidden');
+  
+  // Show modal
+  document.getElementById('addRequirementModal').style.display = 'flex';
+}
+
+function closeAddRequirementModal() {
+  document.getElementById('addRequirementModal').style.display = 'none';
+}
+
+// Save student requirement
+async function saveStudentRequirement() {
+  const studentId = document.getElementById('addReqStudentSelect').value;
+  const requirementId = document.getElementById('addReqRequirementSelect').value;
+  const notes = document.getElementById('addReqNotes').value;
+  const errorEl = document.getElementById('addReqError');
+  
+  if (!studentId || !requirementId) {
+    errorEl.textContent = 'Please select both a student and a requirement.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
+  errorEl.classList.add('hidden');
+  
+  try {
+    const response = await fetch('/admin-panel/api/requirements/add/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: parseInt(studentId),
+        requirement_id: parseInt(requirementId),
+        notes: notes
+      })
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast('Requirement added successfully!', 'success');
+      closeAddRequirementModal();
+      loadStudentsWithRequirements();
+    } else {
+      errorEl.textContent = data.message;
+      errorEl.classList.remove('hidden');
+    }
+  } catch (error) {
+    errorEl.textContent = 'An error occurred. Please try again.';
+    errorEl.classList.remove('hidden');
+  }
+}
+
+// Remove a student requirement
+async function removeRequirement(requirementId) {
+  if (!confirm('Are you sure you want to remove this requirement?')) return;
+  
+  try {
+    const response = await fetch('/admin-panel/api/requirements/remove/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ student_requirement_id: requirementId })
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast('Requirement removed successfully!', 'success');
+      loadStudentsWithRequirements();
+    } else {
+      showToast('Error: ' + data.message, 'warn');
+    }
+  } catch (error) {
+    showToast('Error removing requirement.', 'warn');
+  }
+}
+
+// Open manage requirements modal
+async function openManageRequirementsModal() {
+  await loadRequirementTypesForManagement();
+  document.getElementById('manageRequirementsModal').style.display = 'flex';
+}
+
+function closeManageRequirementsModal() {
+  document.getElementById('manageRequirementsModal').style.display = 'none';
+}
+
+// Load requirement types for management
+async function loadRequirementTypesForManagement() {
+  try {
+    const response = await fetch('/admin-panel/api/requirements/types/', {
+      method: 'GET',
+      headers: { 'X-CSRFToken': getCSRFToken() }
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      const container = document.getElementById('requirementTypesList');
+      if (data.data.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">No requirement types yet.</p>';
+      } else {
+        container.innerHTML = data.data.map(t => `
+          <div class="flex items-center justify-between p-2 border border-gray-100 rounded-lg">
+            <div>
+              <p class="text-sm font-medium text-gray-800">${t.name}</p>
+              <p class="text-xs text-gray-400">${t.description || ''}</p>
+            </div>
+            <button onclick="deleteRequirementType(${t.id})" class="text-gray-400 hover:text-red-600">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `).join('');
+        lucide.createIcons();
+      }
+    }
+  } catch (error) {
+    console.error('Error loading requirement types:', error);
+  }
+}
+
+// Create new requirement type
+async function createRequirementType() {
+  const name = document.getElementById('newReqTypeName').value.trim();
+  const errorEl = document.getElementById('manageReqError');
+  
+  if (!name) {
+    errorEl.textContent = 'Please enter a requirement name.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
+  errorEl.classList.add('hidden');
+  
+  try {
+    const response = await fetch('/admin-panel/api/requirements/types/create/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ name: name, description: '' })
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast('Requirement type created!', 'success');
+      document.getElementById('newReqTypeName').value = '';
+      await loadRequirementTypesForManagement();
+      await loadRequirementTypes();
+    } else {
+      errorEl.textContent = data.message;
+      errorEl.classList.remove('hidden');
+    }
+  } catch (error) {
+    errorEl.textContent = 'An error occurred. Please try again.';
+    errorEl.classList.remove('hidden');
+  }
+}
+
+// Delete requirement type
+async function deleteRequirementType(typeId) {
+  if (!confirm('Are you sure you want to delete this requirement type?')) return;
+  
+  try {
+    const response = await fetch('/admin-panel/api/requirements/types/delete/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ requirement_type_id: typeId })
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast('Requirement type deleted!', 'success');
+      await loadRequirementTypesForManagement();
+      await loadRequirementTypes();
+    } else {
+      showToast('Error: ' + data.message, 'warn');
+    }
+  } catch (error) {
+    showToast('Error deleting requirement type.', 'warn');
+  }
+}
+
+// Open notification modal
+async function openNotifyModal() {
+  // Load students with requirements
+  try {
+    const response = await fetch('/admin-panel/api/requirements/students/', {
+      method: 'GET',
+      headers: { 'X-CSRFToken': getCSRFToken() }
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      const container = document.getElementById('notifyStudentList');
+      if (data.data.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">No students with missing requirements.</p>';
+      } else {
+        container.innerHTML = data.data.map(student => {
+          const reqNames = student.requirements.map(r => r.requirement_name).join(', ');
+          return `
+            <div class="flex items-center gap-2 p-2 border border-gray-100 rounded-lg">
+              <input type="checkbox" class="notify-checkbox w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" 
+                data-student-id="${student.user_id}" data-requirements="${student.requirements.map(r => r.id).join(',')}">
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-800">${student.full_name}</p>
+                <p class="text-xs text-gray-400">${reqNames}</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+  } catch (error) {
+    console.error('Error loading students:', error);
+  }
+  
+  document.getElementById('notifyMessage').value = '';
+  document.getElementById('notifyError').classList.add('hidden');
+  document.getElementById('notifyModal').style.display = 'flex';
+}
+
+function closeNotifyModal() {
+  document.getElementById('notifyModal').style.display = 'none';
+}
+
+// Send notifications to selected students
+async function sendNotifications() {
+  const checkboxes = document.querySelectorAll('.notify-checkbox:checked');
+  const message = document.getElementById('notifyMessage').value.trim();
+  const errorEl = document.getElementById('notifyError');
+  
+  if (checkboxes.length === 0) {
+    errorEl.textContent = 'Please select at least one student.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
+  if (!message) {
+    errorEl.textContent = 'Please enter a notification message.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
+  errorEl.classList.add('hidden');
+  
+  // Collect all requirement IDs
+  const requirementIds = [];
+  checkboxes.forEach(cb => {
+    const reqIds = cb.dataset.requirements.split(',');
+    requirementIds.push(...reqIds);
+  });
+  
+  try {
+    const response = await fetch('/admin-panel/api/requirements/notify/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCSRFToken(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        student_requirement_ids: requirementIds.map(id => parseInt(id)),
+        message: message
+      })
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      showToast(data.message, 'success');
+      closeNotifyModal();
+      loadStudentsWithRequirements();
+    } else {
+      errorEl.textContent = data.message;
+      errorEl.classList.remove('hidden');
+    }
+  } catch (error) {
+    errorEl.textContent = 'An error occurred. Please try again.';
+    errorEl.classList.remove('hidden');
+  }
+}
+
+// Add requirements page to switchPage function
+const originalSwitchPage = switchPage;
+switchPage = function(pageId, el) {
+  originalSwitchPage(pageId, el);
+  if (pageId === 'requirements') {
+    initRequirementsPage();
+  }
+};
+
+// Add backdrop close for new modals
+document.addEventListener('DOMContentLoaded', () => {
+  const addReqModal = document.getElementById('addRequirementModal');
+  const manageReqModal = document.getElementById('manageRequirementsModal');
+  const notifyModal = document.getElementById('notifyModal');
+  
+  if (addReqModal) {
+    addReqModal.addEventListener('click', function(e) {
+      if (e.target === this) closeAddRequirementModal();
+    });
+  }
+  if (manageReqModal) {
+    manageReqModal.addEventListener('click', function(e) {
+      if (e.target === this) closeManageRequirementsModal();
+    });
+  }
+  if (notifyModal) {
+    notifyModal.addEventListener('click', function(e) {
+      if (e.target === this) closeNotifyModal();
+    });
+  }
+});
+
+/* ═══ TOGGLE STUDENT ACCOUNT STATUS ═══ */
+var toggleStudentId = null;
+var toggleStudentIsActive = null;
+
+function openToggleStatusModal(userId, fullName, isActive, reason, changedBy, changedAt) {
+  console.log('openToggleStatusModal called', userId, fullName, isActive);
+  
+  toggleStudentId = userId;
+  toggleStudentIsActive = isActive;
+  
+  var modal = document.getElementById('toggleStatusModal');
+  console.log('modal element:', modal);
+  
+  if (!modal) {
+    alert('Error: toggleStatusModal not found in the page HTML.');
+    return;
+  }
+  
+  document.getElementById('toggleStatusSubtitle').innerText = fullName;
+  
+  if (isActive) {
+    document.getElementById('toggleStatusIcon').className = 'w-10 h-10 rounded-xl flex items-center justify-center bg-red-100';
+    document.getElementById('toggleStatusIcon').innerHTML = '<i data-lucide="user-x" class="w-5 h-5 text-red-600"></i>';
+    document.getElementById('toggleStatusTitle').innerText = 'Deactivate Student Account';
+    document.getElementById('currentStatusBar').className = 'flex items-center gap-3 p-3 rounded-xl border text-sm font-medium bg-green-50 border-green-200 text-green-700';
+    document.getElementById('currentStatusBar').innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i><span>Account is currently <strong>Active</strong></span>';
+    document.getElementById('toggleActionLabel').innerHTML = 'This will <strong style="color:#dc2626">deactivate</strong> the student account.';
+    document.getElementById('toggleStatusConfirmBtn').className = 'flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition bg-red-600 hover:bg-red-700';
+    document.getElementById('toggleStatusConfirmBtn').innerHTML = '<i data-lucide="user-x" class="w-4 h-4"></i> Deactivate Account';
+  } else {
+    document.getElementById('toggleStatusIcon').className = 'w-10 h-10 rounded-xl flex items-center justify-center bg-green-100';
+    document.getElementById('toggleStatusIcon').innerHTML = '<i data-lucide="user-check" class="w-5 h-5 text-green-600"></i>';
+    document.getElementById('toggleStatusTitle').innerText = 'Activate Student Account';
+    document.getElementById('currentStatusBar').className = 'flex items-center gap-3 p-3 rounded-xl border text-sm font-medium bg-red-50 border-red-200 text-red-700';
+    document.getElementById('currentStatusBar').innerHTML = '<i data-lucide="x-circle" class="w-4 h-4"></i><span>Account is currently <strong>Inactive</strong></span>';
+    document.getElementById('toggleActionLabel').innerHTML = 'This will <strong style="color:#16a34a">activate</strong> the student account.';
+    document.getElementById('toggleStatusConfirmBtn').className = 'flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition bg-green-600 hover:bg-green-700';
+    document.getElementById('toggleStatusConfirmBtn').innerHTML = '<i data-lucide="user-check" class="w-4 h-4"></i> Activate Account';
+  }
+  
+  var lastNoteDiv = document.getElementById('lastStatusNote');
+  if (reason) {
+    lastNoteDiv.classList.remove('hidden');
+    document.getElementById('lastStatusNoteText').innerText = reason;
+    document.getElementById('lastStatusNoteBy').innerText = changedBy ? 'Changed by ' + changedBy : '';
+  } else {
+    lastNoteDiv.classList.add('hidden');
+  }
+  
+  document.getElementById('toggleStatusReason').value = '';
+  document.getElementById('toggleStatusReasonErr').classList.add('hidden');
+  
+  modal.style.display = 'flex';
+  lucide.createIcons();
+  console.log('Modal should be visible now');
+}
+
+function closeToggleStatusModal() {
+  var modal = document.getElementById('toggleStatusModal');
+  if (modal) modal.style.display = 'none';
+  toggleStudentId = null;
+  toggleStudentIsActive = null;
+}
+
+function confirmToggleStatus() {
+  var reason = document.getElementById('toggleStatusReason').value.trim();
+  var errorEl = document.getElementById('toggleStatusReasonErr');
+  
+  if (!reason) {
+    errorEl.classList.remove('hidden');
+    return;
+  }
+  
+  errorEl.classList.add('hidden');
+  
+  fetch('/admin-panel/api/student/toggle-status/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify({user_id: toggleStudentId, is_active: !toggleStudentIsActive, reason: reason})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      showToast(data.message, 'success');
+      closeToggleStatusModal();
+      setTimeout(function() { location.reload(); }, 1000);
+    } else {
+      showToast('Error: ' + data.message, 'warn');
+    }
+  })
+  .catch(function(e) { showToast('Error: ' + e.message, 'warn'); });
+}
+
+
+/* ═══ CURRICULUM FUNCTIONS ═══ */
+
+// Toggle curriculum fields based on program level
+function toggleCurriculumFields() {
+  const level = document.getElementById('admProgramLevel')?.value;
+  const container = document.getElementById('curriculumContainer');
+  const doctoralFields = document.getElementById('doctoralFields');
+  const otherProgramInput = document.getElementById('admDoctoralProgramOther');
+  const programSelect = document.getElementById('admDoctoralProgram');
+
+  if (!container) return;
+  
+  if (level === 'masters' || level === 'doctoral') {
+    container.style.display = 'block';
+    
+    // Add an empty course row if no courses exist
+    const tbody = document.getElementById('coursesTableBody');
+    if (tbody && tbody.children.length === 0) {
+      addCourseRow();
+    }
+    
+    if (level === 'doctoral' && doctoralFields) {
+      doctoralFields.style.display = 'block';
+      if (programSelect && programSelect.value === 'Other' && otherProgramInput) {
+        otherProgramInput.style.display = 'block';
+      } else if (otherProgramInput) {
+        otherProgramInput.style.display = 'none';
+      }
+    } else if (doctoralFields) {
+      doctoralFields.style.display = 'none';
+      if (otherProgramInput) otherProgramInput.style.display = 'none';
+    }
+  } else {
+    container.style.display = 'none';
+    if (doctoralFields) doctoralFields.style.display = 'none';
+    if (otherProgramInput) otherProgramInput.style.display = 'none';
+  }
+}
+
+// Add a new course row
+function addCourseRow(courseData = null) {
+  const tbody = document.getElementById('coursesTableBody');
+  if (!tbody) return;
+  
+  const rowId = 'course_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+
+  const tr = document.createElement('tr');
+  tr.className = 'border-b border-gray-100 hover:bg-gray-50';
+  tr.id = rowId;
+
+  const levelOptions = `
+    <option value="1st Year 1st Sem">1st Year - 1st Sem</option>
+    <option value="1st Year 2nd Sem">1st Year - 2nd Sem</option>
+    <option value="2nd Year 1st Sem">2nd Year - 1st Sem</option>
+    <option value="2nd Year 2nd Sem">2nd Year - 2nd Sem</option>
+    <option value="3rd Year 1st Sem">3rd Year - 1st Sem</option>
+    <option value="3rd Year 2nd Sem">3rd Year - 2nd Sem</option>
+    <option value="Summer">Summer</option>
+  `;
+
+  tr.innerHTML = `
+    <td class="px-2 py-2"><input type="text" class="course-code w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-red-300" placeholder="e.g., MIT 201" value="${courseData ? escapeHtml(courseData.code) : ''}"></td>
+    <td class="px-2 py-2"><input type="text" class="course-title w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-red-300" placeholder="Subject title" value="${courseData ? escapeHtml(courseData.title) : ''}"></td>
+    <td class="px-2 py-2 text-center"><input type="number" class="course-units w-16 text-center border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-red-300" value="${courseData ? courseData.units : '3'}" min="0" step="1" onchange="updateTotalUnits()"></td>
+    <td class="px-2 py-2"><input type="text" class="course-prereq w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-red-300" placeholder="Pre-requisite" value="${courseData ? escapeHtml(courseData.prerequisite) : ''}"></td>
+    <td class="px-2 py-2 text-center">
+      <select class="course-level w-full border border-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-red-300">
+        ${levelOptions}
+      </select>
+    </td>
+    <td class="px-2 py-2 text-center">
+      <button type="button" onclick="removeCourseRow('${rowId}')" class="text-red-500 hover:text-red-700">
+        <i data-lucide="trash-2" class="w-4 h-4"></i>
+      </button>
+    </td>
+  `;
+
+  if (courseData && courseData.level) {
+    const levelSelect = tr.querySelector('.course-level');
+    if (levelSelect) levelSelect.value = courseData.level;
+  }
+
+  tbody.appendChild(tr);
+  updateTotalUnits();
+  updateCourseCount();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function removeCourseRow(rowId) {
+  const row = document.getElementById(rowId);
+  if (row) {
+    row.remove();
+    updateTotalUnits();
+    updateCourseCount();
+  }
+}
+
+function updateTotalUnits() {
+  let total = 0;
+  document.querySelectorAll('.course-units').forEach(input => {
+    const val = parseInt(input.value);
+    if (!isNaN(val)) total += val;
+  });
+  const totalEl = document.getElementById('totalUnits');
+  if (totalEl) totalEl.textContent = total;
+}
+
+function updateCourseCount() {
+  const count = document.querySelectorAll('#coursesTableBody tr').length;
+  const countEl = document.getElementById('courseCount');
+  if (countEl) countEl.textContent = count;
+}
+
+function saveCurriculumData() {
+  const courses = [];
+  document.querySelectorAll('#coursesTableBody tr').forEach(row => {
+    const code = row.querySelector('.course-code')?.value || '';
+    const title = row.querySelector('.course-title')?.value || '';
+    const units = parseInt(row.querySelector('.course-units')?.value) || 0;
+    const prerequisite = row.querySelector('.course-prereq')?.value || '';
+    const level = row.querySelector('.course-level')?.value || '';
+    
+    if (code && title && units > 0) {
+      courses.push({ code, title, units, prerequisite, level });
+    }
+  });
+  
+  const programLevel = document.getElementById('admProgramLevel')?.value || '';
+  let doctoralProgram = '';
+  
+  if (programLevel === 'doctoral') {
+    const selectedProgram = document.getElementById('admDoctoralProgram')?.value || '';
+    if (selectedProgram === 'Other') {
+      doctoralProgram = document.getElementById('admDoctoralProgramOther')?.value || '';
+    } else {
+      doctoralProgram = selectedProgram;
+    }
+  }
+  
+  return {
+    program_level: programLevel,
+    doctoral_program: doctoralProgram,
+    courses: courses,
+    total_units: courses.reduce((sum, c) => sum + c.units, 0),
+    course_count: courses.length
+  };
+}
+
+function loadCurriculumData(savedData) {
+  if (!savedData) return;
+  
+  const tbody = document.getElementById('coursesTableBody');
+  if (tbody) tbody.innerHTML = '';
+  
+  const levelSelect = document.getElementById('admProgramLevel');
+  if (levelSelect && savedData.program_level) {
+    levelSelect.value = savedData.program_level;
+    toggleCurriculumFields();
+  }
+  
+  if (savedData.program_level === 'doctoral' && savedData.doctoral_program) {
+    const programSelect = document.getElementById('admDoctoralProgram');
+    const otherInput = document.getElementById('admDoctoralProgramOther');
+    const predefinedPrograms = ['PhD in Educational Management', 'PhD in Public Administration', 'Doctor of Business Administration', 'Doctor of Information Technology'];
+    
+    if (predefinedPrograms.includes(savedData.doctoral_program)) {
+      if (programSelect) programSelect.value = savedData.doctoral_program;
+    } else {
+      if (programSelect) programSelect.value = 'Other';
+      if (otherInput) {
+        otherInput.style.display = 'block';
+        otherInput.value = savedData.doctoral_program;
+      }
+    }
+  }
+  
+  if (savedData.courses && savedData.courses.length) {
+    savedData.courses.forEach(course => addCourseRow(course));
+  }
+  
+  updateTotalUnits();
+  updateCourseCount();
+}
+
+// Modify the existing openModal function to include curriculum loading
+// Find the existing openModal function in admin_scripts.js and replace it with this:
+function openModal(id) {
+  console.log('openModal called with id:', id);
+  selectedApp = applications.find(a => a.id === id);
+  if (!selectedApp) {
+    console.error('Application not found with id:', id);
+    alert('Error: Could not find application with ID ' + id);
+    return;
+  }
+  document.getElementById("modalID").innerText = selectedApp.id;
+  document.getElementById("mName").innerText = selectedApp.name;
+  document.getElementById("mEmail").innerText = selectedApp.email;
+  document.getElementById("mCourse").innerText = selectedApp.course;
+  document.getElementById("mMobile").innerText = selectedApp.mobile;
+  document.getElementById("mAppID").innerText = selectedApp.id;
+  document.getElementById("mDate").innerText = selectedApp.submission_date;
+  document.getElementById("lastUpdated").innerText = "Last updated: " + new Date().toISOString().split("T")[0];
+  document.getElementById("remarks").value = selectedApp.remarks || "";
+  
+  const semEl = document.getElementById("admSemester");
+  const yearEl = document.getElementById("admYear");
+  const currEl = document.getElementById("admCurriculum");
+  if (semEl) semEl.value = selectedApp.semester || "";
+  if (yearEl) yearEl.value = selectedApp.year_admitted || "";
+  if (currEl) currEl.value = selectedApp.curriculum || "";
+  
+  renderDocCards();
+  
+  // Load curriculum data
+  setTimeout(() => {
+    const levelSelect = document.getElementById('admProgramLevel');
+    if (levelSelect) {
+      levelSelect.value = '';
+      toggleCurriculumFields(); // ← let the function handle visibility
+    }
+  }, 100);
+  
+  const modal = document.getElementById("modal");
+  if (modal) {
+    modal.classList.add("open");
+    modal.style.display = "flex";
+  }
+}
+
+// Modify the existing markVerified function
+function markVerified() {
+  const curriculumData = saveCurriculumData();
+  const remarks = document.getElementById("remarks").value;
+  const semester = document.getElementById("admSemester")?.value || "";
+  const yearAdmitted = document.getElementById("admYear")?.value || "";
+  const programLevel = document.getElementById("admProgramLevel")?.value || "";
+
+  fetch('/admin-panel/api/application/status/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+    body: JSON.stringify({
+      application_id: selectedApp.id,
+      status: 'verified',
+      remarks: remarks,
+      semester: semester,
+      year_admitted: yearAdmitted,
+      program_level: programLevel,
+      curriculum_data: curriculumData
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      selectedApp.remarks = remarks;
+      selectedApp.status = "Verified";
+      selectedApp.semester = semester;
+      selectedApp.year_admitted = yearAdmitted;
+      selectedApp.program_level = programLevel;
+      selectedApp.curriculum_data = curriculumData;
+      showToast(selectedApp.id + " marked as Verified ✓");
+      closeModal();
+      initializeData();
+      renderTable();
+      renderDashboard();
+    } else {
+      showToast('Error: ' + data.message, 'error');
+    }
+  })
+  .catch(e => { showToast('Error: ' + e.message, 'error'); });
+}
+
+// Add escapeHtml helper if not exists
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Add event listener for doctoral program change after DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+  const programSelect = document.getElementById('admDoctoralProgram');
+  if (programSelect) {
+    programSelect.addEventListener('change', function() {
+      const otherInput = document.getElementById('admDoctoralProgramOther');
+      if (this.value === 'Other' && otherInput) {
+        otherInput.style.display = 'block';
+      } else if (otherInput) {
+        otherInput.style.display = 'none';
+      }
+    });
+  }
+});
+
+
+/* ═══ CURRICULUM TAB MANAGEMENT ═══ */
+let currentCurriculumTab = 'program-info';
+
+function switchCurriculumTab(tabId) {
+  // Hide all tab contents
+  document.querySelectorAll('.curriculum-tab-content').forEach(content => {
+    content.classList.add('hidden');
+  });
+  
+  // Show selected tab content
+  const selectedContent = document.getElementById(`curriculum-tab-${tabId}`);
+  if (selectedContent) {
+    selectedContent.classList.remove('hidden');
+  }
+  
+  // Update tab button styles
+  document.querySelectorAll('.curriculum-tab').forEach(btn => {
+    btn.classList.remove('bg-red-700', 'text-white');
+    btn.classList.add('bg-gray-100', 'text-gray-600');
+  });
+  
+  // Find and highlight the clicked tab
+  const tabs = document.querySelectorAll('.curriculum-tab');
+  let tabIndex = 0;
+  if (tabId === 'program-info') tabIndex = 0;
+  else if (tabId === 'courses') tabIndex = 1;
+  else if (tabId === 'summary') tabIndex = 2;
+  
+  if (tabs[tabIndex]) {
+    tabs[tabIndex].classList.remove('bg-gray-100', 'text-gray-600');
+    tabs[tabIndex].classList.add('bg-red-700', 'text-white');
+  }
+  
+  currentCurriculumTab = tabId;
+  
+  // If switching to summary tab, update the summary data
+  if (tabId === 'summary') {
+    updateCurriculumSummary();
+  }
+}
+
+function updateCurriculumSummary() {
+  let level11 = 0, level12 = 0, level21 = 0, level22 = 0, level31 = 0, level32 = 0, summer = 0;
+  
+  document.querySelectorAll('#coursesTableBody tr').forEach(row => {
+    const units = parseInt(row.querySelector('.course-units')?.value) || 0;
+    const level = row.querySelector('.course-level')?.value || '';
+    
+    switch(level) {
+      case '1st Year 1st Sem': level11 += units; break;
+      case '1st Year 2nd Sem': level12 += units; break;
+      case '2nd Year 1st Sem': level21 += units; break;
+      case '2nd Year 2nd Sem': level22 += units; break;
+      case '3rd Year 1st Sem': level31 += units; break;
+      case '3rd Year 2nd Sem': level32 += units; break;
+      case 'Summer': summer += units; break;
+    }
+  });
+  
+  document.getElementById('level11Units').textContent = level11;
+  document.getElementById('level12Units').textContent = level12;
+  document.getElementById('level21Units').textContent = level21;
+  document.getElementById('level22Units').textContent = level22;
+  document.getElementById('level31Units').textContent = level31;
+  document.getElementById('level32Units').textContent = level32;
+  document.getElementById('summerUnits').textContent = summer;
+}
+
+function toggleDoctoralProgramOther() {
+  const programSelect = document.getElementById('admDoctoralProgram');
+  const otherInput = document.getElementById('admDoctoralProgramOther');
+  if (programSelect && otherInput) {
+    if (programSelect.value === 'Other') {
+      otherInput.style.display = 'block';
+    } else {
+      otherInput.style.display = 'none';
+    }
+  }
+}
+
+function importSampleCurriculum() {
+  if (!confirm('Load sample MIT curriculum? This will replace any existing courses.')) return;
+  
+  const tbody = document.getElementById('coursesTableBody');
+  if (tbody) tbody.innerHTML = '';
+  
+  const sampleCourses = [
+    { code: 'MIT 201', title: 'Advanced Programming', units: 3, prerequisite: 'None', level: '1st Year 1st Sem' },
+    { code: 'MIT 202', title: 'Database Systems', units: 3, prerequisite: 'MIT 201', level: '1st Year 1st Sem' },
+    { code: 'MIT 203', title: 'Research Methods', units: 3, prerequisite: 'None', level: '1st Year 1st Sem' },
+    { code: 'MIT 204', title: 'Network Security', units: 3, prerequisite: 'MIT 201', level: '1st Year 2nd Sem' },
+    { code: 'MIT 205', title: 'Software Engineering', units: 3, prerequisite: 'MIT 202', level: '1st Year 2nd Sem' },
+    { code: 'MIT 206', title: 'Data Analytics', units: 3, prerequisite: 'MIT 202', level: '2nd Year 1st Sem' },
+    { code: 'MIT 207', title: 'Thesis Writing', units: 6, prerequisite: 'MIT 203', level: '2nd Year 2nd Sem' },
+  ];
+  
+  sampleCourses.forEach(course => addCourseRow(course));
+  showToast('Sample curriculum loaded', 'success');
+}
+
+// Override the existing updateTotalUnits function to also update summary
+const originalUpdateTotalUnits = updateTotalUnits;
+updateTotalUnits = function() {
+  if (originalUpdateTotalUnits) originalUpdateTotalUnits();
+  updateCurriculumSummary();
+};
+
+// Override the existing updateCourseCount function
+const originalUpdateCourseCount = updateCourseCount;
+updateCourseCount = function() {
+  if (originalUpdateCourseCount) originalUpdateCourseCount();
+  updateCurriculumSummary();
+};
+
+// Override the existing toggleCurriculumFields function to show program info
+const originalToggleCurriculumFields = toggleCurriculumFields;
+toggleCurriculumFields = function() {
+  if (originalToggleCurriculumFields) originalToggleCurriculumFields();
+  
+  const level = document.getElementById('admProgramLevel')?.value;
+  
+  if (level === 'masters') {
+    document.getElementById('curriculumProgramName').value = 'Master in Information Technology';
+    document.getElementById('curriculumDegreeCode').value = 'MIT';
+  } else if (level === 'doctoral') {
+    document.getElementById('curriculumProgramName').value = 'Doctoral Program';
+    document.getElementById('curriculumDegreeCode').value = 'PhD';
+  } else {
+    document.getElementById('curriculumProgramName').value = '';
+    document.getElementById('curriculumDegreeCode').value = '';
+  }
+  
+  const container = document.getElementById('curriculumContainer');
+  if (container && (level === 'masters' || level === 'doctoral')) {
+    container.style.display = 'block';
+    // Default to showing program-info tab
+    switchCurriculumTab('program-info');
+  } else if (container) {
+    container.style.display = 'none';
+  }
+};
+
+// Override the existing loadCurriculumData function
+const originalLoadCurriculumData = loadCurriculumData;
+loadCurriculumData = function(savedData) {
+  if (originalLoadCurriculumData) originalLoadCurriculumData(savedData);
+  
+  // Set batch year if available
+  if (savedData && savedData.batch_year) {
+    document.getElementById('curriculumBatchYear').value = savedData.batch_year;
+  }
+  
+  updateCurriculumSummary();
+};
+
+// Override the existing saveCurriculumData function
+const originalSaveCurriculumData = saveCurriculumData;
+saveCurriculumData = function() {
+  const baseData = originalSaveCurriculumData ? originalSaveCurriculumData() : {};
+  
+  return {
+    ...baseData,
+    batch_year: document.getElementById('curriculumBatchYear')?.value || '',
+    program_level: document.getElementById('admProgramLevel')?.value || '',
+    doctoral_program: getDoctoralProgramValue(),
+  };
+};
+
+function getDoctoralProgramValue() {
+  const selectedProgram = document.getElementById('admDoctoralProgram')?.value || '';
+  if (selectedProgram === 'Other') {
+    return document.getElementById('admDoctoralProgramOther')?.value || '';
+  }
+  return selectedProgram;
 }
