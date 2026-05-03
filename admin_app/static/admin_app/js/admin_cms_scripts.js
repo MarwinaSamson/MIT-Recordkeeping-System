@@ -162,9 +162,44 @@ async function saveHomepageSettings() {
   await _postCMS({
     admissions_open:      document.getElementById('cmsAdmissionsToggle')?.classList.contains('on'),
     show_announcement:    document.getElementById('cmsAnnouncementToggle')?.classList.contains('on'),
+    nav_subtitle:         document.getElementById('cmsNavSubtitle')?.value.trim() || '',
+    hero_badge:           document.getElementById('cmsHeroBadge')?.value.trim() || '',
+    hero_heading1:        document.getElementById('cmsHeroHeading1')?.value.trim() || '',
+    hero_heading2:        document.getElementById('cmsHeroHeading2')?.value.trim() || '',
     hero_tagline:         document.getElementById('cmsHeroTagline')?.value.trim() || '',
     application_deadline: document.getElementById('cmsDeadline')?.value || null,
   });
+}
+
+/** Live-preview the seal/logo before saving */
+function previewSeal(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  if (file.size > 2 * 1024 * 1024) { showCmsToast('Seal image must be under 2 MB.', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const wrap = document.getElementById('sealPreviewWrap');
+    const icon = document.getElementById('sealPreviewIcon');
+    if (icon) icon.style.display = 'none';
+    let img = document.getElementById('sealPreviewImg');
+    if (!img) {
+      img = document.createElement('img');
+      img.id = 'sealPreviewImg';
+      img.className = 'w-full h-full object-contain';
+      wrap.appendChild(img);
+    }
+    img.src = e.target.result;
+    // Upload immediately via existing upload endpoint
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('field', 'site_seal');
+    formData.append('csrfmiddlewaretoken', getCSRFToken());
+    fetch('/admin/api/cms/upload-file/', { method: 'POST', body: formData })
+      .then(r => r.json())
+      .then(d => { if (d.success) showCmsToast('Seal uploaded!', 'success'); else showCmsToast(d.message || 'Upload failed.', 'error'); })
+      .catch(() => showCmsToast('Upload error.', 'error'));
+  };
+  reader.readAsDataURL(file);
 }
 
 /** Save programs list settings */

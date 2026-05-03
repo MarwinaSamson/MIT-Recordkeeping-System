@@ -57,7 +57,7 @@
         <i data-lucide="calendar"></i><span>School Year Management</span>
       </div>
       <a href="{% url 'admin_app:cms_settings' %}" class="nav-item">
-        <i data-lucide="settings-2"></i><span>CMS Settings</span>
+        <i data-lucide="settings-2"></i><span>CMS</span>
       </a>
       <div class="nav-item" onclick="switchPage('settings', this)">
         <i data-lucide="user-cog"></i><span>Profile Settings</span>
@@ -592,93 +592,6 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl shadow-sm p-6 fade-in" style="animation-delay: 0.32s">
-            <h3 class="font-bold text-gray-800 mb-1 flex items-center gap-2">
-              <i data-lucide="layout" class="w-4 h-4 text-red-700"></i> Homepage Content (CMS)
-            </h3>
-            <p class="text-xs text-gray-400 mb-5">Control what students see on the public-facing index page.</p>
-            <div class="space-y-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-gray-700">Admissions Open</p>
-                  <p class="text-xs text-gray-400">Show "Apply Now" and open the application portal</p>
-                </div>
-                <div class="toggle-track {% if cms.admissions_open %}on{% endif %}" id="cmsAdmissionsToggle"
-                  onclick="this.classList.toggle('on')">
-                  <div class="toggle-thumb"></div>
-                </div>
-              </div>
-
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-gray-700">Show Announcement Bar</p>
-                  <p class="text-xs text-gray-400">Display the rotating banner at the top of the homepage</p>
-                </div>
-                <div class="toggle-track {% if cms.show_announcement %}on{% endif %}" id="cmsAnnouncementToggle"
-                  onclick="this.classList.toggle('on')">
-                  <div class="toggle-thumb"></div>
-                </div>
-              </div>
-
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Announcements</label>
-                  <button type="button" onclick="addAnnouncementRow()"
-                    class="flex items-center gap-1 text-xs font-semibold text-red-700 hover:text-red-900 transition">
-                    <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Add
-                  </button>
-                </div>
-                <div id="announcementsList" class="space-y-2">
-                  {% for ann in cms.announcements %}
-                  <div class="announcement-row flex items-center gap-2">
-                    <input type="text" placeholder="Announcement text…" value="{{ ann.text }}"
-                      class="ann-text flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
-                    <input type="number" placeholder="sec" value="{{ ann.duration }}" min="3" max="30"
-                      class="ann-duration w-16 border border-gray-200 rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
-                    <button type="button" onclick="removeAnnouncementRow(this)"
-                      class="w-7 h-7 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition flex-shrink-0">
-                      <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                  </div>
-                  {% empty %}
-                  <div class="announcement-row flex items-center gap-2">
-                    <input type="text" placeholder="Announcement text…"
-                      class="ann-text flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
-                    <input type="number" placeholder="sec" value="5" min="3" max="30"
-                      class="ann-duration w-16 border border-gray-200 rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
-                    <button type="button" onclick="removeAnnouncementRow(this)"
-                      class="w-7 h-7 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition flex-shrink-0">
-                      <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                  </div>
-                  {% endfor %}
-                </div>
-                <p class="text-xs text-gray-400 mt-1.5">Each announcement slides in for the number of seconds you set
-                  (min 3s).</p>
-              </div>
-
-              <div>
-                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">Hero
-                  Tagline</label>
-                <textarea id="cmsHeroTagline" rows="2" placeholder="e.g. Advance your professional journey..."
-                  class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition resize-none">{{ cms.hero_tagline|default:"Advance your professional journey. Our Master's programs are designed for the next generation of academic and industry leaders." }}</textarea>
-              </div>
-
-              <div>
-                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">Application
-                  Deadline</label>
-                <input type="date" id="cmsDeadline" value="{{ cms.application_deadline|default:'' }}"
-                  class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
-              </div>
-
-              <p id="cmsSaveError" class="text-xs text-red-500 hidden"></p>
-
-              <button onclick="saveCMSSettings()" id="cmsSaveBtn"
-                class="flex items-center gap-2 px-5 py-2 bg-red-800 text-white rounded-xl text-sm font-semibold hover:bg-red-900 transition">
-                <i data-lucide="save" class="w-4 h-4"></i> Save Homepage Settings
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

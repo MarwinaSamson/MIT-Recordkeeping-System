@@ -456,7 +456,7 @@
                 <i data-lucide="calendar"></i><span>School Year Management</span>
             </a>
             <a href="{% url 'admin_app:cms_settings' %}" class="nav-item active">
-                <i data-lucide="settings-2"></i><span>CMS Settings</span>
+                <i data-lucide="settings-2"></i><span>CMS</span>
             </a>
             <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
                 <i data-lucide="user-cog"></i><span>Profile Settings</span>
@@ -670,6 +670,72 @@
                         <p class="cms-card-subtitle">Edit the main headline and tagline shown on the homepage hero
                             banner.</p>
                         <div class="space-y-4">
+
+                            <!-- NAVBAR: Seal / Logo -->
+                            <div>
+                                <label class="lbl">Navbar Seal / Logo <span class="lbl-hint">(circular image shown in
+                                        the top-left navigation bar)</span></label>
+                                <div class="flex items-center gap-4">
+                                    <div id="sealPreviewWrap"
+                                        class="w-14 h-14 rounded-full border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50 overflow-hidden flex-shrink-0">
+                                        {% if cms.site_seal %}
+                                        <img id="sealPreviewImg" src="{{ cms.site_seal }}"
+                                            class="w-full h-full object-contain" />
+                                        {% else %}
+                                        <i data-lucide="image" class="w-6 h-6 text-gray-300" id="sealPreviewIcon"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center justify-center p-5 cursor-pointer hover:border-red-300 hover:bg-red-50 transition"
+                                            onclick="document.getElementById('sealImageInput').click()">
+                                            <i data-lucide="upload-cloud" class="w-6 h-6 text-gray-300 mb-1"></i>
+                                            <p class="text-xs text-gray-400">Click to upload seal / logo</p>
+                                            <p class="text-xs text-gray-300 mt-0.5">PNG with transparency recommended ·
+                                                max 2 MB</p>
+                                            <input type="file" id="sealImageInput" accept="image/*" class="hidden"
+                                                onchange="previewSeal(this)" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- NAVBAR: Subtitle pill (e.g. "Graduate School · Information Technology") -->
+                            <div>
+                                <label class="lbl">Navbar Subtitle Pill <span class="lbl-hint">(small text shown below
+                                        the university name in the navbar)</span></label>
+                                <input type="text" id="cmsNavSubtitle" class="field"
+                                    value="{{ cms.nav_subtitle|default:'MIT · Graduate School Admissions' }}"
+                                    placeholder="e.g. MIT · Graduate School Admissions" />
+                            </div>
+
+                            <hr class="border-gray-100" />
+
+                            <!-- HERO: Badge pill (e.g. "Graduate School · Information Technology") -->
+                            <div>
+                                <label class="lbl">Hero Badge Text <span class="lbl-hint">(small pill tag shown above
+                                        the main title in the hero)</span></label>
+                                <input type="text" id="cmsHeroBadge" class="field"
+                                    value="{{ cms.hero_badge|default:'Graduate School · Information Technology' }}"
+                                    placeholder="e.g. Graduate School · Information Technology" />
+                            </div>
+
+                            <!-- HERO: Heading line 1 (e.g. "The University") -->
+                            <div>
+                                <label class="lbl">Hero Heading — Line 1 <span class="lbl-hint">(white text, first
+                                        line)</span></label>
+                                <input type="text" id="cmsHeroHeading1" class="field"
+                                    value="{{ cms.hero_heading1|default:'The University' }}"
+                                    placeholder="e.g. The University" />
+                            </div>
+
+                            <!-- HERO: Heading line 2 italic (e.g. "of Choice") -->
+                            <div>
+                                <label class="lbl">Hero Heading — Line 2 <span class="lbl-hint">(gold italic text,
+                                        second line)</span></label>
+                                <input type="text" id="cmsHeroHeading2" class="field"
+                                    value="{{ cms.hero_heading2|default:'of Choice' }}" placeholder="e.g. of Choice" />
+                            </div>
+
                             <div>
                                 <label class="lbl">Hero Tagline <span class="lbl-hint">(shown below the
                                         heading)</span></label>
@@ -2257,16 +2323,51 @@
                             </div>
                             <div>
                                 <label class="lbl">Units</label>
-                                <input type="text" id="courseUnits" class="field" placeholder="e.g. 3 Units" />
+                                <input type="number" id="courseUnits" class="field" placeholder="3" min="1" max="12" />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="lbl">Course Type <span class="lbl-hint">(used for grouping in About
+                                        tab)</span></label>
+                                <select id="courseType" class="field">
+                                    <option value="core">IT Core Course</option>
+                                    <option value="spec">Specialization Course</option>
+                                    <option value="cap">Capstone Project</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="lbl">Curriculum Year <span class="lbl-hint">(which curriculum this belongs
+                                        to)</span></label>
+                                <select id="courseCurriculumYear" class="field">
+                                    <option value="2019">2019 – 2020 Curriculum</option>
+                                    <option value="2023" selected>2023 – 2024 Curriculum</option>
+                                </select>
                             </div>
                         </div>
                         <div>
-                            <label class="lbl">Course Type</label>
-                            <select id="courseType" class="field">
-                                <option value="core">IT Core Course</option>
-                                <option value="spec">Specialization Course</option>
-                                <option value="cap">Capstone Project</option>
-                            </select>
+                            <label class="lbl">Group / Section Header <span class="lbl-hint">(e.g. "Foundation Courses",
+                                    "Specialization Courses" — the bold subheading shown above this course in the course
+                                    list)</span></label>
+                            <input type="text" id="courseGroupName" class="field"
+                                placeholder="e.g. Foundation Courses" />
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="lbl">Year Level</label>
+                                <select id="courseYear" class="field">
+                                    <option value="1">1st Year</option>
+                                    <option value="2">2nd Year</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="lbl">Semester / Term</label>
+                                <select id="courseSemester" class="field">
+                                    <option value="1st Semester">1st Semester</option>
+                                    <option value="2nd Semester">2nd Semester</option>
+                                    <option value="Summer">Summer</option>
+                                </select>
+                            </div>
                         </div>
                         <div>
                             <label class="lbl">Course Title</label>
@@ -2279,14 +2380,20 @@
                                 placeholder="Full course description..."></textarea>
                         </div>
                         <div>
-                            <label class="lbl">Key Topics <span class="lbl-hint">(comma-separated)</span></label>
+                            <label class="lbl">Key Topics <span class="lbl-hint">(comma-separated — shown as tag pills
+                                    in the course modal on the About page)</span></label>
                             <input type="text" id="courseTopics" class="field"
                                 placeholder="e.g. Memory Management, Deadlock, File Systems" />
                         </div>
                         <div>
                             <label class="lbl">Icon <span class="lbl-hint">(Material Symbols name, e.g. dns, storage,
-                                    architecture)</span></label>
+                                    architecture — shown as the card icon)</span></label>
                             <input type="text" id="courseIcon" class="field" placeholder="e.g. dns" />
+                            <p class="text-xs text-gray-400 mt-1">
+                                Browse icons at
+                                <a href="https://fonts.google.com/icons" target="_blank"
+                                    class="text-red-700 underline">fonts.google.com/icons</a>
+                            </p>
                         </div>
                     </div>
                     <div class="px-6 pb-6 flex gap-3 border-t border-gray-100 pt-4">
@@ -2754,19 +2861,43 @@
         function openAddCourseModal() {
             document.getElementById('courseModalTitle').textContent = 'Add Course';
             document.getElementById('courseModalId').value = '';
-            ['courseCode', 'courseUnits', 'courseTitle', 'courseDesc', 'courseTopics', 'courseIcon'].forEach(id => {
+            ['courseCode', 'courseUnits', 'courseGroupName', 'courseTitle', 'courseDesc', 'courseTopics', 'courseIcon'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.value = '';
             });
             const ct = document.getElementById('courseType');
             if (ct) ct.value = 'core';
+            const cy = document.getElementById('courseCurriculumYear');
+            if (cy) cy.value = '2023';
+            const yr = document.getElementById('courseYear');
+            if (yr) yr.value = '1';
+            const sem = document.getElementById('courseSemester');
+            if (sem) sem.value = '1st Semester';
             document.getElementById('courseModal').style.display = 'flex';
+            lucide.createIcons();
         }
 
         function editCourse(code) {
             document.getElementById('courseModalTitle').textContent = 'Edit Course — ' + code;
             document.getElementById('courseModalId').value = code;
+            // Pre-fill from data attributes on the row if available
+            const row = document.querySelector(`[data-course-code="${code}"]`);
+            if (row) {
+                const s = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+                s('courseCode', row.dataset.code || code);
+                s('courseUnits', row.dataset.units || '');
+                s('courseType', row.dataset.type || 'core');
+                s('courseCurriculumYear', row.dataset.curriculumYear || '2023');
+                s('courseGroupName', row.dataset.groupName || '');
+                s('courseYear', row.dataset.yearLevel || '1');
+                s('courseSemester', row.dataset.semester || '1st Semester');
+                s('courseTitle', row.dataset.title || '');
+                s('courseDesc', row.dataset.desc || '');
+                s('courseTopics', row.dataset.topics || '');
+                s('courseIcon', row.dataset.icon || '');
+            }
             document.getElementById('courseModal').style.display = 'flex';
+            lucide.createIcons();
         }
 
         function closeCourseModal() {
@@ -2779,6 +2910,10 @@
                 code: document.getElementById('courseCode').value,
                 units: document.getElementById('courseUnits').value,
                 type: document.getElementById('courseType').value,
+                curriculum_year: document.getElementById('courseCurriculumYear').value,
+                group_name: document.getElementById('courseGroupName').value.trim(),
+                year_level: document.getElementById('courseYear').value,
+                semester: document.getElementById('courseSemester').value,
                 title: document.getElementById('courseTitle').value,
                 desc: document.getElementById('courseDesc').value,
                 topics: document.getElementById('courseTopics').value.split(',').map(t => t.trim()).filter(Boolean),
