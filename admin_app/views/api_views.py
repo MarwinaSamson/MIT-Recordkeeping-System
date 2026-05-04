@@ -395,8 +395,17 @@ def update_cms_settings(request):
         update_data = {
             'admissions_open': bool(data.get('admissions_open', cms.admissions_open)),
             'show_announcement': bool(data.get('show_announcement', cms.show_announcement)),
+            'nav_subtitle': data.get('nav_subtitle', cms.nav_subtitle).strip(),
+            'hero_badge': data.get('hero_badge', cms.hero_badge).strip(),
+            'hero_heading1': data.get('hero_heading1', cms.hero_heading1).strip(),
+            'hero_heading2': data.get('hero_heading2', cms.hero_heading2).strip(),
             'hero_tagline': data.get('hero_tagline', cms.hero_tagline).strip(),
             'application_deadline': data.get('application_deadline') or None,
+            'contact_address': data.get('contact_address', cms.contact_address).strip(),
+            'contact_phone': data.get('contact_phone', cms.contact_phone).strip(),
+            'contact_email': data.get('contact_email', cms.contact_email).strip(),
+            'contact_facebook': data.get('contact_facebook', cms.contact_facebook).strip(),
+            'contact_hours': data.get('contact_hours', cms.contact_hours).strip(),
         }
 
         # Validate and save announcements list [{text, duration}]
@@ -446,6 +455,61 @@ def update_cms_settings(request):
                         'file_type': file_type,
                     })
             update_data['downloads'] = cleaned_downloads
+
+        # Validate and save event slides list
+        raw_event_slides = data.get('event_slides', None)
+        if raw_event_slides is not None:
+            cleaned_slides = []
+            for slide in raw_event_slides:
+                title = str(slide.get('title', '')).strip()
+                if title:  # Only add if title exists
+                    cleaned_slides.append({
+                        'title': title,
+                        'date': str(slide.get('date', '')).strip(),
+                        'day_label': str(slide.get('day_label', '')).strip(),
+                        'time': str(slide.get('time', '')).strip(),
+                        'venue': str(slide.get('venue', '')).strip(),
+                        'description': str(slide.get('description', '')).strip(),
+                        'image_url': str(slide.get('image_url', '')).strip(),
+                        'audience': str(slide.get('audience', '')).strip(),
+                        'featured': bool(slide.get('featured', False)),
+                    })
+            update_data['event_slides'] = cleaned_slides
+
+        # Validate and save calendar events list
+        raw_calendar_events = data.get('calendar_events', None)
+        if raw_calendar_events is not None:
+            cleaned_events = []
+            for evt in raw_calendar_events:
+                title = str(evt.get('title', '')).strip()
+                if title:  # Only add if title exists
+                    cleaned_events.append({
+                        'id': int(evt.get('id', 0)),
+                        'month': int(evt.get('month', 1)),
+                        'day': int(evt.get('day', 1)),
+                        'title': title,
+                        'type': str(evt.get('type', 'cr')).strip(),
+                        'tag': str(evt.get('tag', '')).strip(),
+                        'time': str(evt.get('time', '')).strip(),
+                        'venue': str(evt.get('venue', '')).strip(),
+                        'audience': str(evt.get('audience', '')).strip(),
+                        'desc': str(evt.get('desc', '')).strip(),
+                    })
+            update_data['calendar_events'] = cleaned_events
+
+        # Validate and save admission requirements list
+        raw_admission_requirements = data.get('admission_requirements', None)
+        if raw_admission_requirements is not None:
+            cleaned_requirements = []
+            for req in raw_admission_requirements:
+                title = str(req.get('title', '')).strip()
+                if title:  # Only add if title exists
+                    cleaned_requirements.append({
+                        'number': int(req.get('number', 1)),
+                        'title': title,
+                        'description': str(req.get('description', '')).strip(),
+                    })
+            update_data['admission_requirements'] = cleaned_requirements
 
         # Use bulk update for better performance
         CMSSettings.objects.filter(pk=1).update(**update_data)

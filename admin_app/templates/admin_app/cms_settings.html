@@ -1635,6 +1635,84 @@
 
                 <!-- (About Page, Members/Staff, Footer panels removed — managed on their own pages, not part of index.html) -->
 
+                <!-- ══ CMS: Admission Requirements ══ -->
+                <div id="cms-requirements" class="cms-panel hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <div>
+                            <h2 class="text-base font-bold text-gray-800">Admission Requirements</h2>
+                            <p class="text-xs text-gray-400 mt-0.5">Manage the list of admission requirements displayed on the homepage.</p>
+                        </div>
+                        <button onclick="addAdmissionRequirement()" class="btn-primary"><i data-lucide="plus"></i> Add Requirement</button>
+                    </div>
+
+                    <div id="admissionRequirementsList" class="space-y-5">
+                        {% for req in cms.admission_requirements %}
+                        <div class="cms-card admission-requirement-row" data-idx="{{ forloop.counter }}">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{{
+                                        forloop.counter }}</span>
+                                    <span class="font-bold text-gray-800 text-sm">Requirement {{ forloop.counter
+                                        }}</span>
+                                </div>
+                                <button type="button" onclick="removeAdmissionRequirement(this)" class="btn-del"><i
+                                        data-lucide="x"></i></button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="lbl">Requirement Number</label>
+                                    <input type="number" class="field req-number" value="{{ req.number }}"
+                                        placeholder="1" min="1" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Requirement Title</label>
+                                    <input type="text" class="field req-title" value="{{ req.title }}"
+                                        placeholder="e.g., Official Transcript of Records" />
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="lbl">Description (Optional)</label>
+                                <textarea class="field req-description" rows="2"
+                                    placeholder="Additional details about this requirement">{{ req.description }}</textarea>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="cms-card admission-requirement-row" data-idx="1">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">1</span>
+                                    <span class="font-bold text-gray-800 text-sm">Requirement 1</span>
+                                </div>
+                                <button type="button" onclick="removeAdmissionRequirement(this)" class="btn-del"><i
+                                        data-lucide="x"></i></button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="lbl">Requirement Number</label>
+                                    <input type="number" class="field req-number" value="1"
+                                        placeholder="1" min="1" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Requirement Title</label>
+                                    <input type="text" class="field req-title" value="Official Transcript of Records (TOR)"
+                                        placeholder="e.g., Official Transcript of Records" />
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="lbl">Description (Optional)</label>
+                                <textarea class="field req-description" rows="2"
+                                    placeholder="Additional details about this requirement">Certified true copy from your institution</textarea>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="flex justify-end mt-6">
+                        <button onclick="saveAdmissionRequirements()" class="btn-primary"><i data-lucide="save"></i> Save Requirements</button>
+                    </div>
+                </div>
+
                 <!-- ══ CMS: Contact US ══ -->
                 <div id="cms-contact" class="cms-panel hidden">
                     <div class="cms-card">
@@ -2880,7 +2958,7 @@
                     featured: row.querySelector('.evt-featured-toggle')?.classList.contains('on') || false,
                 });
             });
-            fetch('/admin/api/cms/update/', {
+            fetch('/admin-panel/api/cms/update/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                 body: JSON.stringify({ event_slides: slides })
@@ -3117,7 +3195,7 @@
                     // url will be set by the backend after actual upload
                 })),
             };
-            fetch('/admin/api/cms/update/', {
+            fetch('/admin-panel/api/cms/update/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                 body: JSON.stringify({ calendar_event: data })
@@ -3171,7 +3249,7 @@
                 topics: document.getElementById('courseTopics').value.split(',').map(t => t.trim()).filter(Boolean),
                 icon: document.getElementById('courseIcon').value,
             };
-            fetch('/admin/api/cms/update/', {
+            fetch('/admin-panel/api/cms/update/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                 body: JSON.stringify({ about_course: data })
@@ -3215,7 +3293,7 @@
             document.querySelectorAll('.outcome-row').forEach(row => {
                 outcomes.push({ title: row.querySelector('.out-title').value, desc: row.querySelector('.out-desc').value });
             });
-            fetch('/admin/api/cms/update/', {
+            fetch('/admin-panel/api/cms/update/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                 body: JSON.stringify({ about_outcomes: outcomes })
@@ -3247,7 +3325,7 @@
             document.querySelectorAll('.objective-row').forEach(row => {
                 objs.push({ text: row.querySelector('.obj-text').value });
             });
-            fetch('/admin/api/cms/update/', {
+            fetch('/admin-panel/api/cms/update/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                 body: JSON.stringify({ about_objectives: objs })
@@ -3316,7 +3394,7 @@
                     tags: (card.querySelector('.fac-tags')?.value || '').split(',').map(t => t.trim()).filter(Boolean),
                 });
             });
-            fetch('/admin/api/cms/update/', {
+            fetch('/admin-panel/api/cms/update/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                 body: JSON.stringify({ about_faculty: faculty })
@@ -3325,7 +3403,7 @@
 
         /* ── About Hero Save ── */
         function saveAboutHero() {
-            fetch('/admin/api/cms/update/', {
+            fetch('/admin-panel/api/cms/update/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                 body: JSON.stringify({
@@ -3340,7 +3418,7 @@
 
         /* ── About Overview Save ── */
         function saveAboutOverview() {
-            fetch('/admin/api/cms/update/', {
+            fetch('/admin-panel/api/cms/update/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                 body: JSON.stringify({
@@ -3412,7 +3490,7 @@
                 reqs.push({ name: row.querySelector('.req-name').value, hint: row.querySelector('.req-hint').value });
             });
             const tip = document.getElementById('requirementsTip')?.value || '';
-            fetch('/admin/api/cms/update/', {
+            fetch('/admin-panel/api/cms/update/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                 body: JSON.stringify({ admission_requirements: reqs, requirements_tip: tip })
@@ -3434,7 +3512,7 @@
                 cta_heading: document.getElementById('ctaHeading').value,
                 cta_sublabel: document.getElementById('ctaSubLabel').value,
             };
-            fetch('/admin/api/cms/update/', {
+            fetch('/admin-panel/api/cms/update/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                 body: JSON.stringify(data)
@@ -3627,7 +3705,7 @@
             lucide.createIcons();
 
             try {
-                const res = await fetch('/admin/api/cms/update/', {
+                const res = await fetch('/admin-panel/api/cms/update/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                     body: JSON.stringify({ bulk_courses: courses, bulk_mode: mode }),
@@ -3994,7 +4072,7 @@
             const modeEl = document.querySelector(`input[name="bulkMode_${section}"]:checked`);
             const mode = modeEl ? modeEl.value : 'replace';
 
-            fetch('/admin/api/cms/bulk-upload/', {
+            fetch('/admin-panel/api/cms/bulk-upload/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                 body: JSON.stringify({ section, mode, rows })
@@ -4180,6 +4258,80 @@
             URL.revokeObjectURL(url);
             showCmsToast(`${schema.label} template downloaded — open in Excel or Google Sheets.`, 'success');
         }
+
+        /* ── Admission Requirements ── */
+        function addAdmissionRequirement() {
+            const list = document.getElementById('admissionRequirementsList');
+            const rows = list.querySelectorAll('.admission-requirement-row');
+            const newIdx = rows.length + 1;
+            const row = document.createElement('div');
+            row.className = 'cms-card admission-requirement-row';
+            row.dataset.idx = newIdx;
+            row.innerHTML = `
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">${newIdx}</span>
+                        <span class="font-bold text-gray-800 text-sm">Requirement ${newIdx}</span>
+                    </div>
+                    <button type="button" onclick="removeAdmissionRequirement(this)" class="btn-del"><i data-lucide="x"></i></button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="lbl">Requirement Number</label>
+                        <input type="number" class="field req-number" value="${newIdx}" placeholder="1" min="1" />
+                    </div>
+                    <div>
+                        <label class="lbl">Requirement Title</label>
+                        <input type="text" class="field req-title" placeholder="e.g., Official Transcript of Records" />
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="lbl">Description (Optional)</label>
+                    <textarea class="field req-description" rows="2" placeholder="Additional details about this requirement"></textarea>
+                </div>
+            `;
+            list.appendChild(row);
+            lucide.createIcons();
+            // Renumber all rows
+            rows.forEach((r, i) => {
+                r.dataset.idx = i + 1;
+                const badge = r.querySelector('.w-7.h-7.rounded-full');
+                if (badge) badge.textContent = i + 1;
+                const lbl = r.querySelector('.font-bold.text-gray-800.text-sm');
+                if (lbl) lbl.textContent = 'Requirement ' + (i + 1);
+            });
+        }
+
+        function removeAdmissionRequirement(btn) {
+            const row = btn.closest('.admission-requirement-row');
+            row.remove();
+            // Renumber remaining rows
+            const rows = document.querySelectorAll('.admission-requirement-row');
+            rows.forEach((r, i) => {
+                r.dataset.idx = i + 1;
+                const badge = r.querySelector('.w-7.h-7.rounded-full');
+                if (badge) badge.textContent = i + 1;
+                const lbl = r.querySelector('.font-bold.text-gray-800.text-sm');
+                if (lbl) lbl.textContent = 'Requirement ' + (i + 1);
+            });
+        }
+
+        function saveAdmissionRequirements() {
+            const requirements = [];
+            document.querySelectorAll('.admission-requirement-row').forEach(row => {
+                requirements.push({
+                    number: parseInt(row.querySelector('.req-number')?.value) || 1,
+                    title: row.querySelector('.req-title')?.value || '',
+                    description: row.querySelector('.req-description')?.value || '',
+                });
+            });
+            fetch('/admin-panel/api/cms/update/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                body: JSON.stringify({ admission_requirements: requirements })
+            }).then(r => r.json()).then(d => showCmsToast(d.message || 'Admission requirements saved!')).catch(() => showCmsToast('Save failed.', 'error'));
+        }
+
     </script>
 
     <!-- All CMS logic lives in admin_cms_scripts.js -->

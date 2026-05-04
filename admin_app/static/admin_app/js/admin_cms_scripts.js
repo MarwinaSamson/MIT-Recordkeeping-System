@@ -194,7 +194,7 @@ function previewSeal(input) {
     formData.append('file', file);
     formData.append('field', 'site_seal');
     formData.append('csrfmiddlewaretoken', getCSRFToken());
-    fetch('/admin/api/cms/upload-file/', { method: 'POST', body: formData })
+    fetch('/admin-panel/api/cms/upload-file/', { method: 'POST', body: formData })
       .then(r => r.json())
       .then(d => { if (d.success) showCmsToast('Seal uploaded!', 'success'); else showCmsToast(d.message || 'Upload failed.', 'error'); })
       .catch(() => showCmsToast('Upload error.', 'error'));
@@ -218,7 +218,7 @@ async function saveProgramsSettings() {
 /** Core CMS POST helper */
 async function _postCMS(payload) {
   try {
-    const res = await fetch('/admin/api/cms/update/', {
+    const res = await fetch('/admin-panel/api/cms/update/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
       body: JSON.stringify(payload),
@@ -303,7 +303,7 @@ function _initDownloadsUpload() {
     lucide.createIcons();
 
     try {
-      const res  = await fetch('/admin/api/cms/upload-file/', {
+      const res  = await fetch('/admin-panel/api/cms/upload-file/', {
         method: 'POST',
         headers: { 'X-CSRFToken': getCSRFToken() },
         body: formData,
