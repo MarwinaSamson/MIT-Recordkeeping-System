@@ -193,9 +193,31 @@ class CMSSettings(models.Model):
         blank=True,
         help_text='List of announcements: [{text, duration}]'
     )
+    # Navigation subtitle
+    nav_subtitle = models.CharField(
+        max_length=255,
+        blank=True,
+        default="MIT · Graduate School Admissions"
+    )
+    # Hero section fields
+    hero_badge = models.CharField(
+        max_length=100,
+        blank=True,
+        default="Graduate School · Information Technology"
+    )
+    hero_heading1 = models.CharField(
+        max_length=255,
+        blank=True,
+        default="The University"
+    )
+    hero_heading2 = models.CharField(
+        max_length=255,
+        blank=True,
+        default="of Choice"
+    )
     hero_tagline = models.TextField(
         blank=True,
-        default="Advance your professional journey. Our Master's programs are designed for the next generation of academic and industry leaders."
+        default="Advance your professional journey with the Master of Information Technology program at WMSU Graduate School."
     )
     application_deadline = models.DateField(null=True, blank=True)
     # JSON list of {name: str, degree: str, description: str, visible: bool}
@@ -210,7 +232,42 @@ class CMSSettings(models.Model):
         blank=True,
         help_text='List of downloadable files: [{name, url, file_type}]'
     )
-    # Program Details (MIT Program CMS)
+    # JSON list of event slides {title: str, date: str, day_label: str, time: str, venue: str, description: str, image_url: str, audience: str, featured: bool}
+    event_slides = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='List of event slides for carousel: [{title, date, day_label, time, venue, description, image_url, audience, featured}]'
+    )
+    # JSON list of calendar events {id: int, month: int, day: int, title: str, type: str, tag: str, time: str, venue: str, audience: str, desc: str}
+    calendar_events = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='List of calendar events: [{id, month, day, title, type, tag, time, venue, audience, desc}]'
+    )
+    # Contact information fields
+    contact_address = models.CharField(
+        max_length=255,
+        blank=True,
+        default="WMSU Main Campus, Normal Road, Baliwasan, Zamboanga City"
+    )
+    contact_phone = models.CharField(
+        max_length=50,
+        blank=True,
+        default="(062) 991-1771"
+    )
+    contact_email = models.EmailField(
+        blank=True,
+        default="admissions@wmsu.edu.ph"
+    )
+    contact_facebook = models.URLField(
+        blank=True,
+        help_text="Facebook page URL"
+    )
+    contact_hours = models.CharField(
+        max_length=100,
+        blank=True,
+        default="Mon–Fri, 8AM–5PM"
+    )
     program_name = models.CharField(
         max_length=255,
         blank=True,
@@ -277,6 +334,12 @@ class CMSSettings(models.Model):
         default=list,
         blank=True,
         help_text='Program statistics: [{stat_label, stat_value}]'
+    )
+    # JSON list of admission requirements {number: int, title: str, description: str}
+    admission_requirements = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='List of admission requirements: [{number, title, description}]'
     )
     updated_at = models.DateTimeField(auto_now=True)
 
