@@ -11,6 +11,7 @@ from .views.api_views import (
     update_admin_profile,
     upload_admin_photo,
     update_cms_settings,
+    bulk_upload_cms_settings,
     upload_cms_file,
     # Student requirement notification APIs
     get_requirement_types,
@@ -52,6 +53,7 @@ urlpatterns = [
     path('api/admin/photo/upload/', upload_admin_photo,
          name='api_upload_admin_photo'),
     path('api/cms/update/', update_cms_settings, name='api_update_cms'),
+    path('api/cms/bulk-upload/', bulk_upload_cms_settings, name='api_bulk_upload_cms'),
     path('api/cms/upload-file/', upload_cms_file, name='api_upload_cms_file'),
 
     # Student Requirement Notification APIs

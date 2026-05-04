@@ -220,6 +220,66 @@ class CMSSettings(models.Model):
         default="Advance your professional journey with the Master of Information Technology program at WMSU Graduate School."
     )
     application_deadline = models.DateField(null=True, blank=True)
+    app_window_ay = models.CharField(
+        max_length=255,
+        blank=True,
+        default="Academic Year 2026–2027",
+        help_text="Academic year label shown on the application window card"
+    )
+    app_window_enrollment = models.CharField(
+        max_length=100,
+        blank=True,
+        default="July",
+        help_text="Enrollment month label shown on the application window card"
+    )
+    app_window_deadline_year = models.CharField(
+        max_length=10,
+        blank=True,
+        default="2026",
+        help_text="Deadline year text shown on the application window card"
+    )
+    app_window_enrollment_year = models.CharField(
+        max_length=10,
+        blank=True,
+        default="2026",
+        help_text="Enrollment year text shown on the application window card"
+    )
+    app_stat_val1 = models.CharField(
+        max_length=100,
+        blank=True,
+        default="MIT",
+        help_text="First stat badge value shown in the application window card"
+    )
+    app_stat_label1 = models.CharField(
+        max_length=100,
+        blank=True,
+        default="Program",
+        help_text="Label for the first stat badge shown in the application window card"
+    )
+    app_stat_val2 = models.CharField(
+        max_length=100,
+        blank=True,
+        default="4",
+        help_text="Second stat badge value shown in the application window card"
+    )
+    app_stat_label2 = models.CharField(
+        max_length=100,
+        blank=True,
+        default="Enrollment",
+        help_text="Label for the second stat badge shown in the application window card"
+    )
+    cta_heading = models.CharField(
+        max_length=255,
+        blank=True,
+        default="Ready to take the next step?",
+        help_text="Call-to-action heading displayed in the application window card"
+    )
+    cta_sublabel = models.CharField(
+        max_length=255,
+        blank=True,
+        default="Applications open for AY 2026–2027",
+        help_text="Call-to-action sublabel displayed in the application window card"
+    )
     # JSON list of {name: str, degree: str, description: str, visible: bool}
     programs = models.JSONField(
         default=list,
