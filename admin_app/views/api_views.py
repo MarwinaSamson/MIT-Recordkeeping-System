@@ -400,6 +400,16 @@ def update_cms_settings(request):
             'hero_heading1': data.get('hero_heading1', cms.hero_heading1).strip(),
             'hero_heading2': data.get('hero_heading2', cms.hero_heading2).strip(),
             'hero_tagline': data.get('hero_tagline', cms.hero_tagline).strip(),
+            'app_window_ay': str(data.get('app_window_ay') or cms.app_window_ay or '').strip(),
+            'app_window_enrollment': str(data.get('app_window_enrollment') or cms.app_window_enrollment or '').strip(),
+            'app_window_deadline_year': str(data.get('app_window_deadline_year') or cms.app_window_deadline_year or '').strip(),
+            'app_window_enrollment_year': str(data.get('app_window_enrollment_year') or cms.app_window_enrollment_year or '').strip(),
+            'app_stat_val1': str(data.get('app_stat_val1') or cms.app_stat_val1 or '').strip(),
+            'app_stat_label1': str(data.get('app_stat_label1') or cms.app_stat_label1 or '').strip(),
+            'app_stat_val2': str(data.get('app_stat_val2') or cms.app_stat_val2 or '').strip(),
+            'app_stat_label2': str(data.get('app_stat_label2') or cms.app_stat_label2 or '').strip(),
+            'cta_heading': str(data.get('cta_heading') or cms.cta_heading or '').strip(),
+            'cta_sublabel': str(data.get('cta_sublabel') or cms.cta_sublabel or '').strip(),
             'application_deadline': data.get('application_deadline') or None,
             'contact_address': data.get('contact_address', cms.contact_address).strip(),
             'contact_phone': data.get('contact_phone', cms.contact_phone).strip(),
@@ -476,7 +486,7 @@ def update_cms_settings(request):
                     })
             update_data['event_slides'] = cleaned_slides
 
-        # Validate and save calendar events list
+        saved_calendar_event = None
         raw_calendar_events = data.get('calendar_events', None)
         if raw_calendar_events is not None:
             cleaned_events = []
@@ -496,6 +506,48 @@ def update_cms_settings(request):
                         'desc': str(evt.get('desc', '')).strip(),
                     })
             update_data['calendar_events'] = cleaned_events
+
+        raw_calendar_event = data.get('calendar_event', None)
+        if raw_calendar_event is not None:
+            existing_events = cms.calendar_events or []
+            title = str(raw_calendar_event.get('title', '')).strip()
+            if title:
+                evt_id = int(raw_calendar_event.get('id') or 0)
+                if evt_id <= 0:
+                    existing_ids = [int(e.get('id', 0)) for e in existing_events if e.get('id') is not None]
+                    evt_id = max(existing_ids, default=0) + 1
+
+                event = {
+                    'id': evt_id,
+                    'month': int(raw_calendar_event.get('month', 1)),
+                    'day': int(raw_calendar_event.get('day', 1)),
+                    'title': title,
+                    'type': str(raw_calendar_event.get('type', 'cr')).strip(),
+                    'tag': str(raw_calendar_event.get('tag', '')).strip(),
+                    'time': str(raw_calendar_event.get('time', '')).strip(),
+                    'venue': str(raw_calendar_event.get('venue', '')).strip(),
+                    'audience': str(raw_calendar_event.get('audience', '')).strip(),
+                    'desc': str(raw_calendar_event.get('desc', '')).strip(),
+                }
+                saved_calendar_event = event
+                updated = False
+                for idx, evt in enumerate(existing_events):
+                    if int(evt.get('id', 0)) == evt_id:
+                        existing_events[idx] = event
+                        updated = True
+                        break
+                if not updated:
+                    existing_events.append(event)
+                update_data['calendar_events'] = existing_events
+
+        raw_calendar_event_delete = data.get('calendar_event_delete', None)
+        if raw_calendar_event_delete is not None:
+            existing_events = cms.calendar_events or []
+            delete_id = int(raw_calendar_event_delete.get('id') or 0)
+            if delete_id > 0:
+                update_data['calendar_events'] = [
+                    evt for evt in existing_events if int(evt.get('id', 0)) != delete_id
+                ]
 
         # Validate and save admission requirements list
         raw_admission_requirements = data.get('admission_requirements', None)
@@ -520,7 +572,137 @@ def update_cms_settings(request):
             notes='Homepage CMS settings updated.'
         )
 
-        return JsonResponse({'success': True, 'message': 'CMS settings saved.'})
+        message = 'CMS settings saved.'
+        if raw_calendar_event is not None:
+            message = 'Calendar event saved.'
+        elif raw_calendar_event_delete is not None:
+            message = 'Calendar event deleted.'
+
+        response_payload = {'success': True, 'message': message}
+        if saved_calendar_event is not None:
+            response_payload['saved_calendar_event'] = saved_calendar_event
+        return JsonResponse(response_payload)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def bulk_upload_cms_settings(request):
+    """Bulk upload CMS content from admin CSV import."""
+    try:
+        data = json.loads(request.body)
+        section = str(data.get('section', '')).strip()
+        mode = str(data.get('mode', 'replace')).strip().lower()
+        rows = data.get('rows', []) or []
+
+        from ..models import CMSSettings
+
+        cms, _ = CMSSettings.objects.get_or_create(pk=1)
+
+        if section == 'announcements':
+            cleaned = []
+            for item in rows:
+                text = str(item.get('text', '')).strip()
+                if not text:
+                    continue
+                try:
+                    duration = int(item.get('duration_sec', item.get('duration', 5)) or 5)
+                except (ValueError, TypeError):
+                    duration = 5
+                cleaned.append({'text': text, 'duration': max(3, duration)})
+
+            if mode == 'append':
+                cms.announcements = (cms.announcements or []) + cleaned
+            else:
+                cms.announcements = cleaned
+
+        elif section == 'events':
+            existing = cms.calendar_events or []
+            max_id = max([int(evt.get('id', 0)) for evt in existing] + [0])
+            cleaned = []
+            for item in rows:
+                title = str(item.get('title', '')).strip()
+                if not title:
+                    continue
+                month = int(item.get('month', 1) or 1)
+                day = int(item.get('day', 1) or 1)
+                evt_id = item.get('id')
+                if evt_id is None or str(evt_id).strip() == '':
+                    max_id += 1
+                    evt_id = max_id
+                cleaned.append({
+                    'id': int(evt_id),
+                    'month': max(1, min(12, month)),
+                    'day': max(1, min(31, day)),
+                    'title': title,
+                    'type': str(item.get('type', 'cr')).strip(),
+                    'tag': str(item.get('tag', '')).strip(),
+                    'time': str(item.get('time', '')).strip(),
+                    'venue': str(item.get('venue', '')).strip(),
+                    'audience': str(item.get('audience', '')).strip(),
+                    'desc': str(item.get('description', item.get('desc', ''))).strip(),
+                })
+            cms.calendar_events = (existing + cleaned) if mode == 'append' else cleaned
+
+        elif section == 'requirements':
+            existing = cms.admission_requirements or []
+            next_num = max([int(req.get('number', 0)) for req in existing] + [0]) + 1
+            cleaned = []
+            for item in rows:
+                title = str(item.get('requirement_name', item.get('title', ''))).strip()
+                if not title:
+                    continue
+                description = str(item.get('hint_text', item.get('description', ''))).strip()
+                cleaned.append({
+                    'number': next_num,
+                    'title': title,
+                    'description': description,
+                })
+                next_num += 1
+            cms.admission_requirements = (existing + cleaned) if mode == 'append' else cleaned
+
+        elif section == 'outcomes':
+            existing = cms.program_outcomes or []
+            next_num = max([int(out.get('number', 0)) for out in existing] + [0]) + 1
+            cleaned = []
+            for item in rows:
+                title = str(item.get('outcome_title', item.get('title', ''))).strip()
+                if not title:
+                    continue
+                description = str(item.get('outcome_description', item.get('description', ''))).strip()
+                cleaned.append({
+                    'number': next_num,
+                    'title': title,
+                    'description': description,
+                })
+                next_num += 1
+            cms.program_outcomes = (existing + cleaned) if mode == 'append' else cleaned
+
+        elif section == 'objectives':
+            existing = cms.program_objectives or []
+            cleaned = []
+            for item in rows:
+                text = str(item.get('objective_text', '')).strip()
+                if not text:
+                    continue
+                cleaned.append({'title': text, 'description': ''})
+            cms.program_objectives = (existing + cleaned) if mode == 'append' else cleaned
+
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'Unsupported bulk upload section.'
+            }, status=400)
+
+        cms.save()
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='cms_bulk_upload',
+            notes=f'Bulk uploaded CMS section: {section}'
+        )
+        return JsonResponse({'success': True, 'message': 'Bulk upload saved.'})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=400)
 

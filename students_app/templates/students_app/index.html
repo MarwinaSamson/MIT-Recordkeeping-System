@@ -2195,13 +2195,18 @@
                     class="text-white font-black text-2xl"
                     style="font-family: &quot;Playfair Display&quot;, serif"
                   >
-                    {% if cms.application_deadline %}{{ cms.application_deadline|date:"F j" }}{% else %}June 30{% endif %}
+                    {% if cms.application_deadline %} {{ cms.application_deadline|date:"F j" }} {% else %}August 1
+                     {% endif %}
+                    
+                   
                   </p>
                   <p
                     class="text-white/45 text-xs"
                     style="font-family: var(--mono)"
                   >
-                    {% if cms.application_deadline %}{{ cms.application_deadline|date:"Y" }}{% else %}2026{% endif %}
+                    {% if cms.application_deadline %}
+                    {{cms.application_deadline|date:"Y" }} {% else %}2026
+                    {%endif%}
                   </p>
                 </div>
                 <div
@@ -2222,13 +2227,15 @@
                     class="text-white font-black text-2xl"
                     style="font-family: &quot;Playfair Display&quot;, serif"
                   >
-                    July
+                    {% if cms.enrollment_date %}{{ cms.enrollment_date|date:"F
+                    j" }}{% else %}August 15{% endif %}
                   </p>
                   <p
                     class="text-white/45 text-xs"
                     style="font-family: var(--mono)"
                   >
-                    2026
+                    {% if cms.enrollment_date %}{{ cms.enrollment_date|date:"Y"
+                    }}{% else %}2026{% endif %}
                   </p>
                 </div>
               </div>
@@ -2321,7 +2328,8 @@
               Email
             </p>
             <p class="font-semibold text-sm text-slate-800">
-              {% if cms.contact_email %}{{ cms.contact_email }}{% else %}admissions@wmsu.edu.ph{% endif %}
+              {% if cms.contact_email %}{{ cms.contact_email }}
+              {% else%}admissions@wmsu.edu.ph{% endif %}
             </p>
           </div>
           <div class="c-card">
@@ -2335,7 +2343,8 @@
               Phone
             </p>
             <p class="font-semibold text-sm text-slate-800">
-              {% if cms.contact_phone %}{{ cms.contact_phone }}{% else %}(062) 991-1771{% endif %}
+              {% if cms.contact_phone %}{{ cms.contact_phone }}{% else %}(062)
+              991-1771{% endif %}
             </p>
           </div>
           <div class="c-card">
@@ -2349,7 +2358,9 @@
               Office Hours
             </p>
             <p class="font-semibold text-sm text-slate-800">
-              {% if cms.contact_hours %}{{ cms.contact_hours }}{% else %}Mon–Fri, 8AM–5PM{% endif %}
+              {% if cms.contact_hours %}{{ cms.contact_hours }} 
+              {%else%}Mon–Fri, 8AM–5PM 
+              {% endif %}
             </p>
           </div>
           <div class="c-card">
@@ -2363,7 +2374,9 @@
               Visit Us
             </p>
             <p class="font-semibold text-sm text-slate-800">
-              {% if cms.contact_address %}{{ cms.contact_address|linebreaksbr }}{% else %}WMSU Main Campus<br />Normal Road, Baliwasan<br />Zamboanga City{% endif %}
+              {% if cms.contact_address %}{{ cms.contact_address|linebreaksbr}}
+              {% else %}WMSU Main Campus<br />Normal Road, Baliwasan<br />Zamboanga
+              City {% endif %}
             </p>
           </div>
         </div>
@@ -2591,9 +2604,6 @@
     <script>
       (function () {
         const EVENTS = {% if cms.calendar_events %}{{ cms.calendar_events|safe }}{% else %}[]{% endif %};
-
-
-        ];
         const MN = [
           "January",
           "February",
