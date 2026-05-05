@@ -76,6 +76,7 @@ function switchPage(pageId,el){
   if(pageId==='history')   renderHistory();
   if(pageId==='dashboard') renderDashboard();
   if(pageId==='school-year') {
+    loadSummary();
     renderSchoolYears('active');
     filterArchivedYears();
   }
@@ -519,6 +520,7 @@ function renderDocCards(){
     const previewLabel = isPdf
       ? `<span style="position:absolute;top:6px;left:6px;background:rgba(239,68,68,0.9);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.04em">PDF</span>`
       : '';
+
 
     container.innerHTML+=`
       <div class="doc-card border-2 ${border} rounded-2xl p-4 flex flex-col text-sm transition-shadow">

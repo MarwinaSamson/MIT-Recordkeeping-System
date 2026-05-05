@@ -968,7 +968,7 @@
 
     <div class="sb-school-year">
       <span class="ms">school</span>
-      <span class="sb-school-year-text" id="sbSchoolYear">A.Y. 2025–2026 · 2nd Sem</span>
+      <span class="sb-school-year-text" id="sbSchoolYear">A.Y. {{ academic_year_display }} · {{ current_semester }}</span>
     </div>
 
     <nav>
@@ -1022,7 +1022,7 @@
     <div class="tb-actions">
       <div class="tb-school-year">
         <span class="ms">school</span>
-        <span id="tbSchoolYear">A.Y. 2025–2026</span>
+        <span id="tbSchoolYear">{{ academic_year_display }}</span>
       </div>
       <button class="tb-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">
         <span class="ms" id="themeIcon">dark_mode</span>
@@ -1060,12 +1060,12 @@
       <div class="school-year-strip fu" style="animation-delay:.02s">
         <div>
           <div class="sy-label">Academic Year</div>
-          <div class="sy-value" id="syDisplay">2025 – 2026</div>
+          <div class="sy-value" id="syDisplay">{{ school_year_display }}</div>
         </div>
         <div class="sy-divider"></div>
         <div>
           <div class="sy-label">Semester</div>
-          <span class="sy-sem" id="semDisplay">2nd Semester</span>
+          <span class="sy-sem" id="semDisplay">{{ current_semester }}</span>
         </div>
         <div class="sy-divider"></div>
         <div>
@@ -1089,7 +1089,7 @@
           <h1 id="welcomeName">Good morning, {{ personal_details.first_name|default:student.first_name|default:full_name }}!</h1>
           <p>Track your document submissions, monitor review statuses, and keep your academic records current throughout your program.</p>
           <div class="banner-chips">
-            <span class="banner-chip gold"><span class="ms" style="font-size:11px">school</span> A.Y. 2025–2026</span>
+            <span class="banner-chip gold"><span class="ms" style="font-size:11px">school</span> {{ academic_year_display }}</span>
             <span class="banner-chip"><span class="ms" style="font-size:11px">badge</span> MIT-{{ student.id|stringformat:"06d" }}</span>
             <span class="banner-chip"><span class="ms" style="font-size:11px;color:#4ade80">circle</span> Active</span>
           </div>
@@ -1180,31 +1180,8 @@
               Full calendar <span class="ms" style="font-size:13px">calendar_month</span>
             </button>
           </div>
-          <div class="card-body" style="padding-top:12px">
-            <div class="date-row">
-              <div class="date-icon" style="background:var(--red-light)"><span class="ms" style="color:var(--red)">event</span></div>
-              <div><div class="date-label">Document Submission Deadline</div><div class="date-val">March 15, 2026</div></div>
-            </div>
-            <div class="date-row">
-              <div class="date-icon" style="background:var(--blue-bg)"><span class="ms" style="color:var(--blue)">edit_note</span></div>
-              <div><div class="date-label">GSAT Examination</div><div class="date-val">March 22, 2026 · 08:00</div></div>
-            </div>
-            <div class="date-row">
-              <div class="date-icon" style="background:var(--green-bg)"><span class="ms" style="color:var(--green)">groups</span></div>
-              <div><div class="date-label">Admission Interview</div><div class="date-val">April 5, 2026 · TBA</div></div>
-            </div>
-            <div class="date-row">
-              <div class="date-icon" style="background:var(--purple-bg)"><span class="ms" style="color:var(--purple)">lightbulb</span></div>
-              <div><div class="date-label">Title Proposal Defense</div><div class="date-val">May 10, 2026 · 09:00</div></div>
-            </div>
-            <div class="date-row">
-              <div class="date-icon" style="background:#fff7ed"><span class="ms" style="color:#c2410c">history_edu</span></div>
-              <div><div class="date-label">Final Defense Presentation</div><div class="date-val">August 20, 2026 · 08:00</div></div>
-            </div>
-            <div class="date-row">
-              <div class="date-icon" style="background:var(--gold-pale)"><span class="ms" style="color:var(--gold)">school</span></div>
-              <div><div class="date-label">Start of Classes</div><div class="date-val">June 9, 2026</div></div>
-            </div>
+          <div class="card-body" style="padding-top:12px" id="importantDatesContainer">
+            <!-- Dynamically rendered from calendar_events -->
           </div>
         </div>
       </div>
@@ -1267,7 +1244,7 @@
           </div>
           <div class="deadline-card fu" style="animation-delay:.10s">
             <div class="eyebrow">submission deadline</div>
-            <div class="date">March 15, 2026</div>
+            <div class="date" id="deadlineDate">TBA</div>
             <p>Submit all required documents before this date to avoid delays in your application review.</p>
             <button class="btn" style="width:100%;background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.2);font-size:0.77rem"
                     onclick="document.getElementById('fileInput').click()">
@@ -1902,16 +1879,22 @@
     }
 
     /* ============================================================
-       EVENTS DATA
+       EVENTS DATA — FROM DATABASE (CMS Settings)
        ============================================================ */
-    const EVENTS = [
-      { date:'2026-03-15', label:'Document Deadline',    color:'var(--crimson)', colorHex:'#7b1113', type:'deadline' },
-      { date:'2026-03-22', label:'GSAT Examination',     color:'var(--blue)',    colorHex:'#1e40af', type:'exam' },
-      { date:'2026-04-05', label:'Admission Interview',  color:'var(--green)',   colorHex:'#166534', type:'interview' },
-      { date:'2026-05-10', label:'Title Defense',        color:'var(--purple)',  colorHex:'#6d28d9', type:'defense' },
-      { date:'2026-06-09', label:'Start of Classes',     color:'var(--gold)',    colorHex:'#b8860b', type:'classes' },
-      { date:'2026-08-20', label:'Final Defense',        color:'var(--crimson)', colorHex:'#7b1113', type:'defense' },
-    ];
+    // Parse calendar events from CMS settings (passed from backend)
+    let CALENDAR_EVENTS_RAW = {{ calendar_events_json|safe }};
+    
+    // Convert database format to frontend format
+    const EVENTS = (CALENDAR_EVENTS_RAW || []).map(e => ({
+      date: `${new Date(e.month).getFullYear()}-${String(e.month).padStart(2,'0')}-${String(e.day).padStart(2,'0')}`,
+      label: e.title || '',
+      color: 'var(--crimson)',
+      colorHex: '#7b1113',
+      type: e.type || 'event',
+      time: e.time || '',
+      venue: e.venue || '',
+      desc: e.desc || '',
+    })).filter(e => e.label); // Filter out invalid entries
 
     /* ============================================================
        FULL CALENDAR PAGE
@@ -2738,6 +2721,50 @@
     function saveProfile(){ toggleEditMode(); showToast('Profile updated.','success'); }
 
     /* ============================================================
+       RENDER DYNAMIC DATES
+       ============================================================ */
+    function renderImportantDates() {
+      const container = $('importantDatesContainer');
+      if (!container || !CALENDAR_EVENTS_RAW || CALENDAR_EVENTS_RAW.length === 0) {
+        if(container) container.innerHTML = '<p style="font-size:0.73rem;color:var(--ink-4);font-family:var(--font-mono)">No upcoming dates scheduled.</p>';
+        return;
+      }
+
+      // Icon map by type
+      const typeIcons = {
+        'deadline': { icon: 'event', bg: 'var(--red-light)', color: 'var(--red)' },
+        'exam': { icon: 'edit_note', bg: 'var(--blue-bg)', color: 'var(--blue)' },
+        'interview': { icon: 'groups', bg: 'var(--green-bg)', color: 'var(--green)' },
+        'defense': { icon: 'lightbulb', bg: 'var(--purple-bg)', color: 'var(--purple)' },
+        'classes': { icon: 'school', bg: 'var(--gold-pale)', color: 'var(--gold)' },
+        'event': { icon: 'event_note', bg: 'var(--blue-bg)', color: 'var(--blue)' },
+      };
+
+      let html = CALENDAR_EVENTS_RAW.map(evt => {
+        const iconSet = typeIcons[evt.type] || typeIcons['event'];
+        const dateLabel = new Date(2026, evt.month - 1, evt.day).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        const timeStr = evt.time ? ` · ${evt.time}` : '';
+        return `<div class="date-row">
+          <div class="date-icon" style="background:${iconSet.bg}"><span class="ms" style="color:${iconSet.color}">${iconSet.icon}</span></div>
+          <div><div class="date-label">${evt.title}</div><div class="date-val">${dateLabel}${timeStr}</div></div>
+        </div>`;
+      }).join('');
+
+      if(container) container.innerHTML = html || '<p style="font-size:0.73rem;color:var(--ink-4)">No upcoming dates.</p>';
+    }
+
+    function renderDeadline() {
+      const el = $('deadlineDate');
+      if (!el) return;
+      
+      // The deadline is passed from the template via the application.submission_deadline
+      const deadline = '{{ submission_deadline }}';
+      if (deadline && deadline !== 'TBA') {
+        el.textContent = deadline;
+      }
+    }
+
+    /* ============================================================
        LOGOUT
        ============================================================ */
     function handleLogout() {
@@ -2779,6 +2806,10 @@ function closeLogoutModal() {
       updateCorNavBadge();
       renderProspectus();
       renderSbCalToday();
+      
+      // Render dynamic dates from database
+      renderImportantDates();
+      renderDeadline();
     }
 
     document.addEventListener('DOMContentLoaded', init);
