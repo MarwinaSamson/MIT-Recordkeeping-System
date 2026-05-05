@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
@@ -45,8 +46,27 @@ def student(request):
         user=request.user).order_by("-updated_at").first()
 
     # Get application for status
-    from admin_app.models import Application, DocumentVerification
+    from admin_app.models import Application, DocumentVerification, SchoolYear, CMSSettings
     application = Application.objects.filter(user=request.user).first()
+
+    # Fetch active school year
+    active_school_year = SchoolYear.objects.filter(is_active=True).first()
+    
+    # Fetch CMS settings for calendar events
+    cms_settings = CMSSettings.objects.get_or_create(pk=1)[0]
+    calendar_events = cms_settings.calendar_events if cms_settings.calendar_events else []
+    
+    # Calculate semester based on current month
+    current_month = datetime.now().month
+    semester = '1st Semester' if 6 <= current_month <= 11 else '2nd Semester'
+    
+    # Extract year range from school year name
+    sy_display = "2025 – 2026"  # Default fallback
+    ay_display = "A.Y. 2025–2026"  # Default fallback
+    if active_school_year:
+        years = active_school_year.name.split('-')
+        sy_display = f"{years[0]} – {years[1]}" if len(years) == 2 else active_school_year.name
+        ay_display = f"A.Y. {years[0]}–{years[1]}" if len(years) == 2 else f"A.Y. {active_school_year.name}"
 
     # Calculate document verification counts
     verified_count = DocumentVerification.objects.filter(
@@ -120,6 +140,14 @@ def student(request):
         "application": application,
         "application_status": application.status if application else "pending",
         "submission_deadline": application.submission_deadline.strftime('%B %d, %Y') if application and application.submission_deadline else "TBA",
+        # Active school year data
+        "active_school_year": active_school_year,
+        "school_year_display": sy_display,
+        "academic_year_display": ay_display,
+        "current_semester": semester,
+        # CMS calendar events for Important Dates section
+        "calendar_events": calendar_events,
+        "calendar_events_json": json.dumps(calendar_events),
     }
 
     return render(request, "students_app/student.html", context)

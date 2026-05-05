@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Application, DocumentVerification, AdminActivityLog
+from .models import SchoolYear
 
 
 @admin.register(Application)
@@ -63,4 +64,9 @@ class AdminActivityLogAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+    
+@admin.register(SchoolYear)
+class SchoolYearAdmin(admin.ModelAdmin):
+    list_display = ['name', 'status', 'is_active', 'is_archived', 'start_date', 'end_date']
+    list_filter = ['status', 'is_active', 'is_archived']
 

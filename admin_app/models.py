@@ -525,3 +525,51 @@ class RequirementNotification(models.Model):
 
     def __str__(self):
         return f"Notification to {self.student_requirement.user.username} - {self.student_requirement.requirement.name}"
+    
+class SchoolYear(models.Model):
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('enrollment-open', 'Enrollment Open'),
+        ('enrollment-closed', 'Enrollment Closed'),
+        ('active', 'Active'),
+        ('archived', 'Archived'),
+    ]
+
+    name = models.CharField(max_length=20, unique=True, help_text="e.g. 2027-2028")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    is_active = models.BooleanField(default=False, help_text="Only one school year should be active at a time.")
+    is_archived = models.BooleanField(default=False)
+    archived_at = models.DateTimeField(null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_school_years')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'School Year'
+        verbose_name_plural = 'School Years'
+        ordering = ['-name']
+
+    def __str__(self):
+        return self.name
+
+    def get_date_range_display(self):
+        if self.start_date and self.end_date:
+            return f"{self.start_date.strftime('%b %d, %Y')} – {self.end_date.strftime('%b %d, %Y')}"
+        return '—'
+
+    def activate(self):
+        SchoolYear.objects.filter(is_active=True).update(is_active=False)
+        self.is_active = True
+        self.status = 'active'
+        self.save()
+
+    def archive(self):
+        from django.utils import timezone
+        self.is_archived = True
+        self.is_active = False
+        self.status = 'archived'
+        self.archived_at = timezone.now()
+        self.save()
