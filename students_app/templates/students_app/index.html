@@ -2173,7 +2173,7 @@
                   class="text-white/50 text-xs tracking-wide"
                   style="font-family: var(--mono)"
                 >
-                  Academic Year 2026–2027
+                  {{ cms.app_window_ay }}
                 </p>
               </div>
               <div class="px-7 pb-7 grid grid-cols-2 gap-3 relative z-10">
@@ -2195,18 +2195,13 @@
                     class="text-white font-black text-2xl"
                     style="font-family: &quot;Playfair Display&quot;, serif"
                   >
-                    {% if cms.application_deadline %} {{ cms.application_deadline|date:"F j" }} {% else %}August 1
-                     {% endif %}
-                    
-                   
+                    {% if cms.application_deadline %}{{ cms.application_deadline|date:"F j" }}{% else %}August 1{% endif %}
                   </p>
                   <p
                     class="text-white/45 text-xs"
                     style="font-family: var(--mono)"
                   >
-                    {% if cms.application_deadline %}
-                    {{cms.application_deadline|date:"Y" }} {% else %}2026
-                    {%endif%}
+                    {% if cms.application_deadline %}{{ cms.application_deadline|date:"Y" }}{% else %}{{ cms.app_window_deadline_year }}{% endif %}
                   </p>
                 </div>
                 <div
@@ -2227,20 +2222,17 @@
                     class="text-white font-black text-2xl"
                     style="font-family: &quot;Playfair Display&quot;, serif"
                   >
-                    {% if cms.enrollment_date %}{{ cms.enrollment_date|date:"F
-                    j" }}{% else %}August 15{% endif %}
+                    {{ cms.app_window_enrollment }}
                   </p>
                   <p
                     class="text-white/45 text-xs"
                     style="font-family: var(--mono)"
                   >
-                    {% if cms.enrollment_date %}{{ cms.enrollment_date|date:"Y"
-                    }}{% else %}2026{% endif %}
+                    {{ cms.app_window_enrollment_year }}
                   </p>
                 </div>
               </div>
             </div>
-            <div class="grid grid-cols-2 gap-3">
               <div class="stat-card">
                 <p
                   class="text-2xl font-black"
@@ -2249,13 +2241,13 @@
                     font-family: &quot;Playfair Display&quot;, serif;
                   "
                 >
-                  MIT
+                  {{ cms.app_stat_val1 }}
                 </p>
                 <p
                   class="text-[10px] text-slate-400 mt-1 uppercase tracking-wide"
                   style="font-family: var(--mono)"
                 >
-                  Program
+                  {{ cms.app_stat_label1 }}
                 </p>
               </div>
               <div class="stat-card">
@@ -2266,16 +2258,15 @@
                     font-family: &quot;Playfair Display&quot;, serif;
                   "
                 >
-                  2 yrs
+                  {{ cms.app_stat_val2 }}
                 </p>
                 <p
                   class="text-[10px] text-slate-400 mt-1 uppercase tracking-wide"
                   style="font-family: var(--mono)"
                 >
-                  Duration
+                  {{ cms.app_stat_label2 }}
                 </p>
               </div>
-            </div>
             <div class="tip-box">
               <div class="tip-icon">
                 <span class="material-symbols-rounded">lightbulb</span>
@@ -2389,13 +2380,13 @@
                 class="text-white font-bold text-xl sm:text-2xl"
                 style="font-family: &quot;Playfair Display&quot;, serif"
               >
-                Ready to take the next step?
+                {{ cms.cta_heading }}
               </h3>
               <p
                 class="text-white/55 text-sm mt-1"
                 style="font-family: var(--mono)"
               >
-                Applications open for AY 2026–2027.
+                {{ cms.cta_sublabel }}
               </p>
             </div>
             {% if cms.admissions_open %}
