@@ -4,7 +4,7 @@ from django.conf import settings
 
 
 def review(request):
-    from students_app.models import Document
+    from students_app.models import Document, EducationalBackground
 
     # Count uploaded documents per type for the current user
     docs_summary = {}
@@ -16,4 +16,11 @@ def review(request):
         'jab_seal_url': getattr(settings, 'JAB_SEAL_URL', '/static/seals/logoandcap.png'),
         'server_documents': docs_summary,
     }
+
+    # Also expose the MIT curriculum saved on the server (if any)
+    try:
+        eb = EducationalBackground.objects.filter(user=request.user, level='college').first()
+        context['server_mit_curriculum'] = eb.mit_curriculum if eb and eb.mit_curriculum else ''
+    except Exception:
+        context['server_mit_curriculum'] = ''
     return render(request, "students_app/review.html", context)

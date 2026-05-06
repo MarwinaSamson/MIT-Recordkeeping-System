@@ -199,6 +199,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = 60 * 60  # keep session cookie valid if active; idle timeout is enforced separately
+# Session inactivity timeout in minutes (used by SessionSecurityMiddleware)
+SESSION_TIMEOUT_MINUTES = 60
 
 # Email Configuration
 # https://docs.djangoproject.com/en/5.2/topics/email/

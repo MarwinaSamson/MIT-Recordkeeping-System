@@ -1,13 +1,11 @@
 from datetime import datetime, timedelta, timezone as dt_timezone
+from django.conf import settings
 
 from django.contrib.auth import logout
 from django.contrib.sessions.models import Session
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
-
-SESSION_TIMEOUT_MINUTES = 5
-
 
 class SessionSecurityMiddleware:
     """Ensure each account has only one active session and enforce inactivity timeout."""
@@ -40,11 +38,12 @@ class SessionSecurityMiddleware:
                 request.session.flush()
                 return redirect(reverse('index'))
 
+        # inactivity timeout (minutes) — configurable from settings
+        timeout_minutes = getattr(settings, 'SESSION_TIMEOUT_MINUTES', 60)
         last_activity = request.session.get('last_activity')
         if last_activity is not None:
-            last_seen = datetime.fromtimestamp(
-                last_activity, tz=dt_timezone.utc)
-            if timezone.now() - last_seen > timedelta(minutes=SESSION_TIMEOUT_MINUTES):
+            last_seen = datetime.fromtimestamp(last_activity, tz=dt_timezone.utc)
+            if timezone.now() - last_seen > timedelta(minutes=timeout_minutes):
                 logout(request)
                 request.session.flush()
                 return redirect(reverse('index'))

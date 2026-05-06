@@ -573,3 +573,104 @@ class SchoolYear(models.Model):
         self.status = 'archived'
         self.archived_at = timezone.now()
         self.save()
+
+
+class Prospectus(models.Model):
+    """
+    Represents a prospectus/curriculum structure: Years -> Semesters -> Subjects
+    """
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    program_name = models.CharField(max_length=255, blank=True, help_text='Optional program name this prospectus applies to')
+    program_code = models.CharField(max_length=64, blank=True, help_text='Optional program code')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_prospectuses')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.name
+
+
+class Program(models.Model):
+    """Simple Program model to reference prospectuses."""
+    name = models.CharField(max_length=255, unique=True)
+    code = models.CharField(max_length=64, blank=True)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class ProspectusYear(models.Model):
+    prospectus = models.ForeignKey(Prospectus, related_name='years', on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(default=0)
+    label = models.CharField(max_length=120, default='Year')
+
+    class Meta:
+        ordering = ['order']
+        unique_together = ('prospectus', 'order')
+
+    def __str__(self):
+        return f"{self.prospectus.name} – {self.label}"
+
+
+class ProspectusSemester(models.Model):
+    year = models.ForeignKey(ProspectusYear, related_name='semesters', on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(default=0)
+    label = models.CharField(max_length=120, default='Semester')
+
+    class Meta:
+        ordering = ['order']
+        unique_together = ('year', 'order')
+
+    def __str__(self):
+        return f"{self.year} / {self.label}"
+
+
+class ProspectusSubject(models.Model):
+    semester = models.ForeignKey(ProspectusSemester, related_name='subjects', on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(default=0)
+    code = models.CharField(max_length=64, blank=True)
+    title = models.CharField(max_length=512)
+    prereq = models.CharField(max_length=255, blank=True)
+    lec = models.PositiveSmallIntegerField(default=0)
+    lab = models.PositiveSmallIntegerField(default=0)
+    total = models.PositiveSmallIntegerField(default=0)
+    grade = models.CharField(max_length=16, blank=True)
+
+    class Meta:
+        ordering = ['order']
+
+    def save(self, *args, **kwargs):
+        if not self.total:
+            try:
+                self.total = int(self.lec or 0) + int(self.lab or 0)
+            except Exception:
+                self.total = 0
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.code} {self.title}"
+
+
+class ProspectusAssignment(models.Model):
+    prospectus = models.ForeignKey(Prospectus, related_name='assignments', on_delete=models.CASCADE)
+    program_name = models.CharField(max_length=255, blank=True, help_text='Program name this prospectus is assigned to')
+    program_code = models.CharField(max_length=64, blank=True, help_text='Optional program code')
+    intake_year = models.CharField(max_length=32, blank=True, help_text='e.g., 2019-2020')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('program_name', 'intake_year')
+
+    def __str__(self):
+        target = self.program_name or self.intake_year or 'Unassigned'
+        return f"{self.prospectus.name} → {target}"

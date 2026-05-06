@@ -27,3 +27,27 @@ function renderProgress() {
   }).join("");
 }
 renderProgress();
+
+// ===== SAVE MIT CURRICULUM TO LOCALSTORAGE =====
+const mitSelect = document.getElementById("mitCurriculum");
+
+// Restore saved value on page load
+const savedDocs = JSON.parse(localStorage.getItem("documents") || "{}");
+if (savedDocs.mitCurriculum) {
+    mitSelect.value = savedDocs.mitCurriculum;
+}
+
+// Save on change
+mitSelect.addEventListener("change", function () {
+    const docs = JSON.parse(localStorage.getItem("documents") || "{}");
+    docs.mitCurriculum = this.value;
+    localStorage.setItem("documents", JSON.stringify(docs));
+});
+
+document.getElementById("documentsForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const docs = JSON.parse(localStorage.getItem("documents") || "{}");
+    docs.mitCurriculum = mitSelect.value || "";
+    localStorage.setItem("documents", JSON.stringify(docs));
+    this.submit();
+});

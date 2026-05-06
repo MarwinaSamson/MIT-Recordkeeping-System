@@ -1,23 +1,54 @@
-const DOC_ITEMS = [
-  { key: "deansRec", label: "Dean's Recommendation", required: true },
-  { key: "tor", label: "Transcript of Records (TOR)", required: true },
-  { key: "honorableDismissal", label: "Honorable Dismissal", required: true },
-  { key: "psa", label: "PSA Birth Certificate", required: true },
-  { key: "gsat", label: "GSAT Result", required: true },
-];
-const DOC_STATUS = {
-  deansRec: { status: "approved", note: "Verified and accepted." },
-  tor: {
-    status: "review",
-    note: "Currently under review by the registrar's office.",
-  },
-  honorableDismissal: {
-    status: "rejected",
-    note: "Document appears illegible. Please re-upload a clearer copy.",
-  },
-  psa: { status: "pending", note: "Awaiting submission." },
-  gsat: { status: "pending", note: "Awaiting submission." },
-};
+// Build DOC_ITEMS dynamically from CMS admission_requirements
+// If CMS data is not available, fall back to defaults for display
+function buildDocItemsFromCMS() {
+  if (!window.ADMISSION_REQUIREMENTS_RAW || !Array.isArray(window.ADMISSION_REQUIREMENTS_RAW)) {
+    // Fallback to hardcoded if CMS data unavailable
+    return [
+      { key: "deansRec", label: "Dean's Recommendation", required: true },
+      { key: "tor", label: "Transcript of Records (TOR)", required: true },
+      { key: "honorableDismissal", label: "Honorable Dismissal", required: true },
+      { key: "psa", label: "PSA Birth Certificate", required: true },
+      { key: "gsat", label: "GSAT Result", required: true },
+    ];
+  }
+  
+  // Convert CMS format to DOC_ITEMS format
+  // CMS format: { title, required, multi_page, field_key, ... }
+  // DOC_ITEMS format: { key, label, required }
+  return window.ADMISSION_REQUIREMENTS_RAW.map(req => ({
+    key: req.field_key || _titleToKey(req.title), // Use field_key if available, else compute
+    label: req.title,
+    required: req.required || false,
+    multiPage: req.multi_page || false,
+  }));
+}
+
+// Helper: convert title to key (matches backend _title_to_key)
+function _titleToKey(title) {
+  if (!title) return "";
+  let key = title.toLowerCase();
+  key = key.replace(/[^a-z0-9]+/g, "_");
+  key = key.replace(/^_+|_+$/g, "");
+  return key;
+}
+
+let DOC_ITEMS = [];
+
+// Initialize DOC_STATUS dynamically from DOC_ITEMS
+function initDocStatus() {
+  const newStatus = {};
+  for (const item of DOC_ITEMS) {
+    newStatus[item.key] = {
+      status: 'pending',  // Default to pending
+      note: 'Awaiting submission.',
+      uploaded: false,
+    };
+  }
+  console.log("Initialized DOC_STATUS from DOC_ITEMS:", newStatus);
+  return newStatus;
+}
+
+let DOC_STATUS = {};
 let notifications = [];
 
 async function fetchNotifications() {
@@ -105,6 +136,14 @@ function initTheme() {
 
 window.addEventListener("DOMContentLoaded", () => {
   console.log("DOMContentLoaded event fired");
+  // Initialize DOC_ITEMS from CMS data FIRST, before building UI
+  DOC_ITEMS = buildDocItemsFromCMS();
+  console.log("DOC_ITEMS initialized from CMS:", DOC_ITEMS);
+  
+  // Initialize DOC_STATUS from DOC_ITEMS
+  DOC_STATUS = initDocStatus();
+  console.log("DOC_STATUS initialized:", DOC_STATUS);
+  
   initTheme();
   loadPersonalData();
   buildMiniDocList();
@@ -186,7 +225,7 @@ function buildMiniDocList() {
   const docs = getStudentDocs();
   document.getElementById("miniDocList").innerHTML = DOC_ITEMS.map((d) => {
     const u = !!docs[d.key],
-      s = DOC_STATUS[d.key];
+      s = DOC_STATUS[d.key] || { status: 'pending', note: '' };
     const sc = u ? pillClass(s.status) : "pill-draft",
       sl = u ? capFirst(s.status) : "Not uploaded";
     const ic = u
@@ -204,7 +243,7 @@ function buildDocGrid() {
   const docs = getStudentDocs();
   document.getElementById("docGrid").innerHTML = DOC_ITEMS.map((d) => {
     const u = !!docs[d.key],
-      s = DOC_STATUS[d.key],
+      s = DOC_STATUS[d.key] || { status: 'pending', note: '' },
       fn = docs[d.key] || null;
     const sc = u ? pillClass(s.status) : "pill-draft",
       sl = u ? capFirst(s.status) : "Not uploaded";
@@ -267,7 +306,12 @@ function buildStatusSummary() {
   const docs = getStudentDocs();
   const c = { approved: 0, review: 0, rejected: 0, pending: 0 };
   DOC_ITEMS.forEach((d) => {
-    c[!!docs[d.key] ? DOC_STATUS[d.key].status : "pending"]++;
+    if (!!docs[d.key]) {
+      const status = (DOC_STATUS[d.key] || {}).status || 'pending';
+      c[status]++;
+    } else {
+      c["pending"]++;
+    }
   });
   document.getElementById("statusSummary").innerHTML = [
     {
@@ -642,6 +686,7 @@ let cachedStatus = {
 };
 
 function fetchDocumentDetails() {
+  console.log("🔍 fetchDocumentDetails() CALLED");
   // Fetch detailed document statuses from server and update DOC_STATUS
   fetch("/api/document-details/", {
     method: "GET",
@@ -650,25 +695,57 @@ function fetchDocumentDetails() {
       "X-Requested-With": "XMLHttpRequest",
     },
   })
-    .then((res) => res.json())
+    .then((res) => {
+      console.log("🔍 API response received, status:", res.status);
+      return res.json();
+    })
     .then((docDetails) => {
+      console.log("=== API RESPONSE ===");
+      console.log("Raw API response:", docDetails);
+      console.log("API response keys:", Object.keys(docDetails));
+      
       // Update DOC_STATUS with actual database values
       for (const key in docDetails) {
-        if (DOC_STATUS[key]) {
-          const detail = docDetails[key];
-          DOC_STATUS[key].status = detail.status;
-          if (detail.rejection_reason) {
-            DOC_STATUS[key].note = detail.rejection_reason;
-          }
+        const detail = docDetails[key];
+        console.log(`Processing API key "${key}":`, detail);
+        
+        // Create entry if it doesn't exist yet (happens when API returns new keys)
+        if (!DOC_STATUS[key]) {
+          DOC_STATUS[key] = {
+            status: 'pending',
+            note: '',
+            uploaded: false,
+          };
         }
+        
+        // Map verification status to display status
+        // 'approved' = verified and approved
+        // 'review' = currently reviewing
+        // 'pending' = waiting for review
+        // 'rejected' = rejected, needs resubmission
+        DOC_STATUS[key].status = detail.status;
+        DOC_STATUS[key].uploaded = detail.uploaded || false;
+        
+        if (detail.rejection_reason) {
+          DOC_STATUS[key].note = detail.rejection_reason;
+        } else if (detail.remarks) {
+          DOC_STATUS[key].note = detail.remarks;
+        }
+        
+        console.log(`✓ Updated DOC_STATUS[${key}]:`, DOC_STATUS[key]);
       }
+      console.log("Final DOC_STATUS after API update:", DOC_STATUS);
+      console.log("=== END API RESPONSE ===");
+      
+      
       // Rebuild UI with updated statuses
       buildMiniDocList();
       buildDocGrid();
       buildStatusSummary();
     })
     .catch((err) => {
-      console.error("Error fetching document details:", err);
+      console.error("❌ Error fetching document details:", err);
+      console.error("Error details:", err.message);
     });
 }
 

@@ -154,7 +154,7 @@ def get_activity_log(limit=20):
             'time': log.timestamp.strftime('%Y-%m-%d %H:%M'),
             'admin': log.admin.username if log.admin else 'Unknown',
             'appId': log.application.application_id if log.application else 'N/A',
-            'doc': log.document.get_document_type_display() if log.document else 'General',
+            'doc': log.document.document_type if log.document else 'General',
             'action': log.get_action_display(),
             'notes': log.notes,
         }
