@@ -1,0 +1,2074 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Program Manager – WMSU Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700&family=JetBrains+Mono:wght@400;600;700&display=swap"
+        rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link href="{% static 'admin_app/ccs/admin_style.css' %}" rel="stylesheet" />
+
+    <style>
+        /* ── Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        /* ── Shared form atoms (same as cms_settings) ── */
+        .lbl {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .lbl-hint {
+            font-size: 0.68rem;
+            font-weight: 400;
+            color: #9ca3af;
+            text-transform: none;
+            letter-spacing: 0;
+            margin-left: 4px;
+        }
+
+        .field {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.83rem;
+            color: #111827;
+            background: #fff;
+            transition: border-color .15s, box-shadow .15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .field:focus {
+            outline: none;
+            border-color: #9B1C1C;
+            box-shadow: 0 0 0 3px rgba(155, 28, 28, .08);
+        }
+
+        textarea.field {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        select.field {
+            cursor: pointer;
+        }
+
+        .cms-card {
+            background: #fff;
+            border: 1.5px solid #f3f4f6;
+            border-radius: 16px;
+            padding: 22px 24px;
+            margin-bottom: 18px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .03);
+        }
+
+        .cms-card-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 3px;
+        }
+
+        .cms-card-subtitle {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-bottom: 14px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            background: #7b1113;
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: background .15s, transform .1s;
+        }
+
+        .btn-primary:hover {
+            background: #5a0c0e;
+        }
+
+        .btn-primary:active {
+            transform: scale(.97);
+        }
+
+        .btn-primary svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .btn-primary:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            background: #f9fafb;
+            color: #374151;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1.5px solid #e5e7eb;
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .btn-secondary:hover {
+            background: #f3f4f6;
+        }
+
+        .btn-secondary svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .btn-del {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #fff0f0;
+            color: #dc2626;
+            border: 1.5px solid #fecaca;
+            cursor: pointer;
+            transition: background .15s;
+            flex-shrink: 0;
+        }
+
+        .btn-del:hover {
+            background: #fee2e2;
+        }
+
+        .btn-del svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* ── Page fade-in ── */
+        @keyframes pgFade {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        main {
+            animation: pgFade .22s ease both;
+        }
+
+        /* ── Program card grid ── */
+        .prog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .prog-card {
+            background: #fff;
+            border: 1.5px solid #f3f4f6;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+            cursor: pointer;
+            transition: border-color .2s, box-shadow .2s, transform .2s;
+            position: relative;
+        }
+
+        .prog-card:hover {
+            border-color: #fca5a5;
+            box-shadow: 0 8px 24px rgba(123, 17, 19, .1);
+            transform: translateY(-2px);
+        }
+
+        .prog-card.inactive {
+            opacity: .6;
+        }
+
+        .prog-card-banner {
+            height: 72px;
+            background: linear-gradient(135deg, #5a0c0e, #9b1416);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+        }
+
+        .prog-card-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, .04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, .04) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+        }
+
+        .prog-card-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, .12);
+            border: 1.5px solid rgba(255, 255, 255, .2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .prog-card-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .prog-card-initials {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .9);
+            z-index: 1;
+        }
+
+        .prog-card-degree {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .9);
+            letter-spacing: .1em;
+            z-index: 1;
+        }
+
+        .prog-card-body {
+            padding: 14px 16px;
+        }
+
+        .prog-card-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #111827;
+            line-height: 1.3;
+            margin-bottom: 4px;
+        }
+
+        .prog-card-meta {
+            font-size: 0.72rem;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .prog-card-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .prog-card-footer {
+            padding: 10px 16px;
+            border-top: 1px solid #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 9px;
+            border-radius: 99px;
+            font-size: 0.67rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-pill.active {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status-pill.inactive {
+            background: #f9fafb;
+            color: #9ca3af;
+            border: 1px solid #e5e7eb;
+        }
+
+        .add-prog-card {
+            background: #fafafa;
+            border: 2px dashed #e5e7eb;
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 32px;
+            cursor: pointer;
+            transition: border-color .2s, background .2s;
+            min-height: 180px;
+            color: #9ca3af;
+        }
+
+        .add-prog-card:hover {
+            border-color: #9B1C1C;
+            background: #fff5f5;
+            color: #7b1113;
+        }
+
+        /* ── Inner tabs for the editor ── */
+        .prog-tab-bar {
+            display: flex;
+            gap: 4px;
+            border-bottom: 1.5px solid #f3f4f6;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .prog-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 14px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: #9ca3af;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: color .15s, border-color .15s;
+            background: none;
+            border-left: none;
+            border-right: none;
+            border-top: none;
+            margin-bottom: -1.5px;
+        }
+
+        .prog-tab:hover {
+            color: #374151;
+        }
+
+        .prog-tab.active {
+            color: #7b1113;
+            border-bottom-color: #7b1113;
+        }
+
+        .prog-tab svg {
+            width: 13px;
+            height: 13px;
+        }
+
+        .prog-tab-panel {
+            display: none;
+        }
+
+        .prog-tab-panel.active {
+            display: block;
+        }
+
+        /* ── List rows ── */
+        .list-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: #fafafa;
+            border: 1.5px solid #f3f4f6;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+        }
+
+        .list-row-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #7b1113;
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* ── Photo upload zone ── */
+        .photo-zone {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed #e5e7eb;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: #fafafa;
+            transition: border-color .15s;
+        }
+
+        .photo-zone:hover {
+            border-color: #9B1C1C;
+        }
+
+        .logo-zone {
+            width: 100%;
+            height: 110px;
+            border: 2px dashed #e5e7eb;
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            background: #fafafa;
+            transition: border-color .15s, background .15s;
+        }
+
+        .logo-zone:hover {
+            border-color: #9B1C1C;
+            background: #fff5f5;
+        }
+
+        /* ── Drop zones ── */
+        .bulk-zone {
+            border: 2px dashed #fcd34d;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            background: #fffdf5;
+            transition: border-color .15s, background .15s;
+        }
+
+        .bulk-zone.drag-over {
+            border-color: #f59e0b;
+            background: #fef3c7;
+        }
+
+        /* ── Modal overlay ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(15, 10, 12, .55);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .22s;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 820px;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, .22);
+            transform: translateY(16px) scale(.98);
+            transition: transform .25s, opacity .25s;
+        }
+
+        .modal-overlay.open .modal-box {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-box::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .modal-box::-webkit-scrollbar-thumb {
+            background: #7b1113;
+            border-radius: 6px;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px 16px;
+            border-bottom: 1.5px solid #f3f4f6;
+            position: sticky;
+            top: 0;
+            background: #fff;
+            z-index: 10;
+            border-radius: 20px 20px 0 0;
+        }
+
+        /* ── Delete confirm overlay ── */
+        .delete-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1100;
+            background: rgba(0, 0, 0, .6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s;
+        }
+
+        .delete-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* ── Toast ── */
+        #pgToast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .15);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform .25s, opacity .25s;
+            pointer-events: none;
+        }
+
+        #pgToast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        #pgToast.success {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1.5px solid #bbf7d0;
+        }
+
+        #pgToast.error {
+            background: #fff5f5;
+            color: #dc2626;
+            border: 1.5px solid #fecaca;
+        }
+
+        /* ── Spinner ── */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #9ca3af;
+        }
+
+        .empty-state svg {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 12px;
+            opacity: .35;
+        }
+
+        /* ── Search box ── */
+        .search-wrap {
+            position: relative;
+        }
+
+        .search-wrap svg {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            color: #9ca3af;
+        }
+
+        .search-wrap input {
+            padding-left: 32px;
+        }
+
+        /* ── Curriculum table ── */
+        .curr-tbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+
+        .curr-tbl th {
+            padding: 8px 12px;
+            background: #f9fafb;
+            color: #6b7280;
+            font-weight: 700;
+            text-align: left;
+            border-bottom: 1.5px solid #f3f4f6;
+            white-space: nowrap;
+        }
+
+        .curr-tbl td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f9fafb;
+            color: #374151;
+        }
+
+        .curr-tbl tr:last-child td {
+            border-bottom: none;
+        }
+
+        .curr-tbl .code-cell {
+            font-family: 'JetBrains Mono', monospace;
+            color: #7b1113;
+            font-size: 0.68rem;
+        }
+
+        /* ── Level badge ── */
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 99px;
+            font-size: 0.67rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .level-masters {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .level-doctoral {
+            background: #fdf4ff;
+            color: #7e22ce;
+            border: 1px solid #e9d5ff;
+        }
+
+        .level-cert {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50" style="display:flex; min-height:100vh;">
+
+    <!-- ════════════ SIDEBAR (exact match to cms_settings) ════════════ -->
+    <aside class="sidebar shadow-2xl z-20">
+        <div class="flex flex-col items-center gap-2 py-6 px-4 border-b border-white/10 mb-2">
+            <div class="w-14 h-14 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-lg">
+                <img src="{% static 'admin_app/img/logowithcap.png' %}" alt="WMSU" class="w-12 h-12 object-contain"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'" />
+                <span class="text-red-800 font-bold text-sm" style="display:none">W</span>
+            </div>
+            <div class="text-center mt-1">
+                <p class="text-white font-bold text-xs">WMSU</p>
+                <p class="text-white/65 text-xs">Graduate School</p>
+                <p class="text-white/65 text-xs">Zamboanga City</p>
+            </div>
+        </div>
+
+        <nav class="flex flex-col flex-1 px-2 gap-0.5">
+            <p class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-2 pb-1">Main</p>
+            <div class="nav-item" onclick="navigateTo('{% url 'admin_app:dashboard' %}', this)">
+                <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('{% url 'admin_app:dashboard' %}', this)">
+                <i data-lucide="file-check"></i><span>Document Verification</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('{% url 'admin_app:dashboard' %}', this)">
+                <i data-lucide="users"></i><span>Students</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('{% url 'admin_app:dashboard' %}', this)">
+                <i data-lucide="alert-circle"></i><span>Missing Requirements</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('{% url 'admin_app:dashboard' %}', this)">
+                <i data-lucide="clock"></i><span>Activity History</span>
+            </div>
+            <p class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-4 pb-1">System</p>
+            <div class="nav-item" onclick="navigateTo('{% url 'admin_app:dashboard' %}', this)">
+                <i data-lucide="calendar"></i><span>School Year Management</span>
+            </div>
+            <div class="nav-item active">
+                <i data-lucide="layout-grid"></i><span>Program Manager</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('{% url 'admin_app:cms_settings' %}', this)">
+                <i data-lucide="settings-2"></i><span>CMS Settings</span>
+            </div>
+            <div class="nav-item" onclick="navigateTo('{% url 'admin_app:dashboard' %}', this)">
+                <i data-lucide="user-cog"></i><span>Profile Settings</span>
+            </div>
+        </nav>
+
+        <div class="px-2 pb-5 mt-auto border-t border-white/10 pt-3">
+            <div class="flex items-center gap-3 px-3 mb-3">
+                <div
+                    class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                    {% if admin_name %}{{ admin_name|slice:":1"|upper }}{% endif %}
+                </div>
+                <div class="min-w-0">
+                    <p class="text-white text-xs font-semibold truncate">{{ admin_name }}</p>
+                    <p class="text-white/50 text-xs truncate">Administrator</p>
+                </div>
+            </div>
+            <div class="nav-item text-red-300 hover:text-white hover:bg-red-900/50" onclick="handleLogout()">
+                <i data-lucide="log-out"></i><span>Log Out</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ════════════ MAIN ════════════ -->
+    <main class="flex-1 flex flex-col min-w-0">
+
+        <!-- TOP BAR -->
+        <header
+            class="bg-white border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+            <div>
+                <h1 class="text-xl font-bold text-gray-900" style="font-family:'Playfair Display',serif">Program Manager
+                </h1>
+                <p class="text-xs text-gray-400 mt-0.5">Add, edit, and manage all graduate programs and their content
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="openNewProgramModal()" class="btn-primary">
+                    <i data-lucide="plus"></i> New Program
+                </button>
+                <div class="flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-800 font-bold text-xs">
+                        {% if admin_name %}{{ admin_name|slice:":1"|upper }}{% endif %}
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-gray-800">{{ admin_name }}</p>
+                        <p class="text-xs text-red-600 font-semibold">Admin</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- PAGE BODY -->
+        <div class="flex-1 p-8 overflow-y-auto">
+
+            <!-- Stats bar -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+                <div class="cms-card" style="padding:16px 20px;margin-bottom:0;">
+                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Total Programs</p>
+                    <p class="text-2xl font-bold text-gray-900" style="font-family:'Playfair Display',serif;"
+                        id="statTotal">{{ programs|length|default:'0' }}</p>
+                </div>
+                <div class="cms-card" style="padding:16px 20px;margin-bottom:0;">
+                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Active</p>
+                    <p class="text-2xl font-bold text-green-700" style="font-family:'Playfair Display',serif;"
+                        id="statActive">0</p>
+                </div>
+                <div class="cms-card" style="padding:16px 20px;margin-bottom:0;">
+                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Master's</p>
+                    <p class="text-2xl font-bold text-blue-700" style="font-family:'Playfair Display',serif;"
+                        id="statMasters">0</p>
+                </div>
+                <div class="cms-card" style="padding:16px 20px;margin-bottom:0;">
+                    <p class="text-xs text-gray-400 font-semibold uppercase tracking-wider mb-1">Doctoral</p>
+                    <p class="text-2xl font-bold" style="font-family:'Playfair Display',serif;color:#7e22ce;"
+                        id="statDoctoral">0</p>
+                </div>
+            </div>
+
+            <!-- Filter + Search bar -->
+            <div class="flex flex-wrap items-center gap-3 mb-6">
+                <div class="search-wrap flex-1" style="min-width:200px;max-width:320px;">
+                    <i data-lucide="search"></i>
+                    <input type="text" class="field" placeholder="Search programs…" id="progSearch"
+                        oninput="filterPrograms()" style="padding-left:32px;" />
+                </div>
+                <select class="field" style="width:auto;min-width:160px;" id="progLevelFilter"
+                    onchange="filterPrograms()">
+                    <option value="">All Levels</option>
+                    <option value="masters">Master's Degree</option>
+                    <option value="doctoral">Doctoral</option>
+                    <option value="certificate">Certificate</option>
+                </select>
+                <select class="field" style="width:auto;min-width:140px;" id="progStatusFilter"
+                    onchange="filterPrograms()">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+                <div class="flex items-center gap-1 ml-auto">
+                    <button onclick="setView('grid')" id="btnViewGrid"
+                        style="padding:7px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#374151;transition:background .15s;">
+                        <i data-lucide="grid-2x2" style="width:15px;height:15px;"></i>
+                    </button>
+                    <button onclick="setView('list')" id="btnViewList"
+                        style="padding:7px;border-radius:8px;border:1.5px solid #e5e7eb;background:#f9fafb;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9ca3af;transition:background .15s;">
+                        <i data-lucide="list" style="width:15px;height:15px;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- GRID VIEW -->
+            <div id="viewGrid">
+                <div class="prog-grid" id="progGrid">
+                    <!-- Programs injected by JS -->
+                    <div class="add-prog-card" onclick="openNewProgramModal()">
+                        <i data-lucide="plus-circle" style="width:32px;height:32px;"></i>
+                        <p class="text-sm font-semibold">Add New Program</p>
+                        <p class="text-xs">Master's, Doctoral, Certificate…</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LIST VIEW (hidden by default) -->
+            <div id="viewList" style="display:none;">
+                <div class="cms-card" style="padding:0;overflow:hidden;">
+                    <table class="curr-tbl">
+                        <thead>
+                            <tr>
+                                <th style="padding:12px 16px;">Program</th>
+                                <th>Degree Code</th>
+                                <th>Level</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th style="text-align:right;padding-right:16px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="progListBody">
+                            <tr>
+                                <td colspan="6" class="text-center text-gray-400 py-10 text-sm">No programs yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div><!-- /page body -->
+    </main>
+
+
+    <!-- ══════════════════════════════════════════════════════
+       PROGRAM EDITOR MODAL
+       Full-featured editor with tabs matching about.html sections
+  ══════════════════════════════════════════════════════ -->
+    <div class="modal-overlay" id="programModal">
+        <div class="modal-box" style="max-width:900px;">
+
+            <!-- Modal header -->
+            <div class="modal-header">
+                <div class="flex items-center gap-3">
+                    <div id="modalLogoThumb"
+                        style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#5a0c0e,#9b1416);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                        <span id="modalLogoInitials"
+                            style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#fff;">P</span>
+                    </div>
+                    <div>
+                        <h2 id="modalTitle" class="text-base font-bold text-gray-900"
+                            style="font-family:'Playfair Display',serif;">New Program</h2>
+                        <p id="modalSubtitle" class="text-xs text-gray-400">Fill in the program details across each tab
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="deleteProgramPrompt()" id="btnDeleteProg"
+                        style="display:none;padding:7px 14px;border-radius:10px;border:1.5px solid #fecaca;background:#fff0f0;color:#dc2626;font-size:0.78rem;font-weight:700;cursor:pointer;display:none;align-items:center;gap:5px;">
+                        <i data-lucide="trash-2" style="width:13px;height:13px;"></i> Delete
+                    </button>
+                    <button onclick="closeModal()"
+                        style="padding:7px;border-radius:10px;border:1.5px solid #e5e7eb;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280;">
+                        <i data-lucide="x" style="width:16px;height:16px;"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Editor tabs -->
+            <div class="prog-tab-bar" style="padding:0 24px;margin-bottom:0;">
+                <button class="prog-tab active" onclick="switchProgTab('identity',this)">
+                    <i data-lucide="fingerprint"></i> Identity
+                </button>
+                <button class="prog-tab" onclick="switchProgTab('overview',this)">
+                    <i data-lucide="info"></i> Overview
+                </button>
+                <button class="prog-tab" onclick="switchProgTab('curriculum',this)">
+                    <i data-lucide="book-open"></i> Curriculum
+                </button>
+                <button class="prog-tab" onclick="switchProgTab('outcomes',this)">
+                    <i data-lucide="trophy"></i> Outcomes
+                </button>
+                <button class="prog-tab" onclick="switchProgTab('objectives',this)">
+                    <i data-lucide="flag"></i> Objectives
+                </button>
+                <button class="prog-tab" onclick="switchProgTab('faculty',this)">
+                    <i data-lucide="users"></i> Faculty
+                </button>
+                <button class="prog-tab" onclick="switchProgTab('settings',this)">
+                    <i data-lucide="settings"></i> Settings
+                </button>
+            </div>
+
+            <div style="padding:24px;">
+
+                <!-- ── TAB: Identity ── -->
+                <div class="prog-tab-panel active" id="panel-identity">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div class="sm:col-span-2">
+                            <label class="lbl">Program Logo / Seal <span class="lbl-hint">(shows in the hero and navbar
+                                    of the program's about page)</span></label>
+                            <div class="logo-zone" id="logoZone"
+                                onclick="document.getElementById('logoFileInput').click()"
+                                ondragover="logoDragOver(event)" ondragleave="logoDragLeave(event)"
+                                ondrop="logoDrop(event)">
+                                <div id="logoPreview"
+                                    style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+                                    <i data-lucide="upload-cloud" style="width:28px;height:28px;color:#d1d5db;"></i>
+                                </div>
+                                <p style="font-size:0.73rem;color:#9ca3af;margin:0;">Click or drag &amp; drop logo /
+                                    seal</p>
+                                <p style="font-size:0.67rem;color:#d1d5db;margin:2px 0 0;">PNG with transparency
+                                    recommended · max 2 MB</p>
+                                <input type="file" id="logoFileInput" accept="image/*" style="display:none;"
+                                    onchange="handleLogoFile(this.files[0])" />
+                            </div>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="lbl">Full Program Name</label>
+                            <input type="text" id="progName" class="field"
+                                placeholder="e.g. Master in Information Technology" oninput="updateModalHeader()" />
+                        </div>
+                        <div>
+                            <label class="lbl">Degree Code / Abbreviation</label>
+                            <input type="text" id="progDegree" class="field" placeholder="e.g. MIT, MBA, MEd, PhD"
+                                oninput="updateModalHeader()" />
+                        </div>
+                        <div>
+                            <label class="lbl">Program Level</label>
+                            <select id="progLevel" class="field" onchange="updateModalHeader()">
+                                <option value="masters">Master's Degree</option>
+                                <option value="doctoral">Doctoral Degree</option>
+                                <option value="certificate">Certificate Program</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="lbl">Department / College</label>
+                            <input type="text" id="progDept" class="field"
+                                placeholder="e.g. College of Computing Studies" />
+                        </div>
+                        <div>
+                            <label class="lbl">Institution</label>
+                            <input type="text" id="progInstitution" class="field"
+                                value="Western Mindanao State University, Zamboanga City" />
+                        </div>
+                        <div>
+                            <label class="lbl">COPC Number</label>
+                            <input type="text" id="progCopc" class="field" placeholder="e.g. 017, Series of 2019" />
+                        </div>
+                        <div>
+                            <label class="lbl">Effective Academic Year</label>
+                            <input type="text" id="progEffYear" class="field" placeholder="e.g. 2019–2020" />
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="lbl">Accrediting Body</label>
+                            <input type="text" id="progAccreditor" class="field"
+                                value="Commission on Higher Education (CHED), Republic of the Philippines" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── TAB: Overview ── -->
+                <div class="prog-tab-panel" id="panel-overview">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="lbl">Hero Badge Text <span class="lbl-hint">(small pill above the title in the
+                                    hero banner)</span></label>
+                            <input type="text" id="progHeroBadge" class="field" placeholder="e.g. MIT PROGRAM · WMSU" />
+                        </div>
+                        <div>
+                            <label class="lbl">Hero Tagline <span class="lbl-hint">(shown below the program name in the
+                                    hero)</span></label>
+                            <textarea id="progHeroTagline" class="field" rows="3"
+                                placeholder="Preparing professionals for the industrial practice of systems integration…"></textarea>
+                        </div>
+                        <div>
+                            <label class="lbl">Program Description <span class="lbl-hint">(paragraph in the About
+                                    tab)</span></label>
+                            <textarea id="progDescription" class="field" rows="5"
+                                placeholder="Full description of the program…"></textarea>
+                        </div>
+                        <div>
+                            <label class="lbl">CHED Badge Title <span class="lbl-hint">(gold box heading in the About
+                                    tab)</span></label>
+                            <input type="text" id="progChedTitle" class="field"
+                                placeholder="e.g. CHED Certified Program" />
+                        </div>
+                        <div>
+                            <label class="lbl">CHED Badge Body Text</label>
+                            <textarea id="progChedBody" class="field" rows="2"
+                                placeholder="Complies with CHED Resolution No…"></textarea>
+                        </div>
+
+                        <!-- Stats -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="lbl" style="margin-bottom:0;">Program Stats <span class="lbl-hint">(e.g.
+                                        "39 Total Units" cards)</span></label>
+                                <button onclick="addStat()" class="btn-secondary"
+                                    style="padding:5px 10px;font-size:0.72rem;">
+                                    <i data-lucide="plus" style="width:12px;height:12px;"></i> Add Stat
+                                </button>
+                            </div>
+                            <div id="statsList" class="space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── TAB: Curriculum ── -->
+                <div class="prog-tab-panel" id="panel-curriculum">
+                    <!-- Bulk upload strip -->
+                    <div
+                        style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                        <i data-lucide="upload-cloud" style="width:18px;height:18px;color:#d97706;flex-shrink:0;"></i>
+                        <div style="flex:1;min-width:0;">
+                            <p style="font-size:0.78rem;font-weight:700;color:#92600a;margin:0;">Bulk Upload Curriculum
+                            </p>
+                            <p style="font-size:0.7rem;color:#b45309;margin:2px 0 0;">Upload a CSV to populate all
+                                courses at once instead of adding one by one.</p>
+                        </div>
+                        <button onclick="downloadCurrTemplate()"
+                            style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;border:1.5px solid #fcd34d;background:#fff;font-size:0.72rem;font-weight:700;color:#92600a;cursor:pointer;">
+                            <i data-lucide="download" style="width:12px;height:12px;"></i> Template
+                        </button>
+                        <button onclick="document.getElementById('currBulkInput').click()"
+                            style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;background:#d97706;color:#fff;font-size:0.72rem;font-weight:700;border:none;cursor:pointer;">
+                            <i data-lucide="file-up" style="width:12px;height:12px;"></i> Upload CSV
+                        </button>
+                        <input type="file" id="currBulkInput" accept=".csv" style="display:none;"
+                            onchange="handleCurrBulk(this.files[0])" />
+                    </div>
+
+                    <!-- Curriculum preview / table -->
+                    <div id="currBulkPreview" style="display:none;margin-bottom:16px;"></div>
+
+                    <!-- Manual add -->
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Courses — Manual Entry</p>
+                        <button onclick="addCourseRow()" class="btn-secondary"
+                            style="padding:6px 12px;font-size:0.72rem;">
+                            <i data-lucide="plus" style="width:12px;height:12px;"></i> Add Course
+                        </button>
+                    </div>
+                    <div id="currManualList" class="space-y-2">
+                        <div class="empty-state" style="padding:24px;" id="currEmptyMsg">
+                            <i data-lucide="book"
+                                style="width:32px;height:32px;margin:0 auto 8px;opacity:.25;display:block;"></i>
+                            <p class="text-sm">No courses yet — add manually or upload a CSV.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── TAB: Outcomes ── -->
+                <div class="prog-tab-panel" id="panel-outcomes">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-sm font-bold text-gray-700">Program Outcomes</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Outcome cards shown in the Outcomes tab of the
+                                program page.</p>
+                        </div>
+                        <button onclick="addOutcome()" class="btn-primary">
+                            <i data-lucide="plus"></i> Add Outcome
+                        </button>
+                    </div>
+                    <div id="outcomesList" class="space-y-3">
+                        <div class="empty-state" id="outcomesEmpty">
+                            <i data-lucide="trophy"></i>
+                            <p class="text-sm">No outcomes yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── TAB: Objectives ── -->
+                <div class="prog-tab-panel" id="panel-objectives">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-sm font-bold text-gray-700">Program Objectives</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Numbered objective items shown in the Objectives
+                                tab.</p>
+                        </div>
+                        <button onclick="addObjective()" class="btn-primary">
+                            <i data-lucide="plus"></i> Add Objective
+                        </button>
+                    </div>
+                    <div id="objectivesList" class="space-y-2">
+                        <div class="empty-state" id="objectivesEmpty">
+                            <i data-lucide="flag"></i>
+                            <p class="text-sm">No objectives yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── TAB: Faculty ── -->
+                <div class="prog-tab-panel" id="panel-faculty">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-sm font-bold text-gray-700">Faculty Members</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Faculty cards shown in the Faculty tab. Upload a
+                                photo for each member.</p>
+                        </div>
+                        <button onclick="addFaculty()" class="btn-primary">
+                            <i data-lucide="plus"></i> Add Faculty
+                        </button>
+                    </div>
+                    <div id="facultyList" class="space-y-3">
+                        <div class="empty-state" id="facultyEmpty">
+                            <i data-lucide="users"></i>
+                            <p class="text-sm">No faculty members yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── TAB: Settings ── -->
+                <div class="prog-tab-panel" id="panel-settings">
+                    <div class="space-y-4">
+                        <div class="cms-card" style="border-color:#f0fdf4;background:#f0fdf4;">
+                            <p class="cms-card-title" style="color:#15803d;"><i data-lucide="eye"
+                                    style="width:14px;height:14px;color:#15803d;"></i> Visibility</p>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-700">Show in public Programs menu</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">When on, this program appears in the
+                                        Programs dropdown on the public-facing site.</p>
+                                </div>
+                                <button id="visibilityToggle" onclick="toggleVisibility()"
+                                    style="width:44px;height:24px;border-radius:99px;background:#15803d;border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;">
+                                    <span
+                                        style="position:absolute;top:3px;left:22px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s;"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="cms-card" style="border-color:#fff5f5;background:#fff5f5;">
+                            <p class="cms-card-title" style="color:#dc2626;"><i data-lucide="trash-2"
+                                    style="width:14px;height:14px;color:#dc2626;"></i> Danger Zone</p>
+                            <p class="text-xs text-gray-500 mb-3">Permanently delete this program and all its content.
+                                This cannot be undone.</p>
+                            <button onclick="deleteProgramPrompt()"
+                                style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;border:1.5px solid #fecaca;background:#fff;color:#dc2626;font-size:0.8rem;font-weight:700;cursor:pointer;">
+                                <i data-lucide="trash-2" style="width:14px;height:14px;"></i> Delete This Program
+                            </button>
+                        </div>
+
+                        <div>
+                            <label class="lbl">Slug / URL Identifier <span class="lbl-hint">(used in the URL — no spaces
+                                    or special chars)</span></label>
+                            <input type="text" id="progSlug" class="field" placeholder="e.g. mit, mba, med-education"
+                                oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,'-')" />
+                            <p class="text-xs text-gray-400 mt-1">Public URL will be: <code
+                                    class="bg-gray-100 px-1 rounded text-gray-600">/programs/<span id="slugPreview">mit</span>/</code>
+                            </p>
+                        </div>
+                        <div>
+                            <label class="lbl">Display Order <span class="lbl-hint">(lower number = appears first in the
+                                    Programs menu)</span></label>
+                            <input type="number" id="progOrder" class="field" value="1" min="1" max="99"
+                                style="max-width:100px;" />
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /tab content -->
+
+            <!-- Modal footer -->
+            <div
+                style="padding:16px 24px;border-top:1.5px solid #f3f4f6;display:flex;align-items:center;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:#fff;border-radius:0 0 20px 20px;">
+                <button onclick="closeModal()" class="btn-secondary">Cancel</button>
+                <button onclick="saveProgram()" class="btn-primary" id="btnSave">
+                    <i data-lucide="save"></i> Save Program
+                </button>
+            </div>
+        </div><!-- /modal-box -->
+    </div><!-- /modal-overlay -->
+
+
+    <!-- ══ DELETE CONFIRM ══ -->
+    <div class="delete-overlay" id="deleteOverlay">
+        <div
+            style="background:#fff;border-radius:16px;padding:28px;max-width:380px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.22);">
+            <div
+                style="width:52px;height:52px;border-radius:50%;background:#fff5f5;border:2px solid #fecaca;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+                <i data-lucide="trash-2" style="width:22px;height:22px;color:#dc2626;"></i>
+            </div>
+            <h3
+                style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:#111827;margin-bottom:8px;">
+                Delete Program?</h3>
+            <p style="font-size:0.8rem;color:#6b7280;margin-bottom:20px;">This will permanently remove <strong
+                    id="deleteProgName">this program</strong> and all its content including courses, outcomes,
+                objectives, and faculty. This cannot be undone.</p>
+            <div style="display:flex;gap:10px;justify-content:center;">
+                <button onclick="closeDeleteOverlay()" class="btn-secondary">Cancel</button>
+                <button onclick="confirmDelete()"
+                    style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:10px;background:#dc2626;color:#fff;font-size:0.82rem;font-weight:700;border:none;cursor:pointer;">
+                    <i data-lucide="trash-2" style="width:14px;height:14px;"></i> Yes, Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="pgToast"></div>
+
+
+    <script>
+        /* ═══════════════════════════════════════════════════
+           STATE
+        ═══════════════════════════════════════════════════ */
+        let _programs = [];       // array of program objects
+        let _editId = null;     // null = new program, else program id
+        let _logoFile = null;     // staged logo file object
+        let _logoUrl = '';       // existing logo URL (from server)
+        let _visible = true;     // visibility toggle state
+        let _currRows = [];       // curriculum course rows in editor
+        let _outcomes = [];
+        let _objectives = [];
+        let _faculty = [];
+        let _viewMode = 'grid';
+
+        // Seed with Django-injected data if available
+        try {
+            _programs = JSON.parse('{{ programs_json|escapejs|default:"[]" }}');
+            // Normalise: ensure every program has a stable id and level
+            _programs = _programs.map(p => ({
+                ...p,
+                id: p.id || genId(),
+                level: p.level || 'masters',
+            }));
+        } catch (e) { _programs = []; }
+
+
+        /* ═══════════════════════════════════════════════════
+           UTILITIES
+        ═══════════════════════════════════════════════════ */
+        function getCSRFToken() {
+            const m = document.cookie.match(/csrftoken=([^;]+)/);
+            return m ? m[1] : '';
+        }
+
+        function pgToast(msg, type = 'success') {
+            const t = document.getElementById('pgToast');
+            t.textContent = msg;
+            t.className = 'show ' + type;
+            clearTimeout(t._t);
+            t._t = setTimeout(() => { t.className = type; }, 3200);
+        }
+
+        function navigateTo(url, el) {
+            document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+            if (el) el.classList.add('active');
+            const m = document.querySelector('main');
+            if (m) { m.style.transition = 'opacity .18s'; m.style.opacity = '0'; }
+            setTimeout(() => { window.location.href = url; }, 190);
+        }
+
+        function handleLogout() {
+            const m = document.querySelector('main');
+            if (m) { m.style.transition = 'opacity .18s'; m.style.opacity = '0'; }
+            setTimeout(() => { window.location.href = "{% url 'admin_app:logout' %}"; }, 190);
+        }
+
+        function setView(v) {
+            _viewMode = v;
+            document.getElementById('viewGrid').style.display = v === 'grid' ? '' : 'none';
+            document.getElementById('viewList').style.display = v === 'list' ? '' : 'none';
+            document.getElementById('btnViewGrid').style.background = v === 'grid' ? '#fff' : '#f9fafb';
+            document.getElementById('btnViewGrid').style.color = v === 'grid' ? '#374151' : '#9ca3af';
+            document.getElementById('btnViewList').style.background = v === 'list' ? '#fff' : '#f9fafb';
+            document.getElementById('btnViewList').style.color = v === 'list' ? '#374151' : '#9ca3af';
+        }
+
+        function genId() { return 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7); }
+
+        function levelLabel(l) {
+            return { masters: 'Master\'s', doctoral: 'Doctoral', certificate: 'Certificate' }[l] || l;
+        }
+        function levelBadgeClass(l) {
+            return { masters: 'level-masters', doctoral: 'level-doctoral', certificate: 'level-cert' }[l] || 'level-masters';
+        }
+
+
+        /* ═══════════════════════════════════════════════════
+           RENDER PROGRAMS
+        ═══════════════════════════════════════════════════ */
+        function renderAll() {
+            updateStats();
+            renderGrid();
+            renderList();
+        }
+
+        function updateStats() {
+            document.getElementById('statTotal').textContent = _programs.length;
+            document.getElementById('statActive').textContent = _programs.filter(p => p.visible).length;
+            document.getElementById('statMasters').textContent = _programs.filter(p => p.level === 'masters').length;
+            document.getElementById('statDoctoral').textContent = _programs.filter(p => p.level === 'doctoral').length;
+        }
+
+        function filterPrograms() {
+            const q = document.getElementById('progSearch').value.toLowerCase();
+            const lvl = document.getElementById('progLevelFilter').value;
+            const st = document.getElementById('progStatusFilter').value;
+            const filtered = _programs.filter(p => {
+                const matchQ = !q || p.name.toLowerCase().includes(q) || (p.degree || '').toLowerCase().includes(q);
+                const matchLvl = !lvl || p.level === lvl;
+                const matchSt = !st || (st === 'active' ? p.visible : !p.visible);
+                return matchQ && matchLvl && matchSt;
+            });
+            renderGrid(filtered);
+            renderList(filtered);
+        }
+
+        function renderGrid(list) {
+            list = list || _programs;
+            const grid = document.getElementById('progGrid');
+            // Keep the add-card (last child)
+            const addCard = grid.lastElementChild;
+            grid.innerHTML = '';
+            if (!list.length) {
+                grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><p class="text-sm">No programs match your filters.</p></div>';
+            } else {
+                list.forEach(p => {
+                    const card = buildProgCard(p);
+                    grid.appendChild(card);
+                });
+            }
+            grid.appendChild(addCard);
+            lucide.createIcons();
+        }
+
+        function buildProgCard(p) {
+            // Ensure every program has a stable id and level fallback
+            if (!p.id) p.id = genId();
+            if (!p.level) p.level = 'masters';
+
+            const div = document.createElement('div');
+            div.className = 'prog-card' + (p.visible ? '' : ' inactive');
+            div.setAttribute('data-prog-id', p.id);
+
+            const initials = (p.degree || p.name || 'P').slice(0, 3).toUpperCase();
+            const logoHtml = p.logo
+                ? `<img src="${p.logo}" style="width:100%;height:100%;object-fit:contain;" />`
+                : `<span class="prog-card-initials">${initials}</span>`;
+
+            div.innerHTML = `
+        <div class="prog-card-banner">
+          <div class="prog-card-logo">${logoHtml}</div>
+          <div>
+            <div class="prog-card-degree">${p.degree || '—'}</div>
+          </div>
+          <div style="position:absolute;top:10px;right:10px;">
+            <span class="status-pill ${p.visible ? 'active' : 'inactive'}">
+              ${p.visible ? '● Active' : '○ Hidden'}
+            </span>
+          </div>
+        </div>
+        <div class="prog-card-body">
+          <div class="prog-card-name">${p.name || 'Untitled Program'}</div>
+          <div class="prog-card-meta">
+            <span><i data-lucide="building" style="width:11px;height:11px;"></i> ${p.dept || 'No department'}</span>
+            <span><i data-lucide="book" style="width:11px;height:11px;"></i> ${(p.curriculum || []).length} courses</span>
+          </div>
+        </div>
+        <div class="prog-card-footer">
+          <span class="level-badge ${levelBadgeClass(p.level)}">${levelLabel(p.level)}</span>
+          <button class="btn-secondary prog-edit-btn" data-id="${p.id}" style="padding:5px 10px;font-size:0.72rem;">
+            <i data-lucide="pencil" style="width:12px;height:12px;"></i> Edit
+          </button>
+        </div>`;
+
+            // Attach events AFTER innerHTML so they are never overwritten
+            div.querySelector('.prog-edit-btn').addEventListener('click', e => {
+                e.stopPropagation();
+                openEditModal(p.id);
+            });
+            div.addEventListener('click', () => openEditModal(p.id));
+
+            return div;
+        }
+
+        function renderList(list) {
+            list = list || _programs;
+            const tbody = document.getElementById('progListBody');
+            if (!list.length) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-400 py-10 text-sm">No programs found.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = list.map(p => `
+        <tr class="prog-list-row" data-id="${p.id}" style="cursor:pointer;">
+          <td style="padding:12px 16px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#5a0c0e,#9b1416);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+                ${p.logo ? `<img src="${p.logo}" style="width:100%;height:100%;object-fit:contain;" />` : `<span style="font-family:'Playfair Display',serif;font-size:.75rem;font-weight:700;color:#fff;">${(p.degree || 'P').slice(0, 2)}</span>`}
+              </div>
+              <div>
+                <p style="font-size:0.82rem;font-weight:700;color:#111827;">${p.name}</p>
+                <p style="font-size:0.7rem;color:#9ca3af;">${p.dept || ''}</p>
+              </div>
+            </div>
+          </td>
+          <td><span style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#7b1113;font-weight:700;">${p.degree || '—'}</span></td>
+          <td><span class="level-badge ${levelBadgeClass(p.level)}">${levelLabel(p.level)}</span></td>
+          <td style="font-size:0.78rem;color:#374151;">${p.dept || '—'}</td>
+          <td><span class="status-pill ${p.visible ? 'active' : 'inactive'}">${p.visible ? '● Active' : '○ Hidden'}</span></td>
+          <td style="text-align:right;padding-right:16px;">
+            <button class="btn-secondary prog-list-edit-btn" data-id="${p.id}" style="padding:5px 10px;font-size:0.72rem;">
+              <i data-lucide="pencil" style="width:12px;height:12px;"></i> Edit
+            </button>
+          </td>
+        </tr>`).join('');
+
+            // Attach events after innerHTML
+            tbody.querySelectorAll('.prog-list-row').forEach(row => {
+                const id = row.getAttribute('data-id');
+                row.addEventListener('click', () => openEditModal(id));
+            });
+            tbody.querySelectorAll('.prog-list-edit-btn').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    openEditModal(btn.getAttribute('data-id'));
+                });
+            });
+
+            lucide.createIcons();
+        }
+
+
+        /* ═══════════════════════════════════════════════════
+           MODAL OPEN / CLOSE
+        ═══════════════════════════════════════════════════ */
+        function openNewProgramModal() {
+            _editId = null;
+            _logoFile = null; _logoUrl = '';
+            _visible = true;
+            _currRows = []; _outcomes = []; _objectives = []; _faculty = [];
+            resetModalFields();
+            document.getElementById('modalTitle').textContent = 'New Program';
+            document.getElementById('modalSubtitle').textContent = 'Fill in the program details across each tab';
+            document.getElementById('btnDeleteProg').style.display = 'none';
+            document.getElementById('visibilityToggle').style.background = '#15803d';
+            document.getElementById('visibilityToggle').querySelector('span').style.left = '22px';
+            switchProgTab('identity', document.querySelector('.prog-tab'));
+            renderCurrManual(); renderOutcomes(); renderObjectives(); renderFaculty();
+            document.getElementById('programModal').classList.add('open');
+            lucide.createIcons();
+        }
+
+        function openEditModal(id) {
+            const p = _programs.find(x => x.id === id);
+            if (!p) return;
+            _editId = id;
+            _logoFile = null; _logoUrl = p.logo || '';
+            _visible = p.visible !== false;
+            _currRows = p.curriculum ? JSON.parse(JSON.stringify(p.curriculum)) : [];
+            _outcomes = p.outcomes ? JSON.parse(JSON.stringify(p.outcomes)) : [];
+            _objectives = p.objectives ? JSON.parse(JSON.stringify(p.objectives)) : [];
+            _faculty = p.faculty ? JSON.parse(JSON.stringify(p.faculty)) : [];
+
+            // Populate fields
+            setVal('progName', p.name || '');
+            setVal('progDegree', p.degree || '');
+            setVal('progLevel', p.level || 'masters');
+            setVal('progDept', p.dept || '');
+            setVal('progInstitution', p.institution || 'Western Mindanao State University, Zamboanga City');
+            setVal('progCopc', p.copc || '');
+            setVal('progEffYear', p.eff_year || '');
+            setVal('progAccreditor', p.accreditor || 'Commission on Higher Education (CHED), Republic of the Philippines');
+            setVal('progHeroBadge', p.hero_badge || '');
+            setVal('progHeroTagline', p.hero_tagline || '');
+            setVal('progDescription', p.description || '');
+            setVal('progChedTitle', p.ched_title || '');
+            setVal('progChedBody', p.ched_body || '');
+            setVal('progSlug', p.slug || '');
+            setVal('progOrder', p.order || 1);
+
+            // Logo preview
+            const lp = document.getElementById('logoPreview');
+            if (_logoUrl) {
+                lp.innerHTML = `<img src="${_logoUrl}" style="max-height:80px;max-width:100%;object-fit:contain;border-radius:8px;" />`;
+            } else {
+                lp.innerHTML = `<i data-lucide="upload-cloud" style="width:28px;height:28px;color:#d1d5db;"></i>`;
+            }
+
+            // Visibility
+            const vt = document.getElementById('visibilityToggle');
+            const dot = vt.querySelector('span');
+            vt.style.background = _visible ? '#15803d' : '#d1d5db';
+            dot.style.left = _visible ? '22px' : '3px';
+
+            // Stats
+            renderStats(p.stats || []);
+
+            document.getElementById('modalTitle').textContent = p.name || 'Edit Program';
+            document.getElementById('modalSubtitle').textContent = (p.degree || '') + ' · ' + levelLabel(p.level);
+            document.getElementById('btnDeleteProg').style.display = 'inline-flex';
+
+            updateLogoThumb();
+            switchProgTab('identity', document.querySelector('.prog-tab'));
+            renderCurrManual(); renderOutcomes(); renderObjectives(); renderFaculty();
+            document.getElementById('programModal').classList.add('open');
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            document.getElementById('programModal').classList.remove('open');
+        }
+
+        function setVal(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.value = val;
+        }
+
+        function resetModalFields() {
+            ['progName', 'progDegree', 'progDept', 'progCopc', 'progEffYear',
+                'progHeroBadge', 'progHeroTagline', 'progDescription', 'progChedTitle', 'progChedBody', 'progSlug']
+                .forEach(id => setVal(id, ''));
+            setVal('progLevel', 'masters');
+            setVal('progInstitution', 'Western Mindanao State University, Zamboanga City');
+            setVal('progAccreditor', 'Commission on Higher Education (CHED), Republic of the Philippines');
+            setVal('progOrder', '1');
+            document.getElementById('logoPreview').innerHTML = `<i data-lucide="upload-cloud" style="width:28px;height:28px;color:#d1d5db;"></i>`;
+            renderStats([]);
+            updateLogoThumb();
+        }
+
+
+        /* ═══════════════════════════════════════════════════
+           TAB SWITCHING
+        ═══════════════════════════════════════════════════ */
+        function switchProgTab(id, btn) {
+            document.querySelectorAll('.prog-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.prog-tab-panel').forEach(p => p.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            const panel = document.getElementById('panel-' + id);
+            if (panel) panel.classList.add('active');
+            lucide.createIcons();
+        }
+
+
+        /* ═══════════════════════════════════════════════════
+           LOGO HANDLING
+        ═══════════════════════════════════════════════════ */
+        function logoDragOver(e) { e.preventDefault(); document.getElementById('logoZone').style.borderColor = '#9B1C1C'; }
+        function logoDragLeave(e) { document.getElementById('logoZone').style.borderColor = '#e5e7eb'; }
+        function logoDrop(e) { e.preventDefault(); logoDragLeave(); handleLogoFile(e.dataTransfer.files[0]); }
+
+        function handleLogoFile(file) {
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) { pgToast('Logo must be under 2 MB.', 'error'); return; }
+            _logoFile = file;
+            const reader = new FileReader();
+            reader.onload = e => {
+                _logoUrl = e.target.result;
+                document.getElementById('logoPreview').innerHTML = `<img src="${_logoUrl}" style="max-height:80px;max-width:100%;object-fit:contain;border-radius:8px;" />`;
+                updateLogoThumb();
+                lucide.createIcons();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateLogoThumb() {
+            const thumb = document.getElementById('modalLogoThumb');
+            const initials = document.getElementById('modalLogoInitials');
+            const deg = document.getElementById('progDegree').value || document.getElementById('progName').value || 'P';
+            initials.textContent = deg.slice(0, 3).toUpperCase();
+            if (_logoUrl) {
+                thumb.innerHTML = `<img src="${_logoUrl}" style="width:100%;height:100%;object-fit:contain;" />`;
+            } else {
+                thumb.innerHTML = `<span id="modalLogoInitials" style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#fff;">${deg.slice(0, 3).toUpperCase()}</span>`;
+            }
+        }
+
+        function updateModalHeader() {
+            const name = document.getElementById('progName').value || 'New Program';
+            const deg = document.getElementById('progDegree').value;
+            const lvl = document.getElementById('progLevel').value;
+            document.getElementById('modalTitle').textContent = name;
+            document.getElementById('modalSubtitle').textContent = (deg ? deg + ' · ' : '') + levelLabel(lvl);
+            updateLogoThumb();
+            const slugEl = document.getElementById('progSlug');
+            if (!_editId && slugEl && !slugEl._manuallyEdited) {
+                const auto = (deg || name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                slugEl.value = auto;
+                document.getElementById('slugPreview').textContent = auto || 'slug';
+            }
+        }
+
+        document.getElementById('progSlug').addEventListener('input', function () {
+            this._manuallyEdited = true;
+            document.getElementById('slugPreview').textContent = this.value || 'slug';
+        });
+
+
+        /* ═══════════════════════════════════════════════════
+           STATS
+        ═══════════════════════════════════════════════════ */
+        function renderStats(stats) {
+            const list = document.getElementById('statsList');
+            list.innerHTML = '';
+            stats.forEach((s, i) => {
+                const row = document.createElement('div');
+                row.className = 'list-row';
+                row.style.alignItems = 'center';
+                row.innerHTML = `
+          <div style="flex:1;display:grid;grid-template-columns:1fr 2fr;gap:10px;">
+            <div><label class="lbl">Value</label><input type="text" class="field stat-val" value="${s.stat_value || ''}" placeholder="e.g. 39" /></div>
+            <div><label class="lbl">Label</label><input type="text" class="field stat-lbl" value="${s.stat_label || ''}" placeholder="e.g. Total Units" /></div>
+          </div>
+          <button class="btn-del" onclick="this.parentElement.remove()" style="margin-top:18px;"><i data-lucide="x"></i></button>`;
+                list.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+        function addStat() {
+            const list = document.getElementById('statsList');
+            const row = document.createElement('div');
+            row.className = 'list-row';
+            row.style.alignItems = 'center';
+            row.innerHTML = `
+        <div style="flex:1;display:grid;grid-template-columns:1fr 2fr;gap:10px;">
+          <div><label class="lbl">Value</label><input type="text" class="field stat-val" placeholder="e.g. 39" /></div>
+          <div><label class="lbl">Label</label><input type="text" class="field stat-lbl" placeholder="e.g. Total Units" /></div>
+        </div>
+        <button class="btn-del" onclick="this.parentElement.remove()" style="margin-top:18px;"><i data-lucide="x"></i></button>`;
+            list.appendChild(row);
+            lucide.createIcons();
+        }
+
+        function collectStats() {
+            return [...document.querySelectorAll('#statsList .list-row')].map(r => ({
+                stat_value: r.querySelector('.stat-val').value.trim(),
+                stat_label: r.querySelector('.stat-lbl').value.trim(),
+            })).filter(s => s.stat_value || s.stat_label);
+        }
+
+
+        /* ═══════════════════════════════════════════════════
+           CURRICULUM — MANUAL ROWS
+        ═══════════════════════════════════════════════════ */
+        function renderCurrManual() {
+            const list = document.getElementById('currManualList');
+            const empty = document.getElementById('currEmptyMsg');
+            list.innerHTML = '';
+            if (!_currRows.length) { list.appendChild(empty); return; }
+            _currRows.forEach((c, i) => {
+                const row = document.createElement('div');
+                row.className = 'list-row';
+                row.setAttribute('data-ci', i);
+                row.innerHTML = `
+          <div style="flex:1;display:grid;grid-template-columns:90px 1fr 60px 120px;gap:8px;align-items:start;">
+            <div><label class="lbl" style="font-size:.6rem;">Code</label><input type="text" class="field" value="${c.code || ''}" placeholder="MIT 201" onchange="_currRows[${i}].code=this.value" /></div>
+            <div><label class="lbl" style="font-size:.6rem;">Title</label><input type="text" class="field" value="${c.title || ''}" placeholder="Course title…" onchange="_currRows[${i}].title=this.value" /></div>
+            <div><label class="lbl" style="font-size:.6rem;">Units</label><input type="number" class="field" value="${c.units || 3}" min="1" max="12" onchange="_currRows[${i}].units=Number(this.value)" /></div>
+            <div><label class="lbl" style="font-size:.6rem;">Type</label>
+              <select class="field" onchange="_currRows[${i}].type=this.value">
+                <option value="core" ${c.type === 'core' ? 'selected' : ''}>Core</option>
+                <option value="spec" ${c.type === 'spec' ? 'selected' : ''}>Specialization</option>
+                <option value="cap"  ${c.type === 'cap' ? 'selected' : ''}>Capstone</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-del" onclick="_currRows.splice(${i},1);renderCurrManual()"><i data-lucide="x"></i></button>`;
+                list.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+        function addCourseRow() {
+            _currRows.push({ code: '', title: '', units: 3, type: 'core' });
+            renderCurrManual();
+            document.getElementById('currEmptyMsg') && document.getElementById('currEmptyMsg').remove();
+        }
+
+
+        /* ── Bulk CSV for curriculum ── */
+        function downloadCurrTemplate() {
+            const hdr = 'curriculum_year,group_name,year_level,semester,code,title,units,type,icon,description,topics';
+            const rows = [
+                '2023,Foundation Courses,1,1st Semester,MIT 201,Advanced Operating Systems and Networking,3,core,dns,Course description…,Topic A|Topic B',
+                '2023,Specialization Courses,1,2nd Semester,MIT 205,Systems Development,3,spec,code,Course description…,Topic A|Topic B',
+                '2023,Capstone Project,2,1st Semester,MIT 212A,Capstone Project 1,3,cap,science,Capstone description…,',
+            ];
+            const blob = new Blob(['# WMSU Curriculum Template\r\n' + hdr + '\r\n' + rows.join('\r\n')], { type: 'text/csv' });
+            const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: 'curriculum_template.csv' });
+            a.click(); URL.revokeObjectURL(a.href);
+            pgToast('Template downloaded!');
+        }
+
+        function handleCurrBulk(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const lines = e.target.result.replace(/\r\n/g, '\n').split('\n').filter(l => l && !l.startsWith('#'));
+                if (lines.length < 2) { pgToast('File appears empty.', 'error'); return; }
+                const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                const rows = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const vals = lines[i].split(',');
+                    const obj = {};
+                    headers.forEach((h, j) => obj[h] = (vals[j] || '').trim());
+                    if (obj.code && obj.title) rows.push({
+                        code: obj.code, title: obj.title, units: Number(obj.units) || 3,
+                        type: obj.type || 'core', group_name: obj.group_name || '',
+                        curriculum_year: obj.curriculum_year || '2023',
+                        year_level: obj.year_level || '1', semester: obj.semester || '1st Semester',
+                        icon: obj.icon || 'menu_book', desc: obj.description || '',
+                        topics: obj.topics ? obj.topics.split('|').map(t => t.trim()) : [],
+                    });
+                }
+                showCurrBulkPreview(rows);
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        function showCurrBulkPreview(rows) {
+            const wrap = document.getElementById('currBulkPreview');
+            wrap.style.display = 'block';
+            wrap.innerHTML = `
+        <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <p style="font-size:0.78rem;font-weight:700;color:#15803d;margin:0;">${rows.length} courses parsed from CSV</p>
+          <div style="display:flex;gap:8px;">
+            <button onclick="document.getElementById('currBulkPreview').style.display='none'" class="btn-secondary" style="padding:5px 10px;font-size:0.72rem;">Discard</button>
+            <button onclick="applyCurrBulk(${JSON.stringify(rows).replace(/"/g, '&quot;')})" class="btn-primary" style="padding:5px 12px;font-size:0.72rem;">Apply ${rows.length} Courses</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;border-radius:8px;border:1px solid #f3f4f6;">
+          <table class="curr-tbl">
+            <thead><tr><th>Code</th><th>Title</th><th>Units</th><th>Type</th><th>Group</th></tr></thead>
+            <tbody>${rows.map(r => `<tr><td class="code-cell">${r.code}</td><td>${r.title}</td><td style="text-align:center;">${r.units}</td><td>${r.type}</td><td style="color:#9ca3af;">${r.group_name || '—'}</td></tr>`).join('')}</tbody>
+          </table>
+        </div>`;
+            lucide.createIcons();
+        }
+
+        function applyCurrBulk(rows) {
+            _currRows = rows;
+            document.getElementById('currBulkPreview').style.display = 'none';
+            document.getElementById('currBulkInput').value = '';
+            renderCurrManual();
+            pgToast(`${rows.length} courses applied — save the program to persist.`);
+        }
+
+
+        /* ═══════════════════════════════════════════════════
+           OUTCOMES
+        ═══════════════════════════════════════════════════ */
+        function renderOutcomes() {
+            const list = document.getElementById('outcomesList');
+            const empty = document.getElementById('outcomesEmpty');
+            list.innerHTML = '';
+            if (!_outcomes.length) { list.appendChild(empty); return; }
+            _outcomes.forEach((o, i) => {
+                const row = document.createElement('div');
+                row.className = 'list-row';
+                row.innerHTML = `
+          <div class="list-row-num">${i + 1}</div>
+          <div style="flex:1;display:grid;grid-template-columns:150px 1fr;gap:8px;">
+            <div><label class="lbl" style="font-size:.6rem;">Icon <span class="lbl-hint">(Material Symbol)</span></label>
+              <input type="text" class="field" value="${o.icon || ''}" placeholder="e.g. dns, science" onchange="_outcomes[${i}].icon=this.value" /></div>
+            <div><label class="lbl" style="font-size:.6rem;">Title</label>
+              <input type="text" class="field" value="${o.title || ''}" placeholder="Outcome title…" onchange="_outcomes[${i}].title=this.value" /></div>
+            <div style="grid-column:1/-1;"><label class="lbl" style="font-size:.6rem;">Description</label>
+              <textarea class="field" rows="2" placeholder="Description…" onchange="_outcomes[${i}].description=this.value">${o.description || ''}</textarea></div>
+          </div>
+          <button class="btn-del" onclick="_outcomes.splice(${i},1);renderOutcomes()"><i data-lucide="x"></i></button>`;
+                list.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+        function addOutcome() {
+            _outcomes.push({ icon: 'emoji_events', title: '', description: '' });
+            renderOutcomes();
+        }
+
+
+        /* ═══════════════════════════════════════════════════
+           OBJECTIVES
+        ═══════════════════════════════════════════════════ */
+        function renderObjectives() {
+            const list = document.getElementById('objectivesList');
+            const empty = document.getElementById('objectivesEmpty');
+            list.innerHTML = '';
+            if (!_objectives.length) { list.appendChild(empty); return; }
+            _objectives.forEach((o, i) => {
+                const row = document.createElement('div');
+                row.className = 'list-row';
+                row.innerHTML = `
+          <div class="list-row-num">${i + 1}</div>
+          <textarea class="field" style="flex:1;" rows="2" placeholder="Objective text…" onchange="_objectives[${i}].text=this.value">${o.text || ''}</textarea>
+          <button class="btn-del" onclick="_objectives.splice(${i},1);renderObjectives()"><i data-lucide="x"></i></button>`;
+                list.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+        function addObjective() {
+            _objectives.push({ text: '' });
+            renderObjectives();
+        }
+
+
+        /* ═══════════════════════════════════════════════════
+           FACULTY
+        ═══════════════════════════════════════════════════ */
+        function renderFaculty() {
+            const list = document.getElementById('facultyList');
+            const empty = document.getElementById('facultyEmpty');
+            list.innerHTML = '';
+            if (!_faculty.length) { list.appendChild(empty); return; }
+            _faculty.forEach((f, i) => {
+                const row = document.createElement('div');
+                row.style.cssText = 'background:#fafafa;border:1.5px solid #f3f4f6;border-radius:12px;padding:14px;margin-bottom:8px;';
+                row.innerHTML = `
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div>
+              <label class="lbl" style="font-size:.6rem;margin-bottom:4px;">Photo</label>
+              <div class="photo-zone" onclick="triggerFacultyPhoto(${i})" title="Click to upload photo">
+                ${f.photo ? `<img src="${f.photo}" style="width:100%;height:100%;object-fit:cover;" />` : `<i data-lucide="user" style="width:22px;height:22px;color:#d1d5db;"></i>`}
+                <input type="file" accept="image/*" style="display:none;" id="facPhoto_${i}" onchange="handleFacultyPhoto(this,${i})" />
+              </div>
+            </div>
+            <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div><label class="lbl" style="font-size:.6rem;">Full Name</label>
+                <input type="text" class="field" value="${f.name || ''}" placeholder="e.g. Dr. Juan Dela Cruz" onchange="_faculty[${i}].name=this.value" /></div>
+              <div><label class="lbl" style="font-size:.6rem;">Role / Position</label>
+                <input type="text" class="field" value="${f.role || ''}" placeholder="e.g. Program Chair" onchange="_faculty[${i}].role=this.value" /></div>
+              <div style="grid-column:1/-1;"><label class="lbl" style="font-size:.6rem;">Short Bio</label>
+                <textarea class="field" rows="2" placeholder="Ph.D. in IT · Specializes in…" onchange="_faculty[${i}].bio=this.value">${f.bio || ''}</textarea></div>
+              <div style="grid-column:1/-1;"><label class="lbl" style="font-size:.6rem;">Course Tags <span class="lbl-hint">(comma-separated)</span></label>
+                <input type="text" class="field" value="${(f.tags || []).join(', ')}" placeholder="MIT 201, Databases" onchange="_faculty[${i}].tags=this.value.split(',').map(t=>t.trim())" /></div>
+            </div>
+            <button class="btn-del" onclick="_faculty.splice(${i},1);renderFaculty()"><i data-lucide="trash-2"></i></button>
+          </div>`;
+                list.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+        function addFaculty() {
+            _faculty.push({ name: '', role: '', bio: '', tags: [], photo: '' });
+            renderFaculty();
+        }
+
+        function triggerFacultyPhoto(i) {
+            document.getElementById('facPhoto_' + i).click();
+        }
+
+        function handleFacultyPhoto(input, i) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                _faculty[i].photo = e.target.result;
+                renderFaculty();
+            };
+            reader.readAsDataURL(file);
+        }
+
+
+        /* ═══════════════════════════════════════════════════
+           VISIBILITY TOGGLE
+        ═══════════════════════════════════════════════════ */
+        function toggleVisibility() {
+            _visible = !_visible;
+            const btn = document.getElementById('visibilityToggle');
+            const dot = btn.querySelector('span');
+            btn.style.background = _visible ? '#15803d' : '#d1d5db';
+            dot.style.left = _visible ? '22px' : '3px';
+        }
+
+
+        /* ═══════════════════════════════════════════════════
+           SAVE PROGRAM
+        ═══════════════════════════════════════════════════ */
+        async function saveProgram() {
+            const name = document.getElementById('progName').value.trim();
+            if (!name) { pgToast('Program name is required.', 'error'); switchProgTab('identity', document.querySelector('.prog-tab')); return; }
+
+            const btnSave = document.getElementById('btnSave');
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:14px;height:14px;"></i> Saving…';
+            lucide.createIcons();
+
+            const data = {
+                id: _editId || genId(),
+                name,
+                degree: document.getElementById('progDegree').value.trim(),
+                level: document.getElementById('progLevel').value,
+                dept: document.getElementById('progDept').value.trim(),
+                institution: document.getElementById('progInstitution').value.trim(),
+                copc: document.getElementById('progCopc').value.trim(),
+                eff_year: document.getElementById('progEffYear').value.trim(),
+                accreditor: document.getElementById('progAccreditor').value.trim(),
+                hero_badge: document.getElementById('progHeroBadge').value.trim(),
+                hero_tagline: document.getElementById('progHeroTagline').value.trim(),
+                description: document.getElementById('progDescription').value.trim(),
+                ched_title: document.getElementById('progChedTitle').value.trim(),
+                ched_body: document.getElementById('progChedBody').value.trim(),
+                slug: document.getElementById('progSlug').value.trim(),
+                order: Number(document.getElementById('progOrder').value) || 1,
+                visible: _visible,
+                logo: _logoUrl,
+                stats: collectStats(),
+                curriculum: _currRows,
+                outcomes: _outcomes,
+                objectives: _objectives,
+                faculty: _faculty,
+            };
+
+            try {
+                const res = await fetch('/admin/api/program/save/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                    body: JSON.stringify(data),
+                });
+                const d = await res.json();
+                if (d.success !== false) {
+                    // Update local state
+                    const idx = _programs.findIndex(p => p.id === data.id);
+                    if (idx >= 0) _programs[idx] = data; else _programs.push(data);
+                    renderAll();
+                    closeModal();
+                    pgToast(_editId ? 'Program updated!' : 'Program created!', 'success');
+                    _editId = data.id;
+                } else {
+                    pgToast(d.message || 'Save failed.', 'error');
+                }
+            } catch {
+                // Offline fallback — update local state anyway for UI preview
+                const idx = _programs.findIndex(p => p.id === data.id);
+                if (idx >= 0) _programs[idx] = data; else _programs.push(data);
+                renderAll();
+                closeModal();
+                pgToast('Saved locally (API unreachable — wire up /admin/api/program/save/).', 'success');
+                _editId = data.id;
+            } finally {
+                btnSave.disabled = false;
+                btnSave.innerHTML = '<i data-lucide="save" style="width:14px;height:14px;"></i> Save Program';
+                lucide.createIcons();
+            }
+        }
+
+
+        /* ═══════════════════════════════════════════════════
+           DELETE
+        ═══════════════════════════════════════════════════ */
+        function deleteProgramPrompt() {
+            const p = _programs.find(x => x.id === _editId);
+            document.getElementById('deleteProgName').textContent = p ? p.name : 'this program';
+            document.getElementById('deleteOverlay').classList.add('open');
+        }
+        function closeDeleteOverlay() {
+            document.getElementById('deleteOverlay').classList.remove('open');
+        }
+        async function confirmDelete() {
+            if (!_editId) return;
+            try {
+                await fetch('/admin/api/program/delete/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                    body: JSON.stringify({ id: _editId }),
+                });
+            } catch { }
+            _programs = _programs.filter(p => p.id !== _editId);
+            renderAll();
+            closeDeleteOverlay();
+            closeModal();
+            pgToast('Program deleted.', 'success');
+        }
+
+
+        /* ═══════════════════════════════════════════════════
+           CLOSE ON BACKDROP
+        ═══════════════════════════════════════════════════ */
+        document.getElementById('programModal').addEventListener('click', e => {
+            if (e.target === document.getElementById('programModal')) closeModal();
+        });
+        document.getElementById('deleteOverlay').addEventListener('click', e => {
+            if (e.target === document.getElementById('deleteOverlay')) closeDeleteOverlay();
+        });
+
+
+        /* ═══════════════════════════════════════════════════
+           INIT
+        ═══════════════════════════════════════════════════ */
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            renderAll();
+        });
+    </script>
+
+    <script src="{% static 'admin_app/js/admin_cms_scripts.js' %}" defer></script>
+</body>
+
+</html>

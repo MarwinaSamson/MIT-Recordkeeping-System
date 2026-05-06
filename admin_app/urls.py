@@ -2,6 +2,8 @@ from django.urls import path
 
 from .views.cms_views import cms_settings
 from .views import admin_dashboard, logout_admin
+from .views import schoolyear_views
+from .views.admin_dashboard_views import program_manager
 from .views.api_views import (
     verify_document,
     reject_document,
@@ -83,4 +85,19 @@ urlpatterns = [
     path('api/faculty/reorder/', reorder_faculty, name='api_reorder_faculty'),
 
     path('settings/', cms_settings, name='cms_settings'),
+    
+    # schoolyear endpoints
+    path('admin/school-years/summary/', schoolyear_views.school_year_summary, name='school_year_summary'),
+    path('admin/school-years/', schoolyear_views.list_school_years, name='list_school_years'),
+    path('admin/school-years/archived/', schoolyear_views.list_archived_school_years, name='list_archived_school_years'),
+    path('admin/school-years/create/', schoolyear_views.create_school_year, name='create_school_year'),
+    path('admin/school-years/<int:school_year_id>/edit/', schoolyear_views.edit_school_year, name='edit_school_year'),
+    path('admin/school-years/<int:school_year_id>/activate/', schoolyear_views.activate_school_year, name='activate_school_year'),
+    path('admin/school-years/<int:school_year_id>/archive/', schoolyear_views.archive_school_year, name='archive_school_year'),
+    path('admin/school-years/<int:school_year_id>/delete/', schoolyear_views.delete_school_year, name='delete_school_year'),
+    
+    # Public student API endpoint for active school year
+    path('api/student/school-year/', schoolyear_views.get_active_school_year, name='api_get_active_school_year'),
+
+    path('programs/', program_manager, name='program_manager'),
 ]

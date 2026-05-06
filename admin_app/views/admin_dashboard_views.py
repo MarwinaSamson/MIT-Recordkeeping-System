@@ -122,3 +122,30 @@ def logout_admin(request):
     """
     logout(request)
     return redirect('login')
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+def program_manager(request):
+    from ..models import CMSSettings
+    import json
+
+    cms = CMSSettings.objects.filter(pk=1).first() or CMSSettings()
+
+    # Get admin profile picture
+    admin_profile_picture = None
+    try:
+        admin_profile = AdminProfile.objects.get(user=request.user)
+        if admin_profile.profile_picture:
+            admin_profile_picture = admin_profile.profile_picture.url
+    except AdminProfile.DoesNotExist:
+        pass
+
+    context = {
+        'page_title': 'Program Manager',
+        'admin_name': request.user.get_full_name() or request.user.username,
+        'admin_email': request.user.email,
+        'admin_profile_picture': admin_profile_picture,
+        'programs_json': json.dumps(cms.programs or []),
+    }
+    return render(request, 'admin_app/program_manager.html', context)

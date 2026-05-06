@@ -434,37 +434,45 @@
             </div>
         </div>
 
-        <nav class="flex flex-col flex-1 px-2 gap-0.5">
-            <p class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-2 pb-1">Main</p>
-            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
-                <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
-            </a>
-            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
-                <i data-lucide="file-check"></i><span>Document Verification</span>
-            </a>
-            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
-                <i data-lucide="users"></i><span>Students</span>
-            </a>
-            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
-                <i data-lucide="alert-circle"></i><span>Missing Requirements</span>
-            </a>
-            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
-                <i data-lucide="clock"></i><span>Activity History</span>
-            </a>
-            <p class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-4 pb-1">System</p>
-            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
-                <i data-lucide="calendar"></i><span>School Year Management</span>
-            </a>
-            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
-                <i data-lucide="book-open"></i><span>Program Management</span>
-            </a>
-            <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
-                <i data-lucide="user-cog"></i><span>Profile Settings</span>
-            </a>
-            <a href="{% url 'admin_app:cms_settings' %}" class="nav-item active">
-                <i data-lucide="settings-2"></i><span>CMS Settings</span>
-            </a>
-        </nav>
+      <nav class="flex flex-col flex-1 px-2 gap-0.5">
+        <p
+          class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-2 pb-1"
+        >
+          Main
+        </p>
+        <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+          <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+        </a>
+        <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+          <i data-lucide="file-check"></i><span>Document Verification</span>
+        </a>
+        <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+          <i data-lucide="users"></i><span>Students</span>
+        </a>
+        <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+          <i data-lucide="alert-circle"></i><span>Missing Requirements</span>
+        </a>
+        <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+          <i data-lucide="clock"></i><span>Activity History</span>
+        </a>
+        <p
+          class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-4 pb-1"
+        >
+          System
+        </p>
+        <a href="{% url 'admin_app:program_manager' %}" class="nav-item">
+          <i data-lucide="layout-grid"></i><span>Program Manager</span>
+        </a>
+        <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+          <i data-lucide="calendar"></i><span>School Year Management</span>
+        </a>
+        <a href="{% url 'admin_app:cms_settings' %}" class="nav-item active">
+          <i data-lucide="settings-2"></i><span>CMS Settings</span>
+        </a>
+        <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+          <i data-lucide="user-cog"></i><span>Profile Settings</span>
+        </a>
+      </nav>
 
         <div class="px-2 pb-5 mt-auto border-t border-white/10 pt-3">
             <div class="flex items-center gap-3 px-3 mb-3">
