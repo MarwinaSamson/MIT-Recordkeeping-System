@@ -12,6 +12,15 @@ from ..utils import (
 from ..models import Application, DocumentVerification, AdminProfile, CMSSettings
 from students_app.models import Document
 
+# Friendly labels for document types when the model does not define choices
+DOCUMENT_TYPE_LABELS = {
+    'deans_recommendation': "Dean's Recommendation",
+    'tor': 'Transcript of Records',
+    'honorable_dismissal': 'Honorable Dismissal',
+    'psa': 'PSA (Live Birth)',
+    'gsat': 'GSAT (Graduate School Admission Test)',
+}
+
 
 def is_superuser(user):
     """
@@ -56,7 +65,11 @@ def admin_dashboard(request):
             docs_list.append({
                 'id': doc.id,  # Include actual document ID
                 'name': doc.get_display_name() if hasattr(doc, 'get_display_name') else doc.file_name,
-                'type': doc.get_document_type_display(),
+                'type': (
+                    doc.get_document_type_display()
+                    if hasattr(doc, 'get_document_type_display')
+                    else DOCUMENT_TYPE_LABELS.get(getattr(doc, 'document_type', ''), getattr(doc, 'document_type', ''))
+                ),
                 'status': status,
                 'uploadDate': doc.uploaded_at.strftime('%Y-%m-%d'),
                 'verifiedBy': verified_by,

@@ -61,7 +61,7 @@ renderProgress();
         const nextBtn = document.getElementById("nextBtn");
 
         // Load saved state
-        if (localStorage.getItem("privacyAgreed") === "false") {
+        if (localStorage.getItem("privacyAgreed") === "true") {
             checkbox.checked = true;
             sigSection.classList.remove("hidden");
             nextBtn.disabled = false;
@@ -100,19 +100,19 @@ renderProgress();
         document
             .getElementById("privacyForm")
             .addEventListener("submit", function (e) {
-                e.preventDefault();
-                if (checkbox.checked) {
-                    // Save final consent with timestamp
-                    const consentData = {
-                        agreed: true,
-                        name: fullName,
-                        dateAgreed: new Date().toISOString(),
-                        formVersion: "1.0"
-                    };
-                    localStorage.setItem("privacyConsent", JSON.stringify(consentData));
-
-                    window.location.href = "/review/";
+                if (!checkbox.checked) {
+                    e.preventDefault();
+                    return;
                 }
+                // Save to localStorage so review page can read it
+                const consentData = {
+                    agreed: true,
+                    name: fullName,
+                    dateAgreed: new Date().toISOString(),
+                    ipAddress: "Collected upon submission",
+                    formVersion: "1.0"
+                };
+                localStorage.setItem("privacyConsent", JSON.stringify(consentData));
             });
 
         // ===== UPDATE DATE =====

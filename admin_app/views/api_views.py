@@ -560,6 +560,8 @@ def update_cms_settings(request):
                         'number': int(req.get('number', 1)),
                         'title': title,
                         'description': str(req.get('description', '')).strip(),
+                        'required': bool(req.get('required', False)),    # ← ADD THIS
+                        'multi_page': bool(req.get('multi_page', False)), # ← ADD THIS
                     })
             update_data['admission_requirements'] = cleaned_requirements
 
@@ -659,6 +661,8 @@ def bulk_upload_cms_settings(request):
                     'number': next_num,
                     'title': title,
                     'description': description,
+                    'required': bool(item.get('required', False)),    # ← ADD THIS
+                    'multi_page': bool(item.get('multi_page', False)), # ← ADD THIS
                 })
                 next_num += 1
             cms.admission_requirements = (existing + cleaned) if mode == 'append' else cleaned

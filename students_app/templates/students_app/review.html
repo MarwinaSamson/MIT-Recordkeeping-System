@@ -759,6 +759,7 @@
     </div>
   </div>
 
+  {{ server_documents|json_script:"serverDocuments" }}
   <script>
     // ===== PROGRESS BAR =====
     const STEPS = [
@@ -1001,15 +1002,22 @@
     }
 
     // ===== DOCUMENTS SECTION =====
-    // ===== MIT CURRICULUM added at top of documents section =====
+    const serverDocuments = JSON.parse(
+      document.getElementById("serverDocuments").textContent || "{}"
+    );
     const documentItems = [
       ["MIT Curriculum", getMITCurriculumLabel(documents.mitCurriculum) || "Not selected"],
-      ["Dean's Recommendation", documents.deansRec || "Not uploaded"],
-      ["TOR", documents.tor || "Not uploaded"],
-      ["Honorable Dismissal", documents.honorableDismissal || "Not uploaded"],
-      ["PSA (live birth)", documents.psa || "Not uploaded"],
-      ["GSAT", documents.gsat || "Not uploaded"],
     ];
+    if (Object.keys(serverDocuments).length > 0) {
+      Object.entries(serverDocuments).forEach(([docType, count]) => {
+        documentItems.push([
+          docType,
+          count === 1 ? "1 file uploaded" : `${count} file(s) uploaded`,
+        ]);
+      });
+    } else {
+      documentItems.push(["Status", "No documents uploaded yet"]);
+    }
     content.innerHTML += sectionHTML(
       "Uploaded Documents",
       "/documents/",
@@ -1071,7 +1079,15 @@
       }
 
       // Prepare the data payload for the backend
+      const consentData = privacyConsent || privacySignature;
       const payloadData = {
+        privacyConsent: {
+          agreed: true,
+          name: consentData?.name || getFullName(),
+          dateAgreed: consentData?.dateAgreed || consentData?.date || new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          formVersion: "1.0"
+        },
         personalDetails: {
           first_name: personal.first_name || "",
           middle_name: personal.middle_name || "",

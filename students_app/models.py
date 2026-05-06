@@ -113,16 +113,9 @@ class PrivacyConsent(models.Model):
 
 
 class Document(models.Model):
-    DOCUMENT_TYPE_CHOICES = [
-        ('deans_recommendation', "Dean's Recommendation"),
-        ('tor', 'Transcript of Records'),
-        ('honorable_dismissal', 'Honorable Dismissal'),
-        ('psa', 'PSA (Live Birth)'),
-        ('gsat', 'GSAT (Graduate School Admission Test)'),
-    ]
     
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    document_type = models.CharField(max_length=30, choices=DOCUMENT_TYPE_CHOICES)
+    document_type = models.CharField(max_length=255)
     file = models.FileField(upload_to='documents/')
     file_name = models.CharField(max_length=255, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)

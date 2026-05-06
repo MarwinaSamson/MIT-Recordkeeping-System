@@ -5,7 +5,7 @@ from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 
 from admin_app.models import DocumentVerification, Application
-from students_app.models import Document, Notification, PersonalDetails
+from students_app.models import Document, Notification, PersonalDetails, PrivacyConsent
 
 
 DOCUMENT_TYPE_MAP = {
@@ -267,6 +267,18 @@ def submit_application(request):
                 'spouse_income': personal_details_data.get('spouse_income', ''),
             }
         )
+
+        # Save privacy consent to DB
+        privacy_data = data.get('privacyConsent', {})
+        if privacy_data.get('agreed'):
+            consent, _ = PrivacyConsent.objects.get_or_create(user=user)
+            consent.agreed = True
+            consent.name = privacy_data.get('name', '')
+            consent.signed_at = timezone.now()
+            consent.user_agent = privacy_data.get('userAgent', '')
+            consent.ip_address = request.META.get('REMOTE_ADDR', '')
+            consent.form_version = privacy_data.get('formVersion', '1.0')
+            consent.save()
 
         # Check if application already exists
         existing_app = Application.objects.filter(user=user).first()

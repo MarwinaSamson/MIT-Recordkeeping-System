@@ -109,12 +109,23 @@
   <div class="max-w-3xl mx-auto px-4 pb-12">
     <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
       <h2 class="text-2xl font-bold text-brand mb-2">Documents Upload</h2>
-      <p class="text-sm text-gray-600 mb-6">
-        TOR (Transcript of Records) is the only required document. All other documents are optional and can be submitted
-        later.
-      </p>
+
+      {% if admission_requirements %}
+        <p class="text-sm text-gray-600 mb-6">
+          Please upload the required documents for your admission application.
+          Documents marked <span class="text-red-500 font-semibold">*Required</span>
+          must be submitted before proceeding.
+        </p>
+      {% else %}
+        <p class="text-sm text-gray-600 mb-6">
+          Please upload your admission documents. You can submit optional documents later.
+        </p>
+      {% endif %}
+
       <form id="documentsForm" method="post" enctype="multipart/form-data" class="space-y-6" novalidate>
-        {% csrf_token %} {% if messages %}
+        {% csrf_token %}
+
+        {% if messages %}
         <div class="space-y-2">
           {% for message in messages %}
           <div class="rounded-lg px-4 py-3 text-sm {{ message.tags }}">
@@ -124,7 +135,7 @@
         </div>
         {% endif %}
 
-        <!-- MIT Curriculum Dropdown -->
+        <!-- MIT Curriculum Dropdown — left as-is per spec -->
         <div class="border border-gray-200 rounded-xl p-5 bg-amber-50/40">
           <div class="flex items-center gap-2 mb-3">
             <i class="fas fa-graduation-cap text-brand text-sm"></i>
@@ -146,228 +157,133 @@
           <p class="text-xs text-red-500 mt-1.5 hidden" id="mitCurriculumError">Please select a curriculum.</p>
         </div>
 
-        <!-- Dean's Recommendation with Preview -->
-        <div class="border border-gray-200 rounded-xl p-5">
-          <label class="block text-sm font-semibold mb-2 text-gray-700">
-            Dean's Recommendation
-          </label>
-          <div class="flex items-start gap-4">
-            <div class="flex-grow">
-              <input type="file" name="deansRec" accept=".pdf,.jpg,.jpeg,.png"
-                class="deansRec-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition" />
-            </div>
-            <div
-              class="deansRec-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
-              <i class="fas fa-image text-2xl"></i>
-            </div>
-          </div>
-          <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
-            <i class="fas fa-info-circle"></i>
-            <span>PDF or image, max 10MB</span>
-          </div>
-          <p class="text-xs text-gray-500 mt-2 italic">Optional — can be submitted later</p>
-        </div>
+        <!-- ══ CMS-DRIVEN DOCUMENT FIELDS ══
+             field_key is pre-computed by the view (_title_to_key) and passed
+             in via req.field_key — the template never recomputes it.
+        -->
+        {% for req in admission_requirements %}
 
-        <!-- TOR - Hybrid: PDF preferred, multiple images fallback -->
-        <div class="border border-gray-200 rounded-xl p-5 bg-blue-50/30" id="tor-section">
-          <div class="flex items-center justify-between mb-3">
-            <label class="block text-sm font-semibold text-gray-700">
-              TOR (Transcript of Records)
-            </label>
-            <span class="pdf-badge">
-              <i class="fas fa-file-pdf text-xs"></i> PDF preferred
-            </span>
+          {% if req.multi_page %}
+          <!-- ── MULTI-PAGE / HYBRID BLOCK ── -->
+          <div class="border border-gray-200 rounded-xl p-5 bg-blue-50/30">
+            <div class="flex items-center justify-between mb-3">
+              <label class="block text-sm font-semibold text-gray-700">
+                {{ req.title }}
+              </label>
+              <div class="flex items-center gap-2">
+                <span class="pdf-badge">
+                  <i class="fas fa-file-pdf text-xs"></i> PDF preferred
+                </span>
+                {% if req.required %}
+                  <span class="text-xs font-medium text-red-500">*Required</span>
+                {% endif %}
+              </div>
+            </div>
+
+            {% if req.description %}
+            <p class="text-xs text-gray-500 mb-3">{{ req.description }}</p>
+            {% endif %}
+
+            <!-- Option 1: Single PDF -->
+            <div class="mb-4 p-3 bg-white rounded-lg border border-gray-200">
+              <div class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-star text-yellow-500 text-xs"></i>
+                <span>Recommended: Upload as one PDF file</span>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="flex-grow">
+                  <input type="file"
+                    name="{{ req.field_key }}_pdf"
+                    accept=".pdf"
+                    class="w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 transition cms-pdf-input" />
+                </div>
+                <div class="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden cms-pdf-preview">
+                  <i class="fas fa-file-pdf text-2xl text-red-500"></i>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Upload all pages as a single PDF file</p>
+            </div>
+
+            <div class="or-divider"><span>OR</span></div>
+
+            <!-- Option 2: Multiple images -->
+            <div class="mt-3">
+              <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                <i class="fas fa-image text-gray-400"></i>
+                <span>Upload as multiple images (if you don't have PDF)</span>
+              </div>
+              <div class="cms-images-container space-y-3 mb-3"
+                   data-field-key="{{ req.field_key }}">
+                <div class="cms-image-item flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-200">
+                  <div class="flex-grow">
+                    <input type="file"
+                      name="{{ req.field_key }}_images[]"
+                      accept=".jpg,.jpeg,.png"
+                      class="cms-image-input w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition" />
+                  </div>
+                  <div class="cms-image-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
+                    <i class="fas fa-image text-2xl"></i>
+                  </div>
+                  <button type="button" class="remove-cms-image text-red-500 hover:text-red-700 p-1" style="display: none">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              <button type="button"
+                class="add-cms-image mt-2 text-sm text-brand hover:text-brand/80 font-medium flex items-center gap-2"
+                data-container="{{ req.field_key }}"
+                data-field="{{ req.field_key }}_images[]">
+                <i class="fas fa-plus-circle"></i> Add another page image
+              </button>
+            </div>
+
+            <div class="mt-3 flex items-center gap-2 text-xs text-gray-500">
+              <i class="fas fa-info-circle"></i>
+              <span>Choose EITHER one PDF file OR multiple images. {% if req.required %}At least one page required.{% else %}Optional — can be submitted later.{% endif %}</span>
+            </div>
           </div>
 
-          <!-- Option 1: Upload as single PDF (recommended) -->
-          <div class="mb-4 p-3 bg-white rounded-lg border border-gray-200">
-            <div class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-              <i class="fas fa-star text-yellow-500 text-xs"></i>
-              <span>Recommended: Upload as one PDF file</span>
+          {% else %}
+          <!-- ── SIMPLE SINGLE-FILE BLOCK ── -->
+          <div class="border border-gray-200 rounded-xl p-5">
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-sm font-semibold text-gray-700">
+                {{ req.title }}
+              </label>
+              {% if req.required %}
+                <span class="text-xs font-medium text-red-500">*Required</span>
+              {% endif %}
             </div>
+
+            {% if req.description %}
+            <p class="text-xs text-gray-500 mb-3">{{ req.description }}</p>
+            {% endif %}
+
             <div class="flex items-start gap-4">
               <div class="flex-grow">
-                <input type="file" name="torPDF" accept=".pdf" id="torPDF"
-                  class="tor-pdf-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 transition" />
+                <input type="file"
+                  name="{{ req.field_key }}_file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  class="cms-single-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition" />
               </div>
-              <div
-                class="tor-pdf-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
-                <i class="fas fa-file-pdf text-2xl text-red-500"></i>
-              </div>
-            </div>
-            <p class="text-xs text-gray-500 mt-1">
-              Upload all pages as a single PDF file
-            </p>
-          </div>
-
-          <div class="or-divider">
-            <span>OR</span>
-          </div>
-
-          <!-- Option 2: Multiple image uploads (fallback) -->
-          <div class="mt-3">
-            <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
-              <i class="fas fa-image text-gray-400"></i>
-              <span>Upload as multiple images (if you don't have PDF)</span>
-            </div>
-
-            <!-- Container for TOR image files -->
-            <div id="tor-images-container" class="space-y-3 mb-3">
-              <!-- First TOR image input -->
-              <div class="tor-image-item flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-200">
-                <div class="flex-grow">
-                  <input type="file" name="torImages[]" accept=".jpg,.jpeg,.png"
-                    class="tor-image-input w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition" />
-                </div>
-                <div
-                  class="tor-image-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
-                  <i class="fas fa-image text-2xl"></i>
-                </div>
-                <button type="button" class="remove-tor-image text-red-500 hover:text-red-700 p-1"
-                  style="display: none">
-                  <i class="fas fa-times"></i>
-                </button>
+              <div class="cms-single-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
+                <i class="fas fa-image text-2xl"></i>
               </div>
             </div>
-
-            <!-- Add another image button for TOR -->
-            <button type="button" id="add-tor-image"
-              class="mt-2 text-sm text-brand hover:text-brand/80 font-medium flex items-center gap-2">
-              <i class="fas fa-plus-circle"></i> Add another page image
-            </button>
-          </div>
-
-          <div class="mt-3 flex items-center gap-2 text-xs text-gray-500">
-            <i class="fas fa-info-circle"></i>
-            <span>Choose EITHER one PDF file OR multiple images. At least one
-              page required.</span>
-          </div>
-
-          <p class="text-xs text-red-500 mt-1 hidden" data-error="tor"></p>
-        </div>
-
-        <!-- Honorable Dismissal with Preview -->
-        <div class="border border-gray-200 rounded-xl p-5">
-          <label class="block text-sm font-semibold mb-2 text-gray-700">
-            Honorable Dismissal
-          </label>
-          <div class="flex items-start gap-4">
-            <div class="flex-grow">
-              <input type="file" name="honorableDismissal" accept=".pdf,.jpg,.jpeg,.png"
-                class="honorable-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition" />
-            </div>
-            <div
-              class="honorable-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
-              <i class="fas fa-image text-2xl"></i>
+            <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
+              <i class="fas fa-info-circle"></i>
+              <span>PDF or image, max 10MB. {% if not req.required %}Optional — can be submitted later.{% endif %}</span>
             </div>
           </div>
-          <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
-            <i class="fas fa-info-circle"></i>
-            <span>PDF or image, max 10MB</span>
-          </div>
-          <p class="text-xs text-gray-500 mt-2 italic">Optional — can be submitted later</p>
-        </div>
+          {% endif %}
 
-        <!-- PSA - Hybrid: PDF preferred, multiple images-->
-        <div class="border border-gray-200 rounded-xl p-5 bg-blue-50/30" id="psa-section">
-          <div class="flex items-center justify-between mb-3">
-            <label class="block text-sm font-semibold text-gray-700">
-              PSA (live birth)
-            </label>
-            <span class="pdf-badge">
-              <i class="fas fa-file-pdf text-xs"></i> PDF preferred
-            </span>
+        {% empty %}
+          <!-- Fallback if CMS has no requirements configured -->
+          <div class="border border-amber-200 bg-amber-50 rounded-xl p-5 text-sm text-amber-800">
+            <i class="fas fa-info-circle mr-2"></i>
+            No document requirements have been configured yet. Please check back later or contact the Graduate School office.
           </div>
-
-          <!-- Option 1: Upload as single PDF  -->
-          <div class="mb-4 p-3 bg-white rounded-lg border border-gray-200">
-            <div class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
-              <i class="fas fa-star text-yellow-500 text-xs"></i>
-              <span>Recommended: Upload as one PDF file</span>
-            </div>
-            <div class="flex items-start gap-4">
-              <div class="flex-grow">
-                <input type="file" name="psaPDF" accept=".pdf" id="psaPDF"
-                  class="psa-pdf-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 transition" />
-              </div>
-              <div
-                class="psa-pdf-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
-                <i class="fas fa-file-pdf text-2xl text-red-500"></i>
-              </div>
-            </div>
-            <p class="text-xs text-gray-500 mt-1">
-              Upload all pages as a single PDF file
-            </p>
-          </div>
-
-          <div class="or-divider">
-            <span>OR</span>
-          </div>
-
-          <!-- Option 2: Multiple image uploads  -->
-          <div class="mt-3">
-            <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
-              <i class="fas fa-image text-gray-400"></i>
-              <span>Upload as multiple images (front/back or multiple
-                pages)</span>
-            </div>
-
-            <!-- Container for PSA image files -->
-            <div id="psa-images-container" class="space-y-3 mb-3">
-              <!-- First PSA image input -->
-              <div class="psa-image-item flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-200">
-                <div class="flex-grow">
-                  <input type="file" name="psaImages[]" accept=".jpg,.jpeg,.png"
-                    class="psa-image-input w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition" />
-                </div>
-                <div
-                  class="psa-image-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
-                  <i class="fas fa-image text-2xl"></i>
-                </div>
-                <button type="button" class="remove-psa-image text-red-500 hover:text-red-700 p-1"
-                  style="display: none">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Add another image button for PSA -->
-            <button type="button" id="add-psa-image"
-              class="mt-2 text-sm text-brand hover:text-brand/80 font-medium flex items-center gap-2">
-              <i class="fas fa-plus-circle"></i> Add another page image
-            </button>
-          </div>
-
-          <div class="mt-3 flex items-center gap-2 text-xs text-gray-500">
-            <i class="fas fa-info-circle"></i>
-            <span>Choose EITHER one PDF file OR multiple images. At least one
-              page required.</span>
-          </div>
-          <p class="text-xs text-gray-500 mt-2 italic">Optional — can be submitted later</p>
-          <p class="text-xs text-red-500 mt-1 hidden" data-error="psa"></p>
-        </div>
-
-        <!-- GSAT with Preview -->
-        <div class="border border-gray-200 rounded-xl p-5">
-          <label class="block text-sm font-semibold mb-2 text-gray-700">
-            GSAT (Graduate School Admission Test)
-          </label>
-          <div class="flex items-start gap-4">
-            <div class="flex-grow">
-              <input type="file" name="gsat" accept=".pdf,.jpg,.jpeg,.png"
-                class="gsat-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition" />
-            </div>
-            <div
-              class="gsat-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
-              <i class="fas fa-image text-2xl"></i>
-            </div>
-          </div>
-          <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
-            <i class="fas fa-info-circle"></i>
-            <span>PDF or image, max 10MB</span>
-          </div>
-          <p class="text-xs text-gray-500 mt-2 italic">Optional — can be submitted later</p>
-        </div>
+        {% endfor %}
 
         <!-- Navigation -->
         <div class="flex justify-between pt-6">
@@ -384,6 +300,124 @@
   </div>
 
   <script src="{% static 'students_app/js/documents.js' %}"></script>
+
+  <script>
+    // ── Add-another-image for CMS multi-page fields ───────────────────────
+    document.querySelectorAll('.add-cms-image').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var containerKey = btn.dataset.container;
+        var fieldName = btn.dataset.field;
+        var container = document.querySelector(
+          '.cms-images-container[data-field-key="' + containerKey + '"]'
+        );
+        if (!container) return;
+
+        var first = container.querySelector('.cms-image-item');
+        var clone = first.cloneNode(true);
+
+        var input = clone.querySelector('input[type="file"]');
+        if (input) input.value = '';
+
+        var preview = clone.querySelector('.cms-image-preview');
+        if (preview) {
+          preview.innerHTML = '<i class="fas fa-image text-2xl"></i>';
+        }
+
+        var removeBtn = clone.querySelector('.remove-cms-image');
+        if (removeBtn) removeBtn.style.display = '';
+
+        var firstRemove = first.querySelector('.remove-cms-image');
+        if (firstRemove) firstRemove.style.display = '';
+
+        container.appendChild(clone);
+
+        wireRemoveButtons(container);
+        wireImagePreview(input);
+      });
+    });
+
+    function wireRemoveButtons(container) {
+      container.querySelectorAll('.remove-cms-image').forEach(function (btn) {
+        btn.onclick = function () {
+          var items = container.querySelectorAll('.cms-image-item');
+          if (items.length > 1) {
+            btn.closest('.cms-image-item').remove();
+            var remaining = container.querySelectorAll('.cms-image-item');
+            if (remaining.length === 1) {
+              var lastRemove = remaining[0].querySelector('.remove-cms-image');
+              if (lastRemove) lastRemove.style.display = 'none';
+            }
+          }
+        };
+      });
+    }
+
+    function wireImagePreview(input) {
+      if (!input) return;
+      input.addEventListener('change', function () {
+        var preview = input.closest('.cms-image-item')
+          ? input.closest('.cms-image-item').querySelector('.cms-image-preview')
+          : null;
+        if (!preview || !input.files || !input.files[0]) return;
+        var file = input.files[0];
+        if (file.type.startsWith('image/')) {
+          var reader = new FileReader();
+          reader.onload = function (e) {
+            preview.innerHTML =
+              '<img src="' + e.target.result +
+              '" class="w-full h-full object-cover" />';
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    function wirePdfPreview(input) {
+      if (!input) return;
+      input.addEventListener('change', function () {
+        var preview = input.closest('.mb-4')
+          ? input.closest('.mb-4').querySelector('.cms-pdf-preview')
+          : null;
+        if (!preview || !input.files || !input.files[0]) return;
+        var file = input.files[0];
+        if (file.type === 'application/pdf') {
+          preview.innerHTML =
+            '<div class="flex flex-col items-center justify-center h-full">' +
+            '<i class="fas fa-file-pdf text-2xl text-red-500"></i>' +
+            '<p class="text-xs text-gray-500 mt-1 text-center px-1 truncate w-full">' +
+            file.name + '</p></div>';
+        }
+      });
+    }
+
+    function wireSinglePreview(input) {
+      if (!input) return;
+      input.addEventListener('change', function () {
+        var preview = input.closest('.border')
+          ? input.closest('.border').querySelector('.cms-single-preview')
+          : null;
+        if (!preview || !input.files || !input.files[0]) return;
+        var file = input.files[0];
+        if (file.type.startsWith('image/')) {
+          var reader = new FileReader();
+          reader.onload = function (e) {
+            preview.innerHTML =
+              '<img src="' + e.target.result +
+              '" class="w-full h-full object-cover" />';
+          };
+          reader.readAsDataURL(file);
+        } else if (file.type === 'application/pdf') {
+          preview.innerHTML =
+            '<i class="fas fa-file-pdf text-2xl text-red-500"></i>';
+        }
+      });
+    }
+
+    document.querySelectorAll('.cms-image-input').forEach(wireImagePreview);
+    document.querySelectorAll('.cms-pdf-input').forEach(wirePdfPreview);
+    document.querySelectorAll('.cms-single-file').forEach(wireSinglePreview);
+    document.querySelectorAll('.cms-images-container').forEach(wireRemoveButtons);
+  </script>
 </body>
 
 </html>

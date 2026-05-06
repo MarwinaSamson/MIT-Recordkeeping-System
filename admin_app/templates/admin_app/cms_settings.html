@@ -2219,12 +2219,25 @@
                   </p>
                   <p class="cms-card-subtitle">
                     Manage the numbered list of admission requirements shown on
-                    the homepage. Drag to reorder.
+                    the homepage and the student documents upload page.
+                    Drag to reorder.
                   </p>
                 </div>
                 <button onclick="addAdmissionRequirement()" class="btn-primary">
                   <i data-lucide="plus"></i> Add Requirement
                 </button>
+              </div>
+
+              <!-- Legend for the two new flags -->
+              <div class="flex flex-wrap gap-3 mb-4 p-3 bg-gray-50 rounded-xl border border-gray-100 text-xs text-gray-500">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-3 h-3 rounded-sm bg-red-200 flex-shrink-0"></span>
+                  <strong class="text-gray-700">Required</strong> — student must upload this document before proceeding
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-3 h-3 rounded-sm bg-blue-200 flex-shrink-0"></span>
+                  <strong class="text-gray-700">Multi-page</strong> — shows the PDF-or-images hybrid upload UI
+                </div>
               </div>
 
               <div id="requirementsList" class="space-y-3 mt-2">
@@ -2278,9 +2291,32 @@
                       class="field req-description"
                       rows="2"
                       placeholder="Additional details about this requirement"
-                    >
-{{ req.description }}</textarea
-                    >
+                    >{{ req.description }}</textarea>
+                  </div>
+                  <!-- ── NEW: Required + Multi-page flags ── -->
+                  <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 bg-red-50/40 cursor-pointer hover:border-red-300 transition">
+                      <input
+                        type="checkbox"
+                        class="req-required mt-0.5 w-4 h-4 rounded accent-red-700 cursor-pointer flex-shrink-0"
+                        {% if req.required %}checked{% endif %}
+                      />
+                      <div>
+                        <p class="text-sm font-semibold text-gray-700">Required</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Student must upload this before proceeding</p>
+                      </div>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 bg-blue-50/40 cursor-pointer hover:border-blue-300 transition">
+                      <input
+                        type="checkbox"
+                        class="req-multi-page mt-0.5 w-4 h-4 rounded accent-blue-700 cursor-pointer flex-shrink-0"
+                        {% if req.multi_page %}checked{% endif %}
+                      />
+                      <div>
+                        <p class="text-sm font-semibold text-gray-700">Multi-page document</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Shows PDF-or-images hybrid upload UI</p>
+                      </div>
+                    </label>
                   </div>
                 </div>
                 {% empty %}
@@ -2333,9 +2369,30 @@
                       class="field req-description"
                       rows="2"
                       placeholder="Additional details about this requirement"
-                    >
-Certified true copy from your institution</textarea
-                    >
+                    >Certified true copy from your institution</textarea>
+                  </div>
+                  <!-- ── NEW: Required + Multi-page flags ── -->
+                  <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 bg-red-50/40 cursor-pointer hover:border-red-300 transition">
+                      <input
+                        type="checkbox"
+                        class="req-required mt-0.5 w-4 h-4 rounded accent-red-700 cursor-pointer flex-shrink-0"
+                      />
+                      <div>
+                        <p class="text-sm font-semibold text-gray-700">Required</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Student must upload this before proceeding</p>
+                      </div>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 bg-blue-50/40 cursor-pointer hover:border-blue-300 transition">
+                      <input
+                        type="checkbox"
+                        class="req-multi-page mt-0.5 w-4 h-4 rounded accent-blue-700 cursor-pointer flex-shrink-0"
+                      />
+                      <div>
+                        <p class="text-sm font-semibold text-gray-700">Multi-page document</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Shows PDF-or-images hybrid upload UI</p>
+                      </div>
+                    </label>
                   </div>
                 </div>
                 {% endfor %}
@@ -6780,19 +6837,60 @@ Ph.D. in Information Technology · Specializes in Advanced Database Systems and 
             const num =
               mode === "replace"
                 ? i + 1
-                : list.querySelectorAll(".requirement-row").length + 1;
+                : list.querySelectorAll(".admission-requirement-row").length + 1;
             const div = document.createElement("div");
-            div.className = "requirement-row row-card flex items-start gap-3";
+            div.className = "cms-card admission-requirement-row";
+            div.dataset.idx = num;
             div.innerHTML = `
-                        <div class="flex items-center justify-center w-6 h-6 rounded-full bg-red-800 text-white text-xs font-bold flex-shrink-0 mt-2 req-num-badge">${num}</div>
-                        <div class="flex-1 space-y-2">
-                            <input type="text" class="field req-name" value="${escHtml(r.requirement_name || "")}" placeholder="e.g. Official Transcript of Records (TOR)" />
-                            <input type="text" class="field req-hint" value="${escHtml(r.hint_text || "")}" placeholder="Hint text" />
-                        </div>
-                        <button type="button" onclick="removeRequirementRow(this)" class="btn-del mt-2"><i data-lucide="x"></i></button>`;
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <span class="w-7 h-7 rounded-full bg-red-800 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">${num}</span>
+                  <span class="font-bold text-gray-800 text-sm">Requirement ${num}</span>
+                </div>
+                <button type="button" onclick="removeAdmissionRequirement(this)" class="btn-del"><i data-lucide="x"></i></button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="lbl">Requirement Number</label>
+                  <input type="number" class="field req-number" value="${num}" placeholder="1" min="1" />
+                </div>
+                <div>
+                  <label class="lbl">Requirement Title</label>
+                  <input type="text" class="field req-title" value="${escHtml(r.requirement_name || r.title || "")}" placeholder="e.g., Official Transcript of Records" />
+                </div>
+              </div>
+              <div class="mt-4">
+                <label class="lbl">Description (Optional)</label>
+                <textarea class="field req-description" rows="2" placeholder="Additional details about this requirement">${escHtml(r.hint_text || r.description || "")}</textarea>
+              </div>
+              <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 bg-red-50/40 cursor-pointer hover:border-red-300 transition">
+                  <input type="checkbox" class="req-required mt-0.5 w-4 h-4 rounded accent-red-700 cursor-pointer flex-shrink-0" />
+                  <div>
+                    <p class="text-sm font-semibold text-gray-700">Required</p>
+                    <p class="text-xs text-gray-400 mt-0.5">Student must upload this before proceeding</p>
+                  </div>
+                </label>
+                <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 bg-blue-50/40 cursor-pointer hover:border-blue-300 transition">
+                  <input type="checkbox" class="req-multi-page mt-0.5 w-4 h-4 rounded accent-blue-700 cursor-pointer flex-shrink-0" />
+                  <div>
+                    <p class="text-sm font-semibold text-gray-700">Multi-page document</p>
+                    <p class="text-xs text-gray-400 mt-0.5">Shows PDF-or-images hybrid upload UI</p>
+                  </div>
+                </label>
+              </div>`;
             list.appendChild(div);
           });
           lucide.createIcons();
+          document.querySelectorAll(".admission-requirement-row").forEach((row, i) => {
+            row.dataset.idx = i + 1;
+            const badge = row.querySelector(".w-7.h-7.rounded-full");
+            if (badge) badge.textContent = i + 1;
+            const lbl = row.querySelector(".font-bold.text-gray-800.text-sm");
+            if (lbl) lbl.textContent = "Requirement " + (i + 1);
+            const numInput = row.querySelector(".req-number");
+            if (numInput) numInput.value = i + 1;
+          });
         } else if (section === "outcomes") {
           const list = document.getElementById("outcomesList");
           if (!list) return;
@@ -6987,11 +7085,27 @@ Ph.D. in Information Technology · Specializes in Advanced Database Systems and 
                     <label class="lbl">Description (Optional)</label>
                     <textarea class="field req-description" rows="2" placeholder="Additional details about this requirement"></textarea>
                 </div>
+                <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 bg-red-50/40 cursor-pointer hover:border-red-300 transition">
+                        <input type="checkbox" class="req-required mt-0.5 w-4 h-4 rounded accent-red-700 cursor-pointer flex-shrink-0" />
+                        <div>
+                            <p class="text-sm font-semibold text-gray-700">Required</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Student must upload this before proceeding</p>
+                        </div>
+                    </label>
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-gray-200 bg-blue-50/40 cursor-pointer hover:border-blue-300 transition">
+                        <input type="checkbox" class="req-multi-page mt-0.5 w-4 h-4 rounded accent-blue-700 cursor-pointer flex-shrink-0" />
+                        <div>
+                            <p class="text-sm font-semibold text-gray-700">Multi-page document</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Shows PDF-or-images hybrid upload UI</p>
+                        </div>
+                    </label>
+                </div>
             `;
         list.appendChild(row);
         lucide.createIcons();
         // Renumber all rows
-        rows.forEach((r, i) => {
+        document.querySelectorAll(".admission-requirement-row").forEach((r, i) => {
           r.dataset.idx = i + 1;
           const badge = r.querySelector(".w-7.h-7.rounded-full");
           if (badge) badge.textContent = i + 1;
@@ -7004,8 +7118,7 @@ Ph.D. in Information Technology · Specializes in Advanced Database Systems and 
         const row = btn.closest(".admission-requirement-row");
         row.remove();
         // Renumber remaining rows
-        const rows = document.querySelectorAll(".admission-requirement-row");
-        rows.forEach((r, i) => {
+        document.querySelectorAll(".admission-requirement-row").forEach((r, i) => {
           r.dataset.idx = i + 1;
           const badge = r.querySelector(".w-7.h-7.rounded-full");
           if (badge) badge.textContent = i + 1;
@@ -7023,6 +7136,9 @@ Ph.D. in Information Technology · Specializes in Advanced Database Systems and 
               number: parseInt(row.querySelector(".req-number")?.value) || 1,
               title: row.querySelector(".req-title")?.value || "",
               description: row.querySelector(".req-description")?.value || "",
+              // ── NEW: read the two flags ──
+              required: row.querySelector(".req-required")?.checked || false,
+              multi_page: row.querySelector(".req-multi-page")?.checked || false,
             });
           });
         fetch("/admin-panel/api/cms/update/", {
