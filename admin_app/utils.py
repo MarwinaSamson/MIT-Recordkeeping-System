@@ -81,7 +81,11 @@ def get_application_documents(user):
 
         documents.append({
             'id': doc.id,
-            'name': doc.get_document_type_display(),
+            'name': (
+                doc.get_document_type_display()
+                if hasattr(doc, 'get_document_type_display')
+                else get_document_type_display(doc.document_type)
+            ),
             'type': 'Academic Form',
             'status': status,
             'uploadDate': doc.uploaded_at.strftime('%Y-%m-%d'),
@@ -154,7 +158,11 @@ def get_activity_log(limit=20):
             'time': log.timestamp.strftime('%Y-%m-%d %H:%M'),
             'admin': log.admin.username if log.admin else 'Unknown',
             'appId': log.application.application_id if log.application else 'N/A',
-            'doc': log.document.get_document_type_display() if log.document else 'General',
+            'doc': (
+                log.document.get_document_type_display()
+                if log.document and hasattr(log.document, 'get_document_type_display')
+                else (get_document_type_display(log.document.document_type) if log.document else 'General')
+            ),
             'action': log.get_action_display(),
             'notes': log.notes,
         }
