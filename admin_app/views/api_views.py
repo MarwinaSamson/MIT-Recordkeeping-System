@@ -452,6 +452,27 @@ def update_cms_settings(request):
             'contact_email': data.get('contact_email', cms.contact_email).strip(),
             'contact_facebook': data.get('contact_facebook', cms.contact_facebook).strip(),
             'contact_hours': data.get('contact_hours', cms.contact_hours).strip(),
+            # About page fields
+            'about_hero_eyebrow': data.get('about_hero_eyebrow', cms.about_hero_eyebrow).strip(),
+            'about_hero_title': data.get('about_hero_title', cms.about_hero_title).strip(),
+            'about_hero_title_italic': data.get('about_hero_title_italic', cms.about_hero_title_italic).strip(),
+            'about_hero_tagline': data.get('about_hero_tagline', cms.about_hero_tagline).strip(),
+            'about_hero_badge': data.get('about_hero_badge', cms.about_hero_badge).strip(),
+            'about_overview_text': data.get('about_overview_text', cms.about_overview_text).strip(),
+            'about_info_institution': data.get('about_info_institution', cms.about_info_institution).strip(),
+            'about_info_copc': data.get('about_info_copc', cms.about_info_copc).strip(),
+            'about_info_ay': data.get('about_info_ay', cms.about_info_ay).strip(),
+            'about_info_accred': data.get('about_info_accred', cms.about_info_accred).strip(),
+            'about_ched_heading': data.get('about_ched_heading', cms.about_ched_heading).strip(),
+            'about_ched_desc': data.get('about_ched_desc', cms.about_ched_desc).strip(),
+            'about_stat1_val': data.get('about_stat1_val', cms.about_stat1_val).strip(),
+            'about_stat1_lbl': data.get('about_stat1_lbl', cms.about_stat1_lbl).strip(),
+            'about_stat2_val': data.get('about_stat2_val', cms.about_stat2_val).strip(),
+            'about_stat2_lbl': data.get('about_stat2_lbl', cms.about_stat2_lbl).strip(),
+            'about_stat3_val': data.get('about_stat3_val', cms.about_stat3_val).strip(),
+            'about_stat3_lbl': data.get('about_stat3_lbl', cms.about_stat3_lbl).strip(),
+            'about_stat4_val': data.get('about_stat4_val', cms.about_stat4_val).strip(),
+            'about_stat4_lbl': data.get('about_stat4_lbl', cms.about_stat4_lbl).strip(),
         }
 
         # Validate and save announcements list [{text, duration}]
@@ -600,6 +621,39 @@ def update_cms_settings(request):
                         'multi_page': bool(req.get('multi_page', False)), # ← ADD THIS
                     })
             update_data['admission_requirements'] = cleaned_requirements
+
+        # Validate and save about outcomes list [{number: int, title: str, description: str}]
+        raw_about_outcomes = data.get('about_outcomes', None)
+        if raw_about_outcomes is not None:
+            cleaned_outcomes = []
+            for outcome in raw_about_outcomes:
+                try:
+                    number = int(outcome.get('number', 0))
+                except (ValueError, TypeError):
+                    number = 0
+                title = str(outcome.get('title', '')).strip()
+                description = str(outcome.get('description', '')).strip()
+                if title and number > 0:
+                    cleaned_outcomes.append({
+                        'number': number,
+                        'title': title,
+                        'description': description
+                    })
+            update_data['about_outcomes'] = cleaned_outcomes
+
+        # Validate and save about objectives list [{title: str, description: str}]
+        raw_about_objectives = data.get('about_objectives', None)
+        if raw_about_objectives is not None:
+            cleaned_objectives = []
+            for obj in raw_about_objectives:
+                title = str(obj.get('title', '')).strip()
+                description = str(obj.get('description', '')).strip()
+                if title:
+                    cleaned_objectives.append({
+                        'title': title,
+                        'description': description
+                    })
+            update_data['about_objectives'] = cleaned_objectives
 
         # Use bulk update for better performance
         CMSSettings.objects.filter(pk=1).update(**update_data)

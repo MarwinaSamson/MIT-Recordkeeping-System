@@ -81,7 +81,11 @@ def get_application_documents(user):
 
         documents.append({
             'id': doc.id,
-            'name': doc.get_document_type_display(),
+            'name': (
+                doc.get_document_type_display()
+                if hasattr(doc, 'get_document_type_display')
+                else get_document_type_display(doc.document_type)
+            ),
             'type': 'Academic Form',
             'status': status,
             'uploadDate': doc.uploaded_at.strftime('%Y-%m-%d'),

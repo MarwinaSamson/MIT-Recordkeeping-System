@@ -595,16 +595,16 @@
 
   <div class="hero-bg">
     <div class="relative max-w-4xl mx-auto px-6 py-20 sm:py-28 text-center" style="z-index:1;position:relative">
-      <p class="a1 eyebrow mb-3" style="color:rgba(201,168,76,.85)">Western Mindanao State University · College of Computing Studies</p>
+      <p class="a1 eyebrow mb-3" style="color:rgba(201,168,76,.85)">{{ cms.about_hero_eyebrow }}</p>
       <h1 class="a2 font-serif font-black text-white leading-tight mb-5" style="font-size:clamp(2rem,5vw,3.2rem)">
-        Master in <em class="italic" style="color:var(--gold-light)">Information Technology</em>
+        {{ cms.about_hero_title }} <em class="italic" style="color:var(--gold-light)">{{ cms.about_hero_title_italic }}</em>
       </h1>
       <p class="a3 text-base sm:text-lg leading-relaxed max-w-xl mx-auto mb-7" style="color:rgba(255,255,255,.65)">
-        Preparing professionals for systems integration, administration, planning, implementation, and maintenance of complex technology ecosystems.
+        {{ cms.about_hero_tagline }}
       </p>
       <div class="a4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs sm:text-sm font-medium" style="border:1px solid rgba(201,168,76,.35);background:rgba(201,168,76,.1);color:rgba(255,245,220,.9)">
         <span class="material-symbols-rounded" style="font-size:15px;color:var(--gold-light)">verified</span>
-        CHED Compliant · Updated S.Y. 2023–2024
+        {{ cms.about_hero_badge }}
       </div>
     </div>
   </div>
@@ -618,11 +618,7 @@
         <div class="gold-divider mb-7"></div>
 
         <p class="text-gray-600 leading-relaxed text-[.95rem] mb-8">
-          The <strong class="text-gray-900 font-semibold">Master in Information Technology (MIT)</strong> at Western Mindanao State University emphasizes the acquisition of advanced concepts and technologies, preparing graduates for the industrial practice of
-          <strong class="text-gray-900 font-semibold">systems integration</strong>,
-          <strong class="text-gray-900 font-semibold">systems administration</strong>,
-          <strong class="text-gray-900 font-semibold">systems planning</strong>, and
-          <strong class="text-gray-900 font-semibold">systems implementation</strong> — maintaining the integrity and proper functionality of complex systems.
+          {{ cms.about_overview_text }}
         </p>
 
         <div class="info-card mb-6">
@@ -630,24 +626,30 @@
             <div class="info-icon"><span class="material-symbols-rounded" style="font-size:18px">account_balance</span></div>
             <div>
               <p class="info-label">Institution</p>
-              <p class="info-val">Western Mindanao State University, Zamboanga City</p>
+              <p class="info-val">{{ cms.program_institution }}</p>
             </div>
           </div>
           <div class="info-row">
             <div class="info-icon"><span class="material-symbols-rounded" style="font-size:18px">assignment</span></div>
             <div>
               <p class="info-label">COPC / CMO Reference</p>
-              <p class="info-val">CMO 15, S.2019 · BOR No. 70, S.2023</p>
+              <p class="info-val">{{ cms.program_copc_number }}</p>
             </div>
           </div>
           <div class="info-row">
             <div class="info-icon"><span class="material-symbols-rounded" style="font-size:18px">calendar_today</span></div>
             <div>
               <p class="info-label">Current Effective Academic Year</p>
-              <p class="info-val">2023–2024 (updated from 2019–2020)</p>
+              <p class="info-val">{{ cms.program_effective_year }}</p>
             </div>
           </div>
           <div class="info-row">
+            <div class="info-icon"><span class="material-symbols-rounded" style="font-size:18px">verified</span></div>
+            <div>
+              <p class="info-label">Accrediting Body</p>
+              <p class="info-val">{{ cms.program_accreditor }}</p>
+            </div>
+          </div>
             <div class="info-icon"><span class="material-symbols-rounded" style="font-size:18px">gavel</span></div>
             <div>
               <p class="info-label">Accrediting Body</p>
@@ -874,12 +876,7 @@
         Select Curriculum Year
       </p>
       <div class="curr-switcher-bar">
-        <button class="curr-tab-btn" id="curr-btn-2019" onclick="switchCourseCurriculum('2019')">
-          <span class="ct-year">2019</span>
-          <span class="ct-label">– 2020 Curriculum</span>
-          <span class="ct-badge" style="background:#edf9f3;color:#0a7a4a;">Old</span>
-        </button>
-        <button class="curr-tab-btn active" id="curr-btn-2023" onclick="switchCourseCurriculum('2023')">
+        <button class="curr-tab-btn active" id="curr-btn-1" onclick="switchCourseCurriculum('1')">
           <span class="ct-year">2023</span>
           <span class="ct-label">– 2024 Curriculum</span>
           <span class="ct-badge" style="background:#fff4e0;color:#8a5800;">Current</span>
@@ -887,194 +884,64 @@
       </div>
     </div>
 
-    <!-- ═══ 2023-2024 CURRICULUM PANEL ═══ -->
-    <div class="curr-panel active" id="curr-2023">
-
-      <!-- Foundation Courses -->
+    <!-- ═══ CURRICULUM PANEL ═══ -->
+    <div class="curr-panel active" id="curr-1">
+      {% for curriculum_group in cms.program_curriculum %}
       <div class="course-block">
         <div class="section-header">
-          <div class="section-icon" style="background:var(--crimson)">
-            <span class="material-symbols-rounded text-white" style="font-size:19px">settings</span>
+          <div class="section-icon" style="background:{% if curriculum_group.title|lower == 'foundation' or curriculum_group.title|lower == 'core' %}var(--crimson){% elif curriculum_group.title|lower == 'specialization' %}var(--crimson){% elif curriculum_group.title|lower == 'cognate' %}#9a6020{% else %}var(--crimson){% endif %}">
+            <span class="material-symbols-rounded text-white" style="font-size:19px">
+              {% if curriculum_group.title|lower == 'foundation' or curriculum_group.title|lower == 'core' %}settings{% elif curriculum_group.title|lower == 'specialization' %}star{% elif curriculum_group.title|lower == 'cognate' %}brightness_5{% else %}emoji_events{% endif %}
+            </span>
           </div>
           <div class="section-meta">
-            <p class="section-title">Foundation Courses</p>
-            <p class="section-subtitle">First Year · First Semester</p>
+            <p class="section-title">{{ curriculum_group.title }}</p>
+            <p class="section-subtitle">Program Courses</p>
           </div>
-          <span class="unit-badge-lg">12 Units</span>
+          <span class="unit-badge-lg"{% if curriculum_group.title|lower == 'cognate' %} style="background:rgba(154,96,32,.08);color:#9a6020"{% endif %}>
+            {% widthratio curriculum_group.courses|length 1 3 %} Units
+          </span>
         </div>
-        <div class="course-grid" id="core-courses-2023"></div>
-      </div>
-
-      <!-- Specialization Courses -->
-      <div class="course-block">
-        <div class="section-header">
-          <div class="section-icon" style="background:var(--crimson)">
-            <span class="material-symbols-rounded text-white" style="font-size:19px">star</span>
-          </div>
-          <div class="section-meta">
-            <p class="section-title">Specialization Courses</p>
-            <p class="section-subtitle">First Year 2nd Sem · Summer</p>
-          </div>
-          <span class="unit-badge-lg">15 Units</span>
-        </div>
-        <div class="course-grid" id="spec-courses-2023"></div>
-      </div>
-
-      <!-- Cognate Courses -->
-      <div class="course-block">
-        <div class="section-header">
-          <div class="section-icon" style="background:#9a6020">
-            <span class="material-symbols-rounded text-white" style="font-size:19px">brightness_5</span>
-          </div>
-          <div class="section-meta">
-            <p class="section-title">Cognate Courses</p>
-            <p class="section-subtitle">Choose Only One · First Year 2nd Semester</p>
-          </div>
-          <span class="unit-badge-lg" style="background:rgba(154,96,32,.08);color:#9a6020">3 Units</span>
-        </div>
+        {% if curriculum_group.title|lower == 'cognate' %}
         <div class="cognate-note">
           <span class="material-symbols-rounded flex-shrink-0" style="font-size:18px;color:#d4970a">info</span>
           <p><strong>Note:</strong> Choose only one from the following MIT Cognates. The selected cognate course counts as 3 units toward your total degree requirement.</p>
         </div>
-        <div class="course-grid" id="cogn-courses-2023"></div>
-      </div>
-
-      <!-- Capstone -->
-      <div class="course-block">
-        <div class="section-header">
-          <div class="section-icon" style="background:var(--crimson)">
-            <span class="material-symbols-rounded text-white" style="font-size:19px">emoji_events</span>
+        {% endif %}
+        <div class="course-grid">
+          {% for course in curriculum_group.courses %}
+          <div class="course-card" onclick="openModal('{{ course.code }}', '{{ course.name }}', '{{ course.units }}', 'None', 'Course description for {{ course.name }}', '')">
+            <div class="course-code">{{ course.code }}</div>
+            <div class="course-name">{{ course.name }}</div>
+            <div class="course-meta">
+              <span class="course-units">{{ course.units }} Units</span>
+              <span class="course-prereq">Pre: None</span>
+            </div>
           </div>
-          <div class="section-meta">
-            <p class="section-title">Capstone Project</p>
-            <p class="section-subtitle">Second Year · Major Requirement for Graduation</p>
-          </div>
-          <span class="unit-badge-lg">6 Units</span>
+          {% endfor %}
         </div>
-        <div class="course-grid" id="cap-courses-2023"></div>
       </div>
+      {% endfor %}
 
       <!-- Summary -->
       <div class="curr-summary-card">
         <div class="curr-summary-head">
           <span class="material-symbols-rounded" style="font-size:16px;color:#7a6a55">summarize</span>
-          <span class="curr-summary-head-txt">Summary of Units · 2023–2024 Curriculum</span>
+          <span class="curr-summary-head-txt">Summary of Units · Program Curriculum</span>
         </div>
         <div class="curr-sum-grid">
+          {% for group in cms.program_curriculum %}
           <div class="curr-sum-cell">
-            <p class="curr-sum-num">12</p>
-            <p class="curr-sum-lbl">Foundation Units</p>
+            <p class="curr-sum-num">{% widthratio group.courses|length 1 3 %}</p>
+            <p class="curr-sum-lbl">{{ group.title }} Units</p>
           </div>
-          <div class="curr-sum-cell">
-            <p class="curr-sum-num">15</p>
-            <p class="curr-sum-lbl">Specialization Units</p>
-          </div>
-          <div class="curr-sum-cell">
-            <p class="curr-sum-num">3</p>
-            <p class="curr-sum-lbl">Cognate Units</p>
-          </div>
-          <div class="curr-sum-cell">
-            <p class="curr-sum-num">6</p>
-            <p class="curr-sum-lbl">Capstone Units</p>
-          </div>
+          {% endfor %}
         </div>
         <div class="curr-sum-total">
           <span class="curr-sum-total-lbl">Grand Total</span>
-          <span class="curr-sum-total-num">36 Units</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ 2019-2020 CURRICULUM PANEL ═══ -->
-    <div class="curr-panel" id="curr-2019">
-
-      <!-- IT Core Courses -->
-      <div class="course-block">
-        <div class="section-header">
-          <div class="section-icon" style="background:#9a6020">
-            <span class="material-symbols-rounded text-white" style="font-size:19px">settings</span>
-          </div>
-          <div class="section-meta">
-            <p class="section-title">IT Core Courses</p>
-            <p class="section-subtitle">First Year · First Semester</p>
-          </div>
-          <span class="unit-badge-lg" style="background:rgba(154,96,32,.08);color:#9a6020">12 Units</span>
-        </div>
-        <div class="course-grid" id="core-courses-2019"></div>
-      </div>
-
-      <!-- Research Courses -->
-      <div class="course-block">
-        <div class="section-header">
-          <div class="section-icon" style="background:#9a6020">
-            <span class="material-symbols-rounded text-white" style="font-size:19px">science</span>
-          </div>
-          <div class="section-meta">
-            <p class="section-title">Research Courses</p>
-            <p class="section-subtitle">First Year · Second Semester</p>
-          </div>
-          <span class="unit-badge-lg" style="background:rgba(154,96,32,.08);color:#9a6020">6 Units</span>
-        </div>
-        <div class="course-grid" id="research-courses-2019"></div>
-      </div>
-
-      <!-- Specialization Courses -->
-      <div class="course-block">
-        <div class="section-header">
-          <div class="section-icon" style="background:#9a6020">
-            <span class="material-symbols-rounded text-white" style="font-size:19px">star</span>
-          </div>
-          <div class="section-meta">
-            <p class="section-title">Specialization Courses</p>
-            <p class="section-subtitle">First Year 2nd Sem + Second Year 1st Sem</p>
-          </div>
-          <span class="unit-badge-lg" style="background:rgba(154,96,32,.08);color:#9a6020">15 Units</span>
-        </div>
-        <div class="course-grid" id="spec-courses-2019"></div>
-      </div>
-
-      <!-- Capstone -->
-      <div class="course-block">
-        <div class="section-header">
-          <div class="section-icon" style="background:#9a6020">
-            <span class="material-symbols-rounded text-white" style="font-size:19px">emoji_events</span>
-          </div>
-          <div class="section-meta">
-            <p class="section-title">Capstone Project</p>
-            <p class="section-subtitle">Second Year · Second Semester</p>
-          </div>
-          <span class="unit-badge-lg" style="background:rgba(154,96,32,.08);color:#9a6020">6 Units</span>
-        </div>
-        <div class="course-grid" id="cap-courses-2019"></div>
-      </div>
-
-      <!-- Summary -->
-      <div class="curr-summary-card">
-        <div class="curr-summary-head">
-          <span class="material-symbols-rounded" style="font-size:16px;color:#7a6a55">summarize</span>
-          <span class="curr-summary-head-txt">Summary of Units · 2019–2020 Curriculum</span>
-        </div>
-        <div class="curr-sum-grid">
-          <div class="curr-sum-cell">
-            <p class="curr-sum-num">12</p>
-            <p class="curr-sum-lbl">IT Core Units</p>
-          </div>
-          <div class="curr-sum-cell">
-            <p class="curr-sum-num">6</p>
-            <p class="curr-sum-lbl">Research Units</p>
-          </div>
-          <div class="curr-sum-cell">
-            <p class="curr-sum-num">15</p>
-            <p class="curr-sum-lbl">Specialization Units</p>
-          </div>
-          <div class="curr-sum-cell">
-            <p class="curr-sum-num">6</p>
-            <p class="curr-sum-lbl">Capstone Units</p>
-          </div>
-        </div>
-        <div class="curr-sum-total">
-          <span class="curr-sum-total-lbl">Grand Total</span>
-          <span class="curr-sum-total-num">39 Units</span>
+          <span class="curr-sum-total-num">
+            {% widthratio cms.program_curriculum|length 1 12 %} Units
+          </span>
         </div>
       </div>
     </div>
@@ -1098,7 +965,21 @@
     <h2 class="sh mb-3">Program Outcomes</h2>
     <div class="gold-divider mb-10"></div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-
+      {% for outcome in cms.about_outcomes %}
+      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)">
+            <span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">
+              {% if outcome.number == 1 %}dns{% elif outcome.number == 2 %}science{% elif outcome.number == 3 %}hub{% elif outcome.number == 4 %}layers{% elif outcome.number == 5 %}manage_accounts{% elif outcome.number == 6 %}lightbulb{% elif outcome.number == 7 %}smart_toy{% else %}storage{% endif %}
+            </span>
+          </div>
+          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">{{ outcome.number|stringformat:"02d" }}</span>
+        </div>
+        <p class="font-semibold text-gray-900 text-sm mb-2">{{ outcome.title }}</p>
+        <p class="text-xs text-gray-500 leading-relaxed">{{ outcome.description }}</p>
+      </div>
+      {% empty %}
+      <!-- Default outcomes if none configured -->
       <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
         <div class="flex items-center justify-between mb-3">
           <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)"><span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">dns</span></div>
@@ -1107,70 +988,7 @@
         <p class="font-semibold text-gray-900 text-sm mb-2">Advanced Systems Knowledge</p>
         <p class="text-xs text-gray-500 leading-relaxed">Demonstrate advanced understanding of operating systems, networking, database systems, and systems design applicable to complex IT environments.</p>
       </div>
-
-      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)"><span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">science</span></div>
-          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">02</span>
-        </div>
-        <p class="font-semibold text-gray-900 text-sm mb-2">Research Proficiency</p>
-        <p class="text-xs text-gray-500 leading-relaxed">Conduct rigorous technical and statistical research including methodology selection, data collection, analysis, interpretation, and academic writing.</p>
-      </div>
-
-      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)"><span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">hub</span></div>
-          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">03</span>
-        </div>
-        <p class="font-semibold text-gray-900 text-sm mb-2">Systems Integration &amp; Administration</p>
-        <p class="text-xs text-gray-500 leading-relaxed">Apply advanced skills in systems integration, administration, planning, and implementation to maintain integrity and functionality of IT systems.</p>
-      </div>
-
-      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)"><span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">layers</span></div>
-          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">04</span>
-        </div>
-        <p class="font-semibold text-gray-900 text-sm mb-2">Specialization in IT Domains</p>
-        <p class="text-xs text-gray-500 leading-relaxed">Demonstrate competency in at least one IT specialization — System Development, Information Management, Interactive Systems, Intelligent Systems, or Emerging Technologies.</p>
-      </div>
-
-      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)"><span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">manage_accounts</span></div>
-          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">05</span>
-        </div>
-        <p class="font-semibold text-gray-900 text-sm mb-2">Project Management Leadership</p>
-        <p class="text-xs text-gray-500 leading-relaxed">Manage software development life cycles and technology projects using proven methodologies including risk assessment, scheduling, budgeting, and team leadership.</p>
-      </div>
-
-      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)"><span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">lightbulb</span></div>
-          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">06</span>
-        </div>
-        <p class="font-semibold text-gray-900 text-sm mb-2">Capstone Innovation</p>
-        <p class="text-xs text-gray-500 leading-relaxed">Propose, develop, and present an innovative capstone project addressing a real organizational or societal problem — presented at a national or international public forum.</p>
-      </div>
-
-      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)"><span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">smart_toy</span></div>
-          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">07</span>
-        </div>
-        <p class="font-semibold text-gray-900 text-sm mb-2">Emerging Technologies Literacy</p>
-        <p class="text-xs text-gray-500 leading-relaxed">Apply knowledge of modern ML and AI algorithms to solve complex, real-world problems and provide meaningful, implementable solutions.</p>
-      </div>
-
-      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)"><span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">storage</span></div>
-          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">08</span>
-        </div>
-        <p class="font-semibold text-gray-900 text-sm mb-2">Information Management Expertise</p>
-        <p class="text-xs text-gray-500 leading-relaxed">Design and implement IT-based systems for data acquisition, organization, interpretation, and visualization supporting medium to large-scale business transactions.</p>
-      </div>
-
+      {% endfor %}
     </div>
   </div>
 </div>
@@ -1191,38 +1009,18 @@
     <h2 class="sh mb-3">Program Objectives</h2>
     <div class="gold-divider mb-10"></div>
     <ul class="space-y-3">
+      {% for objective in cms.about_objectives %}
+      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)"><span class="text-white text-xs font-bold font-mono">{{ objective.number }}</span></div>
+        <p class="text-gray-600 leading-relaxed text-sm">{{ objective.description|safe }}</p>
+      </li>
+      {% empty %}
+      <!-- Default objectives if none configured -->
       <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
         <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)"><span class="text-white text-xs font-bold font-mono">1</span></div>
         <p class="text-gray-600 leading-relaxed text-sm">Provide graduate-level education in Information Technology emphasizing the acquisition of advanced concepts, tools, and technologies necessary for professional practice.</p>
       </li>
-      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)"><span class="text-white text-xs font-bold font-mono">2</span></div>
-        <p class="text-gray-600 leading-relaxed text-sm">Prepare graduates for the industrial practice of <strong class="text-gray-900">systems integration</strong>, <strong class="text-gray-900">systems administration</strong>, <strong class="text-gray-900">systems planning</strong>, and <strong class="text-gray-900">systems implementation</strong>, maintaining the integrity and proper functionality of complex systems.</p>
-      </li>
-      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)"><span class="text-white text-xs font-bold font-mono">3</span></div>
-        <p class="text-gray-600 leading-relaxed text-sm">Develop students' capacity to conduct both <strong class="text-gray-900">technical</strong> and <strong class="text-gray-900">statistical research</strong>, contributing original knowledge to the IT discipline and addressing emerging challenges in the field.</p>
-      </li>
-      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)"><span class="text-white text-xs font-bold font-mono">4</span></div>
-        <p class="text-gray-600 leading-relaxed text-sm">Cultivate expertise in specialized IT domains including System Development, Information Management, Interactive Systems, Intelligent Systems, and Emerging Trends in Computing — each student developing deep competence in chosen areas.</p>
-      </li>
-      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)"><span class="text-white text-xs font-bold font-mono">5</span></div>
-        <p class="text-gray-600 leading-relaxed text-sm">Train students in <strong class="text-gray-900">technology and project management</strong> principles and methodologies, covering the full software development life cycle, process models, risk assessment, scheduling, budget estimation, and team leadership.</p>
-      </li>
-      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)"><span class="text-white text-xs font-bold font-mono">6</span></div>
-        <p class="text-gray-600 leading-relaxed text-sm">Foster innovation through the <strong class="text-gray-900">Capstone Project</strong>, requiring students to propose, develop, and present a computing solution addressing a real organizational or societal problem — with work presented in a national or international public forum.</p>
-      </li>
-      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)"><span class="text-white text-xs font-bold font-mono">7</span></div>
-        <p class="text-gray-600 leading-relaxed text-sm">Produce graduates who can effectively analyze user requirements and needs, designing and implementing information systems that are practical, scalable, and aligned with current industry standards and best practices.</p>
-      </li>
-      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)"><span class="text-white text-xs font-bold font-mono">8</span></div>
-        <p class="text-gray-600 leading-relaxed text-sm">Comply with and exceed the minimum standards set by the <strong class="text-gray-900">Commission on Higher Education (CHED)</strong> for graduate IT programs in the Philippines, ensuring graduates are globally competitive and ethically grounded.</p>
-      </li>
+      {% endfor %}
     </ul>
   </div>
 </div>
@@ -1244,7 +1042,30 @@
     <div class="gold-divider mb-10"></div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-
+      {% for member in faculty %}
+      <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <div class="fav h-44 w-full">
+          {% if member.photo %}
+            <img src="{{ member.photo.url }}" alt="{{ member.get_full_name }}" class="w-full h-full object-cover">
+          {% else %}
+            <span>{{ member.first_name.0 }}{{ member.last_name.0 }}</span>
+          {% endif %}
+        </div>
+        <div class="p-5">
+          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">{{ member.get_full_name }}</p>
+          <p class="eyebrow mt-0.5 mb-2.5">{{ member.title }}</p>
+          <p class="text-xs text-gray-500 leading-relaxed mb-3">{{ member.specializations }}</p>
+          <div class="flex flex-wrap gap-1.5">
+            {% if member.specializations_list %}
+              {% for spec in member.specializations_list %}
+                <span class="tag bg-gray-100 text-gray-600">{{ spec }}</span>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <!-- Default faculty if none configured -->
       <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
         <div class="fav h-44 w-full"><span>LS</span></div>
         <div class="p-5">
@@ -1252,82 +1073,11 @@
           <p class="eyebrow mt-0.5 mb-2.5">Program Chair</p>
           <p class="text-xs text-gray-500 leading-relaxed mb-3">Ph.D. in Information Technology · Specializes in Advanced Database Systems and Systems Integration</p>
           <div class="flex flex-wrap gap-1.5">
-            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 203</span>
-            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 204</span>
             <span class="tag bg-gray-100 text-gray-600">Databases</span>
           </div>
         </div>
       </div>
-
-      <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="fav h-44 w-full" style="background:linear-gradient(135deg,#0a3d62,#1e6fa8)"><span>—</span></div>
-        <div class="p-5">
-          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">Faculty Member 2</p>
-          <p class="eyebrow mt-0.5 mb-2.5">Associate Professor</p>
-          <p class="text-xs text-gray-500 leading-relaxed mb-3">Ph.D. in Computer Science · Research focus on Intelligent Systems and Machine Learning</p>
-          <div class="flex flex-wrap gap-1.5">
-            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 208</span>
-            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 209</span>
-            <span class="tag bg-gray-100 text-gray-600">AI / ML</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="fav h-44 w-full" style="background:linear-gradient(135deg,#1a5c2a,#2e9348)"><span>—</span></div>
-        <div class="p-5">
-          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">Faculty Member 3</p>
-          <p class="eyebrow mt-0.5 mb-2.5">Assistant Professor</p>
-          <p class="text-xs text-gray-500 leading-relaxed mb-3">M.S. in Information Technology · Expert in Network Administration and Operating Systems</p>
-          <div class="flex flex-wrap gap-1.5">
-            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 201</span>
-            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 202</span>
-            <span class="tag bg-gray-100 text-gray-600">Networking</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="fav h-44 w-full" style="background:linear-gradient(135deg,#5c3a00,#9a6020)"><span>—</span></div>
-        <div class="p-5">
-          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">Faculty Member 4</p>
-          <p class="eyebrow mt-0.5 mb-2.5">Associate Professor</p>
-          <p class="text-xs text-gray-500 leading-relaxed mb-3">Ph.D. in Information Systems · Specializes in E-Commerce Solutions and System Development</p>
-          <div class="flex flex-wrap gap-1.5">
-            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 205</span>
-            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 206</span>
-            <span class="tag bg-gray-100 text-gray-600">E-Commerce</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="fav h-44 w-full" style="background:linear-gradient(135deg,#3d1456,#7a2b9e)"><span>—</span></div>
-        <div class="p-5">
-          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">Faculty Member 5</p>
-          <p class="eyebrow mt-0.5 mb-2.5">Assistant Professor</p>
-          <p class="text-xs text-gray-500 leading-relaxed mb-3">M.S. in Computer Science · Focus on Human-Computer Interaction and Interactive Systems Design</p>
-          <div class="flex flex-wrap gap-1.5">
-            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 207</span>
-            <span class="tag bg-gray-100 text-gray-600">HCI</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="fav h-44 w-full" style="background:linear-gradient(135deg,#1a3a5c,#2a6090)"><span>—</span></div>
-        <div class="p-5">
-          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">Faculty Member 6</p>
-          <p class="eyebrow mt-0.5 mb-2.5">Research Coordinator</p>
-          <p class="text-xs text-gray-500 leading-relaxed mb-3">Ph.D. in Applied Statistics · Leads Statistical Research and Graduate Research Methodology courses</p>
-          <div class="flex flex-wrap gap-1.5">
-            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 205</span>
-            <span class="tag" style="background:rgba(123,17,19,.08);color:var(--crimson)">MIT 206</span>
-            <span class="tag bg-gray-100 text-gray-600">Research</span>
-          </div>
-        </div>
-      </div>
-
+      {% endfor %}
     </div>
   </div>
 </div>

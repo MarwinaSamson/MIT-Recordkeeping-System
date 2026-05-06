@@ -401,6 +401,125 @@ class CMSSettings(models.Model):
         blank=True,
         help_text='List of admission requirements: [{number, title, description}]'
     )
+    # About page fields
+    about_hero_eyebrow = models.CharField(
+        max_length=255,
+        blank=True,
+        default="Western Mindanao State University · College of Computing Studies"
+    )
+    about_hero_title = models.CharField(
+        max_length=255,
+        blank=True,
+        default="Master in"
+    )
+    about_hero_title_italic = models.CharField(
+        max_length=255,
+        blank=True,
+        default="Information Technology"
+    )
+    about_hero_tagline = models.TextField(
+        blank=True,
+        default="Preparing professionals for systems integration, administration, planning, implementation, and maintenance of complex technology ecosystems."
+    )
+    about_hero_badge = models.CharField(
+        max_length=255,
+        blank=True,
+        default="CHED Compliant · Effective S.Y. 2019–2020"
+    )
+    about_overview_text = models.TextField(
+        blank=True,
+        default="The Master in Information Technology (MIT) at Western Mindanao State University emphasizes the acquisition of advanced concepts and technologies, preparing graduates for the industrial practice of systems integration, systems administration, systems planning, and systems implementation — maintaining the integrity and proper functionality of complex systems."
+    )
+    about_overview_image = models.ImageField(
+        upload_to='cms/about/',
+        null=True,
+        blank=True,
+        help_text="Image shown in the right column of the About overview section"
+    )
+    # JSON list of {code: str, name: str, units: int, description: str}
+    about_courses = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='List of courses: [{code, name, units, description}]'
+    )
+    # JSON list of {number: int, title: str, description: str}
+    about_outcomes = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='List of learning outcomes: [{number, title, description}]'
+    )
+    # JSON list of {title: str, description: str}
+    about_objectives = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='List of program objectives: [{title, description}]'
+    )
+    about_info_institution = models.TextField(
+        blank=True,
+        default="Western Mindanao State University"
+    )
+    about_info_copc = models.TextField(
+        blank=True,
+        default="017, Series of 2019 — August 28, 2019"
+    )
+    about_info_ay = models.CharField(
+        max_length=100,
+        blank=True,
+        default="2019–2020"
+    )
+    about_info_accred = models.TextField(
+        blank=True,
+        default="Commission on Higher Education (CHED), Philippines"
+    )
+    about_ched_heading = models.CharField(
+        max_length=255,
+        blank=True,
+        default="CHED Certified Program"
+    )
+    about_ched_desc = models.TextField(
+        blank=True,
+        default="Complies with CHED Resolution No. 405-2019 and Republic Act No. 7722 (Higher Education Act of 1994)."
+    )
+    about_stat1_val = models.CharField(
+        max_length=100,
+        blank=True,
+        default="39"
+    )
+    about_stat1_lbl = models.CharField(
+        max_length=100,
+        blank=True,
+        default="Total Units"
+    )
+    about_stat2_val = models.CharField(
+        max_length=100,
+        blank=True,
+        default="2"
+    )
+    about_stat2_lbl = models.CharField(
+        max_length=100,
+        blank=True,
+        default="Years Duration"
+    )
+    about_stat3_val = models.CharField(
+        max_length=100,
+        blank=True,
+        default="12"
+    )
+    about_stat3_lbl = models.CharField(
+        max_length=100,
+        blank=True,
+        default="Core Course Units"
+    )
+    about_stat4_val = models.CharField(
+        max_length=100,
+        blank=True,
+        default="21"
+    )
+    about_stat4_lbl = models.CharField(
+        max_length=100,
+        blank=True,
+        default="Specialization Units"
+    )
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
