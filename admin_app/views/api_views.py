@@ -9,13 +9,49 @@ from django.utils import timezone
 from django.core.files.storage import default_storage
 import json
 
-from ..models import Application, DocumentVerification, AdminActivityLog, AdminProfile
+from ..models import Application, DocumentVerification, AdminActivityLog, AdminProfile, SchoolYear
 from students_app.models import Document
-
+from ..models import Prospectus, ProspectusYear, ProspectusSemester, ProspectusSubject, ProspectusAssignment, Program
 
 def is_superuser(user):
     """Check if user is a superuser."""
     return user.is_superuser
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+def get_admission_semesters(request):
+    """Return distinct semester labels derived from ProspectusSemester labels."""
+    try:
+        labels = ProspectusSemester.objects.values_list('label', flat=True).distinct()
+        return JsonResponse({'success': True, 'semesters': list(labels)})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+def get_admission_school_years(request):
+    """Return non-archived school years for admin dropdowns."""
+    try:
+        qs = SchoolYear.objects.filter(is_archived=False).order_by('-name')
+        data = [{'id': sy.pk, 'name': sy.name, 'is_active': sy.is_active} for sy in qs]
+        return JsonResponse({'success': True, 'school_years': data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+def get_admission_curricula(request):
+    """Return active prospectuses as curricula options."""
+    try:
+        qs = Prospectus.objects.filter(is_active=True).order_by('-created_at')
+        data = [{'id': p.pk, 'name': p.name, 'program_name': p.program_name, 'description': p.description} for p in qs]
+        return JsonResponse({'success': True, 'curricula': data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
 
 
 @login_required(login_url='login')
@@ -947,6 +983,161 @@ def get_students_with_requirements(request):
         })
 
     return JsonResponse({'success': True, 'data': list(student_data.values())})
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def list_prospectuses(request):
+    """Return all prospectuses with nested years/semesters/subjects."""
+    try:
+        qs = Prospectus.objects.all().order_by('-created_at')
+        out = []
+        for p in qs:
+            years = []
+            for y in p.years.all().order_by('order'):
+                sems = []
+                for s in y.semesters.all().order_by('order'):
+                    subs = []
+                    for sub in s.subjects.all().order_by('order'):
+                        subs.append({
+                            'id': sub.id,
+                            'order': sub.order,
+                            'code': sub.code,
+                            'title': sub.title,
+                            'prereq': sub.prereq,
+                            'lec': sub.lec,
+                            'lab': sub.lab,
+                            'total': sub.total,
+                            'grade': sub.grade,
+                        })
+                    sems.append({'id': s.id, 'order': s.order, 'label': s.label, 'subjects': subs})
+                years.append({'id': y.id, 'order': y.order, 'label': y.label, 'semesters': sems})
+            # include assignments
+            assigns = []
+            for a in p.assignments.all():
+                assigns.append({'id': a.id, 'program_name': a.program_name, 'program_code': a.program_code, 'intake_year': a.intake_year})
+            out.append({'id': p.id, 'name': p.name, 'description': p.description, 'program_name': p.program_name, 'program_code': p.program_code, 'years': years, 'assignments': assigns})
+        return JsonResponse({'success': True, 'data': out})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def list_programs(request):
+    """Return list of Program records."""
+    try:
+        qs = Program.objects.all().order_by('name')
+        data = [{'id': p.id, 'name': p.name, 'code': p.code} for p in qs]
+        return JsonResponse({'success': True, 'data': data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def create_prospectus(request):
+    """Create a prospectus with nested years/semesters/subjects."""
+    try:
+        data = json.loads(request.body)
+        name = data.get('name', '').strip()
+        description = data.get('description', '').strip()
+        program_name = data.get('program_name', '').strip()
+        program_code = data.get('program_code', '').strip()
+        years = data.get('years') or data.get('structure') or []
+
+        # If a program name was provided, attempt to resolve program_code from Program table
+        if program_name and not program_code:
+            try:
+                prog = Program.objects.filter(name__iexact=program_name).first()
+                if prog:
+                    program_code = prog.code or program_code
+            except Exception:
+                pass
+
+        if not name:
+            return JsonResponse({'success': False, 'message': 'Prospectus name is required.'}, status=400)
+
+        p = Prospectus.objects.create(name=name, description=description, program_name=program_name, program_code=program_code, created_by=request.user)
+
+        for y_idx, y in enumerate(years):
+            y_label = y.get('label', f'Year {y_idx+1}')
+            py = ProspectusYear.objects.create(prospectus=p, order=y_idx, label=y_label)
+            for s_idx, s in enumerate(y.get('semesters', [])):
+                s_label = s.get('label', f'Semester {s_idx+1}')
+                ps = ProspectusSemester.objects.create(year=py, order=s_idx, label=s_label)
+                for sub_idx, sub in enumerate(s.get('subjects', [])):
+                    ProspectusSubject.objects.create(
+                        semester=ps,
+                        order=sub_idx,
+                        code=sub.get('code','').strip(),
+                        title=sub.get('title','').strip() or 'Untitled',
+                        prereq=sub.get('prereq','').strip(),
+                        lec=int(sub.get('lec') or 0),
+                        lab=int(sub.get('lab') or 0),
+                        total=int(sub.get('total') or 0),
+                        grade=str(sub.get('grade') or '').strip()
+                    )
+
+        AdminActivityLog.objects.create(admin=request.user, action='created_prospectus', notes=f'Created prospectus: {p.name}')
+
+        return JsonResponse({'success': True, 'message': 'Prospectus created.', 'id': p.id})
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def delete_prospectus(request, prospectus_id=None):
+    try:
+        data = json.loads(request.body) if request.body else {}
+        pid = prospectus_id or data.get('id')
+        if not pid:
+            return JsonResponse({'success': False, 'message': 'Prospectus id required.'}, status=400)
+        p = Prospectus.objects.get(id=pid)
+        name = p.name
+        p.delete()
+        AdminActivityLog.objects.create(admin=request.user, action='deleted_prospectus', notes=f'Deleted prospectus: {name}')
+        return JsonResponse({'success': True, 'message': 'Prospectus deleted.'})
+    except Prospectus.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Prospectus not found.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def assign_prospectus(request):
+    """Assign a prospectus to a program/intake."""
+    try:
+        data = json.loads(request.body)
+        prospectus_id = data.get('prospectus_id')
+        program_name = data.get('program_name', '').strip()
+        program_code = data.get('program_code', '').strip()
+        intake_year = data.get('intake_year', '').strip()
+
+        if not prospectus_id:
+            return JsonResponse({'success': False, 'message': 'prospectus_id is required.'}, status=400)
+        p = Prospectus.objects.get(id=prospectus_id)
+        # Update existing assignment or create
+        assignment, created = ProspectusAssignment.objects.update_or_create(
+            program_name=program_name,
+            intake_year=intake_year,
+            defaults={'prospectus': p, 'program_code': program_code}
+        )
+        AdminActivityLog.objects.create(admin=request.user, action='assigned_prospectus', notes=f'Assigned {p.name} to {program_name} {intake_year}')
+        return JsonResponse({'success': True, 'message': 'Assigned prospectus.', 'assignment_id': assignment.id})
+    except Prospectus.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Prospectus not found.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
 
 
 @login_required(login_url='login')

@@ -1761,6 +1761,12 @@
         graduate: "{{ graduate_school|escapejs }}",
       },
     };
+    
+    // Admission requirements from CMS (for dynamic document list)
+    let ADMISSION_REQUIREMENTS_RAW = {{ admission_requirements_json|safe }};
+    
+    // Document verification status from database
+    let DOCUMENT_STATUS_MAP = {{ document_status_map_json|safe }};
   </script>
 
   <script>
@@ -2202,32 +2208,101 @@
     }
 
     /* ============================================================
-       DOCUMENT GRID
+       DOCUMENT GRID — Dynamic from CMS
        ============================================================ */
-    const DOCS = [
-      { key:'tor',                name:'Official Transcript of Records', icon:'description',  required:true },
-      { key:'psa',                name:'PSA Birth Certificate',          icon:'article',      required:true },
-      { key:'gov_id',             name:'Valid Government ID',            icon:'badge',        required:true },
-      { key:'rec1',               name:'Letter of Recommendation',       icon:'contact_mail', required:true },
-      { key:'honorable_dismissal',name:'Honorable Dismissal',            icon:'school',       required:true },
-    ];
+    // Helper: convert title to key (matches backend _title_to_key)
+    function _titleToKey(title) {
+      if (!title) return "";
+      let key = title.toLowerCase();
+      key = key.replace(/[^a-z0-9]+/g, "_");
+      key = key.replace(/^_+|_+$/g, "");
+      return key;
+    }
+
+    // Build DOCS array dynamically from CMS admission_requirements
+    function buildDocsFromCMS() {
+      console.log('buildDocsFromCMS called, ADMISSION_REQUIREMENTS_RAW:', ADMISSION_REQUIREMENTS_RAW);
+      
+      if (!ADMISSION_REQUIREMENTS_RAW || !Array.isArray(ADMISSION_REQUIREMENTS_RAW) || ADMISSION_REQUIREMENTS_RAW.length === 0) {
+        console.log('Using fallback DOCS (no CMS data)');
+        // Fallback to hardcoded if CMS unavailable
+        return [
+          { key:'tor',                name:'Official Transcript of Records', icon:'description',  required:true },
+          { key:'psa',                name:'PSA Birth Certificate',          icon:'article',      required:true },
+          { key:'gov_id',             name:'Valid Government ID',            icon:'badge',        required:true },
+          { key:'rec1',               name:'Letter of Recommendation',       icon:'contact_mail', required:true },
+          { key:'honorable_dismissal',name:'Honorable Dismissal',            icon:'school',       required:true },
+        ];
+      }
+      
+      console.log('Building DOCS from CMS data, count:', ADMISSION_REQUIREMENTS_RAW.length);
+      // Convert CMS format {number, title, description} to DOCS format
+      const result = ADMISSION_REQUIREMENTS_RAW.map((req, index) => {
+        const key = _titleToKey(req.title);
+        console.log(`  [${index}] "${req.title}" => key="${key}"`);
+        return {
+          key: key,
+          name: req.title,
+          icon: 'description',  // Default icon
+          required: true,  // CMS requirements are all required by default
+        };
+      });
+      console.log('Converted to DOCS:', result);
+      return result;
+    }
+
+    let DOCS = buildDocsFromCMS();
+    console.log('DOCS after buildDocsFromCMS:', DOCS);
+    console.log('DOCS length:', DOCS.length);
+    console.log('DOCUMENT_STATUS_MAP:', DOCUMENT_STATUS_MAP);
+    
     const docStates = {};
     DOCS.forEach(d=>{
       const file=D.documentFiles&&D.documentFiles[d.key];
-      docStates[d.key]=file?{status:'uploaded',filename:file}:{status:'missing'};
+      const statusInfo = DOCUMENT_STATUS_MAP && DOCUMENT_STATUS_MAP[d.key];
+      
+      // Determine the status based on verification status first, then file existence
+      let status = 'missing';
+      let filename = null;
+      
+      if (statusInfo && statusInfo.verification_status) {
+        // Map verification statuses to display statuses
+        const verifyStatus = statusInfo.verification_status;
+        if (verifyStatus === 'verified') {
+          status = 'uploaded';  // Successfully verified
+        } else if (verifyStatus === 'reviewing') {
+          status = 'review';    // Under review
+        } else if (verifyStatus === 'rejected' || verifyStatus === 'incomplete') {
+          status = 'missing';   // Needs resubmission
+        } else if (verifyStatus === 'pending') {
+          status = 'pending';   // Waiting for review
+        }
+      } else if (file) {
+        // If no verification record but file exists, it's pending review
+        status = 'pending';
+      }
+      
+      if (file) filename = file;
+      
+      docStates[d.key] = {status: status, filename: filename};
+      console.log(`docStates[${d.key}]: status=${status}, file=${filename}, verification=${statusInfo?.verification_status}`);
     });
+    
     const statusConfig = {
-      uploaded:{label:'Uploaded',    cls:'status-uploaded',iconCls:'uploaded',icon:'check_circle'},
+      uploaded:{label:'Verified',    cls:'status-uploaded',iconCls:'uploaded',icon:'check_circle'},
       review:  {label:'Under Review',cls:'status-review',  iconCls:'review',  icon:'manage_search'},
       pending: {label:'Pending',     cls:'status-pending', iconCls:'pending', icon:'pending'},
       missing: {label:'Missing',     cls:'status-missing', iconCls:'required',icon:'upload_file'},
       required:{label:'Required',    cls:'status-required',iconCls:'required',icon:'priority_high'},
     };
     function renderDocGrid() {
-      const grid=$('docGrid'); if(!grid)return;
+      const grid=$('docGrid'); if(!grid){console.log('docGrid element not found!'); return;}
+      console.log('renderDocGrid called with DOCS:', DOCS);
+      console.log('docStates:', docStates);
       grid.innerHTML=DOCS.map(d=>{
         const st=docStates[d.key]||{status:'missing'};
         const sc=statusConfig[st.status]||statusConfig.missing;
+        console.log(`Processing doc key="${d.key}", name="${d.name}", status="${st.status}"`);
         return `<div class="doc-card" id="doccard-${d.key}">
           <div class="doc-icon ${sc.iconCls}"><span class="ms">${d.icon}</span></div>
           <div class="doc-info">
@@ -2242,6 +2317,7 @@
           </div>
         </div>`;
       }).join('');
+      console.log('renderDocGrid complete, grid.innerHTML.length:', grid.innerHTML.length);
     }
 
     function renderMiniDocList() {
@@ -2275,15 +2351,18 @@
        PROGRESS RING
        ============================================================ */
     function updateProgress() {
-      const total=D.requiredDocuments||DOCS.length;
-      const uploaded=Object.values(docStates).filter(s=>s.status==='uploaded').length;
-      const pct=Math.round((uploaded/total)*100);
+      const total = DOCS.length;  // Always use dynamic DOCS length from CMS
+      // Count all documents that have been submitted (not 'missing')
+      const submitted=Object.values(docStates).filter(s=>s.status!=='missing').length;
+      const verified=Object.values(docStates).filter(s=>s.status==='uploaded').length;
+      const pct=Math.round((submitted/total)*100);
       const offset=283-(283*pct/100);
       const ring=$('progressRing'); if(ring)ring.style.strokeDashoffset=offset;
       const pp=$('progressPercent'); if(pp)pp.textContent=pct+'%';
       const bar=$('progBar'); if(bar)bar.style.width=pct+'%';
-      const lbl=$('progLabel'); if(lbl)lbl.textContent=`${uploaded} of ${total} submitted`;
-      const stat=$('statDocs'); if(stat)stat.textContent=`${uploaded}/${total}`;
+      const lbl=$('progLabel'); if(lbl)lbl.textContent=`${submitted} of ${total} submitted`;
+      const stat=$('statDocs'); if(stat)stat.textContent=`${submitted}/${total}`;
+      console.log(`updateProgress: submitted=${submitted}, verified=${verified}, total=${total}, pct=${pct}%`);
     }
 
     /* ============================================================
@@ -2779,6 +2858,7 @@ function closeLogoutModal() {
        INIT
        ============================================================ */
     function init() {
+      console.log('init() called');
       const initials=D.initials||'ST';
       ['sidebarAvatar','topAvatar','profileAvatarBig'].forEach(id=>{const el=$(id);if(el)el.textContent=initials;});
 
@@ -2792,6 +2872,7 @@ function closeLogoutModal() {
       editableFields.forEach(id=>{const el=$(id);if(el)el.disabled=true;});
 
       // Render all components
+      console.log('Rendering components, DOCS length:', DOCS.length);
       renderDocGrid();
       renderMiniDocList();
       renderStatusSummary();
@@ -2810,6 +2891,7 @@ function closeLogoutModal() {
       // Render dynamic dates from database
       renderImportantDates();
       renderDeadline();
+      console.log('init() complete');
     }
 
     document.addEventListener('DOMContentLoaded', init);

@@ -116,6 +116,13 @@ def documents(request):
             else:
                 file_obj = request.FILES.get(f"{field_key}_file")
                 _save_document(request.user, title, file_obj)
+        # Persist MIT Curriculum (form field `mitCurriculum`) to EducationalBackground
+        mit_curriculum = request.POST.get("mitCurriculum", "").strip()
+        if mit_curriculum:
+            from students_app.models import EducationalBackground
+            eb, _ = EducationalBackground.objects.get_or_create(user=request.user, level="college")
+            eb.mit_curriculum = mit_curriculum
+            eb.save()
 
         messages.success(
             request,

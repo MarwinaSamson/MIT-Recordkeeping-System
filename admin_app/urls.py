@@ -32,6 +32,14 @@ from .views.api_views import (
     update_faculty_member,
     delete_faculty_member,
     reorder_faculty,
+     list_prospectuses,
+     list_programs,
+     create_prospectus,
+     delete_prospectus,
+     assign_prospectus,
+     get_admission_semesters,
+     get_admission_school_years,
+     get_admission_curricula,
 )
 
 app_name = 'admin_app'
@@ -85,6 +93,17 @@ urlpatterns = [
     path('api/faculty/update/', update_faculty_member, name='api_update_faculty'),
     path('api/faculty/delete/', delete_faculty_member, name='api_delete_faculty'),
     path('api/faculty/reorder/', reorder_faculty, name='api_reorder_faculty'),
+     # Prospectus APIs
+     path('api/prospectuses/', list_prospectuses, name='api_list_prospectuses'),
+     path('api/programs/', list_programs, name='api_list_programs'),
+     path('api/prospectuses/create/', create_prospectus, name='api_create_prospectus'),
+     path('api/prospectuses/<int:prospectus_id>/delete/', delete_prospectus, name='api_delete_prospectus'),
+     path('api/prospectuses/assign/', assign_prospectus, name='api_assign_prospectus'),
+     # Admission dropdown data (for Document Verification modal)
+     path('api/admission/semesters/', get_admission_semesters, name='api_admission_semesters'),
+     path('api/admission/school-years/', get_admission_school_years, name='api_admission_school_years'),
+     path('api/admission/curricula/', get_admission_curricula, name='api_admission_curricula'),
+
 
     path('settings/', cms_settings, name='cms_settings'),
     

@@ -20,6 +20,7 @@ from .views.api_views import (
     mark_all_notifications_read,
     submit_application,
 )
+from .views.debug_views import api_check_doc_data
 
 
 urlpatterns = [
@@ -48,4 +49,5 @@ urlpatterns = [
          name="mark_all_notifications_read_api"),
     path("api/submit-application/", submit_application,
          name="submit_application_api"),
+    path("api/check-doc-data/", api_check_doc_data, name="check_doc_data_api"),
 ]

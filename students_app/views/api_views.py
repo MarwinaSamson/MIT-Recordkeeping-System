@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from admin_app.models import DocumentVerification, Application
 from students_app.models import Document, Notification, PersonalDetails, PrivacyConsent
+from students_app.views.student_views import _title_to_key
 
 
 DOCUMENT_TYPE_MAP = {
@@ -15,6 +16,41 @@ DOCUMENT_TYPE_MAP = {
     'psa': 'psa',
     'gsat': 'gsat',
 }
+
+# Keywords to match document types to standard keys
+DOCUMENT_KEYWORD_MAP = {
+    'tor': ['transcript', 'records', 'tor'],
+    'psa': ['psa', 'birth', 'certificate'],
+    'deansRec': ['recommendation', 'dean', 'letter'],
+    'honorableDismissal': ['dismissal', 'honorable'],
+    'gsat': ['gsat', 'examination'],
+}
+
+def get_document_key(doc_type):
+    """Map a document type to a frontend key using multiple strategies"""
+    if not doc_type:
+        return None
+    
+    doc_type_lower = doc_type.lower()
+    
+    # Strategy 1: Exact match in DOCUMENT_TYPE_MAP
+    if doc_type_lower in DOCUMENT_TYPE_MAP:
+        return DOCUMENT_TYPE_MAP[doc_type_lower]
+    
+    # Strategy 2: Keyword matching
+    for key, keywords in DOCUMENT_KEYWORD_MAP.items():
+        if any(kw in doc_type_lower for kw in keywords):
+            return key
+    
+    # Strategy 3: Fallback to title-based slug (matches frontend)
+    key = _title_to_key(doc_type)
+    # Try to match the generated key to known keys
+    if key:
+        for standard_key in ['tor', 'psa', 'deansRec', 'honorableDismissal', 'gsat']:
+            if standard_key in key or key in standard_key:
+                return standard_key
+    
+    return None
 
 STATUS_MAP = {
     'verified': 'approved',
@@ -75,18 +111,33 @@ def get_document_status(request):
 
 @login_required
 @require_http_methods(["GET"])
+@login_required
+@require_http_methods(["GET"])
 def get_document_details(request):
     """
     Return detailed document verification statuses for all documents.
     Maps database statuses to frontend display format.
+    
+    IMPORTANT: Returns keys as SLUGS (e.g. 'official_transcript_of_records_tor')
+    to match what the frontend generates from CMS titles!
     """
+    print(f"\n=== get_document_details called for user {request.user.id} ===")
+    
     documents = Document.objects.filter(user=request.user)
+    print(f"Found {documents.count()} documents for user {request.user.id}")
+    
     doc_statuses = {}
 
     for doc in documents:
-        # Get the document key
-        key = DOCUMENT_TYPE_MAP.get(doc.document_type)
-        if not key:
+        print(f"\nProcessing document: {doc.id}")
+        print(f"  Document type: '{doc.document_type}'")
+        
+        # Generate slug key from document type (matches frontend _titleToKey)
+        slug_key = _title_to_key(doc.document_type)
+        print(f"  Generated slug key: '{slug_key}'")
+        
+        if not slug_key:
+            print(f"  WARNING: Could not generate slug for document type '{doc.document_type}'")
             continue
 
         # Get verification status if it exists
@@ -94,8 +145,13 @@ def get_document_details(request):
             document=doc).first()
 
         if verification:
+            print(f"  Found verification record")
+            print(f"    Verification status: '{verification.status}'")
+            print(f"    Verified field: {verification.verified}")
             frontend_status = STATUS_MAP.get(verification.status, 'pending')
-            doc_statuses[key] = {
+            print(f"    Mapped to frontend status: '{frontend_status}'")
+            
+            doc_statuses[slug_key] = {
                 'status': frontend_status,
                 'uploaded': True,
                 'rejection_reason': verification.rejection_reason or '',
@@ -103,13 +159,19 @@ def get_document_details(request):
             }
         else:
             # Document uploaded but not yet verified
-            doc_statuses[key] = {
+            print(f"  No verification record found - marking as pending")
+            doc_statuses[slug_key] = {
                 'status': 'pending',
                 'uploaded': True,
                 'rejection_reason': '',
                 'remarks': '',
             }
 
+    print(f"\nFinal response for user {request.user.id}:")
+    print(f"  Keys: {list(doc_statuses.keys())}")
+    print(f"  Full response: {doc_statuses}")
+    print(f"=== End get_document_details ===\n")
+    
     return JsonResponse(doc_statuses)
 
 
@@ -267,6 +329,16 @@ def submit_application(request):
                 'spouse_income': personal_details_data.get('spouse_income', ''),
             }
         )
+
+        # Save MIT Curriculum to EducationalBackground
+        mit_curriculum = data.get('mitCurriculum', '')
+        if mit_curriculum:
+            from students_app.models import EducationalBackground
+            eb, _ = EducationalBackground.objects.get_or_create(
+                user=user, level='college'
+            )
+            eb.mit_curriculum = mit_curriculum
+            eb.save()
 
         # Save privacy consent to DB
         privacy_data = data.get('privacyConsent', {})

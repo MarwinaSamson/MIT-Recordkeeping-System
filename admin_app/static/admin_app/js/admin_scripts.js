@@ -19,11 +19,275 @@ function initializeData() {
   }
 }
 
+// Prospectus management client-side store (temporary, will be replaced by API)
+let prospectuses = [];
+
+function renderProspectusPage(){
+  const container = document.getElementById('prospectusList');
+  if(!container) return;
+  // Load prospectuses from backend
+  fetch('/admin-panel/api/prospectuses/', { method: 'GET', headers: {'Accept':'application/json'}, credentials: 'same-origin' })
+    .then(r=>r.json())
+    .then(res=>{
+      if(!res.success){ container.innerHTML = `<div class="text-gray-400 text-sm">Error loading prospectuses.</div>`; return; }
+      prospectuses = res.data || [];
+      if(!prospectuses.length){ container.innerHTML = `<div class="text-gray-400 text-sm">No prospectuses created yet.</div>`; return; }
+      container.innerHTML = prospectuses.map((p,idx)=>{
+        return `
+      <div class="p-3 border rounded-lg flex items-start justify-between">
+        <div>
+          <div class="font-semibold text-gray-800">${escapeHtml(p.name)}</div>
+          <div class="text-xs text-gray-500 mt-1">${escapeHtml(p.description||'')}</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="btn btn-outline btn-sm" onclick="deleteProspectus(${p.id})">Delete</button>
+        </div>
+      </div>`;
+      }).join('');
+    })
+    .catch(err=>{ console.error('Error fetching prospectuses',err); container.innerHTML = `<div class="text-gray-400 text-sm">Error loading prospectuses.</div>`; });
+}
+
+// Prospectus builder state
+let currentBuilder = { name: '', description: '', years: [] };
+
+function resetBuilder(){
+  currentBuilder = { name: '', description: '', years: [] };
+  const nameEl = document.getElementById('builderName');
+  const descEl = document.getElementById('builderDesc');
+  if(nameEl) nameEl.value='';
+  if(descEl) descEl.value='';
+  renderBuilder();
+}
+
+function addYear(){
+  const yearIdx = currentBuilder.years.length;
+  currentBuilder.years.push({ label: `Year ${yearIdx+1}`, semesters: [ { label: 'First Semester', subjects: [] } ] });
+  renderBuilder();
+}
+
+function removeYear(yIdx){
+  if(!confirm('Remove this year and all its semesters?')) return;
+  currentBuilder.years.splice(yIdx,1);
+  renderBuilder();
+}
+
+function addSemester(yIdx){
+  currentBuilder.years[yIdx].semesters.push({ label: 'New Semester', subjects: [] });
+  renderBuilder();
+}
+
+function removeSemester(yIdx,sIdx){
+  if(!confirm('Remove this semester and its subjects?')) return;
+  currentBuilder.years[yIdx].semesters.splice(sIdx,1);
+  renderBuilder();
+}
+
+function addSubject(yIdx,sIdx){
+  currentBuilder.years[yIdx].semesters[sIdx].subjects.push({ code:'', title:'', prereq:'', lec:3, lab:0, total:3 });
+  renderBuilder();
+}
+
+function removeSubject(yIdx,sIdx,subIdx){
+  currentBuilder.years[yIdx].semesters[sIdx].subjects.splice(subIdx,1);
+  renderBuilder();
+}
+
+function updateYearLabel(yIdx,val){ currentBuilder.years[yIdx].label = val; }
+function updateSemesterLabel(yIdx,sIdx,val){ currentBuilder.years[yIdx].semesters[sIdx].label = val; }
+function updateSubjectField(yIdx,sIdx,subIdx,field,val){ currentBuilder.years[yIdx].semesters[sIdx].subjects[subIdx][field] = val; }
+
+function renderBuilder(){
+  const container = document.getElementById('builderYears');
+  if(!container) return;
+  if(!currentBuilder.years.length){ container.innerHTML = `<div class="text-gray-400 text-sm">No years yet. Click "Add Year" to start.</div>`; return; }
+  container.innerHTML = currentBuilder.years.map((y,yIdx)=>{
+    return `
+      <div class="p-3 border rounded-lg">
+        <div class="flex items-center justify-between mb-2">
+          <input value="${escapeHtml(y.label)}" oninput="updateYearLabel(${yIdx}, this.value)" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700 text-sm" />
+          <div class="flex items-center gap-2">
+            <button class="px-3 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50" onclick="addSemester(${yIdx})" type="button">Add Semester</button>
+            <button class="px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg" onclick="removeYear(${yIdx})" type="button">Delete Year</button>
+          </div>
+        </div>
+        <div class="space-y-3">
+          ${y.semesters.map((s,sIdx)=>`
+                <div class="p-3 border rounded-lg bg-gray-50">
+              <div class="flex items-center justify-between mb-2">
+                <input value="${escapeHtml(s.label)}" oninput="updateSemesterLabel(${yIdx}, ${sIdx}, this.value)" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700 text-sm" />
+                <div class="flex items-center gap-2">
+                  <button class="px-2 py-1 border border-gray-300 rounded-lg text-sm hover:bg-gray-50" onclick="addSubject(${yIdx}, ${sIdx})" type="button">Add Subject</button>
+                  <button class="px-2 py-1 text-sm text-red-600 hover:bg-red-50 rounded-lg" onclick="removeSemester(${yIdx}, ${sIdx})" type="button">Delete Semester</button>
+                </div>
+              </div>
+              <div class="space-y-2">
+                <div class="grid grid-cols-12 gap-2 items-center bg-white p-2 rounded-md border border-gray-100 text-xs text-gray-500 font-semibold">
+                  <div class="col-span-2">CODE</div>
+                  <div class="col-span-5">DESCRIPTIVE TITLE</div>
+                  <div class="col-span-2">PREREQ</div>
+                  <div class="col-span-1 text-center">LEC</div>
+                  <div class="col-span-1 text-center">LAB</div>
+                  <div class="col-span-1 text-center">TOTAL</div>
+                  <div class="col-span-1 text-right">GRADE</div>
+                </div>
+                ${s.subjects.map((sub,subIdx)=>`
+                  <div class="grid grid-cols-12 gap-2 items-center bg-white p-2 rounded-md border border-gray-50">
+                    <div class="col-span-2"><input value="${escapeHtml(sub.code)}" placeholder="Code" oninput="updateSubjectField(${yIdx},${sIdx},${subIdx},'code',this.value)" class="w-full px-3 py-2 border border-gray-200 rounded text-sm"/></div>
+                    <div class="col-span-5"><input value="${escapeHtml(sub.title)}" placeholder="Descriptive Title" oninput="updateSubjectField(${yIdx},${sIdx},${subIdx},'title',this.value)" class="w-full px-3 py-2 border border-gray-200 rounded text-sm"/></div>
+                    <div class="col-span-2"><input value="${escapeHtml(sub.prereq)}" placeholder="Prereq" oninput="updateSubjectField(${yIdx},${sIdx},${subIdx},'prereq',this.value)" class="w-full px-3 py-2 border border-gray-200 rounded text-sm"/></div>
+                    <div class="col-span-1"><input type="number" value="${sub.lec}" min="0" oninput="updateSubjectField(${yIdx},${sIdx},${subIdx},'lec',this.value);renderBuilder()" class="w-full px-3 py-2 border border-gray-200 rounded text-sm text-center"/></div>
+                    <div class="col-span-1"><input type="number" value="${sub.lab}" min="0" oninput="updateSubjectField(${yIdx},${sIdx},${subIdx},'lab',this.value);renderBuilder()" class="w-full px-3 py-2 border border-gray-200 rounded text-sm text-center"/></div>
+                    <div class="col-span-1"><input type="number" value="${sub.total}" min="0" oninput="updateSubjectField(${yIdx},${sIdx},${subIdx},'total',this.value);renderBuilder()" class="w-full px-3 py-2 border border-gray-200 rounded text-sm text-center"/></div>
+                    <div class="col-span-1 text-right"><input value="${escapeHtml(sub.grade||'--')}" placeholder="--" oninput="updateSubjectField(${yIdx},${sIdx},${subIdx},'grade',this.value)" class="w-20 px-2 py-1 border border-gray-200 rounded text-sm text-center" /></div>
+                  </div>
+                `).join('')}
+                <div class="grid grid-cols-12 gap-2 items-center mt-2 p-2 bg-gray-50 rounded-md border border-gray-100 text-sm font-semibold">
+                  <div class="col-span-9 text-right">TOTAL</div>
+                  <div class="col-span-1 text-center">${s.subjects.reduce((a,b)=>a+Number(b.lec||0),0)}</div>
+                  <div class="col-span-1 text-center">${s.subjects.reduce((a,b)=>a+Number(b.lab||0),0)}</div>
+                  <div class="col-span-1 text-center">${s.subjects.reduce((a,b)=>a+Number(b.total||0),0)}</div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function saveBuilderAsProspectus(){
+  const name = document.getElementById('builderName').value.trim();
+  const desc = document.getElementById('builderDesc').value.trim();
+  if(!name){ showToast('Prospectus name required','error'); return; }
+  const programSelect = document.getElementById('builderProgramSelect');
+  const program_name = programSelect?.value || '';
+  const payload = { name, description: desc, years: currentBuilder.years, program_name };
+  fetch('/admin-panel/api/prospectuses/create/', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {'Content-Type':'application/json','X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify(payload)
+  }).then(r=>r.json()).then(res=>{
+    if(res.success){ showToast('Prospectus saved'); resetBuilder(); renderProspectusPage(); }
+    else showToast(res.message||'Unable to save', 'error');
+  }).catch(err=>{ console.error(err); showToast('Network error', 'error'); });
+}
+
+// small helper to escape HTML for values
+function escapeHtml(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+
+function deleteProspectus(id){
+  if(!confirm('Delete this prospectus?')) return;
+  fetch(`/admin-panel/api/prospectuses/${id}/delete/`, {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {'Content-Type':'application/json','X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify({id})
+  }).then(r=>r.json()).then(res=>{
+    if(res.success){ showToast('Prospectus deleted'); renderProspectusPage(); }
+    else showToast(res.message||'Unable to delete','error');
+  }).catch(err=>{ console.error(err); showToast('Network error','error'); });
+}
+
+// Prospectus modal controls
+function openProspectusModal(){
+  resetBuilder();
+  renderBuilder();
+  // populate programs select from backend
+  fetch('/admin-panel/api/programs/', { credentials: 'same-origin' }).then(r=>r.json()).then(res=>{
+    const sel = document.getElementById('builderProgramSelect');
+    if(!sel) return;
+    sel.innerHTML = '<option value="">Select program</option>';
+    if(res && res.success && Array.isArray(res.data)){
+      res.data.forEach(p=>{
+        const opt = document.createElement('option'); opt.value = p.name; opt.textContent = p.name; sel.appendChild(opt);
+      });
+    }
+  }).catch(err=>{ console.warn('Failed to load programs',err); });
+
+  const modal = document.getElementById('prospectusModal');
+  if(modal){ modal.classList.add('open'); modal.style.display='flex'; }
+}
+function closeProspectusModal(){
+  const modal = document.getElementById('prospectusModal');
+  if(modal){ modal.classList.remove('open'); modal.style.display='none'; }
+}
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ closeProspectusModal(); } });
+document.getElementById('prospectusModal')?.addEventListener('click', function(e){ if(e.target===this) closeProspectusModal(); });
+
 // Initialize on page load
+// Populate Admission Details (School Year, Semester, Curriculum)
+function populateAdmissionDetails(){
+  // Semesters
+  fetch('/admin-panel/api/admission/semesters/', { method: 'GET', credentials: 'same-origin', headers: {'Accept':'application/json'} })
+    .then(r=>r.json())
+    .then(res=>{
+      const semEl = document.getElementById('admSemester');
+      if(!semEl) return;
+      semEl.innerHTML = '';
+      if(res && res.success && Array.isArray(res.semesters) && res.semesters.length){
+        res.semesters.forEach(s=>{ const opt=document.createElement('option'); opt.value=s; opt.textContent=s; semEl.appendChild(opt); });
+      } else {
+        ['1st Semester','2nd Semester','Summer'].forEach(s=>{ const opt=document.createElement('option'); opt.value=s; opt.textContent=s; semEl.appendChild(opt); });
+      }
+      // set previously selected value if present
+      try{ if(window.selectedApp && window.selectedApp.semester){ semEl.value = window.selectedApp.semester || ''; } }catch(e){}
+    }).catch(err=>{ console.warn('Failed to load semesters', err); });
+
+  // School years
+  fetch('/admin-panel/api/admission/school-years/', { method: 'GET', credentials: 'same-origin', headers: {'Accept':'application/json'} })
+    .then(r=>r.json())
+    .then(res=>{
+      const yearEl = document.getElementById('admYear');
+      if(!yearEl) return;
+      yearEl.innerHTML = '';
+      if(res && res.success && Array.isArray(res.school_years) && res.school_years.length){
+        res.school_years.forEach(y=>{ const opt=document.createElement('option'); opt.value=y.name; opt.textContent=y.name + (y.is_active ? ' (active)' : ''); yearEl.appendChild(opt); });
+      }
+      try{ if(window.selectedApp && window.selectedApp.year_admitted){ yearEl.value = window.selectedApp.year_admitted || ''; } }catch(e){}
+    }).catch(err=>{ console.warn('Failed to load school years', err); });
+
+  // Curricula (prospectuses)
+  fetch('/admin-panel/api/admission/curricula/', { method: 'GET', credentials: 'same-origin', headers: {'Accept':'application/json'} })
+    .then(r=>r.json())
+    .then(res=>{
+      const currEl = document.getElementById('admCurriculum');
+      if(!currEl) return;
+      currEl.innerHTML = '';
+      if(res && res.success && Array.isArray(res.curricula) && res.curricula.length){
+        res.curricula.forEach(c=>{ const opt=document.createElement('option'); opt.value=c.name; opt.textContent=c.name + (c.program_name ? ' — '+c.program_name : ''); currEl.appendChild(opt); });
+      }
+      try{ if(window.selectedApp && window.selectedApp.curriculum){ currEl.value = window.selectedApp.curriculum || ''; } }catch(e){}
+    }).catch(err=>{ console.warn('Failed to load curricula', err); });
+}
+
 if(document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeData);
 } else {
   initializeData();
+}
+
+// Assignment UI removed — creation-time program selection is used instead.
+
+function assignProspectus(){
+  const pSelect = document.getElementById('assignProspectusSelect');
+  const progSelect = document.getElementById('assignProgramSelect');
+  const progCode = document.getElementById('assignProgramCode');
+  const intake = document.getElementById('assignIntakeYear');
+  const prospectus_id = pSelect?.value;
+  const program_name = (progSelect?.value || '').trim();
+  const program_code = (progCode?.value || '').trim();
+  const intake_year = (intake?.value || '').trim();
+  if(!prospectus_id){ showToast('Select a prospectus to assign','error'); return; }
+  if(!program_name && !program_code){ if(!confirm('Assigning without a program name or code. Continue?') ) return; }
+  const payload = { prospectus_id: Number(prospectus_id), program_name, program_code, intake_year };
+  fetch('/admin-panel/api/prospectuses/assign/', { method: 'POST', headers: {'Content-Type':'application/json','X-CSRFToken': getCSRFToken()}, body: JSON.stringify(payload) })
+    .then(r=>r.json()).then(res=>{
+      if(res.success){ showToast('Assigned prospectus'); }
+      else showToast(res.message||'Unable to assign','error');
+    }).catch(err=>{ console.error(err); showToast('Network error','error'); });
 }
 
 // Document status summary function
@@ -80,6 +344,7 @@ function switchPage(pageId,el){
     renderSchoolYears('active');
     filterArchivedYears();
   }
+  if(pageId==='prospectus') renderProspectusPage();
   lucide.createIcons();
 }
 
@@ -1951,7 +2216,7 @@ function loadCurriculumData(savedData) {
 
 // Modify the existing openModal function to include curriculum loading
 // Find the existing openModal function in admin_scripts.js and replace it with this:
-function openModal(id) {
+ function openModal(id) {
   console.log('openModal called with id:', id);
   selectedApp = applications.find(a => a.id === id);
   if (!selectedApp) {
@@ -1969,14 +2234,10 @@ function openModal(id) {
   document.getElementById("lastUpdated").innerText = "Last updated: " + new Date().toISOString().split("T")[0];
   document.getElementById("remarks").value = selectedApp.remarks || "";
   
-  const semEl = document.getElementById("admSemester");
-  const yearEl = document.getElementById("admYear");
-  const currEl = document.getElementById("admCurriculum");
-  if (semEl) semEl.value = selectedApp.semester || "";
-  if (yearEl) yearEl.value = selectedApp.year_admitted || "";
-  if (currEl) currEl.value = selectedApp.curriculum || "";
-  
   renderDocCards();
+  
+  // Now populate admission dropdowns and set selected values
+  populateAdmissionDetails();
   
   // Load curriculum data
   setTimeout(() => {

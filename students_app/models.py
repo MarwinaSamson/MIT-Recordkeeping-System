@@ -68,6 +68,7 @@ class EducationalBackground(models.Model):
     degree_course = models.CharField(max_length=255, blank=True)
     year_completed = models.PositiveIntegerField(null=True, blank=True)
     scholarship = models.CharField(max_length=255, blank=True, null=True)
+    mit_curriculum = models.CharField(max_length=50, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

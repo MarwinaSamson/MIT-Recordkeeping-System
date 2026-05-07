@@ -137,7 +137,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "mit_recordkeeping_db",
         "USER": "postgres",
-        "PASSWORD": "qwerty123",
+        "PASSWORD": "011304",
         "HOST": "localhost",
         "PORT": "5432",
     }
@@ -199,6 +199,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_AGE = 60 * 60  # keep session cookie valid if active; idle timeout is enforced separately
+# Session inactivity timeout in minutes (used by SessionSecurityMiddleware)
+SESSION_TIMEOUT_MINUTES = 60
 
 # Email Configuration
 # https://docs.djangoproject.com/en/5.2/topics/email/

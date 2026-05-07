@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Application, DocumentVerification, AdminActivityLog
 from .models import SchoolYear
+from .models import Prospectus, ProspectusYear, ProspectusSemester, ProspectusSubject, ProspectusAssignment, Program
 
 
 @admin.register(Application)
@@ -69,4 +70,41 @@ class AdminActivityLogAdmin(admin.ModelAdmin):
 class SchoolYearAdmin(admin.ModelAdmin):
     list_display = ['name', 'status', 'is_active', 'is_archived', 'start_date', 'end_date']
     list_filter = ['status', 'is_active', 'is_archived']
+
+
+@admin.register(Prospectus)
+class ProspectusAdmin(admin.ModelAdmin):
+    list_display = ('name', 'program_name', 'program_code', 'is_active', 'created_at')
+    search_fields = ('name', 'program_name', 'program_code')
+    readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(ProspectusYear)
+class ProspectusYearAdmin(admin.ModelAdmin):
+    list_display = ('prospectus', 'label', 'order')
+    list_filter = ('prospectus',)
+
+
+@admin.register(ProspectusSemester)
+class ProspectusSemesterAdmin(admin.ModelAdmin):
+    list_display = ('year', 'label', 'order')
+    list_filter = ('year',)
+
+
+@admin.register(ProspectusSubject)
+class ProspectusSubjectAdmin(admin.ModelAdmin):
+    list_display = ('code', 'title', 'semester', 'lec', 'lab', 'total')
+    search_fields = ('code', 'title')
+
+
+@admin.register(ProspectusAssignment)
+class ProspectusAssignmentAdmin(admin.ModelAdmin):
+    list_display = ('prospectus', 'program_name', 'program_code', 'intake_year', 'created_at')
+    search_fields = ('program_name', 'program_code')
+
+
+@admin.register(Program)
+class ProgramAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'created_at')
+    search_fields = ('name', 'code')
 
