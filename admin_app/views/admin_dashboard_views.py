@@ -9,17 +9,12 @@ from ..utils import (
     get_verification_progress,
     get_activity_log,
 )
-from ..models import Application, DocumentVerification, AdminProfile, CMSSettings
-from students_app.models import Document
+from ..models import Application,  AdminProfile, CMSSettings
+from .document_verification import _build_application_list
+
 
 # Friendly labels for document types when the model does not define choices
-DOCUMENT_TYPE_LABELS = {
-    'deans_recommendation': "Dean's Recommendation",
-    'tor': 'Transcript of Records',
-    'honorable_dismissal': 'Honorable Dismissal',
-    'psa': 'PSA (Live Birth)',
-    'gsat': 'GSAT (Graduate School Admission Test)',
-}
+
 
 
 def is_superuser(user):
@@ -39,62 +34,7 @@ def admin_dashboard(request):
     Displays the main admin dashboard with real data from database.
     """
     # Get all applications for document verification section
-    all_apps_queryset = Application.objects.select_related(
-        'user').order_by('-submission_date')
-    all_applications = []
-
-    for app in all_apps_queryset:
-        # Get documents for this application's user
-        documents = Document.objects.filter(user=app.user)
-        docs_list = []
-
-        for doc in documents:
-            # Get verification status for this document
-            try:
-                verification = DocumentVerification.objects.get(document=doc)
-                status = verification.get_status_display()  # Convert 'verified' to 'Verified'
-                verified_by = verification.verified_by.get_full_name(
-                ) if verification.verified_by else ''
-                verified_on = verification.verified_at.strftime(
-                    '%Y-%m-%d') if verification.verified_at else ''
-            except DocumentVerification.DoesNotExist:
-                status = 'Pending Review'
-                verified_by = ''
-                verified_on = ''
-
-            docs_list.append({
-                'id': doc.id,  # Include actual document ID
-                'name': doc.get_display_name() if hasattr(doc, 'get_display_name') else doc.file_name,
-                'type': (
-                    doc.get_document_type_display()
-                    if hasattr(doc, 'get_document_type_display')
-                    else DOCUMENT_TYPE_LABELS.get(getattr(doc, 'document_type', ''), getattr(doc, 'document_type', ''))
-                ),
-                'status': status,
-                'uploadDate': doc.uploaded_at.strftime('%Y-%m-%d'),
-                'verifiedBy': verified_by,
-                'verifiedOn': verified_on,
-                'fileUrl': doc.file.url if doc.file else '',  # Include file URL for View Full
-                'issues': []  # Will be populated when issues are added
-            })
-
-        all_applications.append({
-            'id': app.application_id,
-            'name': app.get_full_name(),
-            'email': app.user.email,
-            'mobile': app.get_contact_number(),
-            'course': app.program,
-            'status': app.status,
-            'submission_date': app.submission_date.strftime('%Y-%m-%d'),
-            # For modal compatibility
-            'submissionDate': app.submission_date.strftime('%Y-%m-%d'),
-            'last_activity': app.last_activity.strftime('%Y-%m-%d'),
-            # For compatibility
-            'lastActivity': app.last_activity.strftime('%Y-%m-%d'),
-            'documents': len(documents),
-            'docs': docs_list,  # Document details for modal
-            'remarks': app.remarks,
-        })
+    all_applications = _build_application_list()
 
     # Get all activities for activity history section
     all_activities = get_activity_log(limit=100)

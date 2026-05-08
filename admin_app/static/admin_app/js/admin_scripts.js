@@ -292,14 +292,16 @@ function assignProspectus(){
 
 // Document status summary function
 function getDocStatus(docs){
-  const v=docs.filter(d=>d.status==="Verified").length;
-  const p=docs.filter(d=>d.status==="Pending Review"||d.status==="Under Review").length;
-  const r=docs.filter(d=>d.status==="Rejected").length;
-  let h="";
-  if(v) h+=`<span class="flex items-center gap-1"><span class="dot dot-green"></span>${v} Verified</span>`;
-  if(p) h+=`<span class="flex items-center gap-1"><span class="dot dot-orange"></span>${p} Pending</span>`;
-  if(r) h+=`<span class="flex items-center gap-1"><span class="dot dot-red"></span>${r} Rejected</span>`;
-  return h||`<span class="text-gray-400 text-xs">No docs</span>`;
+  const v = docs.filter(d => d.status === "Verified").length;
+  const p = docs.filter(d => d.status === "Pending Review" || d.status === "Under Review").length;
+  const r = docs.filter(d => d.status === "Rejected").length;
+  const m = docs.filter(d => d.missing === true || d.status === "Missing").length;
+  let h = "";
+  if(v) h += `<span class="flex items-center gap-1"><span class="dot dot-green"></span>${v} Verified</span>`;
+  if(p) h += `<span class="flex items-center gap-1"><span class="dot dot-orange"></span>${p} Pending</span>`;
+  if(r) h += `<span class="flex items-center gap-1"><span class="dot dot-red"></span>${r} Rejected</span>`;
+  if(m) h += `<span class="flex items-center gap-1"><span class="dot dot-red"></span>${m} Missing</span>`;
+  return h || `<span class="text-gray-400 text-xs">No docs</span>`;
 }
 function statusBadge(s){
   const normalized = s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
@@ -629,7 +631,14 @@ function closeDocPreview(){
 
 function navDocPreview(dir){
   const total = selectedApp.docs.length;
-  docPreviewCurrentIdx = (docPreviewCurrentIdx + dir + total) % total;
+  let next = (docPreviewCurrentIdx + dir + total) % total;
+  // Skip missing docs when navigating
+  let attempts = 0;
+  while(selectedApp.docs[next].missing && attempts < total){
+    next = (next + dir + total) % total;
+    attempts++;
+  }
+  docPreviewCurrentIdx = next;
   _renderDocPreviewModal();
   lucide.createIcons();
 }
@@ -751,55 +760,94 @@ function _renderDocPreviewModal(){
 })();
 
 function renderDocCards(){
-  const container=document.getElementById("docCards");
-  container.innerHTML="";
-  
+  const container = document.getElementById("docCards");
+  container.innerHTML = "";
+
   if(!selectedApp.docs || selectedApp.docs.length === 0){
-    container.innerHTML=`<div class="col-span-full py-10 text-center text-gray-400"><i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-40"></i><p class="text-sm">No documents submitted yet.</p></div>`;
+    container.innerHTML = `<div class="col-span-full py-10 text-center text-gray-400">
+      <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
+      <p class="text-sm">No documents submitted yet.</p></div>`;
     lucide.createIcons(); return;
   }
-  
-  selectedApp.docs.forEach((doc, idx)=>{
-    doc._idx = idx; // stash index for preview nav
-    const isV=doc.status==="Verified", isR=doc.status==="Rejected";
-    const border=isV?"border-green-300 bg-green-50/30":isR?"border-red-300 bg-red-50/30":"border-orange-200 bg-orange-50/20";
-    const badge=isV
-      ?`<span class="status-badge badge-verified"><i data-lucide="check-circle" class="w-3 h-3"></i>Verified</span>`
-      :isR
-      ?`<span class="status-badge badge-rejected"><i data-lucide="x-circle" class="w-3 h-3"></i>Rejected</span>`
-      :`<span class="status-badge badge-review"><i data-lucide="clock" class="w-3 h-3"></i>${doc.status}</span>`;
-    const issues=doc.issues&&doc.issues.length
-      ?`<div class="mt-1.5 px-2 py-1.5 bg-red-50 rounded-lg"><p class="text-[11px] font-semibold text-red-500 mb-0.5">Issues:</p>${doc.issues.map(i=>`<p class="text-[11px] text-red-500 flex items-start gap-1"><span>•</span>${i}</p>`).join("")}</div>`:"";
-    const verInfo=isV&&doc.verifiedBy
-      ?`<p class="text-[11px] text-green-600 mt-1 flex items-center gap-1"><i data-lucide="user-check" class="w-3 h-3"></i>${doc.verifiedBy} · ${doc.verifiedOn}</p>`:"";
-    const btns=!isV&&!isR
-      ?`<div class="flex gap-2 mt-3">
-          <button onclick="verifyDoc(${idx})" class="flex-1 flex items-center justify-center gap-1 bg-green-500 text-white text-xs font-semibold py-2 rounded-xl hover:bg-green-600 transition shadow-sm"><i data-lucide="check" class="w-3 h-3"></i> Verify</button>
-          <button onclick="rejectDoc(${idx})" class="flex-1 flex items-center justify-center gap-1 bg-red-500 text-white text-xs font-semibold py-2 rounded-xl hover:bg-red-600 transition shadow-sm"><i data-lucide="x" class="w-3 h-3"></i> Reject</button>
-        </div>`
-      :`<button onclick="unsetDoc(${idx})" class="w-full mt-3 text-xs text-gray-500 border border-gray-200 rounded-xl py-2 hover:bg-gray-50 transition">${isV?"↩ Undo Verify":"↩ Undo Reject"}</button>`;
 
-    // Thumbnail label overlay for PDF
-    const ext = getFileExt(doc.fileUrl||'');
-    const isPdf = ext==='pdf';
+  selectedApp.docs.forEach((doc, idx) => {
+    doc._idx = idx;
+
+    // ── MISSING document card ──────────────────────────────────────────────
+    if(doc.missing || doc.status === 'Missing'){
+      container.innerHTML += `
+        <div class="doc-card border-2 border-dashed border-red-300 bg-red-50/40 rounded-2xl p-4 flex flex-col text-sm">
+          <div class="flex items-start justify-between gap-2 mb-3">
+            <p class="font-semibold text-gray-800 text-xs leading-snug flex-1">${doc.name}</p>
+            <span class="status-badge" style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap">
+              <i data-lucide="alert-circle" class="w-3 h-3"></i>Missing
+            </span>
+          </div>
+          <!-- Placeholder thumbnail -->
+          <div class="rounded-xl overflow-hidden mb-3 flex flex-col items-center justify-center bg-red-100/60 border border-dashed border-red-300"
+               style="height:140px">
+            <i data-lucide="file-x" class="w-8 h-8 text-red-400 mb-1.5"></i>
+            <p class="text-[11px] font-semibold text-red-500">Not Submitted</p>
+            <p class="text-[10px] text-red-400 mt-0.5">Awaiting student upload</p>
+          </div>
+          <!-- Meta -->
+          <p class="text-[11px] text-gray-500"><span class="font-semibold text-gray-600">Type:</span> ${doc.type}</p>
+          <p class="text-[11px] text-red-400 mt-0.5 flex items-center gap-1">
+            <i data-lucide="clock" class="w-3 h-3"></i> Student has not uploaded this document
+          </p>
+          <!-- Action: notify student -->
+          <button
+            onclick="notifyMissingDoc('${doc.docType}', '${doc.name}')"
+            class="w-full mt-3 flex items-center justify-center gap-1.5 border border-red-300 text-red-600 text-xs font-semibold py-2 rounded-xl hover:bg-red-50 transition">
+            <i data-lucide="bell" class="w-3.5 h-3.5"></i> Notify Student
+          </button>
+        </div>`;
+      return; // skip the rest for missing docs
+    }
+
+    // ── SUBMITTED document card (existing logic) ───────────────────────────
+    const isV = doc.status === "Verified";
+    const isR = doc.status === "Rejected";
+    const border = isV ? "border-green-300 bg-green-50/30" : isR ? "border-red-300 bg-red-50/30" : "border-orange-200 bg-orange-50/20";
+    const badge = isV
+      ? `<span class="status-badge badge-verified"><i data-lucide="check-circle" class="w-3 h-3"></i>Verified</span>`
+      : isR
+      ? `<span class="status-badge badge-rejected"><i data-lucide="x-circle" class="w-3 h-3"></i>Rejected</span>`
+      : `<span class="status-badge badge-review"><i data-lucide="clock" class="w-3 h-3"></i>${doc.status}</span>`;
+    const issues = doc.issues && doc.issues.length
+      ? `<div class="mt-1.5 px-2 py-1.5 bg-red-50 rounded-lg">
+          <p class="text-[11px] font-semibold text-red-500 mb-0.5">Issues:</p>
+          ${doc.issues.map(i => `<p class="text-[11px] text-red-500 flex items-start gap-1"><span>•</span>${i}</p>`).join("")}
+        </div>` : "";
+    const verInfo = isV && doc.verifiedBy
+      ? `<p class="text-[11px] text-green-600 mt-1 flex items-center gap-1">
+          <i data-lucide="user-check" class="w-3 h-3"></i>${doc.verifiedBy} · ${doc.verifiedOn}</p>` : "";
+    const btns = !isV && !isR
+      ? `<div class="flex gap-2 mt-3">
+          <button onclick="verifyDoc(${idx})" class="flex-1 flex items-center justify-center gap-1 bg-green-500 text-white text-xs font-semibold py-2 rounded-xl hover:bg-green-600 transition shadow-sm">
+            <i data-lucide="check" class="w-3 h-3"></i> Verify</button>
+          <button onclick="rejectDoc(${idx})" class="flex-1 flex items-center justify-center gap-1 bg-red-500 text-white text-xs font-semibold py-2 rounded-xl hover:bg-red-600 transition shadow-sm">
+            <i data-lucide="x" class="w-3 h-3"></i> Reject</button>
+        </div>`
+      : `<button onclick="unsetDoc(${idx})" class="w-full mt-3 text-xs text-gray-500 border border-gray-200 rounded-xl py-2 hover:bg-gray-50 transition">
+          ${isV ? "↩ Undo Verify" : "↩ Undo Reject"}</button>`;
+
+    const ext = getFileExt(doc.fileUrl || '');
+    const isPdf = ext === 'pdf';
     const previewLabel = isPdf
       ? `<span style="position:absolute;top:6px;left:6px;background:rgba(239,68,68,0.9);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.04em">PDF</span>`
       : '';
 
-
-    container.innerHTML+=`
+    container.innerHTML += `
       <div class="doc-card border-2 ${border} rounded-2xl p-4 flex flex-col text-sm transition-shadow">
-        <!-- Doc name + badge -->
         <div class="flex items-start justify-between gap-2 mb-3">
           <p class="font-semibold text-gray-800 text-xs leading-snug flex-1">${doc.name}</p>
           ${badge}
         </div>
-        <!-- Clickable thumbnail preview -->
         <div class="relative rounded-xl overflow-hidden mb-3 cursor-pointer group" style="height:140px;background:#f3f4f6"
           onclick="openDocPreview(${idx})">
           ${getDocumentPreviewMarkup(doc, 'thumb')}
           ${previewLabel}
-          <!-- hover overlay -->
           <div style="position:absolute;inset:0;background:rgba(0,0,0,0);transition:background .2s;display:flex;align-items:center;justify-content:center"
             class="group-hover:bg-black/20">
             <span style="opacity:0;transition:opacity .2s;background:rgba(0,0,0,0.65);color:#fff;font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;display:flex;align-items:center;gap:5px"
@@ -808,7 +856,6 @@ function renderDocCards(){
             </span>
           </div>
         </div>
-        <!-- Meta -->
         <p class="text-[11px] text-gray-500"><span class="font-semibold text-gray-600">Type:</span> ${doc.type}</p>
         <p class="text-[11px] text-gray-500"><span class="font-semibold text-gray-600">Uploaded:</span> ${doc.uploadDate}</p>
         ${verInfo}${issues}
@@ -818,6 +865,7 @@ function renderDocCards(){
         </button>
       </div>`;
   });
+
   lucide.createIcons();
 }
 
@@ -2495,4 +2543,11 @@ function getDoctoralProgramValue() {
     return document.getElementById('admDoctoralProgramOther')?.value || '';
   }
   return selectedProgram;
+}
+
+function notifyMissingDoc(docType, docName) {
+  if(!selectedApp) return;
+  showToast(`Notification queued: ${docName} missing for ${selectedApp.name}`, 'warn');
+  // TODO: wire to /admin-panel/api/requirements/notify/ with the student's user ID
+  // and the relevant requirement, or send an email via a dedicated endpoint.
 }

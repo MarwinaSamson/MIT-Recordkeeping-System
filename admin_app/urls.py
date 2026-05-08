@@ -42,6 +42,14 @@ from .views.api_views import (
      get_admission_curricula,
 )
 
+from .views.document_verification import (
+        document_verification_page,
+        get_cor_submissions,
+        update_cor_submission,
+        get_grade_submissions,
+        update_grade_submission,
+    )
+
 app_name = 'admin_app'
 
 urlpatterns = [
@@ -119,4 +127,14 @@ urlpatterns = [
     
     # Public student API endpoint for active school year
     path('api/student/school-year/', schoolyear_views.get_active_school_year, name='api_get_active_school_year'),
+    
+     #     DocumentVerification
+    path('documents/', document_verification_page, name='document_verification'),
+    path('api/cor-submissions/', get_cor_submissions, name='api_cor_submissions'),
+    path('api/cor-submissions/<int:submission_id>/update/', update_cor_submission, name='api_update_cor'),
+    path('api/grade-submissions/', get_grade_submissions, name='api_grade_submissions'),
+    path('api/grade-submissions/<int:submission_id>/update/', update_grade_submission, name='api_update_grade'),
+    
+    
+    
 ]
