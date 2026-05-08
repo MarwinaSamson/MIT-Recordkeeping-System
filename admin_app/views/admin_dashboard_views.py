@@ -9,7 +9,7 @@ from ..utils import (
     get_verification_progress,
     get_activity_log,
 )
-from ..models import Application,  AdminProfile, CMSSettings
+from ..models import Application, AdminProfile
 from .document_verification import _build_application_list
 
 
@@ -58,8 +58,6 @@ def admin_dashboard(request):
         'recent_applications': get_recent_applications(limit=5),
         'verification_progress': get_verification_progress(),
         'recent_activities': get_activity_log(limit=10),
-        # CMS settings for homepage
-        'cms': CMSSettings.objects.filter(pk=1).first() or CMSSettings(),
         # Serialize as proper JSON so | safe in template produces valid JS
         'all_applications': json.dumps(all_applications),
         'all_activities': json.dumps(all_activities),

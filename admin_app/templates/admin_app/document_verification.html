@@ -1,659 +1,1758 @@
 {% load static %}
 {% comment %}
-  ══════════════════════════════════════════════════════════════════
-  DOCUMENT VERIFICATION PAGE
-  Include this template inside the <main> section of admin_dashboard.html
-  Replace the existing <!-- ══ PAGE: DOCUMENT VERIFICATION ══ --> block with:
-      {% include 'admin_app/document_verification.html' %}
-  ══════════════════════════════════════════════════════════════════
+DOCUMENT VERIFICATION PAGE - Include this template inside the <main> section
+of admin_dashboard.html. Replace the existing PAGE: DOCUMENT VERIFICATION block
+with: include 'admin_app/document_verification.html'
 {% endcomment %}
 
-<!-- ══ PAGE: DOCUMENT VERIFICATION ══ -->
-<div id="page-documents" class="page p-8">
-  <div class="mb-7 fade-in">
-    <h1
-      class="text-3xl font-bold text-gray-800"
-      style="font-family: 'Playfair Display', serif"
-    >
-      Document Verification
-    </h1>
-    <p class="text-gray-400 text-sm mt-1">
-      Review and verify submitted applicant documents, COR, and grades.
-    </p>
-  </div>
-
-  <!-- ══ MODULE TABS ══ -->
-  <div class="mb-6 fade-in">
-    <div class="flex gap-1 bg-gray-100 rounded-2xl p-1.5 w-fit">
-      <button
-        id="docVerTab-admission"
-        onclick="switchDocVerTab('admission')"
-        class="doc-ver-tab active flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-white text-red-800 shadow-sm"
+  <!-- ══ PAGE: DOCUMENT VERIFICATION ══ -->
+  <div id="page-documents" class="page p-8">
+    <div class="mb-7 fade-in">
+      <h1
+        class="text-3xl font-bold text-gray-800"
+        style="font-family: &quot;Playfair Display&quot;, serif"
       >
-        <i data-lucide="file-check" class="w-4 h-4"></i>
-        Admission Documents
-      </button>
-      <button
-        id="docVerTab-cor"
-        onclick="switchDocVerTab('cor')"
-        class="doc-ver-tab flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-gray-500 hover:text-gray-700 hover:bg-white/60"
-      >
-        <i data-lucide="file-text" class="w-4 h-4"></i>
-        COR Verification
-      </button>
-      <button
-        id="docVerTab-grades"
-        onclick="switchDocVerTab('grades')"
-        class="doc-ver-tab flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-gray-500 hover:text-gray-700 hover:bg-white/60"
-      >
-        <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
-        Grades
-      </button>
-    </div>
-  </div>
-
-  <!-- ══ TAB 1: ADMISSION DOCUMENTS ══ -->
-  <div id="docVerPanel-admission" class="doc-ver-panel">
-    <!-- Stats Row -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-      <div class="stat-card c-gray bg-white rounded-2xl shadow-sm p-5 fade-in" style="animation-delay:.04s">
-        <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">Total</p>
-        <h2 id="totalCount" class="text-4xl font-bold text-gray-800">0</h2>
-      </div>
-      <div class="stat-card c-orange bg-white rounded-2xl shadow-sm p-5 fade-in" style="animation-delay:.08s">
-        <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">Pending</p>
-        <h2 id="pendingCount" class="text-4xl font-bold text-orange-500">0</h2>
-      </div>
-      <div class="stat-card c-yellow bg-white rounded-2xl shadow-sm p-5 fade-in" style="animation-delay:.12s">
-        <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">Under Review</p>
-        <h2 id="reviewCount" class="text-4xl font-bold text-yellow-500">0</h2>
-      </div>
-      <div class="stat-card c-green bg-white rounded-2xl shadow-sm p-5 fade-in" style="animation-delay:.16s">
-        <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">Verified</p>
-        <h2 id="verifiedCount" class="text-4xl font-bold text-green-500">0</h2>
-      </div>
-      <div class="stat-card c-red bg-white rounded-2xl shadow-sm p-5 fade-in" style="animation-delay:.20s">
-        <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">Incomplete</p>
-        <h2 id="incompleteCount" class="text-4xl font-bold text-red-500">0</h2>
-      </div>
+        Document Verification
+      </h1>
+      <p class="text-gray-400 text-sm mt-1">
+        Review and verify submitted applicant documents, COR, and grades.
+      </p>
     </div>
 
-    <!-- Filters -->
-    <div class="flex flex-wrap gap-3 mb-4 items-center">
-      <div class="relative flex-1 min-w-[200px]">
-        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-        <input
-          id="searchInput"
-          type="text"
-          placeholder="Search name..."
-          class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition"
-        />
-      </div>
-      <div class="relative">
-        <select
-          id="statusFilter"
-          class="pl-3 pr-8 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition cursor-pointer"
+    <!-- ══ MODULE TABS ══ -->
+    <div class="mb-6 fade-in">
+      <div class="flex gap-1 bg-gray-100 rounded-2xl p-1.5 w-fit">
+        <button
+          id="docVerTab-application"
+          onclick="switchDocVerTab('application')"
+          class="doc-ver-tab active flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 bg-white text-red-800 shadow-sm"
         >
-          <option value="all">All Statuses</option>
-          <option value="Pending Review">Pending Review</option>
-          <option value="Under Review">Under Review</option>
-          <option value="Verified">Verified</option>
-          <option value="Incomplete">Incomplete</option>
-        </select>
-        <i data-lucide="chevron-down" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+          Application
+        </button>
+
+        <button
+          id="docVerTab-admission"
+          onclick="switchDocVerTab('admission')"
+          class="doc-ver-tab flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-gray-500 hover:text-gray-700 hover:bg-white/60"
+        >
+          <i data-lucide="file-check" class="w-4 h-4"></i>
+          Admission Documents
+        </button>
+        <button
+          id="docVerTab-cor"
+          onclick="switchDocVerTab('cor')"
+          class="doc-ver-tab flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-gray-500 hover:text-gray-700 hover:bg-white/60"
+        >
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+          COR Verification
+        </button>
+        <button
+          id="docVerTab-grades"
+          onclick="switchDocVerTab('grades')"
+          class="doc-ver-tab flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-gray-500 hover:text-gray-700 hover:bg-white/60"
+        >
+          <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+          Grades
+        </button>
       </div>
-      <button
-        onclick="exportCSV()"
-        class="flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+    </div>
+
+    <!-- ══ TAB 1: APPLICATION (NEW) ══ -->
+    <div id="docVerPanel-application" class="doc-ver-panel hidden">
+      <!-- Stats Row -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+        <div
+          class="stat-card c-gray bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.04s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Total
+          </p>
+          <h2 id="appTotalCount" class="text-4xl font-bold text-gray-800">0</h2>
+        </div>
+        <div
+          class="stat-card c-orange bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.08s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Pending
+          </p>
+          <h2 id="appPendingCount" class="text-4xl font-bold text-orange-500">
+            0
+          </h2>
+        </div>
+        <div
+          class="stat-card c-yellow bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.12s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Under Review
+          </p>
+          <h2 id="appReviewCount" class="text-4xl font-bold text-yellow-500">
+            0
+          </h2>
+        </div>
+        <div
+          class="stat-card c-green bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.16s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Verified
+          </p>
+          <h2 id="appVerifiedCount" class="text-4xl font-bold text-green-500">
+            0
+          </h2>
+        </div>
+        <div
+          class="stat-card c-red bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.2s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Incomplete
+          </p>
+          <h2 id="appIncompleteCount" class="text-4xl font-bold text-red-500">
+            0
+          </h2>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <!-- Application cards list (full width) -->
+        <div
+          id="applicationCards"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+        ></div>
+        <div
+          id="applicationEmpty"
+          class="hidden py-10 text-center text-gray-400"
+        >
+          <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
+          <p class="text-sm">No applications found.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TAB 1: ADMISSION DOCUMENTS ══ -->
+    <div id="docVerPanel-admission" class="doc-ver-panel">
+      <!-- Stats Row -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+        <div
+          class="stat-card c-gray bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.04s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Total
+          </p>
+          <h2 id="totalCount" class="text-4xl font-bold text-gray-800">0</h2>
+        </div>
+        <div
+          class="stat-card c-orange bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.08s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Pending
+          </p>
+          <h2 id="pendingCount" class="text-4xl font-bold text-orange-500">
+            0
+          </h2>
+        </div>
+        <div
+          class="stat-card c-yellow bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.12s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Under Review
+          </p>
+          <h2 id="reviewCount" class="text-4xl font-bold text-yellow-500">0</h2>
+        </div>
+        <div
+          class="stat-card c-green bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.16s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Verified
+          </p>
+          <h2 id="verifiedCount" class="text-4xl font-bold text-green-500">
+            0
+          </h2>
+        </div>
+        <div
+          class="stat-card c-red bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.2s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Incomplete
+          </p>
+          <h2 id="incompleteCount" class="text-4xl font-bold text-red-500">
+            0
+          </h2>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="flex flex-wrap gap-3 mb-4 items-center">
+        <div class="relative flex-1 min-w-[200px]">
+          <i
+            data-lucide="search"
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+          ></i>
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="Search name..."
+            class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition"
+          />
+        </div>
+        <div class="relative">
+          <select
+            id="statusFilter"
+            class="pl-3 pr-8 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition cursor-pointer"
+          >
+            <option value="all">All Statuses</option>
+            <option value="Pending Review">Pending Review</option>
+            <option value="Under Review">Under Review</option>
+            <option value="Verified">Verified</option>
+            <option value="Incomplete">Incomplete</option>
+          </select>
+          <i
+            data-lucide="chevron-down"
+            class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+          ></i>
+        </div>
+        <button
+          onclick="exportCSV()"
+          class="flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+        >
+          <i data-lucide="download" class="w-4 h-4"></i> Export
+        </button>
+      </div>
+
+      <!-- Applications Table -->
+      <div
+        class="bg-white rounded-2xl shadow-sm overflow-hidden fade-in"
+        style="animation-delay: 0.24s"
       >
-        <i data-lucide="download" class="w-4 h-4"></i> Export
-      </button>
-    </div>
-
-    <!-- Applications Table -->
-    <div class="bg-white rounded-2xl shadow-sm overflow-hidden fade-in" style="animation-delay:.24s">
-      <table class="w-full text-left text-sm">
-        <thead>
-          <tr class="bg-gray-50 border-b border-gray-100">
-            <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Application ID</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Student Details</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Course</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Documents</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Last Activity</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody" class="divide-y divide-gray-50"></tbody>
-      </table>
-      <div id="emptyState" class="hidden py-16 text-center text-gray-400">
-        <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
-        <p class="text-sm">No applications found.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ TAB 2: COR VERIFICATION ══ -->
-  <div id="docVerPanel-cor" class="doc-ver-panel hidden">
-    <!-- Stats -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-      <div class="bg-white rounded-2xl shadow-sm p-5 fade-in" style="animation-delay:.04s">
-        <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">Total Submitted</p>
-        <h2 id="corTotalCount" class="text-4xl font-bold text-gray-800">0</h2>
-      </div>
-      <div class="bg-white rounded-2xl shadow-sm p-5 fade-in" style="animation-delay:.08s">
-        <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">Pending</p>
-        <h2 id="corPendingCount" class="text-4xl font-bold text-orange-500">0</h2>
-      </div>
-      <div class="bg-white rounded-2xl shadow-sm p-5 fade-in" style="animation-delay:.12s">
-        <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">Verified</p>
-        <h2 id="corVerifiedCount" class="text-4xl font-bold text-green-500">0</h2>
-      </div>
-      <div class="bg-white rounded-2xl shadow-sm p-5 fade-in" style="animation-delay:.16s">
-        <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">Rejected</p>
-        <h2 id="corRejectedCount" class="text-4xl font-bold text-red-500">0</h2>
-      </div>
-    </div>
-
-    <!-- Filters -->
-    <div class="flex flex-wrap gap-3 mb-4 items-center">
-      <div class="relative flex-1 min-w-[200px]">
-        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-        <input
-          id="corSearchInput"
-          type="text"
-          placeholder="Search student name or ID..."
-          oninput="renderCORTable()"
-          class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition"
-        />
-      </div>
-      <div class="relative">
-        <select id="corStatusFilter" onchange="renderCORTable()" class="pl-3 pr-8 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition cursor-pointer">
-          <option value="all">All Statuses</option>
-          <option value="Pending">Pending</option>
-          <option value="Verified">Verified</option>
-          <option value="Rejected">Rejected</option>
-        </select>
-        <i data-lucide="chevron-down" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
-      </div>
-      <div class="relative">
-        <select id="corSemesterFilter" onchange="renderCORTable()" class="pl-3 pr-8 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition cursor-pointer">
-          <option value="all">All Semesters</option>
-          <option value="1st Semester">1st Semester</option>
-          <option value="2nd Semester">2nd Semester</option>
-          <option value="Summer">Summer</option>
-        </select>
-        <i data-lucide="chevron-down" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
-      </div>
-      <button onclick="exportCORCSV()" class="flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition">
-        <i data-lucide="download" class="w-4 h-4"></i> Export
-      </button>
-    </div>
-
-    <!-- COR Table -->
-    <div class="bg-white rounded-2xl shadow-sm overflow-hidden fade-in" style="animation-delay:.20s">
-      <table class="w-full text-left text-sm">
-        <thead>
-          <tr class="bg-gray-50 border-b border-gray-100">
-            <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Student</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Course</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Semester / S.Y.</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Uploaded</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">COR File</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="corTableBody" class="divide-y divide-gray-50"></tbody>
-      </table>
-      <div id="corEmptyState" class="hidden py-16 text-center text-gray-400">
-        <i data-lucide="receipt" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
-        <p class="text-sm">No COR submissions found.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ TAB 3: GRADES ══ -->
-  <div id="docVerPanel-grades" class="doc-ver-panel hidden">
-    <!-- Stats -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-      <div class="bg-white rounded-2xl shadow-sm p-5 fade-in" style="animation-delay:.04s">
-        <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">Total Submitted</p>
-        <h2 id="gradesTotalCount" class="text-4xl font-bold text-gray-800">0</h2>
-      </div>
-      <div class="bg-white rounded-2xl shadow-sm p-5 fade-in" style="animation-delay:.08s">
-        <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">Pending Review</p>
-        <h2 id="gradesPendingCount" class="text-4xl font-bold text-orange-500">0</h2>
-      </div>
-      <div class="bg-white rounded-2xl shadow-sm p-5 fade-in" style="animation-delay:.12s">
-        <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">Acknowledged</p>
-        <h2 id="gradesAcknowledgedCount" class="text-4xl font-bold text-green-500">0</h2>
-      </div>
-      <div class="bg-white rounded-2xl shadow-sm p-5 fade-in" style="animation-delay:.16s">
-        <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">Flagged</p>
-        <h2 id="gradesFlaggedCount" class="text-4xl font-bold text-red-500">0</h2>
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-100">
+              <th
+                class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Application ID
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Student Details
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Course
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Documents
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Status
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Last Activity
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-gray-50"></tbody>
+        </table>
+        <div id="emptyState" class="hidden py-16 text-center text-gray-400">
+          <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
+          <p class="text-sm">No applications found.</p>
+        </div>
       </div>
     </div>
 
-    <!-- Filters -->
-    <div class="flex flex-wrap gap-3 mb-4 items-center">
-      <div class="relative flex-1 min-w-[200px]">
-        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-        <input
-          id="gradesSearchInput"
-          type="text"
-          placeholder="Search student name or ID..."
-          oninput="renderGradesTable()"
-          class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition"
-        />
-      </div>
-      <div class="relative">
-        <select id="gradesStatusFilter" onchange="renderGradesTable()" class="pl-3 pr-8 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition cursor-pointer">
-          <option value="all">All Statuses</option>
-          <option value="Pending">Pending</option>
-          <option value="Acknowledged">Acknowledged</option>
-          <option value="Flagged">Flagged</option>
-        </select>
-        <i data-lucide="chevron-down" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
-      </div>
-      <div class="relative">
-        <select id="gradesCourseFilter" onchange="renderGradesTable()" class="pl-3 pr-8 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition cursor-pointer">
-          <option value="all">All Courses</option>
-          <option value="MIT">MIT</option>
-          <option value="MBA">MBA</option>
-          <option value="MPA">MPA</option>
-        </select>
-        <i data-lucide="chevron-down" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
-      </div>
-      <button onclick="exportGradesCSV()" class="flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition">
-        <i data-lucide="download" class="w-4 h-4"></i> Export
-      </button>
-    </div>
-
-    <!-- Grades Table -->
-    <div class="bg-white rounded-2xl shadow-sm overflow-hidden fade-in" style="animation-delay:.20s">
-      <table class="w-full text-left text-sm">
-        <thead>
-          <tr class="bg-gray-50 border-b border-gray-100">
-            <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Student</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Course</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Semester / S.Y.</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Subjects</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">GPA</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Screenshot</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
-            <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="gradesTableBody" class="divide-y divide-gray-50"></tbody>
-      </table>
-      <div id="gradesEmptyState" class="hidden py-16 text-center text-gray-400">
-        <i data-lucide="bar-chart-2" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
-        <p class="text-sm">No grade submissions found.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ MODAL: DOCUMENT VERIFICATION (Admission) ══ -->
-<div id="modal" class="modal-overlay z-50" style="display:none">
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl fade-in">
-    <!-- Header -->
-    <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
-      <h2 class="text-lg font-bold text-gray-800">
-        Document Verification –
-        <span id="modalID" class="text-red-700 font-bold"></span>
-      </h2>
-      <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none">&times;</button>
-    </div>
-    <!-- Body -->
-    <div class="modal-body px-6 py-5">
-      <div class="bg-gray-50 rounded-xl p-4 mb-5 text-sm">
-        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Student Information</p>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-y-2 gap-x-6">
-          <div><span class="font-semibold text-gray-600">Name: </span><span id="mName" class="text-gray-800"></span></div>
-          <div><span class="font-semibold text-gray-600">Email: </span><span id="mEmail" class="text-red-700 underline cursor-pointer"></span></div>
-          <div><span class="font-semibold text-gray-600">Mobile: </span><span id="mMobile" class="text-gray-800"></span></div>
-          <div><span class="font-semibold text-gray-600">Course: </span><span id="mCourse" class="text-gray-800"></span></div>
-          <div><span class="font-semibold text-gray-600">Application ID: </span><span id="mAppID" class="text-gray-800"></span></div>
-          <div><span class="font-semibold text-gray-600">Submission Date: </span><span id="mDate" class="text-gray-800"></span></div>
+    <!-- ══ TAB 2: COR VERIFICATION ══ -->
+    <div id="docVerPanel-cor" class="doc-ver-panel hidden">
+      <!-- Stats -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        <div
+          class="bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.04s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Total Submitted
+          </p>
+          <h2 id="corTotalCount" class="text-4xl font-bold text-gray-800">0</h2>
+        </div>
+        <div
+          class="bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.08s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Pending
+          </p>
+          <h2 id="corPendingCount" class="text-4xl font-bold text-orange-500">
+            0
+          </h2>
+        </div>
+        <div
+          class="bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.12s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Verified
+          </p>
+          <h2 id="corVerifiedCount" class="text-4xl font-bold text-green-500">
+            0
+          </h2>
+        </div>
+        <div
+          class="bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.16s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Rejected
+          </p>
+          <h2 id="corRejectedCount" class="text-4xl font-bold text-red-500">
+            0
+          </h2>
         </div>
       </div>
 
-      <div id="docCards" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5"></div>
-
-      <div class="mb-4">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">Remarks</label>
-        <textarea id="remarks" rows="3" placeholder="Notes or Remarks regarding the verification process....." class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition"></textarea>
-        <p id="lastUpdated" class="text-xs text-gray-400 mt-1"></p>
-        <p class="text-xs text-gray-400">Review and verify all submitted documents for this application.</p>
+      <!-- Filters -->
+      <div class="flex flex-wrap gap-3 mb-4 items-center">
+        <div class="relative flex-1 min-w-[200px]">
+          <i
+            data-lucide="search"
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+          ></i>
+          <input
+            id="corSearchInput"
+            type="text"
+            placeholder="Search student name or ID..."
+            oninput="renderCORTable()"
+            class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition"
+          />
+        </div>
+        <div class="relative">
+          <select
+            id="corStatusFilter"
+            onchange="renderCORTable()"
+            class="pl-3 pr-8 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition cursor-pointer"
+          >
+            <option value="all">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Verified">Verified</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+          <i
+            data-lucide="chevron-down"
+            class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+          ></i>
+        </div>
+        <div class="relative">
+          <select
+            id="corSemesterFilter"
+            onchange="renderCORTable()"
+            class="pl-3 pr-8 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition cursor-pointer"
+          >
+            <option value="all">All Semesters</option>
+            <option value="1st Semester">1st Semester</option>
+            <option value="2nd Semester">2nd Semester</option>
+            <option value="Summer">Summer</option>
+          </select>
+          <i
+            data-lucide="chevron-down"
+            class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+          ></i>
+        </div>
+        <button
+          onclick="exportCORCSV()"
+          class="flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+        >
+          <i data-lucide="download" class="w-4 h-4"></i> Export
+        </button>
       </div>
 
-      <!-- Admission Details -->
-      <div class="border border-gray-100 rounded-xl p-4 bg-gray-50">
-        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-          <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-red-700"></i>
-          Admission Details
-        </p>
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
-          <div>
-            <label class="text-xs font-semibold text-gray-500 block mb-1">Semester</label>
-            <select id="admSemester" class="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition appearance-none cursor-pointer">
-              <option value="">— Select —</option>
-              <option value="1st Semester">1st Semester</option>
-              <option value="2nd Semester">2nd Semester</option>
-              <option value="Summer">Summer</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-gray-500 block mb-1">School Year</label>
-            <select id="admYear" class="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition appearance-none cursor-pointer">
-              <option value="">— Select —</option>
-              <option value="2023-2024">2023-2024</option>
-              <option value="2024-2025">2024-2025</option>
-              <option value="2025-2026">2025-2026</option>
-              <option value="2026-2027">2026-2027</option>
-              <option value="2027-2028">2027-2028</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-gray-500 block mb-1">Program Level</label>
-            <select id="admProgramLevel" onchange="toggleCurriculumFields()" class="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition appearance-none cursor-pointer">
-              <option value="">— Select Level —</option>
-              <option value="masters">Master's Degree</option>
-              <option value="doctoral">Doctoral Degree</option>
-              <option value="certificate">Certificate Program</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-gray-500 block mb-1">Curriculum</label>
-            <select id="admCurriculum" class="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition appearance-none cursor-pointer">
-              <option value="">— Select Curriculum —</option>
-              <option value="2019-2020">MIT Curriculum effective 2019 – 2020</option>
-              <option value="2023-2024">MIT Curriculum effective 2023 – 2024</option>
-            </select>
+      <!-- COR Table -->
+      <div
+        class="bg-white rounded-2xl shadow-sm overflow-hidden fade-in"
+        style="animation-delay: 0.2s"
+      >
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-100">
+              <th
+                class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Student
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Course
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Semester / S.Y.
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Uploaded
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                COR File
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Status
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody id="corTableBody" class="divide-y divide-gray-50"></tbody>
+        </table>
+        <div id="corEmptyState" class="hidden py-16 text-center text-gray-400">
+          <i
+            data-lucide="receipt"
+            class="w-10 h-10 mx-auto mb-2 opacity-40"
+          ></i>
+          <p class="text-sm">No COR submissions found.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TAB 3: GRADES ══ -->
+    <div id="docVerPanel-grades" class="doc-ver-panel hidden">
+      <!-- Stats -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        <div
+          class="bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.04s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Total Submitted
+          </p>
+          <h2 id="gradesTotalCount" class="text-4xl font-bold text-gray-800">
+            0
+          </h2>
+        </div>
+        <div
+          class="bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.08s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Pending Review
+          </p>
+          <h2
+            id="gradesPendingCount"
+            class="text-4xl font-bold text-orange-500"
+          >
+            0
+          </h2>
+        </div>
+        <div
+          class="bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.12s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Acknowledged
+          </p>
+          <h2
+            id="gradesAcknowledgedCount"
+            class="text-4xl font-bold text-green-500"
+          >
+            0
+          </h2>
+        </div>
+        <div
+          class="bg-white rounded-2xl shadow-sm p-5 fade-in"
+          style="animation-delay: 0.16s"
+        >
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
+            Flagged
+          </p>
+          <h2 id="gradesFlaggedCount" class="text-4xl font-bold text-red-500">
+            0
+          </h2>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="flex flex-wrap gap-3 mb-4 items-center">
+        <div class="relative flex-1 min-w-[200px]">
+          <i
+            data-lucide="search"
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+          ></i>
+          <input
+            id="gradesSearchInput"
+            type="text"
+            placeholder="Search student name or ID..."
+            oninput="renderGradesTable()"
+            class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition"
+          />
+        </div>
+        <div class="relative">
+          <select
+            id="gradesStatusFilter"
+            onchange="renderGradesTable()"
+            class="pl-3 pr-8 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition cursor-pointer"
+          >
+            <option value="all">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Acknowledged">Acknowledged</option>
+            <option value="Flagged">Flagged</option>
+          </select>
+          <i
+            data-lucide="chevron-down"
+            class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+          ></i>
+        </div>
+        <div class="relative">
+          <select
+            id="gradesCourseFilter"
+            onchange="renderGradesTable()"
+            class="pl-3 pr-8 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition cursor-pointer"
+          >
+            <option value="all">All Courses</option>
+            <option value="MIT">MIT</option>
+            <option value="MBA">MBA</option>
+            <option value="MPA">MPA</option>
+          </select>
+          <i
+            data-lucide="chevron-down"
+            class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+          ></i>
+        </div>
+        <button
+          onclick="exportGradesCSV()"
+          class="flex items-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+        >
+          <i data-lucide="download" class="w-4 h-4"></i> Export
+        </button>
+      </div>
+
+      <!-- Grades Table -->
+      <div
+        class="bg-white rounded-2xl shadow-sm overflow-hidden fade-in"
+        style="animation-delay: 0.2s"
+      >
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-100">
+              <th
+                class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Student
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Course
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Semester / S.Y.
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Subjects
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                GPA
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Screenshot
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Status
+              </th>
+              <th
+                class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+              >
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody id="gradesTableBody" class="divide-y divide-gray-50"></tbody>
+        </table>
+        <div
+          id="gradesEmptyState"
+          class="hidden py-16 text-center text-gray-400"
+        >
+          <i
+            data-lucide="bar-chart-2"
+            class="w-10 h-10 mx-auto mb-2 opacity-40"
+          ></i>
+          <p class="text-sm">No grade submissions found.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL: APPLICATION DETAILS ══ -->
+  <div
+    id="appDetailsModal"
+    class="modal-overlay z-50"
+    style="display: none"
+    onclick="if (event.target === this) closeAppDetailsModal();"
+  >
+    <div
+      class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl fade-in overflow-hidden"
+    >
+      <!-- Header -->
+      <div
+        class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100"
+      >
+        <h2 class="text-lg font-bold text-gray-800">
+          Application Details –
+          <span id="appModalID" class="text-red-700 font-bold">—</span>
+        </h2>
+        <button
+          onclick="closeAppDetailsModal()"
+          class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none"
+        >
+          &times;
+        </button>
+      </div>
+      <!-- Body -->
+      <div class="modal-body px-6 py-5 max-h-[70vh] overflow-y-auto">
+        <!-- Application Summary -->
+        <div class="mb-4">
+          <p class="text-sm font-semibold text-gray-600 uppercase mb-3">
+            Application Summary
+          </p>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+            <div class="bg-gray-50 rounded-xl p-3">
+              <span class="text-xs text-gray-500 font-semibold">ID</span>
+              <p id="appModalSummaryID" class="font-bold text-gray-800 mt-1">
+                —
+              </p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-3">
+              <span class="text-xs text-gray-500 font-semibold">Name</span>
+              <p id="appModalSummaryName" class="font-bold text-gray-800 mt-1">
+                —
+              </p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-3">
+              <span class="text-xs text-gray-500 font-semibold">Course</span>
+              <p
+                id="appModalSummaryCourse"
+                class="font-bold text-gray-800 mt-1"
+              >
+                —
+              </p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-3">
+              <span class="text-xs text-gray-500 font-semibold"
+                >Submission Date</span
+              >
+              <p id="appModalSummaryDate" class="font-bold text-gray-800 mt-1">
+                —
+              </p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-3 col-span-2">
+              <span class="text-xs text-gray-500 font-semibold">Status</span>
+              <p
+                id="appModalSummaryStatus"
+                class="font-bold text-gray-800 mt-1"
+              >
+                —
+              </p>
+            </div>
           </div>
         </div>
 
-        <!-- Curriculum Section -->
-        <div id="curriculumContainer" style="display:none">
-          <div class="border-t border-gray-200 pt-3 mt-2">
-            <div class="flex items-center justify-between mb-3">
-              <div class="flex gap-2">
-                <button type="button" onclick="switchCurriculumTab('program-info')" class="curriculum-tab active px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-700 text-white transition">Program Info</button>
-                <button type="button" onclick="switchCurriculumTab('courses')" class="curriculum-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition">Course List</button>
-                <button type="button" onclick="switchCurriculumTab('summary')" class="curriculum-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition">Summary</button>
-              </div>
-              <button type="button" onclick="addCourseRow()" class="text-xs font-semibold text-red-700 hover:text-red-900 flex items-center gap-1">
-                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Add Course
-              </button>
+        <!-- Personal Information -->
+        <div class="mb-4">
+          <p class="text-sm font-semibold text-gray-600 uppercase mb-2">
+            Personal Information
+          </p>
+          <div class="bg-gray-50 rounded-xl p-4 text-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-gray-500">Full Name:</span>
+              <span id="appModalPIName" class="font-semibold text-gray-800"
+                >—</span
+              >
             </div>
-
-            <!-- Tab: Program Information -->
-            <div id="curriculum-tab-program-info" class="curriculum-tab-content">
-              <div class="bg-white rounded-lg p-3 border border-gray-200">
-                <div id="doctoralFields" style="display:none" class="mb-3">
-                  <label class="text-xs font-semibold text-gray-500 block mb-1">Program / Specialization</label>
-                  <select id="admDoctoralProgram" onchange="toggleDoctoralProgramOther()" class="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition">
-                    <option value="">— Select Program —</option>
-                    <option value="PhD in Educational Management">PhD in Educational Management</option>
-                    <option value="PhD in Public Administration">PhD in Public Administration</option>
-                    <option value="Doctor of Business Administration">Doctor of Business Administration</option>
-                    <option value="Doctor of Information Technology">Doctor of Information Technology</option>
-                    <option value="Other">Other (specify below)</option>
-                  </select>
-                  <input type="text" id="admDoctoralProgramOther" placeholder="Specify program" class="mt-2 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm hidden" />
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="text-xs font-semibold text-gray-500 block mb-1">Program Name</label>
-                    <input type="text" id="curriculumProgramName" placeholder="e.g., Master in Information Technology" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50" readonly disabled />
-                  </div>
-                  <div>
-                    <label class="text-xs font-semibold text-gray-500 block mb-1">Degree Code</label>
-                    <input type="text" id="curriculumDegreeCode" placeholder="e.g., MIT" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50" readonly disabled />
-                  </div>
-                </div>
-                <div class="mt-3">
-                  <label class="text-xs font-semibold text-gray-500 block mb-1">Academic Year / Batch</label>
-                  <input type="text" id="curriculumBatchYear" placeholder="e.g., 2025-2026" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm" />
-                </div>
-                <p class="text-xs text-gray-400 mt-2">Program information will be auto-filled from the selected course.</p>
-              </div>
+            <div
+              class="flex items-center justify-between border-t border-gray-200 pt-2"
+            >
+              <span class="text-gray-500">Email:</span>
+              <span id="appModalPIEmail" class="font-semibold text-red-700"
+                >—</span
+              >
             </div>
+            <div
+              class="flex items-center justify-between border-t border-gray-200 pt-2"
+            >
+              <span class="text-gray-500">Contact:</span>
+              <span id="appModalPIContact" class="font-semibold text-gray-800"
+                >—</span
+              >
+            </div>
+            <div
+              class="flex items-center justify-between border-t border-gray-200 pt-2"
+            >
+              <span class="text-gray-500">Address:</span>
+              <span id="appModalPIAddress" class="font-semibold text-gray-800"
+                >—</span
+              >
+            </div>
+          </div>
+        </div>
 
-            <!-- Tab: Course List -->
-            <div id="curriculum-tab-courses" class="curriculum-tab-content hidden">
-              <div class="overflow-x-auto">
-                <table class="w-full text-sm border-collapse">
-                  <thead>
-                    <tr class="bg-gray-100 border-b">
-                      <th class="px-2 py-2 text-left text-xs font-semibold text-gray-600 w-20">Code</th>
-                      <th class="px-2 py-2 text-left text-xs font-semibold text-gray-600">Subject Title</th>
-                      <th class="px-2 py-2 text-center text-xs font-semibold text-gray-600 w-16">Units</th>
-                      <th class="px-2 py-2 text-left text-xs font-semibold text-gray-600 w-28">Pre-requisite</th>
-                      <th class="px-2 py-2 text-center text-xs font-semibold text-gray-600 w-32">Level / Semester</th>
-                      <th class="px-2 py-2 text-center text-xs font-semibold text-gray-600 w-12">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="coursesTableBody"></tbody>
-                </table>
-              </div>
-              <div class="mt-3 text-right">
-                <button type="button" onclick="importSampleCurriculum()" class="text-xs text-blue-600 hover:text-blue-800 mr-3">
-                  <i data-lucide="file-down" class="w-3 h-3 inline"></i> Load Sample
+        <!-- Academic Background -->
+        <div class="mb-4">
+          <p class="text-sm font-semibold text-gray-600 uppercase mb-2">
+            Academic Background
+          </p>
+          <div class="grid grid-cols-2 gap-3 text-sm">
+            <div class="bg-gray-50 rounded-xl p-3">
+              <span class="text-xs text-gray-500 font-semibold"
+                >Previous School</span
+              >
+              <p id="appModalABSchool" class="font-semibold text-gray-800 mt-1">
+                —
+              </p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-3">
+              <span class="text-xs text-gray-500 font-semibold"
+                >Year Graduated</span
+              >
+              <p id="appModalABYear" class="font-semibold text-gray-800 mt-1">
+                —
+              </p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-3">
+              <span class="text-xs text-gray-500 font-semibold">Degree</span>
+              <p id="appModalABDegree" class="font-semibold text-gray-800 mt-1">
+                —
+              </p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-3">
+              <span class="text-xs text-gray-500 font-semibold">GWA</span>
+              <p id="appModalABGWA" class="font-semibold text-gray-800 mt-1">
+                —
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Program Details -->
+        <div class="mb-4">
+          <p class="text-sm font-semibold text-gray-600 uppercase mb-2">
+            Program Details
+          </p>
+          <div class="grid grid-cols-2 gap-3 text-sm">
+            <div class="bg-gray-50 rounded-xl p-3">
+              <span class="text-xs text-gray-500 font-semibold"
+                >Program Level</span
+              >
+              <p id="appModalPDLevel" class="font-semibold text-gray-800 mt-1">
+                —
+              </p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-3">
+              <span class="text-xs text-gray-500 font-semibold"
+                >Intake Semester</span
+              >
+              <p id="appModalPDIntake" class="font-semibold text-gray-800 mt-1">
+                —
+              </p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-3 col-span-2">
+              <span class="text-xs text-gray-500 font-semibold"
+                >Specialization</span
+              >
+              <p
+                id="appModalPDSpecialization"
+                class="font-semibold text-gray-800 mt-1"
+              >
+                —
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Footer -->
+      <div class="px-6 py-4 border-t border-gray-100 flex gap-3 justify-end">
+        <button
+          onclick="closeAppDetailsModal()"
+          class="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+        >
+          Close
+        </button>
+        <button
+          onclick="
+            switchDocVerTab('admission');
+            closeAppDetailsModal();
+            requestAnimationFrame(() =>
+              setTimeout(() => openModal(selectedApp.id), 80),
+            );
+          "
+          class="px-4 py-2 bg-red-700 text-white rounded-lg text-sm font-medium hover:bg-red-800 transition flex items-center gap-2"
+        >
+          <i data-lucide="file-text" class="w-4 h-4"></i> Review Documents
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL: DOCUMENT VERIFICATION (Admission) ══ -->
+  <div id="modal" class="modal-overlay z-50" style="display: none">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl fade-in">
+      <!-- Header -->
+      <div
+        class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100"
+      >
+        <h2 class="text-lg font-bold text-gray-800">
+          Document Verification –
+          <span id="modalID" class="text-red-700 font-bold"></span>
+        </h2>
+        <button
+          onclick="closeModal()"
+          class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none"
+        >
+          &times;
+        </button>
+      </div>
+      <!-- Body -->
+      <div class="modal-body px-6 py-5">
+        <div class="bg-gray-50 rounded-xl p-4 mb-5 text-sm">
+          <p
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3"
+          >
+            Student Information
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-y-2 gap-x-6">
+            <div>
+              <span class="font-semibold text-gray-600">Name: </span
+              ><span id="mName" class="text-gray-800"></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">Email: </span
+              ><span
+                id="mEmail"
+                class="text-red-700 underline cursor-pointer"
+              ></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">Mobile: </span
+              ><span id="mMobile" class="text-gray-800"></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">Course: </span
+              ><span id="mCourse" class="text-gray-800"></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">Application ID: </span
+              ><span id="mAppID" class="text-gray-800"></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">Submission Date: </span
+              ><span id="mDate" class="text-gray-800"></span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="docCards"
+          class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5"
+        ></div>
+
+        <div class="mb-4">
+          <label
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1"
+            >Remarks</label
+          >
+          <textarea
+            id="remarks"
+            rows="3"
+            placeholder="Notes or Remarks regarding the verification process....."
+            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition"
+          ></textarea>
+          <p id="lastUpdated" class="text-xs text-gray-400 mt-1"></p>
+          <p class="text-xs text-gray-400">
+            Review and verify all submitted documents for this application.
+          </p>
+        </div>
+
+        <!-- Admission Details -->
+        <div class="border border-gray-100 rounded-xl p-4 bg-gray-50">
+          <p
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-1.5"
+          >
+            <i
+              data-lucide="graduation-cap"
+              class="w-3.5 h-3.5 text-red-700"
+            ></i>
+            Admission Details
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
+            <div>
+              <label class="text-xs font-semibold text-gray-500 block mb-1"
+                >Semester</label
+              >
+              <select
+                id="admSemester"
+                class="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition appearance-none cursor-pointer"
+              >
+                <option value="">— Select —</option>
+                <option value="1st Semester">1st Semester</option>
+                <option value="2nd Semester">2nd Semester</option>
+                <option value="Summer">Summer</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-500 block mb-1"
+                >School Year</label
+              >
+              <select
+                id="admYear"
+                class="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition appearance-none cursor-pointer"
+              >
+                <option value="">— Select —</option>
+                <option value="2023-2024">2023-2024</option>
+                <option value="2024-2025">2024-2025</option>
+                <option value="2025-2026">2025-2026</option>
+                <option value="2026-2027">2026-2027</option>
+                <option value="2027-2028">2027-2028</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-500 block mb-1"
+                >Program Level</label
+              >
+              <select
+                id="admProgramLevel"
+                onchange="toggleCurriculumFields()"
+                class="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition appearance-none cursor-pointer"
+              >
+                <option value="">— Select Level —</option>
+                <option value="masters">Master's Degree</option>
+                <option value="doctoral">Doctoral Degree</option>
+                <option value="certificate">Certificate Program</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-gray-500 block mb-1"
+                >Curriculum</label
+              >
+              <select
+                id="admCurriculum"
+                class="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition appearance-none cursor-pointer"
+              >
+                <option value="">— Select Curriculum —</option>
+                <option value="2019-2020">
+                  MIT Curriculum effective 2019 – 2020
+                </option>
+                <option value="2023-2024">
+                  MIT Curriculum effective 2023 – 2024
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Curriculum Section -->
+          <div id="curriculumContainer" style="display: none">
+            <div class="border-t border-gray-200 pt-3 mt-2">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    onclick="switchCurriculumTab('program-info')"
+                    class="curriculum-tab active px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-700 text-white transition"
+                  >
+                    Program Info
+                  </button>
+                  <button
+                    type="button"
+                    onclick="switchCurriculumTab('courses')"
+                    class="curriculum-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition"
+                  >
+                    Course List
+                  </button>
+                  <button
+                    type="button"
+                    onclick="switchCurriculumTab('summary')"
+                    class="curriculum-tab px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition"
+                  >
+                    Summary
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onclick="addCourseRow()"
+                  class="text-xs font-semibold text-red-700 hover:text-red-900 flex items-center gap-1"
+                >
+                  <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Add
+                  Course
                 </button>
               </div>
-            </div>
 
-            <!-- Tab: Summary -->
-            <div id="curriculum-tab-summary" class="curriculum-tab-content hidden">
-              <div class="bg-white rounded-lg p-4 border border-gray-200">
-                <h4 class="text-sm font-semibold text-gray-800 mb-3">Curriculum Summary</h4>
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                  <div class="bg-gray-50 rounded-lg p-3 text-center">
-                    <p class="text-xs text-gray-500">Total Units</p>
-                    <p id="totalUnits" class="text-2xl font-bold text-red-700">0</p>
+              <!-- Tab: Program Information -->
+              <div
+                id="curriculum-tab-program-info"
+                class="curriculum-tab-content"
+              >
+                <div class="bg-white rounded-lg p-3 border border-gray-200">
+                  <div id="doctoralFields" style="display: none" class="mb-3">
+                    <label
+                      class="text-xs font-semibold text-gray-500 block mb-1"
+                      >Program / Specialization</label
+                    >
+                    <select
+                      id="admDoctoralProgram"
+                      onchange="toggleDoctoralProgramOther()"
+                      class="w-full border border-gray-200 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition"
+                    >
+                      <option value="">— Select Program —</option>
+                      <option value="PhD in Educational Management">
+                        PhD in Educational Management
+                      </option>
+                      <option value="PhD in Public Administration">
+                        PhD in Public Administration
+                      </option>
+                      <option value="Doctor of Business Administration">
+                        Doctor of Business Administration
+                      </option>
+                      <option value="Doctor of Information Technology">
+                        Doctor of Information Technology
+                      </option>
+                      <option value="Other">Other (specify below)</option>
+                    </select>
+                    <input
+                      type="text"
+                      id="admDoctoralProgramOther"
+                      placeholder="Specify program"
+                      class="mt-2 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm hidden"
+                    />
                   </div>
-                  <div class="bg-gray-50 rounded-lg p-3 text-center">
-                    <p class="text-xs text-gray-500">Courses Added</p>
-                    <p id="courseCount" class="text-2xl font-bold text-red-700">0</p>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label
+                        class="text-xs font-semibold text-gray-500 block mb-1"
+                        >Program Name</label
+                      >
+                      <input
+                        type="text"
+                        id="curriculumProgramName"
+                        placeholder="e.g., Master in Information Technology"
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50"
+                        readonly
+                        disabled
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="text-xs font-semibold text-gray-500 block mb-1"
+                        >Degree Code</label
+                      >
+                      <input
+                        type="text"
+                        id="curriculumDegreeCode"
+                        placeholder="e.g., MIT"
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50"
+                        readonly
+                        disabled
+                      />
+                    </div>
                   </div>
+                  <div class="mt-3">
+                    <label
+                      class="text-xs font-semibold text-gray-500 block mb-1"
+                      >Academic Year / Batch</label
+                    >
+                    <input
+                      type="text"
+                      id="curriculumBatchYear"
+                      placeholder="e.g., 2025-2026"
+                      class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
+                    />
+                  </div>
+                  <p class="text-xs text-gray-400 mt-2">
+                    Program information will be auto-filled from the selected
+                    course.
+                  </p>
                 </div>
-                <div>
-                  <p class="text-xs font-semibold text-gray-500 mb-2">Units by Level</p>
-                  <div id="unitsByLevel" class="space-y-1 text-sm">
-                    <div class="flex justify-between py-1 border-b border-gray-100"><span>1st Year - 1st Sem:</span><span id="level11Units" class="font-semibold text-gray-700">0</span></div>
-                    <div class="flex justify-between py-1 border-b border-gray-100"><span>1st Year - 2nd Sem:</span><span id="level12Units" class="font-semibold text-gray-700">0</span></div>
-                    <div class="flex justify-between py-1 border-b border-gray-100"><span>2nd Year - 1st Sem:</span><span id="level21Units" class="font-semibold text-gray-700">0</span></div>
-                    <div class="flex justify-between py-1 border-b border-gray-100"><span>2nd Year - 2nd Sem:</span><span id="level22Units" class="font-semibold text-gray-700">0</span></div>
-                    <div class="flex justify-between py-1 border-b border-gray-100"><span>3rd Year - 1st Sem:</span><span id="level31Units" class="font-semibold text-gray-700">0</span></div>
-                    <div class="flex justify-between py-1 border-b border-gray-100"><span>3rd Year - 2nd Sem:</span><span id="level32Units" class="font-semibold text-gray-700">0</span></div>
-                    <div class="flex justify-between py-1"><span>Summer:</span><span id="summerUnits" class="font-semibold text-gray-700">0</span></div>
+              </div>
+
+              <!-- Tab: Course List -->
+              <div
+                id="curriculum-tab-courses"
+                class="curriculum-tab-content hidden"
+              >
+                <div class="overflow-x-auto">
+                  <table class="w-full text-sm border-collapse">
+                    <thead>
+                      <tr class="bg-gray-100 border-b">
+                        <th
+                          class="px-2 py-2 text-left text-xs font-semibold text-gray-600 w-20"
+                        >
+                          Code
+                        </th>
+                        <th
+                          class="px-2 py-2 text-left text-xs font-semibold text-gray-600"
+                        >
+                          Subject Title
+                        </th>
+                        <th
+                          class="px-2 py-2 text-center text-xs font-semibold text-gray-600 w-16"
+                        >
+                          Units
+                        </th>
+                        <th
+                          class="px-2 py-2 text-left text-xs font-semibold text-gray-600 w-28"
+                        >
+                          Pre-requisite
+                        </th>
+                        <th
+                          class="px-2 py-2 text-center text-xs font-semibold text-gray-600 w-32"
+                        >
+                          Level / Semester
+                        </th>
+                        <th
+                          class="px-2 py-2 text-center text-xs font-semibold text-gray-600 w-12"
+                        >
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="coursesTableBody"></tbody>
+                  </table>
+                </div>
+                <div class="mt-3 text-right">
+                  <button
+                    type="button"
+                    onclick="importSampleCurriculum()"
+                    class="text-xs text-blue-600 hover:text-blue-800 mr-3"
+                  >
+                    <i data-lucide="file-down" class="w-3 h-3 inline"></i> Load
+                    Sample
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tab: Summary -->
+              <div
+                id="curriculum-tab-summary"
+                class="curriculum-tab-content hidden"
+              >
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                  <h4 class="text-sm font-semibold text-gray-800 mb-3">
+                    Curriculum Summary
+                  </h4>
+                  <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="bg-gray-50 rounded-lg p-3 text-center">
+                      <p class="text-xs text-gray-500">Total Units</p>
+                      <p
+                        id="totalUnits"
+                        class="text-2xl font-bold text-red-700"
+                      >
+                        0
+                      </p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3 text-center">
+                      <p class="text-xs text-gray-500">Courses Added</p>
+                      <p
+                        id="courseCount"
+                        class="text-2xl font-bold text-red-700"
+                      >
+                        0
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <p class="text-xs font-semibold text-gray-500 mb-2">
+                      Units by Level
+                    </p>
+                    <div id="unitsByLevel" class="space-y-1 text-sm">
+                      <div
+                        class="flex justify-between py-1 border-b border-gray-100"
+                      >
+                        <span>1st Year - 1st Sem:</span
+                        ><span
+                          id="level11Units"
+                          class="font-semibold text-gray-700"
+                          >0</span
+                        >
+                      </div>
+                      <div
+                        class="flex justify-between py-1 border-b border-gray-100"
+                      >
+                        <span>1st Year - 2nd Sem:</span
+                        ><span
+                          id="level12Units"
+                          class="font-semibold text-gray-700"
+                          >0</span
+                        >
+                      </div>
+                      <div
+                        class="flex justify-between py-1 border-b border-gray-100"
+                      >
+                        <span>2nd Year - 1st Sem:</span
+                        ><span
+                          id="level21Units"
+                          class="font-semibold text-gray-700"
+                          >0</span
+                        >
+                      </div>
+                      <div
+                        class="flex justify-between py-1 border-b border-gray-100"
+                      >
+                        <span>2nd Year - 2nd Sem:</span
+                        ><span
+                          id="level22Units"
+                          class="font-semibold text-gray-700"
+                          >0</span
+                        >
+                      </div>
+                      <div
+                        class="flex justify-between py-1 border-b border-gray-100"
+                      >
+                        <span>3rd Year - 1st Sem:</span
+                        ><span
+                          id="level31Units"
+                          class="font-semibold text-gray-700"
+                          >0</span
+                        >
+                      </div>
+                      <div
+                        class="flex justify-between py-1 border-b border-gray-100"
+                      >
+                        <span>3rd Year - 2nd Sem:</span
+                        ><span
+                          id="level32Units"
+                          class="font-semibold text-gray-700"
+                          >0</span
+                        >
+                      </div>
+                      <div class="flex justify-between py-1">
+                        <span>Summer:</span
+                        ><span
+                          id="summerUnits"
+                          class="font-semibold text-gray-700"
+                          >0</span
+                        >
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+          <p class="text-xs text-gray-400 mt-2">
+            These details will be saved when you mark the application as
+            Verified.
+          </p>
         </div>
-        <p class="text-xs text-gray-400 mt-2">These details will be saved when you mark the application as Verified.</p>
+      </div>
+      <!-- Footer -->
+      <div
+        class="flex flex-wrap gap-3 justify-end px-6 pb-5 pt-2 border-t border-gray-100"
+      >
+        <button
+          onclick="requestResubmission()"
+          class="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition flex items-center gap-2"
+        >
+          <i data-lucide="refresh-ccw" class="w-4 h-4"></i> Request Resubmission
+        </button>
+        <button
+          onclick="markIncomplete()"
+          class="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition flex items-center gap-2"
+        >
+          <i data-lucide="x-circle" class="w-4 h-4 text-red-500"></i> Mark
+          Incomplete
+        </button>
+        <button
+          onclick="markVerified()"
+          class="px-5 py-2 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 transition flex items-center gap-2"
+        >
+          <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i> Mark
+          as Verified
+        </button>
       </div>
     </div>
-    <!-- Footer -->
-    <div class="flex flex-wrap gap-3 justify-end px-6 pb-5 pt-2 border-t border-gray-100">
-      <button onclick="requestResubmission()" class="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition flex items-center gap-2">
-        <i data-lucide="refresh-ccw" class="w-4 h-4"></i> Request Resubmission
-      </button>
-      <button onclick="markIncomplete()" class="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition flex items-center gap-2">
-        <i data-lucide="x-circle" class="w-4 h-4 text-red-500"></i> Mark Incomplete
-      </button>
-      <button onclick="markVerified()" class="px-5 py-2 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 transition flex items-center gap-2">
-        <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i> Mark as Verified
-      </button>
-    </div>
   </div>
-</div>
 
-<!-- ══ MODAL: COR VERIFICATION ══ -->
-<div id="corModal" class="modal-overlay z-50" style="display:none">
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl fade-in">
-    <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-          <i data-lucide="receipt" class="w-5 h-5 text-blue-600"></i>
+  <!-- ══ MODAL: COR VERIFICATION ══ -->
+  <div id="corModal" class="modal-overlay z-50" style="display: none">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl fade-in">
+      <div
+        class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center"
+          >
+            <i data-lucide="receipt" class="w-5 h-5 text-blue-600"></i>
+          </div>
+          <h2 class="text-lg font-bold text-gray-800">
+            COR Verification –
+            <span
+              id="corModalStudentName"
+              class="text-blue-700 font-bold"
+            ></span>
+          </h2>
         </div>
-        <h2 class="text-lg font-bold text-gray-800">
-          COR Verification – <span id="corModalStudentName" class="text-blue-700 font-bold"></span>
-        </h2>
+        <button
+          onclick="closeCORModal()"
+          class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none"
+        >
+          &times;
+        </button>
       </div>
-      <button onclick="closeCORModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none">&times;</button>
-    </div>
-    <div class="modal-body px-6 py-5">
-      <div class="bg-gray-50 rounded-xl p-4 mb-5 text-sm">
-        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Student Information</p>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-y-2 gap-x-6">
-          <div><span class="font-semibold text-gray-600">Name: </span><span id="corMName" class="text-gray-800"></span></div>
-          <div><span class="font-semibold text-gray-600">ID: </span><span id="corMStudentID" class="text-gray-800"></span></div>
-          <div><span class="font-semibold text-gray-600">Course: </span><span id="corMCourse" class="text-gray-800"></span></div>
-          <div><span class="font-semibold text-gray-600">Semester: </span><span id="corMSemester" class="text-gray-800"></span></div>
-          <div><span class="font-semibold text-gray-600">School Year: </span><span id="corMYear" class="text-gray-800"></span></div>
-          <div><span class="font-semibold text-gray-600">Uploaded: </span><span id="corMUploaded" class="text-gray-800"></span></div>
+      <div class="modal-body px-6 py-5">
+        <div class="bg-gray-50 rounded-xl p-4 mb-5 text-sm">
+          <p
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3"
+          >
+            Student Information
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-y-2 gap-x-6">
+            <div>
+              <span class="font-semibold text-gray-600">Name: </span
+              ><span id="corMName" class="text-gray-800"></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">ID: </span
+              ><span id="corMStudentID" class="text-gray-800"></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">Course: </span
+              ><span id="corMCourse" class="text-gray-800"></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">Semester: </span
+              ><span id="corMSemester" class="text-gray-800"></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">School Year: </span
+              ><span id="corMYear" class="text-gray-800"></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">Uploaded: </span
+              ><span id="corMUploaded" class="text-gray-800"></span>
+            </div>
+          </div>
+        </div>
+        <div class="mb-5">
+          <p
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3"
+          >
+            Certificate of Registration (COR)
+          </p>
+          <div
+            id="corFilePreview"
+            class="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center justify-center p-8 min-h-[220px]"
+          >
+            <i data-lucide="file-text" class="w-12 h-12 text-gray-300 mb-3"></i>
+            <p class="text-sm text-gray-400">
+              No COR file available to preview.
+            </p>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1"
+            >Admin Remarks</label
+          >
+          <textarea
+            id="corRemarks"
+            rows="3"
+            placeholder="Enter remarks or notes about this COR..."
+            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition"
+          ></textarea>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+          <span
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wide"
+            >Current Status:</span
+          >
+          <span
+            id="corCurrentStatusBadge"
+            class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700"
+            >Pending</span
+          >
         </div>
       </div>
-      <div class="mb-5">
-        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Certificate of Registration (COR)</p>
-        <div id="corFilePreview" class="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center justify-center p-8 min-h-[220px]">
-          <i data-lucide="file-text" class="w-12 h-12 text-gray-300 mb-3"></i>
-          <p class="text-sm text-gray-400">No COR file available to preview.</p>
-        </div>
+      <div
+        class="flex flex-wrap gap-3 justify-end px-6 pb-5 pt-2 border-t border-gray-100"
+      >
+        <button
+          onclick="closeCORModal()"
+          class="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition"
+        >
+          Cancel
+        </button>
+        <button
+          onclick="rejectCOR()"
+          class="px-4 py-2 border border-red-200 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition flex items-center gap-2"
+        >
+          <i data-lucide="x-circle" class="w-4 h-4"></i> Reject COR
+        </button>
+        <button
+          onclick="verifyCOR()"
+          class="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition flex items-center gap-2"
+        >
+          <i data-lucide="check-circle" class="w-4 h-4"></i> Verify COR
+        </button>
       </div>
-      <div class="mb-4">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">Admin Remarks</label>
-        <textarea id="corRemarks" rows="3" placeholder="Enter remarks or notes about this COR..." class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition"></textarea>
-      </div>
-      <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Current Status:</span>
-        <span id="corCurrentStatusBadge" class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">Pending</span>
-      </div>
-    </div>
-    <div class="flex flex-wrap gap-3 justify-end px-6 pb-5 pt-2 border-t border-gray-100">
-      <button onclick="closeCORModal()" class="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition">Cancel</button>
-      <button onclick="rejectCOR()" class="px-4 py-2 border border-red-200 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition flex items-center gap-2">
-        <i data-lucide="x-circle" class="w-4 h-4"></i> Reject COR
-      </button>
-      <button onclick="verifyCOR()" class="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition flex items-center gap-2">
-        <i data-lucide="check-circle" class="w-4 h-4"></i> Verify COR
-      </button>
     </div>
   </div>
-</div>
 
-<!-- ══ MODAL: GRADES VIEW ══ -->
-<div id="gradesModal" class="modal-overlay z-50" style="display:none">
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl fade-in">
-    <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center">
-          <i data-lucide="bar-chart-2" class="w-5 h-5 text-green-600"></i>
+  <!-- ══ MODAL: GRADES VIEW ══ -->
+  <div id="gradesModal" class="modal-overlay z-50" style="display: none">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl fade-in">
+      <div
+        class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center"
+          >
+            <i data-lucide="bar-chart-2" class="w-5 h-5 text-green-600"></i>
+          </div>
+          <h2 class="text-lg font-bold text-gray-800">
+            Grades –
+            <span
+              id="gradesModalStudentName"
+              class="text-green-700 font-bold"
+            ></span>
+          </h2>
         </div>
-        <h2 class="text-lg font-bold text-gray-800">
-          Grades – <span id="gradesModalStudentName" class="text-green-700 font-bold"></span>
-        </h2>
+        <button
+          onclick="closeGradesModal()"
+          class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none"
+        >
+          &times;
+        </button>
       </div>
-      <button onclick="closeGradesModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none">&times;</button>
-    </div>
-    <div class="modal-body px-6 py-5">
-      <div class="bg-gray-50 rounded-xl p-4 mb-5 text-sm">
-        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Student Information</p>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-y-2 gap-x-6">
-          <div><span class="font-semibold text-gray-600">Name: </span><span id="gradesMName" class="text-gray-800"></span></div>
-          <div><span class="font-semibold text-gray-600">ID: </span><span id="gradesMStudentID" class="text-gray-800"></span></div>
-          <div><span class="font-semibold text-gray-600">Course: </span><span id="gradesMCourse" class="text-gray-800"></span></div>
-          <div><span class="font-semibold text-gray-600">Semester: </span><span id="gradesMMSemester" class="text-gray-800"></span></div>
-          <div><span class="font-semibold text-gray-600">School Year: </span><span id="gradesMYear" class="text-gray-800"></span></div>
-          <div><span class="font-semibold text-gray-600">GPA: </span><span id="gradesMGPA" class="text-gray-800 font-bold"></span></div>
+      <div class="modal-body px-6 py-5">
+        <div class="bg-gray-50 rounded-xl p-4 mb-5 text-sm">
+          <p
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3"
+          >
+            Student Information
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-y-2 gap-x-6">
+            <div>
+              <span class="font-semibold text-gray-600">Name: </span
+              ><span id="gradesMName" class="text-gray-800"></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">ID: </span
+              ><span id="gradesMStudentID" class="text-gray-800"></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">Course: </span
+              ><span id="gradesMCourse" class="text-gray-800"></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">Semester: </span
+              ><span id="gradesMMSemester" class="text-gray-800"></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">School Year: </span
+              ><span id="gradesMYear" class="text-gray-800"></span>
+            </div>
+            <div>
+              <span class="font-semibold text-gray-600">GPA: </span
+              ><span id="gradesMGPA" class="text-gray-800 font-bold"></span>
+            </div>
+          </div>
+        </div>
+        <div class="mb-5">
+          <p
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3"
+          >
+            Grade Entries
+          </p>
+          <div
+            class="bg-white border border-gray-100 rounded-xl overflow-hidden"
+          >
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-gray-50 border-b border-gray-100">
+                  <th
+                    class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-left"
+                  >
+                    Subject Code
+                  </th>
+                  <th
+                    class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-left"
+                  >
+                    Subject Title
+                  </th>
+                  <th
+                    class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center"
+                  >
+                    Units
+                  </th>
+                  <th
+                    class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center"
+                  >
+                    Grade
+                  </th>
+                  <th
+                    class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center"
+                  >
+                    Remarks
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="gradesMTableBody" class="divide-y divide-gray-50">
+                <tr>
+                  <td
+                    colspan="5"
+                    class="px-4 py-6 text-center text-gray-400 text-sm"
+                  >
+                    No grade entries available.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="mb-5">
+          <p
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3"
+          >
+            Uploaded Grade Screenshot
+          </p>
+          <div
+            id="gradesScreenshotPreview"
+            class="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center justify-center p-8 min-h-[220px]"
+          >
+            <i data-lucide="image" class="w-12 h-12 text-gray-300 mb-3"></i>
+            <p class="text-sm text-gray-400">No screenshot uploaded yet.</p>
+            <p class="text-xs text-gray-300 mt-1">
+              Student uploads a photo of their grade sheet.
+            </p>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1"
+            >Admin Remarks</label
+          >
+          <textarea
+            id="gradesRemarks"
+            rows="3"
+            placeholder="Enter remarks or notes about these grades..."
+            class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition"
+          ></textarea>
+        </div>
+        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+          <span
+            class="text-xs font-semibold text-gray-500 uppercase tracking-wide"
+            >Current Status:</span
+          >
+          <span
+            id="gradesCurrentStatusBadge"
+            class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700"
+            >Pending</span
+          >
         </div>
       </div>
-      <div class="mb-5">
-        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Grade Entries</p>
-        <div class="bg-white border border-gray-100 rounded-xl overflow-hidden">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="bg-gray-50 border-b border-gray-100">
-                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-left">Subject Code</th>
-                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-left">Subject Title</th>
-                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Units</th>
-                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Grade</th>
-                <th class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center">Remarks</th>
-              </tr>
-            </thead>
-            <tbody id="gradesMTableBody" class="divide-y divide-gray-50">
-              <tr><td colspan="5" class="px-4 py-6 text-center text-gray-400 text-sm">No grade entries available.</td></tr>
-            </tbody>
-          </table>
-        </div>
+      <div
+        class="flex flex-wrap gap-3 justify-end px-6 pb-5 pt-2 border-t border-gray-100"
+      >
+        <button
+          onclick="closeGradesModal()"
+          class="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition"
+        >
+          Cancel
+        </button>
+        <button
+          onclick="flagGrades()"
+          class="px-4 py-2 border border-red-200 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition flex items-center gap-2"
+        >
+          <i data-lucide="flag" class="w-4 h-4"></i> Flag Grades
+        </button>
+        <button
+          onclick="acknowledgeGrades()"
+          class="px-5 py-2 bg-green-600 text-white rounded-xl text-sm font-semibold hover:bg-green-700 transition flex items-center gap-2"
+        >
+          <i data-lucide="check-circle" class="w-4 h-4"></i> Acknowledge Grades
+        </button>
       </div>
-      <div class="mb-5">
-        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Uploaded Grade Screenshot</p>
-        <div id="gradesScreenshotPreview" class="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center justify-center p-8 min-h-[220px]">
-          <i data-lucide="image" class="w-12 h-12 text-gray-300 mb-3"></i>
-          <p class="text-sm text-gray-400">No screenshot uploaded yet.</p>
-          <p class="text-xs text-gray-300 mt-1">Student uploads a photo of their grade sheet.</p>
-        </div>
-      </div>
-      <div class="mb-4">
-        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">Admin Remarks</label>
-        <textarea id="gradesRemarks" rows="3" placeholder="Enter remarks or notes about these grades..." class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition"></textarea>
-      </div>
-      <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Current Status:</span>
-        <span id="gradesCurrentStatusBadge" class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">Pending</span>
-      </div>
-    </div>
-    <div class="flex flex-wrap gap-3 justify-end px-6 pb-5 pt-2 border-t border-gray-100">
-      <button onclick="closeGradesModal()" class="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition">Cancel</button>
-      <button onclick="flagGrades()" class="px-4 py-2 border border-red-200 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition flex items-center gap-2">
-        <i data-lucide="flag" class="w-4 h-4"></i> Flag Grades
-      </button>
-      <button onclick="acknowledgeGrades()" class="px-5 py-2 bg-green-600 text-white rounded-xl text-sm font-semibold hover:bg-green-700 transition flex items-center gap-2">
-        <i data-lucide="check-circle" class="w-4 h-4"></i> Acknowledge Grades
-      </button>
     </div>
   </div>
-</div>
 
-<!-- ══ MODAL: REJECT DOCUMENT ══ -->
-<div id="rejectModal" class="modal-overlay z-[60]" style="display:none">
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md fade-in">
-    <div class="flex items-center gap-3 px-6 pt-5 pb-4 border-b border-gray-100">
-      <div class="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
+  <!-- ══ MODAL: REJECT DOCUMENT ══ -->
+  <div id="rejectModal" class="modal-overlay z-[60]" style="display: none">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md fade-in">
+      <div
+        class="flex items-center gap-3 px-6 pt-5 pb-4 border-b border-gray-100"
+      >
+        <div
+          class="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0"
+        >
+          <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-gray-800">Reject Document</h3>
+          <p id="rejectDocName" class="text-xs text-gray-400 mt-0.5"></p>
+        </div>
+        <button
+          onclick="closeRejectModal()"
+          class="ml-auto w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none"
+        >
+          &times;
+        </button>
       </div>
-      <div>
-        <h3 class="text-base font-bold text-gray-800">Reject Document</h3>
-        <p id="rejectDocName" class="text-xs text-gray-400 mt-0.5"></p>
+      <div class="px-6 py-5">
+        <p
+          class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2"
+        >
+          Quick Reasons
+        </p>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button
+            type="button"
+            onclick="selectChip(this)"
+            data-reason="Document is blurry or unclear"
+            class="chip px-3 py-1.5 text-xs rounded-full border border-gray-200 bg-gray-50 text-gray-600 hover:border-red-400 hover:bg-red-50 hover:text-red-700 transition font-medium"
+          >
+            Blurry / Unclear
+          </button>
+          <button
+            type="button"
+            onclick="selectChip(this)"
+            data-reason="Poor scan quality"
+            class="chip px-3 py-1.5 text-xs rounded-full border border-gray-200 bg-gray-50 text-gray-600 hover:border-red-400 hover:bg-red-50 hover:text-red-700 transition font-medium"
+          >
+            Poor Scan Quality
+          </button>
+          <button
+            type="button"
+            onclick="selectChip(this)"
+            data-reason="Signature is missing"
+            class="chip px-3 py-1.5 text-xs rounded-full border border-gray-200 bg-gray-50 text-gray-600 hover:border-red-400 hover:bg-red-50 hover:text-red-700 transition font-medium"
+          >
+            Missing Signature
+          </button>
+          <button
+            type="button"
+            onclick="selectChip(this)"
+            data-reason="Document appears to be expired"
+            class="chip px-3 py-1.5 text-xs rounded-full border border-gray-200 bg-gray-50 text-gray-600 hover:border-red-400 hover:bg-red-50 hover:text-red-700 transition font-medium"
+          >
+            Document Expired
+          </button>
+          <button
+            type="button"
+            onclick="selectChip(this)"
+            data-reason="Incorrect document submitted"
+            class="chip px-3 py-1.5 text-xs rounded-full border border-gray-200 bg-gray-50 text-gray-600 hover:border-red-400 hover:bg-red-50 hover:text-red-700 transition font-medium"
+          >
+            Wrong Document
+          </button>
+          <button
+            type="button"
+            onclick="selectChip(this)"
+            data-reason="Information does not match records"
+            class="chip px-3 py-1.5 text-xs rounded-full border border-gray-200 bg-gray-50 text-gray-600 hover:border-red-400 hover:bg-red-50 hover:text-red-700 transition font-medium"
+          >
+            Info Mismatch
+          </button>
+        </div>
+        <label
+          class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1.5"
+          >Reason / Additional Notes</label
+        >
+        <textarea
+          id="rejectReason"
+          rows="3"
+          placeholder="Describe the rejection reason in detail..."
+          class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition"
+        ></textarea>
+        <p id="rejectError" class="text-xs text-red-500 mt-1 hidden">
+          Please provide a rejection reason.
+        </p>
       </div>
-      <button onclick="closeRejectModal()" class="ml-auto w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none">&times;</button>
-    </div>
-    <div class="px-6 py-5">
-      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Quick Reasons</p>
-      <div class="flex flex-wrap gap-2 mb-4">
-        <button type="button" onclick="selectChip(this)" data-reason="Document is blurry or unclear" class="chip px-3 py-1.5 text-xs rounded-full border border-gray-200 bg-gray-50 text-gray-600 hover:border-red-400 hover:bg-red-50 hover:text-red-700 transition font-medium">Blurry / Unclear</button>
-        <button type="button" onclick="selectChip(this)" data-reason="Poor scan quality" class="chip px-3 py-1.5 text-xs rounded-full border border-gray-200 bg-gray-50 text-gray-600 hover:border-red-400 hover:bg-red-50 hover:text-red-700 transition font-medium">Poor Scan Quality</button>
-        <button type="button" onclick="selectChip(this)" data-reason="Signature is missing" class="chip px-3 py-1.5 text-xs rounded-full border border-gray-200 bg-gray-50 text-gray-600 hover:border-red-400 hover:bg-red-50 hover:text-red-700 transition font-medium">Missing Signature</button>
-        <button type="button" onclick="selectChip(this)" data-reason="Document appears to be expired" class="chip px-3 py-1.5 text-xs rounded-full border border-gray-200 bg-gray-50 text-gray-600 hover:border-red-400 hover:bg-red-50 hover:text-red-700 transition font-medium">Document Expired</button>
-        <button type="button" onclick="selectChip(this)" data-reason="Incorrect document submitted" class="chip px-3 py-1.5 text-xs rounded-full border border-gray-200 bg-gray-50 text-gray-600 hover:border-red-400 hover:bg-red-50 hover:text-red-700 transition font-medium">Wrong Document</button>
-        <button type="button" onclick="selectChip(this)" data-reason="Information does not match records" class="chip px-3 py-1.5 text-xs rounded-full border border-gray-200 bg-gray-50 text-gray-600 hover:border-red-400 hover:bg-red-50 hover:text-red-700 transition font-medium">Info Mismatch</button>
+      <div class="flex gap-3 justify-end px-6 pb-5 pt-1">
+        <button
+          onclick="closeRejectModal()"
+          class="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition"
+        >
+          Cancel
+        </button>
+        <button
+          onclick="confirmReject()"
+          class="px-5 py-2 bg-red-600 text-white rounded-xl text-sm font-semibold hover:bg-red-700 transition flex items-center gap-2"
+        >
+          <i data-lucide="x-circle" class="w-4 h-4"></i> Confirm Rejection
+        </button>
       </div>
-      <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1.5">Reason / Additional Notes</label>
-      <textarea id="rejectReason" rows="3" placeholder="Describe the rejection reason in detail..." class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition"></textarea>
-      <p id="rejectError" class="text-xs text-red-500 mt-1 hidden">Please provide a rejection reason.</p>
-    </div>
-    <div class="flex gap-3 justify-end px-6 pb-5 pt-1">
-      <button onclick="closeRejectModal()" class="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition">Cancel</button>
-      <button onclick="confirmReject()" class="px-5 py-2 bg-red-600 text-white rounded-xl text-sm font-semibold hover:bg-red-700 transition flex items-center gap-2">
-        <i data-lucide="x-circle" class="w-4 h-4"></i> Confirm Rejection
-      </button>
     </div>
   </div>
-</div>
+</main>

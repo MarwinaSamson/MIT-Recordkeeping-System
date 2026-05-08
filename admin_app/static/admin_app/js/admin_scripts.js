@@ -337,7 +337,12 @@ function switchPage(pageId,el){
   document.getElementById('page-'+pageId).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(el) el.classList.add('active');
-  if(pageId==='documents') renderTable();
+  if(pageId==='documents') {
+    if (typeof switchDocVerTab === 'function') {
+      switchDocVerTab('application');
+    }
+    renderTable();
+  }
   if(pageId==='students')  renderStudents();
   if(pageId==='history')   renderHistory();
   if(pageId==='dashboard') renderDashboard();
@@ -421,6 +426,7 @@ function renderTable(){
           <td class="px-4 py-4 text-xs text-gray-400">${app.last_activity}</td>
           <td class="px-4 py-4">
             <div class="flex items-center gap-2">
+              <button onclick="openApplicationTab('${app.id}')" class="flex items-center gap-1.5 bg-gray-100 text-gray-800 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-200 transition"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> Details</button>
               <button onclick="openModal('${app.id}')" class="flex items-center gap-1.5 bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-700 transition"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Review</button>
               <button onclick="deleteApp('${app.id}')" class="w-7 h-7 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
             </div>
@@ -2551,3 +2557,292 @@ function notifyMissingDoc(docType, docName) {
   // TODO: wire to /admin-panel/api/requirements/notify/ with the student's user ID
   // and the relevant requirement, or send an email via a dedicated endpoint.
 }
+
+/* ═══ DOC VER TABS ═══ */
+function switchDocVerTab(tab) {
+  closeModal();          // close any open modal first
+  document.querySelectorAll('.doc-ver-panel').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('.doc-ver-tab').forEach(b => {
+    b.classList.remove('active', 'bg-white', 'text-red-800', 'shadow-sm');
+    b.classList.add('text-gray-500');
+  });
+
+  const panel = document.getElementById('docVerPanel-' + tab);
+  if (panel) panel.classList.remove('hidden');
+  const btn = document.getElementById('docVerTab-' + tab);
+  if (btn) {
+    btn.classList.add('active', 'bg-white', 'text-red-800', 'shadow-sm');
+    btn.classList.remove('text-gray-500');
+  }
+
+  // Always update the stat cards for whichever tab is active
+  if (tab === 'application') { renderApplicationCards(); renderApplicationPanel(); }
+  if (tab === 'admission')   { renderTable(); }          // updateCounts() is called inside renderTable
+  if (tab === 'cor')         { typeof renderCORTable === 'function' && renderCORTable(); }
+  if (tab === 'grades')      { typeof renderGradesTable === 'function' && renderGradesTable(); }
+
+  lucide.createIcons();
+}
+
+function openApplicationTab(id) {
+  initializeData();
+  selectedApp = applications.find(a => a.id === id);
+  if (!selectedApp) { showToast('Application not found', 'error'); return; }
+  renderApplicationCards();
+  switchDocVerTab('application');
+  renderApplicationPanel();
+}
+
+function renderApplicationCards() {
+  const root = document.getElementById('applicationCards');
+  const empty = document.getElementById('applicationEmpty');
+  if (!root) return;
+  root.innerHTML = '';
+  updateApplicationStats();
+
+  if (!applications || !applications.length) {
+    if (empty) empty.classList.remove('hidden');
+    return;
+  }
+  if (empty) empty.classList.add('hidden');
+
+  applications.forEach(app => {
+    const submittedDocs = (app.docs || []).filter(d => !d.missing).length;
+    const totalDocs = (app.docs || []).length;
+
+    root.insertAdjacentHTML('beforeend', `
+      <div class="bg-white rounded-2xl shadow-sm p-5 fade-in hover:shadow-md transition cursor-pointer border border-gray-100 hover:border-gray-200"
+           onclick="selectApplicationCard('${app.id}')">
+        <div class="flex items-center gap-4 mb-3">
+          <div class="w-12 h-12 rounded-full ${avatarBg(app.name || 'A')} flex items-center justify-center font-bold text-base flex-shrink-0">
+            ${initials(app.name || '—')}
+          </div>
+          <div>
+            <p class="font-bold text-gray-800 text-sm leading-tight">${escapeHtml(app.name || '—')}</p>
+            <p class="text-xs text-gray-400">${escapeHtml(app.course || '—')} · ${escapeHtml(app.id || '—')}</p>
+          </div>
+        </div>
+        <div class="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-500 font-semibold uppercase tracking-wide">Status</span>
+            <div>${statusBadge(app.status || '')}</div>
+          </div>
+        </div>
+        <div class="space-y-1.5 text-xs text-gray-500 mb-3">
+          <p class="flex items-center gap-2"><i data-lucide="calendar" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>Submitted: ${escapeHtml(app.submission_date || '—')}</p>
+          <p class="flex items-center gap-2"><i data-lucide="file-check" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>${submittedDocs}/${totalDocs} docs submitted</p>
+        </div>
+        <div class="border-t border-gray-100 pt-3 flex gap-2">
+          <button onclick="event.stopPropagation(); verifyDocsForApp('${app.id}')"
+            class="flex-1 flex items-center justify-center gap-1 text-xs font-semibold py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Verify Docs
+          </button>
+          <button onclick="event.stopPropagation(); verifyCORForApp('${app.id}')"
+            class="flex-1 flex items-center justify-center gap-1 text-xs font-semibold py-2 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition">
+            <i data-lucide="receipt" class="w-3.5 h-3.5"></i> Verify COR
+          </button>
+          <button onclick="event.stopPropagation(); verifyGradesForApp('${app.id}')"
+            class="flex-1 flex items-center justify-center gap-1 text-xs font-semibold py-2 rounded-xl bg-green-50 text-green-700 hover:bg-green-100 transition">
+            <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> Verify Grade
+          </button>
+        </div>
+      </div>
+    `);
+  });
+  lucide.createIcons();
+}
+
+function selectApplicationCard(id) {
+  selectedApp = applications.find(a => a.id === id);
+  if (!selectedApp) return;
+  openAppDetailsModal();
+}
+
+function openAppDetailsModal() {
+  if (!selectedApp) return;
+  const modal = document.getElementById('appDetailsModal');
+  if (!modal) return;
+  
+  // Populate modal with application data
+  document.getElementById('appModalID').textContent = selectedApp.id || '—';
+  document.getElementById('appModalSummaryID').textContent = selectedApp.id || '—';
+  document.getElementById('appModalSummaryName').textContent = selectedApp.name || '—';
+  document.getElementById('appModalSummaryCourse').textContent = selectedApp.course || '—';
+  document.getElementById('appModalSummaryDate').textContent = selectedApp.submission_date || '—';
+  document.getElementById('appModalSummaryStatus').innerHTML = statusBadge(selectedApp.status || '');
+  
+  // Personal Information
+  document.getElementById('appModalPIName').textContent = selectedApp.name || '—';
+  document.getElementById('appModalPIEmail').textContent = selectedApp.email || '—';
+  document.getElementById('appModalPIContact').textContent = selectedApp.mobile || '—';
+  document.getElementById('appModalPIAddress').textContent = (selectedApp.address || '—');
+  
+  // Academic Background
+  document.getElementById('appModalABSchool').textContent = (selectedApp.prev_school || '—');
+  document.getElementById('appModalABYear').textContent = (selectedApp.year_graduated || '—');
+  document.getElementById('appModalABDegree').textContent = (selectedApp.degree || '—');
+  document.getElementById('appModalABGWA').textContent = (selectedApp.gwa || '—');
+  
+  // Program Details
+  document.getElementById('appModalPDLevel').textContent = (selectedApp.program_level || '—');
+  document.getElementById('appModalPDIntake').textContent = (selectedApp.semester || '—');
+  document.getElementById('appModalPDSpecialization').textContent = (selectedApp.specialization || '—');
+  
+  modal.style.display = 'flex';
+  modal.classList.add('fade-in');
+  lucide.createIcons();
+}
+
+function closeAppDetailsModal() {
+  const modal = document.getElementById('appDetailsModal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('fade-in');
+  }
+}
+function updateApplicationStats(){
+  const s = applications.map(a=>(a.status||'').toLowerCase());
+  document.getElementById("appTotalCount").innerText     =applications.length;
+  document.getElementById("appPendingCount").innerText   =s.filter(x=>x==="pending review").length;
+  document.getElementById("appReviewCount").innerText    =s.filter(x=>x==="under review").length;
+  document.getElementById("appVerifiedCount").innerText  =s.filter(x=>x==="verified").length;
+  document.getElementById("appIncompleteCount").innerText=s.filter(x=>x==="incomplete").length;
+}
+
+function _switchAndOpen(tabName, callback) {
+  switchDocVerTab(tabName);
+  // Wait one frame for the panel to become visible, then open modal
+  requestAnimationFrame(() => {
+    setTimeout(callback, 80);
+  });
+}
+
+function verifyDocsForApp(id) {
+  selectedApp = applications.find(a => a.id === id);
+  if (!selectedApp) return;
+  // Switch to Admission Documents tab, then open the review modal
+  _switchAndOpen('admission', () => openModal(id));
+}
+function verifyCORForApp(id) {
+  selectedApp = applications.find(a => a.id === id);
+  if (!selectedApp) return;
+  _switchAndOpen('cor', () => {
+    // TODO: wire COR modal data fetch; for now only open the modal container
+    // so UI flow is smooth.
+    const m = document.getElementById('corModal');
+    if (m) {
+      m.classList.add('open');
+      m.style.display = 'flex';
+      // lightweight placeholder values
+      document.getElementById('corModalStudentName')?.replaceChildren(document.createTextNode(selectedApp.name || '—'));
+      lucide.createIcons();
+    } else {
+      showToast('COR modal not found', 'error');
+    }
+  });
+}
+function verifyGradesForApp(id) {
+  selectedApp = applications.find(a => a.id === id);
+  if (!selectedApp) return;
+  _switchAndOpen('grades', () => {
+    const m = document.getElementById('gradesModal');
+    if (m) {
+      m.classList.add('open');
+      m.style.display = 'flex';
+      document.getElementById('gradesModalStudentName')?.replaceChildren(document.createTextNode(selectedApp.name || '—'));
+      lucide.createIcons();
+    } else {
+      showToast('Grades modal not found', 'error');
+    }
+  });
+}
+
+
+function renderApplicationPanel(){
+  const container = document.getElementById('docVerPanel-application');
+  if(!container) return;
+  const app = selectedApp || (applications.length? applications[0] : null);
+  if(!app){
+    container.querySelectorAll('span[id^="app"], span[id^="pi"], span[id^="ab"], span[id^="pd"]').forEach(el=>el.innerText='—');
+    document.getElementById('requirementsList').innerHTML = '<div class="text-xs text-gray-400">Select an application from Admission Documents and click Details.</div>';
+    document.getElementById('appProgressBar').style.width='0%';
+    document.getElementById('timelineDates').innerText='';
+    return;
+  }
+  // Summary
+  document.getElementById('appID').innerText = app.id || '—';
+  document.getElementById('appName').innerText = app.name || '—';
+  document.getElementById('appCourse').innerText = app.course || '—';
+  document.getElementById('appDate').innerText = app.submission_date || '—';
+  document.getElementById('appStatus').innerHTML = statusBadge(app.status||'');
+
+  // Personal info
+  document.getElementById('piName').innerText = app.name || '—';
+  document.getElementById('piDOB').innerText = app.dob || '—';
+  document.getElementById('piAge').innerText = app.age || '—';
+  document.getElementById('piGender').innerText = app.gender || '—';
+  document.getElementById('piCitizenship').innerText = app.citizenship || '—';
+  document.getElementById('piContact').innerText = app.mobile || '—';
+  document.getElementById('piEmail').innerText = app.email || '—';
+  document.getElementById('piAddress').innerText = app.address || '—';
+
+  // Academic background
+  document.getElementById('abSchool').innerText = (app.academic||{}).school || '—';
+  document.getElementById('abYearGrad').innerText = (app.academic||{}).year_graduated || '—';
+  document.getElementById('abDegree').innerText = (app.academic||{}).degree || '—';
+  document.getElementById('abGWA').innerText = (app.academic||{}).gwa || '—';
+  document.getElementById('abHonors').innerText = (app.academic||{}).honors || '—';
+
+  // Program details
+  document.getElementById('pdCourse').innerText = app.course || '—';
+  document.getElementById('pdLevel').innerText = app.program_level || app.level || '—';
+  document.getElementById('pdSpecialization').innerText = app.specialization || '—';
+  document.getElementById('pdIntake').innerText = app.intake || '—';
+
+  // Requirements checklist (expecting app.docs array)
+  const reqRoot = document.getElementById('requirementsList');
+  reqRoot.innerHTML = '';
+  const docs = app.docs || [];
+  // show first 6 docs or pad missing
+  for(let i=0;i<6;i++){
+    const d = docs[i] || {name: `Requirement ${i+1}`, status: 'Missing', uploadDate: ''};
+    const status = d.status || (d.missing? 'Missing' : 'Pending Review');
+    reqRoot.innerHTML += `
+      <div class="p-3 border rounded-lg bg-white">
+        <div class="flex items-center justify-between mb-1">
+          <div class="text-sm font-medium text-gray-800">${escapeHtml(d.name)}</div>
+          <div class="text-xs text-gray-500">${d.uploadDate||''}</div>
+        </div>
+        <div class="text-xs mt-1">${statusBadge(status)}</div>
+      </div>`;
+  }
+
+  // Timeline: interpret app.status stages
+  const stages = ['Submitted','Documents Verified','Under Review','Decision Made','Processed'];
+  const idx = Math.max(0, stages.indexOf(app.status) );
+  const pct = Math.min(100, Math.round(((idx+1)/stages.length)*100));
+  document.getElementById('appProgressBar').style.width = pct + '%';
+  const td = document.getElementById('timelineDates');
+  td.innerHTML = stages.map((s,i)=>{
+    const date = (app.timeline && app.timeline[s]) || (i===0 ? app.submission_date : '—');
+    return `<div><strong class="text-gray-700">${escapeHtml(s)}:</strong> <span class="text-gray-500 text-xs">${escapeHtml(date||'—')}</span></div>`;
+  }).join('');
+
+  lucide.createIcons();
+}
+
+function _postDecision(decision){
+  if(!selectedApp) { showToast('No application selected','error'); return; }
+  if(!confirm(`Confirm ${decision} for application ${selectedApp.id}?`)) return;
+  fetch('/admin-panel/api/application/decision/', {
+    method: 'POST', credentials: 'same-origin', headers: {'Content-Type':'application/json','X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify({ application_id: selectedApp.id, decision: decision })
+  }).then(r=>r.json()).then(res=>{
+    if(res.success){ showToast(res.message||'Updated'); selectedApp.status = decision; renderApplicationPanel(); renderTable(); }
+    else showToast(res.message||'Unable to update','error');
+  }).catch(err=>{ console.error(err); showToast('Network error','error'); });
+}
+
+function acceptApplication(){ _postDecision('Accepted'); }
+function waitlistApplication(){ _postDecision('Waitlisted'); }
+function rejectApplication(){ _postDecision('Rejected'); }
