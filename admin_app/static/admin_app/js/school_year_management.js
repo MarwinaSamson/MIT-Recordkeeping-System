@@ -500,3 +500,310 @@ function exportArchiveDetails() {
   showToast(`Exporting ${year} details... (Backend integration needed)`, 'info');
   closeViewArchiveModal();
 }
+
+
+
+
+// ─── Semester Management ──────────────────────────────────────────────────────
+
+let currentSemesterConfig = null; // { type: '1st'|'2nd'|'Summer', id: 1|2|3 }
+
+async function loadSemesterData() {
+  if (!activeSchoolYear) {
+    console.log('No active school year, cannot load semesters');
+    return;
+  }
+
+  try {
+    const data = await getJSON(`/admin-panel/admin/school-years/${activeSchoolYear.id}/semesters/`);
+    const semesters = data.semesters || [];
+    
+    // Update the UI for each semester
+    semesters.forEach(sem => {
+      updateSemesterUI(sem);
+    });
+
+    // Update active semester banner
+    const activeSemester = semesters.find(s => s.is_active);
+    if (activeSemester) {
+      updateActiveSemesterBanner(activeSemester);
+    }
+
+    updateSemesterOverviewTable(semesters);
+  } catch (err) {
+    console.error('Error loading semester data:', err);
+  }
+}
+
+function updateSemesterUI(semester) {
+  const semNum = semester.semester_number;
+  const badge = document.getElementById(`semester${semNum}Badge`);
+  const dates = document.getElementById(`semester${semNum}Dates`);
+  const enrollment = document.getElementById(`semester${semNum}Enrollment`);
+  const card = document.getElementById(`semesterCard${semNum}`);
+  const activateBtn = document.getElementById(`activateSemester${semNum}Btn`);
+
+  if (!badge || !dates || !enrollment || !card || !activateBtn) return;
+
+  // Update badge
+  if (semester.is_active) {
+    badge.className = 'px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700';
+    badge.textContent = 'Active';
+    card.classList.add('border-blue-300');
+    activateBtn.classList.add('hidden');
+  } else {
+    badge.className = 'px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700';
+    badge.textContent = semester.is_configured ? 'Configured' : 'Inactive';
+    card.classList.remove('border-blue-300');
+    activateBtn.classList.remove('hidden');
+  }
+
+  // Update dates
+  if (semester.start_date && semester.end_date) {
+    dates.textContent = `${formatDate(semester.start_date)} - ${formatDate(semester.end_date)}`;
+    dates.className = '';
+  } else {
+    dates.textContent = 'No dates set';
+    dates.className = 'text-gray-500';
+  }
+
+  // Update enrollment
+  enrollment.textContent = semester.enrollment_count || 0;
+}
+
+function updateActiveSemesterBanner(semester) {
+  const nameMap = { 1: '1st Semester', 2: '2nd Semester', 3: 'Summer' };
+  document.getElementById('activeSemesterName').textContent = nameMap[semester.semester_number] || 'Unknown';
+  
+  let details = '';
+  if (semester.start_date && semester.end_date) {
+    details = `${formatDate(semester.start_date)} - ${formatDate(semester.end_date)}`;
+  }
+  if (semester.enrollment_count) {
+    details += ` • ${semester.enrollment_count} students enrolled`;
+  }
+  document.getElementById('activeSemesterDetails').textContent = details || 'No active semester set for the current school year.';
+}
+
+function updateSemesterOverviewTable(semesters) {
+  const tbody = document.getElementById('semesterOverviewTable');
+  const nameMap = { 1: '1st Semester', 2: '2nd Semester', 3: 'Summer' };
+
+  if (!semesters || semesters.length === 0) {
+    tbody.innerHTML = `
+      <tr class="border-b border-gray-100">
+        <td class="py-3 px-4 text-gray-500" colspan="6">
+          No semesters configured for the current school year.
+        </td>
+      </tr>`;
+    return;
+  }
+
+  tbody.innerHTML = semesters.map(sem => `
+    <tr class="border-b border-gray-100 hover:bg-gray-50">
+      <td class="py-3 px-4 font-medium">${nameMap[sem.semester_number] || sem.name}</td>
+      <td class="py-3 px-4">
+        <span class="px-2 py-1 rounded-full text-xs font-medium ${
+          sem.is_active ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
+        }">
+          ${sem.is_active ? 'Active' : 'Inactive'}
+        </span>
+      </td>
+      <td class="py-3 px-4">${sem.start_date ? formatDate(sem.start_date) : '—'}</td>
+      <td class="py-3 px-4">${sem.end_date ? formatDate(sem.end_date) : '—'}</td>
+      <td class="py-3 px-4">${sem.enrollment_count || 0}</td>
+      <td class="py-3 px-4">
+        <button onclick="openSemesterConfigModal('${nameMap[sem.semester_number]}', ${sem.semester_number})"
+          class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+          <i data-lucide="settings" class="w-4 h-4 inline"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+
+  lucide.createIcons();
+}
+
+function openSemesterConfigModal(type, semesterId) {
+  currentSemesterConfig = { type, id: semesterId };
+  document.getElementById('semesterConfigTitle').textContent = type;
+  
+  // Load existing data if available
+  if (activeSchoolYear) {
+    getJSON(`/admin-panel/admin/school-years/${activeSchoolYear.id}/semesters/`)
+      .then(data => {
+        const semester = (data.semesters || []).find(s => s.semester_number === semesterId);
+        if (semester) {
+          document.getElementById('semesterStartDate').value = semester.start_date || '';
+          document.getElementById('semesterEndDate').value = semester.end_date || '';
+          document.getElementById('semesterEnrollmentLimit').value = semester.enrollment_limit || '';
+          document.getElementById('semesterNotes').value = semester.notes || '';
+        }
+      })
+      .catch(err => console.error('Error loading semester config:', err));
+  }
+
+  document.getElementById('semesterConfigModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  lucide.createIcons();
+}
+
+function closeSemesterConfigModal() {
+  document.getElementById('semesterConfigModal').style.display = 'none';
+  document.body.style.overflow = 'auto';
+  currentSemesterConfig = null;
+  
+  // Clear form
+  document.getElementById('semesterStartDate').value = '';
+  document.getElementById('semesterEndDate').value = '';
+  document.getElementById('semesterEnrollmentLimit').value = '';
+  document.getElementById('semesterNotes').value = '';
+}
+
+async function saveSemesterConfig() {
+  if (!currentSemesterConfig || !activeSchoolYear) return;
+
+  const startDate = document.getElementById('semesterStartDate').value;
+  const endDate = document.getElementById('semesterEndDate').value;
+  const enrollmentLimit = document.getElementById('semesterEnrollmentLimit').value;
+  const notes = document.getElementById('semesterNotes').value;
+
+  if (!startDate || !endDate) {
+    showToast('Please set both start and end dates', 'error');
+    return;
+  }
+
+  try {
+    const data = await postJSON(
+      `/admin-panel/admin/school-years/${activeSchoolYear.id}/semesters/${currentSemesterConfig.id}/configure/`,
+      {
+        start_date: startDate,
+        end_date: endDate,
+        enrollment_limit: enrollmentLimit || null,
+        notes: notes
+      }
+    );
+
+    if (data.error) {
+      showToast(data.error, 'error');
+      return;
+    }
+
+    closeSemesterConfigModal();
+    showToast(`${currentSemesterConfig.type} semester configured successfully`, 'success');
+    loadSemesterData();
+  } catch (err) {
+    console.error('Error saving semester config:', err);
+    showToast('Error saving semester configuration', 'error');
+  }
+}
+
+// ─── Semester Activation Modal ────────────────────────────────────────────────
+
+let pendingActivation = null; // { type: '1st'|'2nd'|'Summer', id: 1|2|3 }
+
+async function activateSemester(type, semesterId) {
+  if (!activeSchoolYear) {
+    showToast('No active school year. Please set an active school year first.', 'error');
+    return;
+  }
+
+  // Show confirmation modal instead of browser confirm
+  pendingActivation = { type, id: semesterId };
+  
+  // Set the semester name in the modal
+  document.getElementById('activateSemesterName').textContent = type;
+  
+  // Check if there's a currently active semester
+  try {
+    const data = await getJSON(`/admin-panel/admin/school-years/${activeSchoolYear.id}/semesters/`);
+    const semesters = data.semesters || [];
+    const currentActive = semesters.find(s => s.is_active);
+    const currentActiveEl = document.getElementById('activateCurrentSemester');
+    const currentActiveNameEl = document.getElementById('currentActiveSemesterName');
+    
+    if (currentActive) {
+      const nameMap = { 1: '1st Semester', 2: '2nd Semester', 3: 'Summer' };
+      currentActiveEl.classList.remove('hidden');
+      currentActiveNameEl.textContent = nameMap[currentActive.semester_number] || 'Unknown';
+    } else {
+      currentActiveEl.classList.add('hidden');
+    }
+  } catch (err) {
+    console.error('Error checking current semester:', err);
+    document.getElementById('activateCurrentSemester').classList.add('hidden');
+  }
+  
+  // Clear any previous errors
+  document.getElementById('activateSemesterError').classList.add('hidden');
+  
+  // Show the modal
+  document.getElementById('activateSemesterModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  lucide.createIcons();
+}
+
+function closeActivateSemesterModal() {
+  document.getElementById('activateSemesterModal').style.display = 'none';
+  document.body.style.overflow = 'auto';
+  pendingActivation = null;
+}
+
+async function confirmActivateSemester() {
+  if (!pendingActivation || !activeSchoolYear) return;
+  
+  const { type, id } = pendingActivation;
+  const errorEl = document.getElementById('activateSemesterError');
+  
+  try {
+    const data = await postJSON(
+      `/admin-panel/admin/school-years/${activeSchoolYear.id}/semesters/${id}/activate/`
+    );
+
+    if (data.error) {
+      errorEl.textContent = data.error;
+      errorEl.classList.remove('hidden');
+      return;
+    }
+
+    closeActivateSemesterModal();
+    showToast(`${type} semester activated successfully`, 'success');
+    loadSemesterData();
+  } catch (err) {
+    console.error('Error activating semester:', err);
+    errorEl.textContent = 'Error activating semester. Please try again.';
+    errorEl.classList.remove('hidden');
+  }
+}
+
+// Add backdrop click handler for the new modal
+document.addEventListener('DOMContentLoaded', function() {
+  const activateModal = document.getElementById('activateSemesterModal');
+  if (activateModal) {
+    activateModal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeActivateSemesterModal();
+      }
+    });
+  }
+});
+
+// Update the switchSchoolYearTab function to load semester data when switching to semester tab
+const originalSwitchSchoolYearTab = switchSchoolYearTab;
+switchSchoolYearTab = function(tabId, element) {
+  originalSwitchSchoolYearTab(tabId, element);
+  if (tabId === 'semester') {
+    loadSemesterData();
+  }
+};
+
+// Update loadSummary to also load semester data if on semester tab
+const originalLoadSummary = loadSummary;
+loadSummary = async function() {
+  await originalLoadSummary();
+  // Check if semester tab is visible and load data if so
+  const semesterTab = document.getElementById('sy-tab-semester');
+  if (semesterTab && !semesterTab.classList.contains('hidden')) {
+    loadSemesterData();
+  }
+};

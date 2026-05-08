@@ -336,6 +336,10 @@ function switchPage(pageId,el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(el) el.classList.add('active');
   if(pageId==='documents') renderTable();
+    // Reset select all checkbox when switching to documents page
+    const selectAll = document.getElementById('selectAllApps');
+    if(selectAll) selectAll.checked = false;
+
   if(pageId==='students')  renderStudents();
   if(pageId==='history')   renderHistory();
   if(pageId==='dashboard') renderDashboard();
@@ -409,9 +413,20 @@ function renderTable(){
   else{
     empty?.classList.add("hidden");
     filtered.forEach(app=>{
+      // Account status
+      const isActive = app.accountActive !== undefined ? app.accountActive : true;
+      const esc = (s) => String(s||'').replace(/'/g,"\\'");
+      const userId = app.userId || 0;
+      const reason = esc(app.accountStatusReason || '');
+      const changedBy = esc(app.accountStatusChangedBy || '');
+      const changedAt = esc(app.accountStatusChangedAt || '');
+      
       tbody.innerHTML+=`
-        <tr class="border-t border-gray-50 hover:bg-gray-50/70 transition-colors">
-          <td class="px-5 py-4 text-red-700 font-semibold text-sm">${app.id}</td>
+        <tr class="border-t border-gray-50 hover:bg-gray-50/70 transition-colors" data-app-id="${app.id}">
+          <td class="px-5 py-4">
+            <input type="checkbox" class="app-select-checkbox w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" data-app-id="${app.id}"/>
+          </td>
+          <td class="px-4 py-4 text-red-700 font-semibold text-sm">${app.id}</td>
           <td class="px-4 py-4"><p class="font-semibold text-gray-800 text-sm">${app.name}</p><p class="text-xs text-gray-400">${app.email}</p><p class="text-xs text-gray-400">${app.mobile}</p></td>
           <td class="px-4 py-4 text-sm text-gray-700">${app.course}</td>
           <td class="px-4 py-4"><div class="flex flex-col gap-0.5 text-xs text-gray-600">${getDocStatus(app.docs)}</div></td>
@@ -429,6 +444,9 @@ function renderTable(){
   updateCounts();
   lucide.createIcons();
 }
+
+
+
 function updateCounts(){
   const s = applications.map(a=>(a.status||'').toLowerCase());
   document.getElementById("totalCount").innerText     =applications.length;
@@ -508,6 +526,62 @@ function renderStudents(){
     </div>`;
   }).join("");
   lucide.createIcons();
+}
+
+/* ═══ BULK VERIFY FUNCTIONS ═══ */
+
+function toggleSelectAllApps() {
+  const selectAll = document.getElementById('selectAllApps');
+  const checkboxes = document.querySelectorAll('.app-select-checkbox');
+  checkboxes.forEach(cb => {
+    cb.checked = selectAll.checked;
+  });
+}
+
+function getSelectedAppIds() {
+  const checkboxes = document.querySelectorAll('.app-select-checkbox:checked');
+  return Array.from(checkboxes).map(cb => cb.dataset.appId);
+}
+
+async function bulkVerifyApplications() {
+  const selectedIds = getSelectedAppIds();
+  
+  if (selectedIds.length === 0) {
+    showToast('Please select at least one application to verify', 'warn');
+    return;
+  }
+  
+  if (!confirm(`Are you sure you want to bulk verify ${selectedIds.length} application(s)?`)) return;
+  
+  let successCount = 0;
+  let failCount = 0;
+  
+  for (const appId of selectedIds) {
+    try {
+      const response = await fetch('/admin-panel/api/application/bulk-verify/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({ application_id: appId })
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        const app = applications.find(a => a.id === appId);
+        if (app) app.status = 'Verified';
+        successCount++;
+      } else {
+        failCount++;
+      }
+    } catch (error) {
+      failCount++;
+    }
+  }
+  
+  showToast(`Verified: ${successCount}, Failed: ${failCount}`, successCount > 0 ? 'success' : 'warn');
+  renderTable();
 }
 
 /* ═══ REVIEW MODAL ═══ */
