@@ -1,4 +1,5 @@
 {% load static %}
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -855,259 +856,7 @@
       </div>
 
       <!-- ══ PAGE: SCHOOL YEAR MANAGEMENT ══ -->
-      <div id="page-school-year" class="page p-8 w-full">
-        <div class="mb-7 fade-in">
-          <h1
-            class="text-3xl font-bold text-gray-800"
-            style="font-family: &quot;Playfair Display&quot;, serif"
-          >
-            School Year Management
-          </h1>
-          <p class="text-gray-400 text-sm mt-1">
-            Create, manage, and archive school years for academic operations.
-          </p>
-        </div>
-
-        <div class="flex gap-2 mb-6 border-b border-gray-200">
-          <button
-            onclick="switchSchoolYearTab('manage', this)"
-            class="sy-tab active px-4 py-2 text-sm font-semibold text-red-800 border-b-2 border-red-800"
-          >
-            <i data-lucide="calendar" class="w-4 h-4 inline mr-2"></i>Manage
-            School Years
-          </button>
-          <button
-            onclick="switchSchoolYearTab('archive', this)"
-            class="sy-tab px-4 py-2 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-700"
-          >
-            <i data-lucide="archive" class="w-4 h-4 inline mr-2"></i>School Year
-            Archive
-          </button>
-        </div>
-
-        <div id="sy-tab-manage" class="sy-tab-content">
-          <div class="space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div class="bg-white rounded-2xl shadow-sm p-5 fade-in">
-                <p
-                  class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
-                >
-                  Active School Years
-                </p>
-                <h2
-                  id="activeSchoolYearsCount"
-                  class="text-3xl font-bold text-green-600"
-                >
-                  1
-                </h2>
-              </div>
-              <div class="bg-white rounded-2xl shadow-sm p-5 fade-in">
-                <p
-                  class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
-                >
-                  Total Enrollment
-                </p>
-                <h2
-                  id="totalEnrollmentCount"
-                  class="text-3xl font-bold text-blue-600"
-                >
-                  0
-                </h2>
-              </div>
-              <div class="bg-white rounded-2xl shadow-sm p-5 fade-in">
-                <p
-                  class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
-                >
-                  Archived Years
-                </p>
-                <h2
-                  id="archivedYearsCount"
-                  class="text-3xl font-bold text-gray-600"
-                >
-                  0
-                </h2>
-              </div>
-              <div class="bg-white rounded-2xl shadow-sm p-5 fade-in">
-                <p
-                  class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
-                >
-                  Upcoming Years
-                </p>
-                <h2
-                  id="upcomingYearsCount"
-                  class="text-3xl font-bold text-orange-600"
-                >
-                  0
-                </h2>
-              </div>
-            </div>
-
-            <div
-              class="bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-200 rounded-2xl p-6 fade-in"
-            >
-              <div class="flex items-center gap-3 mb-4">
-                <div
-                  class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center"
-                >
-                  <i
-                    data-lucide="check-circle-2"
-                    class="w-6 h-6 text-white"
-                  ></i>
-                </div>
-                <div>
-                  <p
-                    class="text-xs font-semibold text-green-700 uppercase tracking-wide"
-                  >
-                    Current Active School Year
-                  </p>
-                  <h3
-                    id="activeSchoolYearName"
-                    class="text-2xl font-bold text-green-800"
-                  >
-                    2027-2028
-                  </h3>
-                </div>
-              </div>
-              <p id="activeSchoolYearDates" class="text-sm text-green-700 mb-4">
-                Aug 30, 2027 – Aug 30, 2028
-              </p>
-              <div class="flex gap-3">
-                <button
-                  onclick="openEditSchoolYearModal()"
-                  class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition"
-                >
-                  <i data-lucide="edit" class="w-4 h-4 inline mr-2"></i>Edit
-                  Details
-                </button>
-                <button
-                  onclick="toggleEnrollment()"
-                  class="px-4 py-2 bg-white hover:bg-gray-50 text-green-700 border border-green-300 rounded-lg text-sm font-medium transition"
-                >
-                  <i data-lucide="lock" class="w-4 h-4 inline mr-2"></i>Manage
-                  Enrollment
-                </button>
-              </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-6 fade-in">
-              <div class="flex items-center justify-between mb-5">
-                <h2 class="text-lg font-semibold text-gray-800">
-                  Create New School Year
-                </h2>
-              </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2"
-                    >School Year</label
-                  >
-                  <input
-                    type="text"
-                    id="newSchoolYearInput"
-                    placeholder="e.g., 2028-2029"
-                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700"
-                  />
-                  <p class="text-xs text-gray-400 mt-1">Format: YYYY-YYYY</p>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2"
-                    >Enrollment Status</label
-                  >
-                  <select
-                    id="enrollmentStatusSelect"
-                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700 appearance-none bg-white cursor-pointer"
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="enrollment-open">Enrollment Open</option>
-                    <option value="enrollment-closed">Enrollment Closed</option>
-                  </select>
-                </div>
-              </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2"
-                    >Start Date</label
-                  >
-                  <input
-                    type="date"
-                    id="newStartDateInput"
-                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2"
-                    >End Date</label
-                  >
-                  <input
-                    type="date"
-                    id="newEndDateInput"
-                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700"
-                  />
-                </div>
-              </div>
-              <div class="mt-5">
-                <label class="block text-sm font-medium text-gray-700 mb-2"
-                  >Notes / Description</label
-                >
-                <textarea
-                  id="newSchoolYearNotes"
-                  rows="3"
-                  placeholder="Optional notes about this school year..."
-                  class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700 resize-none"
-                ></textarea>
-              </div>
-              <div
-                class="mt-5 flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200"
-              >
-                <input
-                  type="checkbox"
-                  id="newSchoolYearActive"
-                  class="w-4 h-4 rounded accent-red-700 cursor-pointer"
-                />
-                <label for="newSchoolYearActive" class="flex-1 cursor-pointer">
-                  <div class="text-sm font-medium text-gray-700">
-                    Set as Active School Year
-                  </div>
-                  <div class="text-xs text-gray-500">
-                    This school year will be the current active year
-                  </div>
-                </label>
-              </div>
-              <button
-                onclick="createNewSchoolYear()"
-                class="mt-5 px-6 py-2.5 bg-red-700 hover:bg-red-800 text-white rounded-lg font-semibold transition flex items-center gap-2"
-              >
-                <i data-lucide="plus" class="w-4 h-4"></i>Create School Year
-              </button>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-6 fade-in">
-              <h2 class="text-lg font-semibold text-gray-800 mb-5">
-                All School Years
-              </h2>
-              <div class="flex gap-3 mb-5 border-b border-gray-200">
-                <button
-                  onclick="filterSchoolYears('active')"
-                  class="sy-filter-tab active px-3 py-2 text-sm font-medium text-red-700 border-b-2 border-red-700"
-                >
-                  Active (1)
-                </button>
-                <button
-                  onclick="filterSchoolYears('upcoming')"
-                  class="sy-filter-tab px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700"
-                >
-                  Upcoming
-                </button>
-                <button
-                  onclick="filterSchoolYears('draft')"
-                  class="sy-filter-tab px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700"
-                >
-                  Draft
-                </button>
-              </div>
-              <div id="schoolYearsList" class="space-y-3"></div>
-            </div>
-          </div>
-        </div>
+{% include 'admin_app/school_year_management.html' %}
 
         <div id="sy-tab-archive" class="sy-tab-content hidden">
           <div class="space-y-6">
@@ -1235,6 +984,56 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Semester Configuration Modal -->
+      <div id="semesterConfigModal" class="modal-overlay z-50" style="display: none">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl fade-in">
+          <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
+            <h2 class="text-lg font-bold text-gray-800">
+              Configure <span id="semesterConfigTitle">Semester</span>
+            </h2>
+            <button onclick="closeSemesterConfigModal()"
+              class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none">
+              &times;
+            </button>
+          </div>
+          <div class="px-6 py-5 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                <input type="date" id="semesterStartDate"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                <input type="date" id="semesterEndDate"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Enrollment Limit</label>
+              <input type="number" id="semesterEnrollmentLimit" placeholder="Enter max students"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+              <textarea id="semesterNotes" rows="3" placeholder="Optional notes for this semester..."
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+            </div>
+          </div>
+          <div class="flex gap-3 px-6 py-4 border-t border-gray-100">
+            <button onclick="closeSemesterConfigModal()"
+              class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition">
+              Cancel
+            </button>
+            <button onclick="saveSemesterConfig()"
+              class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition">
+              Save Configuration
+            </button>
           </div>
         </div>
       </div>
