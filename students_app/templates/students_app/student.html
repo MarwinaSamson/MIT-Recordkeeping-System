@@ -1821,6 +1821,13 @@
     }
     function hideFileError(errorElId='fileError') { const el=$(errorElId); if(el)el.classList.add('hidden'); }
 
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return '';
+    }
+
     /* ============================================================
        PAGE SWITCHING
        ============================================================ */
@@ -1890,9 +1897,43 @@
     // Parse calendar events from CMS settings (passed from backend)
     let CALENDAR_EVENTS_RAW = {{ calendar_events_json|safe }};
     
+    // Function to fetch calendar events from backend API
+    async function fetchCalendarEvents() {
+      try {
+        const response = await fetch('/students/api/calendar-events/');
+        const data = await response.json();
+        if (data.success && data.events) {
+          CALENDAR_EVENTS_RAW = data.events;
+          // Re-convert to frontend format
+          const newEvents = (CALENDAR_EVENTS_RAW || []).map(e => ({
+            date: `2026-${String(e.month).padStart(2,'0')}-${String(e.day).padStart(2,'0')}`,
+            label: e.title || '',
+            color: 'var(--crimson)',
+            colorHex: '#7b1113',
+            type: e.type || 'event',
+            time: e.time || '',
+            venue: e.venue || '',
+            desc: e.desc || '',
+          })).filter(e => e.label);
+          
+          // Update EVENTS array
+          EVENTS.length = 0;
+          EVENTS.push(...newEvents);
+          
+          // Re-render calendar
+          renderFullCalendar();
+        }
+      } catch (error) {
+        console.log('Calendar auto-refresh (non-critical error):', error);
+      }
+    }
+    
+    // Auto-refresh calendar events every 30 seconds
+    setInterval(fetchCalendarEvents, 30000);
+    
     // Convert database format to frontend format
-    const EVENTS = (CALENDAR_EVENTS_RAW || []).map(e => ({
-      date: `${new Date(e.month).getFullYear()}-${String(e.month).padStart(2,'0')}-${String(e.day).padStart(2,'0')}`,
+    let EVENTS = (CALENDAR_EVENTS_RAW || []).map(e => ({
+      date: `2026-${String(e.month).padStart(2,'0')}-${String(e.day).padStart(2,'0')}`,
       label: e.title || '',
       color: 'var(--crimson)',
       colorHex: '#7b1113',
@@ -2376,22 +2417,65 @@
       const file=e.target.files[0]; if(!file)return;
       const r=await validateFile(file);
       if(!r.valid){showFileError(r.error,'fileError');e.target.value='';return;}
-      hideFileError('fileError'); processUpload(file,pendingDocKey); pendingDocKey=null; e.target.value='';
+      hideFileError('fileError');
+      try {
+        await processUpload(file,pendingDocKey);
+      } catch (err) {
+        showFileError(err.message || 'Unable to save the document right now.', 'fileError');
+      } finally {
+        pendingDocKey=null;
+        e.target.value='';
+      }
     }
     async function handleDrop(e) {
       e.preventDefault(); $('dropzone').classList.remove('dragover');
       const file=e.dataTransfer.files[0]; if(!file)return;
       const r=await validateFile(file);
       if(!r.valid){showFileError(r.error,'fileError');return;}
-      hideFileError('fileError'); processUpload(file,null);
+      hideFileError('fileError');
+      try {
+        await processUpload(file,null);
+      } catch (err) {
+        showFileError(err.message || 'Unable to save the document right now.', 'fileError');
+      }
     }
-    function processUpload(file,docKey) {
+    async function processUpload(file,docKey) {
       const key=docKey||guessDocKey(file.name);
-      if(key) docStates[key]={status:'uploaded',filename:file.name};
+      const docDef = DOCS.find(d => d.key === key);
+      const docTitle = docDef ? docDef.name : '';
+      if (!key || !docTitle) {
+        showFileError('Please choose the document card you want to upload first.', 'fileError');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('document_key', key);
+      formData.append('document_title', docTitle);
+      formData.append('file', file);
+
+      const response = await fetch('/api/document-upload/', {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: formData,
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.success === false) {
+        throw new Error(data.message || 'Unable to save the document.');
+      }
+
       const notice=$('uploadNotice');
       if(notice){notice.classList.remove('hidden'); $('uploadNoticeTxt').textContent=`"${file.name}" uploaded successfully.`; setTimeout(()=>notice.classList.add('hidden'),4000);}
       showToast(`${file.name} uploaded.`,'success');
-      renderDocGrid(); renderMiniDocList(); renderStatusSummary(); updateProgress();
+      if (window.fetchDocumentDetails) {
+        await window.fetchDocumentDetails();
+      } else {
+        docStates[key]={status:'pending',filename:file.name};
+        renderDocGrid(); renderMiniDocList(); renderStatusSummary(); updateProgress();
+      }
     }
     function guessDocKey(name) {
       const n=name.toLowerCase();

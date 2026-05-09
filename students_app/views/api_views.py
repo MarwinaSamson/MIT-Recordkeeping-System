@@ -153,6 +153,52 @@ def get_document_details(request):
     return JsonResponse(result)
 
 
+@login_required
+@require_http_methods(["POST"])
+def upload_document(request):
+    """Persist a single student document upload and reset any prior copy of the same requirement."""
+    file_obj = request.FILES.get('file')
+    doc_title = (request.POST.get('document_title') or '').strip()
+    doc_key = (request.POST.get('document_key') or '').strip()
+
+    if not file_obj:
+        return JsonResponse({'success': False, 'message': 'No file was uploaded.'}, status=400)
+
+    if not doc_title:
+        if not doc_key:
+            return JsonResponse({'success': False, 'message': 'Document title is required.'}, status=400)
+
+        # Fallback: resolve the CMS requirement title from the slug key.
+        resolved_title = ''
+        for req in _get_cms_requirements():
+            if _title_to_key(req.get('title', '')) == doc_key:
+                resolved_title = req.get('title', '')
+                break
+        doc_title = resolved_title
+
+    if not doc_title:
+        return JsonResponse({'success': False, 'message': 'Unable to resolve the document title.'}, status=400)
+
+    # Replace the previous copy of the same requirement so the admin side
+    # sees the newest upload as pending review instead of still missing.
+    Document.objects.filter(user=request.user, document_type=doc_title).delete()
+    saved_doc = Document.objects.create(
+        user=request.user,
+        document_type=doc_title,
+        file=file_obj,
+    )
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Document uploaded successfully.',
+        'document': {
+            'id': saved_doc.id,
+            'document_type': saved_doc.document_type,
+            'file_name': saved_doc.file_name,
+        },
+    })
+
+
 ICON_MAP = {
     'document_verified':  ('fa-check-circle',  '#15803D', '#F0FDF4'),
     'document_rejected':  ('fa-times-circle',  '#DC2626', '#FEF2F2'),
@@ -302,3 +348,22 @@ def submit_application(request):
         import traceback
         traceback.print_exc()
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@require_http_methods(["GET"])
+def get_calendar_events(request):
+    """Fetch current calendar events from CMS settings"""
+    try:
+        from admin_app.models import CMSSettings
+        cms = CMSSettings.objects.get_or_create(pk=1)[0]
+        calendar_events = cms.calendar_events or []
+        return JsonResponse({
+            'success': True,
+            'events': calendar_events,
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e),
+            'events': []
+        }, status=500)

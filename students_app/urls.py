@@ -15,10 +15,12 @@ from .views.login_views import logout_view
 from .views.api_views import (
     get_document_status,
     get_document_details,
+     upload_document,
     get_notifications,
     mark_notification_read,
     mark_all_notifications_read,
     submit_application,
+    get_calendar_events,
 )
 from .views.debug_views import api_check_doc_data
 
@@ -41,6 +43,7 @@ urlpatterns = [
     path("api/document-status/", get_document_status, name="document_status_api"),
     path("api/document-details/", get_document_details,
          name="document_details_api"),
+    path("api/document-upload/", upload_document, name="document_upload_api"),
     path("api/student-notifications/", get_notifications,
          name="student_notifications_api"),
     path("api/notifications/read/", mark_notification_read,
@@ -50,4 +53,5 @@ urlpatterns = [
     path("api/submit-application/", submit_application,
          name="submit_application_api"),
     path("api/check-doc-data/", api_check_doc_data, name="check_doc_data_api"),
+    path("api/calendar-events/", get_calendar_events, name="calendar_events_api"),
 ]

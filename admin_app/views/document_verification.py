@@ -38,12 +38,20 @@ def _build_application_list():
     by title — consistent with how documents_view.py saves Document.document_type.
     """
     from admin_app.models import CMSSettings
+    from students_app.models import EducationalBackground, PersonalDetails, PrivacyConsent, WorkingStudent
     
     cms = CMSSettings.objects.filter(pk=1).first()
     admission_requirements = cms.admission_requirements if cms else []
 
     apps = []
     for app in Application.objects.select_related('user').order_by('-submission_date'):
+        personal = PersonalDetails.objects.filter(user=app.user).first()
+        working = WorkingStudent.objects.filter(user=app.user).first()
+        privacy = PrivacyConsent.objects.filter(user=app.user, agreed=True).first()
+        education_levels = {
+            level.level: level
+            for level in EducationalBackground.objects.filter(user=app.user)
+        }
         submitted_docs = Document.objects.filter(user=app.user)
 
         # Key submitted docs by document_type (which equals the requirement title)
@@ -149,6 +157,87 @@ def _build_application_list():
             'documents':       submitted_docs.count(),
             'docs':            docs_list,
             'remarks':         app.remarks,
+            'personal': {
+                'first_name': personal.first_name if personal else '',
+                'middle_name': personal.middle_name if personal else '',
+                'last_name': personal.last_name if personal else '',
+                'full_name': app.get_full_name(),
+                'dob': personal.dob.strftime('%Y-%m-%d') if personal and personal.dob else '',
+                'age': personal.age if personal and personal.age is not None else '',
+                'gender': personal.gender if personal else '',
+                'civil_status': personal.civil_status if personal else '',
+                'place_of_birth': personal.place_of_birth if personal else '',
+                'religion': personal.religion if personal else '',
+                'religion_other': personal.religion_other if personal else '',
+                'ethnicity': personal.ethnicity if personal else '',
+                'ethnicity_other': personal.ethnicity_other if personal else '',
+                'nationality': personal.nationality if personal else '',
+                'nationality_other': personal.nationality_other if personal else '',
+                'disability': personal.disability if personal else '',
+                'disability_other': personal.disability_other if personal else '',
+                'permanent_address': personal.permanent_address if personal else '',
+                'current_address': personal.current_address if personal else '',
+                'contact_number': personal.contact_number if personal else '',
+                'email': personal.email if personal else app.user.email,
+                'name_of_parent': personal.name_of_parent if personal else '',
+                'relationship': personal.relationship if personal else '',
+                'parent_income': personal.parent_income if personal else '',
+                'name_of_spouse': personal.name_of_spouse if personal else '',
+                'spouse_contact_number': personal.spouse_contact_number if personal else '',
+                'spouse_income': personal.spouse_income if personal else '',
+            },
+            'education': {
+                'elementary': {
+                    'school_name': (education_levels.get('elementary').school_name if education_levels.get('elementary') else ''),
+                    'degree_course': (education_levels.get('elementary').degree_course if education_levels.get('elementary') else ''),
+                    'year_completed': (education_levels.get('elementary').year_completed if education_levels.get('elementary') else ''),
+                },
+                'secondary': {
+                    'school_name': (education_levels.get('secondary').school_name if education_levels.get('secondary') else ''),
+                    'degree_course': (education_levels.get('secondary').degree_course if education_levels.get('secondary') else ''),
+                    'year_completed': (education_levels.get('secondary').year_completed if education_levels.get('secondary') else ''),
+                },
+                'college': {
+                    'school_name': (education_levels.get('college').school_name if education_levels.get('college') else ''),
+                    'degree_course': (education_levels.get('college').degree_course if education_levels.get('college') else ''),
+                    'year_completed': (education_levels.get('college').year_completed if education_levels.get('college') else ''),
+                    'scholarship': (education_levels.get('college').scholarship if education_levels.get('college') else ''),
+                    'mit_curriculum': (education_levels.get('college').mit_curriculum if education_levels.get('college') else ''),
+                },
+                'graduate': {
+                    'school_name': (education_levels.get('graduate').school_name if education_levels.get('graduate') else ''),
+                    'degree_course': (education_levels.get('graduate').degree_course if education_levels.get('graduate') else ''),
+                    'year_completed': (education_levels.get('graduate').year_completed if education_levels.get('graduate') else ''),
+                    'scholarship': (education_levels.get('graduate').scholarship if education_levels.get('graduate') else ''),
+                    'mit_curriculum': (education_levels.get('graduate').mit_curriculum if education_levels.get('graduate') else ''),
+                },
+                'scholarship': (education_levels.get('college').scholarship if education_levels.get('college') and education_levels.get('college').scholarship else ''),
+                'mit_curriculum': (
+                    education_levels.get('college').mit_curriculum
+                    if education_levels.get('college') and education_levels.get('college').mit_curriculum
+                    else ''
+                ),
+            },
+            'working': {
+                'is_employed': working.is_employed if working else False,
+                'position': working.position if working else '',
+                'monthly_income': working.monthly_income if working else '',
+                'employment_status': working.employment_status if working else '',
+                'employment_status_other': working.employment_status_other if working else '',
+                'employer_name': working.employer_name if working else '',
+                'employer_address': working.employer_address if working else '',
+                'employer_contact': working.employer_contact if working else '',
+                'employer_classification': working.employer_classification if working else '',
+                'employer_classification_other': working.employer_classification_other if working else '',
+            },
+            'privacy': {
+                'agreed': bool(privacy.agreed) if privacy else False,
+                'name': privacy.name if privacy else '',
+                'signed_at': privacy.signed_at.strftime('%Y-%m-%d %H:%M') if privacy and privacy.signed_at else '',
+                'ip_address': privacy.ip_address if privacy else '',
+                'user_agent': privacy.user_agent if privacy else '',
+                'form_version': privacy.form_version if privacy else '',
+            },
         })
 
     return apps

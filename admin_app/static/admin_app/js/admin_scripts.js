@@ -2662,31 +2662,162 @@ function openAppDetailsModal() {
   if (!selectedApp) return;
   const modal = document.getElementById('appDetailsModal');
   if (!modal) return;
+  const reviewSections = document.getElementById('appModalReviewSections');
   
   // Populate modal with application data
   document.getElementById('appModalID').textContent = selectedApp.id || '—';
   document.getElementById('appModalSummaryID').textContent = selectedApp.id || '—';
-  document.getElementById('appModalSummaryName').textContent = selectedApp.name || '—';
   document.getElementById('appModalSummaryCourse').textContent = selectedApp.course || '—';
   document.getElementById('appModalSummaryDate').textContent = selectedApp.submission_date || '—';
+  document.getElementById('appModalSummaryActivity').textContent = selectedApp.last_activity || '—';
   document.getElementById('appModalSummaryStatus').innerHTML = statusBadge(selectedApp.status || '');
+
+  const personal = selectedApp.personal || {};
+  const education = selectedApp.education || {};
+  const working = selectedApp.working || {};
+  const privacy = selectedApp.privacy || {};
+
+  const fieldValue = (value, fallback = '—') => {
+    if (value === null || value === undefined || value === '') return fallback;
+    return escapeHtml(String(value));
+  };
+
+  const optionValue = (value, otherValue) => {
+    if (!value) return '—';
+    return value === 'Other' ? (otherValue || '—') : value;
+  };
+
+  const renderSection = (title, items) => {
+    const rows = items
+      .filter((item) => item[1] !== undefined && item[1] !== null && item[1] !== '')
+      .map(([label, value]) => `
+        <div class="border-b border-gray-100 pb-2 last:border-0">
+          <span class="text-xs text-gray-400 uppercase tracking-wider">${escapeHtml(label)}</span>
+          <p class="text-sm font-medium text-gray-800">${value}</p>
+        </div>
+      `)
+      .join('');
+
+    if (!rows) return '';
+
+    return `
+      <div class="review-section border border-gray-200 rounded-xl p-5 space-y-3 bg-white hover:shadow-md transition-all">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-bold text-brand" style="font-family:'Merriweather',serif">${escapeHtml(title)}</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">${rows}</div>
+      </div>
+    `;
+  };
+
+  if (reviewSections) {
+    reviewSections.innerHTML = [
+      renderSection('Personal Details', [
+        ['Full Name', fieldValue(personal.full_name || selectedApp.name)],
+        ['Date of Birth', fieldValue(personal.dob)],
+        ['Age', fieldValue(personal.age)],
+        ['Gender', fieldValue(personal.gender)],
+        ['Civil Status', fieldValue(personal.civil_status)],
+        ['Place of Birth', fieldValue(personal.place_of_birth)],
+        ['Religion', fieldValue(optionValue(personal.religion, personal.religion_other))],
+        ['Ethnicity', fieldValue(optionValue(personal.ethnicity, personal.ethnicity_other))],
+        ['Nationality', fieldValue(optionValue(personal.nationality, personal.nationality_other))],
+        ['Disability', fieldValue(optionValue(personal.disability, personal.disability_other))],
+        ['Permanent Address', fieldValue(personal.permanent_address)],
+        ['Current Address', fieldValue(personal.current_address || personal.permanent_address)],
+        ['Contact Number', fieldValue(personal.contact_number || selectedApp.mobile)],
+        ['Email Address', fieldValue(personal.email || selectedApp.email)],
+        ['Name of Parent', fieldValue(personal.name_of_parent)],
+        ['Parent Relationship', fieldValue(personal.relationship)],
+        ['Parent Monthly Income', fieldValue(personal.parent_income ? `₱${personal.parent_income}` : '')],
+        ['Name of Spouse', fieldValue(personal.name_of_spouse)],
+        ['Spouse Contact', fieldValue(personal.spouse_contact_number)],
+        ['Spouse Monthly Income', fieldValue(personal.spouse_income ? `₱${personal.spouse_income}` : '')],
+      ]),
+      renderSection('Educational Background', [
+        ['Elementary - School', fieldValue((education.elementary || {}).school_name)],
+        ['Elementary - Degree', fieldValue((education.elementary || {}).degree_course)],
+        ['Elementary - Year', fieldValue((education.elementary || {}).year_completed)],
+        ['Secondary - School', fieldValue((education.secondary || {}).school_name)],
+        ['Secondary - Degree', fieldValue((education.secondary || {}).degree_course)],
+        ['Secondary - Year', fieldValue((education.secondary || {}).year_completed)],
+        ['College - School', fieldValue((education.college || {}).school_name)],
+        ['College - Degree', fieldValue((education.college || {}).degree_course)],
+        ['College - Year', fieldValue((education.college || {}).year_completed)],
+        ['Scholarship/Awards', fieldValue(education.scholarship || (education.college || {}).scholarship)],
+        ['Graduate Studies - School', fieldValue((education.graduate || {}).school_name)],
+        ['Graduate Studies - Degree', fieldValue((education.graduate || {}).degree_course)],
+        ['Graduate Studies - Year', fieldValue((education.graduate || {}).year_completed)],
+      ]),
+      working.is_employed ? renderSection('Employment Information', [
+        ['Position', fieldValue(working.position)],
+        ['Monthly Income', fieldValue(working.monthly_income ? `₱${working.monthly_income}` : '')],
+        ['Employment Status', fieldValue(optionValue(working.employment_status, working.employment_status_other))],
+        ['Employer Name', fieldValue(working.employer_name)],
+        ['Employer Address', fieldValue(working.employer_address)],
+        ['Employer Contact', fieldValue(working.employer_contact)],
+        ['Employer Classification', fieldValue(optionValue(working.employer_classification, working.employer_classification_other))],
+      ]) : '',
+      renderSection('Uploaded Documents', [
+        ['MIT Curriculum', fieldValue((education.college || {}).mit_curriculum || (education.graduate || {}).mit_curriculum || 'Not selected')],
+        ...(selectedApp.docs || []).map((doc) => [doc.name, fieldValue(doc.status === 'Missing' ? 'Missing' : `${doc.status}${doc.uploadDate ? ` · ${doc.uploadDate}` : ''}`)]),
+      ]),
+      privacy.agreed ? renderSection('Privacy Notice Consent', [
+        ['Name', fieldValue(privacy.name || personal.full_name || selectedApp.name)],
+        ['Date & Time', fieldValue(privacy.signed_at)],
+        ['Consent Status', '✓ Agreed to Privacy Notice'],
+        ['IP Address', fieldValue(privacy.ip_address || 'Collected upon submission')],
+        ['Browser', fieldValue(privacy.user_agent ? privacy.user_agent.split(' ').slice(0, 3).join(' ') : '—')],
+      ]) : '',
+    ].filter(Boolean).join('');
+  }
   
-  // Personal Information
-  document.getElementById('appModalPIName').textContent = selectedApp.name || '—';
-  document.getElementById('appModalPIEmail').textContent = selectedApp.email || '—';
-  document.getElementById('appModalPIContact').textContent = selectedApp.mobile || '—';
-  document.getElementById('appModalPIAddress').textContent = (selectedApp.address || '—');
+  // REMOVE OLD Program Details section (these lines can be removed since the Admission Details section now handles this)
+  // document.getElementById('appModalPDLevel').textContent = (selectedApp.program_level || '—');
+  // document.getElementById('appModalPDIntake').textContent = (selectedApp.semester || '—');
+  // document.getElementById('appModalPDSpecialization').textContent = (selectedApp.specialization || '—');
   
-  // Academic Background
-  document.getElementById('appModalABSchool').textContent = (selectedApp.prev_school || '—');
-  document.getElementById('appModalABYear').textContent = (selectedApp.year_graduated || '—');
-  document.getElementById('appModalABDegree').textContent = (selectedApp.degree || '—');
-  document.getElementById('appModalABGWA').textContent = (selectedApp.gwa || '—');
+  // ========== NEW: Populate Admission Details fields ==========
+  // Populate semester dropdown
+  const semesterSelect = document.getElementById('admSemester');
+  if (semesterSelect) {
+    semesterSelect.value = selectedApp.semester || '';
+  }
   
-  // Program Details
-  document.getElementById('appModalPDLevel').textContent = (selectedApp.program_level || '—');
-  document.getElementById('appModalPDIntake').textContent = (selectedApp.semester || '—');
-  document.getElementById('appModalPDSpecialization').textContent = (selectedApp.specialization || '—');
+  // Populate school year dropdown
+  const yearSelect = document.getElementById('admYear');
+  if (yearSelect) {
+    yearSelect.value = selectedApp.year_admitted || '';
+  }
+  
+  // Populate program level dropdown
+  const programLevelSelect = document.getElementById('admProgramLevel');
+  if (programLevelSelect) {
+    programLevelSelect.value = selectedApp.program_level || '';
+    // Trigger curriculum fields if program level is selected
+    if (selectedApp.program_level) {
+      toggleCurriculumFields();
+    }
+  }
+  
+  // Populate curriculum dropdown
+  const curriculumSelect = document.getElementById('admCurriculum');
+  if (curriculumSelect) {
+    curriculumSelect.value = selectedApp.curriculum || '';
+  }
+  
+  // Load curriculum data if exists
+  if (selectedApp.curriculum_data) {
+    loadCurriculumData(selectedApp.curriculum_data);
+  }
+  
+  // Also populate the curriculum batch year if available in the data
+  if (selectedApp.curriculum_data && selectedApp.curriculum_data.batch_year) {
+    const batchYearInput = document.getElementById('curriculumBatchYear');
+    if (batchYearInput) {
+      batchYearInput.value = selectedApp.curriculum_data.batch_year;
+    }
+  }
   
   modal.style.display = 'flex';
   modal.classList.add('fade-in');
