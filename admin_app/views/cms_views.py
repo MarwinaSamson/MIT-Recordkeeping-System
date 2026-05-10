@@ -23,6 +23,14 @@ from django.contrib.auth import logout
 from ..models import AdminProfile, CMSSettings
 from ..utils import get_activity_log   # reuse existing helper
 
+# Curriculum groups shown on the About page Courses tab — ensures the CMS UI
+# always has selectable groups even on a fresh install (program_curriculum was []).
+_DEFAULT_PROGRAM_CURRICULUM = [
+    {"title": "Core Courses", "courses": []},
+    {"title": "Specialization", "courses": []},
+    {"title": "Capstone", "courses": []},
+]
+
 
 def is_superuser(user):
     return user.is_superuser
@@ -50,6 +58,16 @@ def cms_settings(request):
     if not cms:
         cms = CMSSettings(pk=1)
         cms.save()
+
+    cur = cms.program_curriculum
+    if not cur or not isinstance(cur, list) or len(cur) == 0:
+        cms.program_curriculum = [
+            {"title": g["title"], "courses": list(g["courses"])}
+            for g in _DEFAULT_PROGRAM_CURRICULUM
+        ]
+        CMSSettings.objects.filter(pk=cms.pk).update(
+            program_curriculum=cms.program_curriculum
+        )
 
     # ── Recent activity log (for History Logs tab) ─────────────────────────
     all_activities = get_activity_log(limit=200)
