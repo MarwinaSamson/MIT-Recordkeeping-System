@@ -46,7 +46,10 @@ def cms_settings(request):
         pass
 
     # ── CMS singleton ──────────────────────────────────────────────────────
-    cms = CMSSettings.objects.filter(pk=1).first() or CMSSettings()
+    cms = CMSSettings.objects.filter(pk=1).first()
+    if not cms:
+        cms = CMSSettings(pk=1)
+        cms.save()
 
     # ── Recent activity log (for History Logs tab) ─────────────────────────
     all_activities = get_activity_log(limit=200)

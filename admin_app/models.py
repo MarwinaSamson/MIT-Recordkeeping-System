@@ -454,6 +454,12 @@ class CMSSettings(models.Model):
         blank=True,
         help_text='List of program objectives: [{title, description}]'
     )
+    # JSON list of {name: str, title: str, bio: str, tags: [str]}
+    about_faculty = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='List of faculty members: [{name, title, bio, tags}]'
+    )
     about_info_institution = models.TextField(
         blank=True,
         default="Western Mindanao State University"
