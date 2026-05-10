@@ -473,6 +473,7 @@ def update_cms_settings(request):
             'about_stat3_lbl': data.get('about_stat3_lbl', cms.about_stat3_lbl).strip(),
             'about_stat4_val': data.get('about_stat4_val', cms.about_stat4_val).strip(),
             'about_stat4_lbl': data.get('about_stat4_lbl', cms.about_stat4_lbl).strip(),
+            
         }
 
         # Validate and save announcements list [{text, duration}]
@@ -654,6 +655,30 @@ def update_cms_settings(request):
                         'description': description
                     })
             update_data['about_objectives'] = cleaned_objectives
+
+        # Validate and save about faculty list [{name: str, title: str, bio: str, tags: [str]}]
+        raw_about_faculty = data.get('about_faculty', None)
+        if raw_about_faculty is not None:
+            cleaned_faculty = []
+            for fac in raw_about_faculty:
+                name = str(fac.get('name', '')).strip()
+                title = str(fac.get('title', '')).strip()
+                bio = str(fac.get('bio', '')).strip()
+                tags = fac.get('tags', [])
+                if isinstance(tags, str):
+                    tags = [tag.strip() for tag in tags.split(',') if tag.strip()]
+                elif isinstance(tags, list):
+                    tags = [str(tag).strip() for tag in tags if str(tag).strip()]
+                else:
+                    tags = []
+                if name:
+                    cleaned_faculty.append({
+                        'name': name,
+                        'title': title,
+                        'bio': bio,
+                        'tags': tags
+                    })
+            update_data['about_faculty'] = cleaned_faculty
 
         # Use bulk update for better performance
         CMSSettings.objects.filter(pk=1).update(**update_data)

@@ -3462,32 +3462,21 @@
 
                 <!-- Course type tabs -->
                 <div id="courseTypeTabRow" class="flex gap-2 mb-5 mt-2">
+                  {% for group in cms.program_curriculum %}
                   <button
-                    class="cms-tab active"
+                    class="cms-tab {% if forloop.first %}active{% endif %}"
                     style="font-size: 0.75rem; padding: 5px 14px"
-                    onclick="switchCourseType('core', this)"
+                    onclick="switchCourseType('type-{{ forloop.counter0 }}', this)"
                   >
-                    IT Core (4)
+                    {{ group.title }} ({{ group.courses|length }})
                   </button>
-                  <button
-                    class="cms-tab"
-                    style="font-size: 0.75rem; padding: 5px 14px"
-                    onclick="switchCourseType('spec', this)"
-                  >
-                    Specialization (7)
-                  </button>
-                  <button
-                    class="cms-tab"
-                    style="font-size: 0.75rem; padding: 5px 14px"
-                    onclick="switchCourseType('cap', this)"
-                  >
-                    Capstone (2)
-                  </button>
+                  {% endfor %}
                 </div>
 
-                <!-- IT Core Courses list -->
-                <div id="courseType-core">
-                  <table class="cms-table" id="coursesTableCore">
+                <!-- Dynamic Course lists -->
+                {% for group in cms.program_curriculum %}
+                <div id="courseType-type-{{ forloop.counter0 }}" {% if not forloop.first %}class="hidden"{% endif %}>
+                  <table class="cms-table" id="coursesTable-{{ forloop.counter0 }}">
                     <thead>
                       <tr>
                         <th style="width: 90px">Code</th>
@@ -3496,20 +3485,17 @@
                         <th style="width: 90px">Actions</th>
                       </tr>
                     </thead>
-                    <tbody id="coursesBodyCore">
+                    <tbody id="coursesBody-{{ forloop.counter0 }}">
+                      {% for course in group.courses %}
                       <tr>
                         <td>
-                          <span class="font-mono text-xs font-bold text-red-700"
-                            >MIT 201</span
-                          >
+                          <span class="font-mono text-xs font-bold text-red-700">{{ course.code }}</span>
                         </td>
-                        <td class="font-semibold text-sm">
-                          Advanced Operating System and Networking
-                        </td>
-                        <td class="text-gray-500 text-sm">3</td>
+                        <td class="font-semibold text-sm">{{ course.name }}</td>
+                        <td class="text-gray-500 text-sm">{{ course.units }}</td>
                         <td class="flex gap-2">
                           <button
-                            onclick="editCourse('MIT201')"
+                            onclick="editCourse('{{ course.code }}')"
                             class="btn-del text-blue-500"
                             title="Edit"
                           >
@@ -3524,365 +3510,11 @@
                           </button>
                         </td>
                       </tr>
-                      <tr>
-                        <td>
-                          <span class="font-mono text-xs font-bold text-red-700"
-                            >MIT 202</span
-                          >
-                        </td>
-                        <td class="font-semibold text-sm">
-                          Advanced Systems Design and Implementation
-                        </td>
-                        <td class="text-gray-500 text-sm">3</td>
-                        <td class="flex gap-2">
-                          <button
-                            onclick="editCourse('MIT202')"
-                            class="btn-del text-blue-500"
-                            title="Edit"
-                          >
-                            <i data-lucide="pencil"></i>
-                          </button>
-                          <button
-                            onclick="deleteCourse(this)"
-                            class="btn-del"
-                            title="Delete"
-                          >
-                            <i data-lucide="trash-2"></i>
-                          </button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <span class="font-mono text-xs font-bold text-red-700"
-                            >MIT 203</span
-                          >
-                        </td>
-                        <td class="font-semibold text-sm">
-                          Advanced Database Systems
-                        </td>
-                        <td class="text-gray-500 text-sm">3</td>
-                        <td class="flex gap-2">
-                          <button
-                            onclick="editCourse('MIT203')"
-                            class="btn-del text-blue-500"
-                            title="Edit"
-                          >
-                            <i data-lucide="pencil"></i>
-                          </button>
-                          <button
-                            onclick="deleteCourse(this)"
-                            class="btn-del"
-                            title="Delete"
-                          >
-                            <i data-lucide="trash-2"></i>
-                          </button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <span class="font-mono text-xs font-bold text-red-700"
-                            >MIT 204</span
-                          >
-                        </td>
-                        <td class="font-semibold text-sm">
-                          Technology and Project Management
-                        </td>
-                        <td class="text-gray-500 text-sm">3</td>
-                        <td class="flex gap-2">
-                          <button
-                            onclick="editCourse('MIT204')"
-                            class="btn-del text-blue-500"
-                            title="Edit"
-                          >
-                            <i data-lucide="pencil"></i>
-                          </button>
-                          <button
-                            onclick="deleteCourse(this)"
-                            class="btn-del"
-                            title="Delete"
-                          >
-                            <i data-lucide="trash-2"></i>
-                          </button>
-                        </td>
-                      </tr>
+                      {% endfor %}
                     </tbody>
                   </table>
                 </div>
-
-                <!-- Specialization Courses list -->
-                <div id="courseType-spec" class="hidden">
-                  <table class="cms-table">
-                    <thead>
-                      <tr>
-                        <th style="width: 90px">Code</th>
-                        <th>Course Title</th>
-                        <th style="width: 70px">Units</th>
-                        <th style="width: 90px">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody id="coursesBodySpec">
-                      <tr>
-                        <td>
-                          <span class="font-mono text-xs font-bold text-red-700"
-                            >MIT 205</span
-                          >
-                        </td>
-                        <td class="font-semibold text-sm">
-                          Technical Research
-                        </td>
-                        <td class="text-gray-500 text-sm">3</td>
-                        <td class="flex gap-2">
-                          <button
-                            onclick="editCourse('MIT205')"
-                            class="btn-del text-blue-500"
-                            title="Edit"
-                          >
-                            <i data-lucide="pencil"></i>
-                          </button>
-                          <button
-                            onclick="deleteCourse(this)"
-                            class="btn-del"
-                            title="Delete"
-                          >
-                            <i data-lucide="trash-2"></i>
-                          </button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <span class="font-mono text-xs font-bold text-red-700"
-                            >MIT 206</span
-                          >
-                        </td>
-                        <td class="font-semibold text-sm">
-                          Statistical Research
-                        </td>
-                        <td class="text-gray-500 text-sm">3</td>
-                        <td class="flex gap-2">
-                          <button
-                            onclick="editCourse('MIT206')"
-                            class="btn-del text-blue-500"
-                            title="Edit"
-                          >
-                            <i data-lucide="pencil"></i>
-                          </button>
-                          <button
-                            onclick="deleteCourse(this)"
-                            class="btn-del"
-                            title="Delete"
-                          >
-                            <i data-lucide="trash-2"></i>
-                          </button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <span class="font-mono text-xs font-bold text-red-700"
-                            >MIT 207</span
-                          >
-                        </td>
-                        <td class="font-semibold text-sm">
-                          Specialization Course 1 – System Development
-                        </td>
-                        <td class="text-gray-500 text-sm">3</td>
-                        <td class="flex gap-2">
-                          <button
-                            onclick="editCourse('MIT207')"
-                            class="btn-del text-blue-500"
-                            title="Edit"
-                          >
-                            <i data-lucide="pencil"></i>
-                          </button>
-                          <button
-                            onclick="deleteCourse(this)"
-                            class="btn-del"
-                            title="Delete"
-                          >
-                            <i data-lucide="trash-2"></i>
-                          </button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <span class="font-mono text-xs font-bold text-red-700"
-                            >MIT 208</span
-                          >
-                        </td>
-                        <td class="font-semibold text-sm">
-                          Specialization Course 2 – Information Management
-                        </td>
-                        <td class="text-gray-500 text-sm">3</td>
-                        <td class="flex gap-2">
-                          <button
-                            onclick="editCourse('MIT208')"
-                            class="btn-del text-blue-500"
-                            title="Edit"
-                          >
-                            <i data-lucide="pencil"></i>
-                          </button>
-                          <button
-                            onclick="deleteCourse(this)"
-                            class="btn-del"
-                            title="Delete"
-                          >
-                            <i data-lucide="trash-2"></i>
-                          </button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <span class="font-mono text-xs font-bold text-red-700"
-                            >MIT 209</span
-                          >
-                        </td>
-                        <td class="font-semibold text-sm">
-                          Specialization Course 3 – Interactive Systems
-                        </td>
-                        <td class="text-gray-500 text-sm">3</td>
-                        <td class="flex gap-2">
-                          <button
-                            onclick="editCourse('MIT209')"
-                            class="btn-del text-blue-500"
-                            title="Edit"
-                          >
-                            <i data-lucide="pencil"></i>
-                          </button>
-                          <button
-                            onclick="deleteCourse(this)"
-                            class="btn-del"
-                            title="Delete"
-                          >
-                            <i data-lucide="trash-2"></i>
-                          </button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <span class="font-mono text-xs font-bold text-red-700"
-                            >MIT 210</span
-                          >
-                        </td>
-                        <td class="font-semibold text-sm">
-                          Specialization Course 4 – Intelligent Systems
-                        </td>
-                        <td class="text-gray-500 text-sm">3</td>
-                        <td class="flex gap-2">
-                          <button
-                            onclick="editCourse('MIT210')"
-                            class="btn-del text-blue-500"
-                            title="Edit"
-                          >
-                            <i data-lucide="pencil"></i>
-                          </button>
-                          <button
-                            onclick="deleteCourse(this)"
-                            class="btn-del"
-                            title="Delete"
-                          >
-                            <i data-lucide="trash-2"></i>
-                          </button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <span class="font-mono text-xs font-bold text-red-700"
-                            >MIT 211</span
-                          >
-                        </td>
-                        <td class="font-semibold text-sm">
-                          Specialization Course 5 – Emerging Trends in Computing
-                        </td>
-                        <td class="text-gray-500 text-sm">3</td>
-                        <td class="flex gap-2">
-                          <button
-                            onclick="editCourse('MIT211')"
-                            class="btn-del text-blue-500"
-                            title="Edit"
-                          >
-                            <i data-lucide="pencil"></i>
-                          </button>
-                          <button
-                            onclick="deleteCourse(this)"
-                            class="btn-del"
-                            title="Delete"
-                          >
-                            <i data-lucide="trash-2"></i>
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <!-- Capstone Courses list -->
-                <div id="courseType-cap" class="hidden">
-                  <table class="cms-table">
-                    <thead>
-                      <tr>
-                        <th style="width: 90px">Code</th>
-                        <th>Course Title</th>
-                        <th style="width: 70px">Units</th>
-                        <th style="width: 90px">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody id="coursesBodyCap">
-                      <tr>
-                        <td>
-                          <span class="font-mono text-xs font-bold text-red-700"
-                            >MIT 212A</span
-                          >
-                        </td>
-                        <td class="font-semibold text-sm">
-                          Capstone Project 1 – Directed Research
-                        </td>
-                        <td class="text-gray-500 text-sm">3</td>
-                        <td class="flex gap-2">
-                          <button
-                            onclick="editCourse('MIT212A')"
-                            class="btn-del text-blue-500"
-                            title="Edit"
-                          >
-                            <i data-lucide="pencil"></i>
-                          </button>
-                          <button
-                            onclick="deleteCourse(this)"
-                            class="btn-del"
-                            title="Delete"
-                          >
-                            <i data-lucide="trash-2"></i>
-                          </button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <span class="font-mono text-xs font-bold text-red-700"
-                            >MIT 212B</span
-                          >
-                        </td>
-                        <td class="font-semibold text-sm">
-                          Capstone Project 2 – National/International Forum
-                        </td>
-                        <td class="text-gray-500 text-sm">3</td>
-                        <td class="flex gap-2">
-                          <button
-                            onclick="editCourse('MIT212B')"
-                            class="btn-del text-blue-500"
-                            title="Edit"
-                          >
-                            <i data-lucide="pencil"></i>
-                          </button>
-                          <button
-                            onclick="deleteCourse(this)"
-                            class="btn-del"
-                            title="Delete"
-                          >
-                            <i data-lucide="trash-2"></i>
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+                {% endfor %}
               </div>
             </div>
 
@@ -4016,7 +3648,7 @@
                         class="field out-desc"
                         placeholder="Short description of this outcome..."
                       >
-{{ outcome.desc }}</textarea
+{{ outcome.description }}</textarea
                       >
                     </div>
                     <button
@@ -4219,7 +3851,7 @@ Design and execute both technical and statistical research that contributes orig
                       class="field flex-1 obj-text"
                       placeholder="Objective text..."
                     >
-{{ obj.text }}</textarea
+{{ obj.description|default:obj.title }}</textarea
                     >
                     <button
                       type="button"
@@ -4541,10 +4173,10 @@ Develop students' capacity to conduct both technical and statistical research, c
                         <div
                           class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-sm flex-shrink-0"
                         >
-                          L
+                          F
                         </div>
                         <span class="font-bold text-gray-800 text-sm"
-                          >Lucy Felix-Sadiwa, MSCS</span
+                          >Faculty Member</span
                         >
                       </div>
                       <button
@@ -4588,7 +4220,7 @@ Develop students' capacity to conduct both technical and statistical research, c
                           <input
                             type="text"
                             class="field fac-name"
-                            value="Lucy Felix-Sadiwa, MSCS"
+                            value=""
                             placeholder="e.g. Lucy Felix-Sadiwa, MSCS"
                           />
                         </div>
@@ -4597,7 +4229,7 @@ Develop students' capacity to conduct both technical and statistical research, c
                           <input
                             type="text"
                             class="field fac-title"
-                            value="Program Chair"
+                            value=""
                             placeholder="e.g. Program Chair"
                           />
                         </div>
@@ -4607,9 +4239,7 @@ Develop students' capacity to conduct both technical and statistical research, c
                             rows="2"
                             class="field fac-bio"
                             placeholder="e.g. Ph.D. in Information Technology · Specializes in Advanced Database Systems"
-                          >
-Ph.D. in Information Technology · Specializes in Advanced Database Systems and Systems Integration</textarea
-                          >
+                          ></textarea>
                         </div>
                         <div>
                           <label class="lbl"
@@ -4621,7 +4251,7 @@ Ph.D. in Information Technology · Specializes in Advanced Database Systems and 
                           <input
                             type="text"
                             class="field fac-tags"
-                            value="MIT 203, MIT 204, Databases"
+                            value=""
                             placeholder="e.g. MIT 203, MIT 204, Databases"
                           />
                         </div>
@@ -4654,7 +4284,6 @@ Ph.D. in Information Technology · Specializes in Advanced Database Systems and 
             z-index: 1000;
             background: rgba(15, 10, 12, 0.55);
             backdrop-filter: blur(5px);
-            display: none;
             align-items: center;
             justify-content: center;
             padding: 1rem;
@@ -4708,13 +4337,21 @@ Ph.D. in Information Technology · Specializes in Advanced Database Systems and 
             </div>
             <!-- Modal body -->
             <div class="p-6 space-y-4">
-              <input type="hidden" id="courseModalId" />
+              <input type="hidden" id="courseOriginalCode" />
+              <div id="courseGroupWrapper" class="hidden">
+                <label class="lbl">Course Group</label>
+                <select id="courseGroupSelect" class="field">
+                  {% for group in cms.program_curriculum %}
+                  <option value="{{ forloop.counter0 }}">{{ group.title }}</option>
+                  {% endfor %}
+                </select>
+              </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
                   <label class="lbl">Course Code</label>
                   <input
                     type="text"
-                    id="courseCode"
+                    id="courseCodeInput"
                     class="field"
                     placeholder="e.g. MIT 201"
                   />
@@ -4723,25 +4360,17 @@ Ph.D. in Information Technology · Specializes in Advanced Database Systems and 
                   <label class="lbl">Units</label>
                   <input
                     type="text"
-                    id="courseUnits"
+                    id="courseUnitsInput"
                     class="field"
-                    placeholder="e.g. 3 Units"
+                    placeholder="e.g. 3"
                   />
                 </div>
-              </div>
-              <div>
-                <label class="lbl">Course Type</label>
-                <select id="courseType" class="field">
-                  <option value="core">IT Core Course</option>
-                  <option value="spec">Specialization Course</option>
-                  <option value="cap">Capstone Project</option>
-                </select>
               </div>
               <div>
                 <label class="lbl">Course Title</label>
                 <input
                   type="text"
-                  id="courseTitle"
+                  id="courseNameInput"
                   class="field"
                   placeholder="e.g. Advanced Operating System and Networking"
                 />
@@ -5473,72 +5102,119 @@ Ph.D. in Information Technology · Specializes in Advanced Database Systems and 
       }
 
       /* ── Course Modal ── */
-      function openAddCourseModal() {
-        document.getElementById("courseModalTitle").textContent = "Add Course";
-        document.getElementById("courseModalId").value = "";
-        [
-          "courseCode",
-          "courseUnits",
-          "courseTitle",
-          "courseDesc",
-          "courseTopics",
-          "courseIcon",
-        ].forEach((id) => {
-          const el = document.getElementById(id);
-          if (el) el.value = "";
-        });
-        const ct = document.getElementById("courseType");
-        if (ct) ct.value = "core";
-        document.getElementById("courseModal").style.display = "flex";
-      }
+      // Build state from Django on page load
+let curriculumState = [
+  {% for group in cms.program_curriculum %}
+  {
+    title: "{{ group.title|escapejs }}",
+    courses: [
+      {% for course in group.courses %}
+      { code: "{{ course.code|escapejs }}", name: "{{ course.name|escapejs }}", units: {{ course.units }} },
+      {% endfor %}
+    ]
+  },
+  {% endfor %}
+];
 
-      function editCourse(code) {
-        document.getElementById("courseModalTitle").textContent =
-          "Edit Course — " + code;
-        document.getElementById("courseModalId").value = code;
-        document.getElementById("courseModal").style.display = "flex";
-      }
+function switchCourseType(typeId, btn) {
+  document.querySelectorAll('[id^="courseType-type-"]').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('#courseTypeTabRow .cms-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById(`courseType-${typeId}`).classList.remove('hidden');
+  btn.classList.add('active');
+}
 
-      function closeCourseModal() {
-        document.getElementById("courseModal").style.display = "none";
-      }
+function openAddCourseModal() {
+  document.getElementById('courseModalTitle').textContent = 'Add Course';
+  document.getElementById('courseCodeInput').value = '';
+  document.getElementById('courseNameInput').value = '';
+  document.getElementById('courseUnitsInput').value = '';
+  document.getElementById('courseOriginalCode').value = '';
+  document.getElementById('courseGroupWrapper').classList.remove('hidden');
+  document.getElementById('courseModal').style.display = 'flex';
+}
 
-      function saveCourse() {
-        const data = {
-          id: document.getElementById("courseModalId").value || null,
-          code: document.getElementById("courseCode").value,
-          units: document.getElementById("courseUnits").value,
-          type: document.getElementById("courseType").value,
-          title: document.getElementById("courseTitle").value,
-          desc: document.getElementById("courseDesc").value,
-          topics: document
-            .getElementById("courseTopics")
-            .value.split(",")
-            .map((t) => t.trim())
-            .filter(Boolean),
-          icon: document.getElementById("courseIcon").value,
-        };
-        fetch("/admin-panel/api/cms/update/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken(),
-          },
-          body: JSON.stringify({ about_course: data }),
-        })
-          .then((r) => r.json())
-          .then((d) => {
-            showCmsToast(d.message || "Course saved!");
-            closeCourseModal();
-          })
-          .catch(() => showCmsToast("Save failed.", "error"));
-      }
+function editCourse(courseCode) {
+  let found = null, foundGroupIdx = null;
+  curriculumState.forEach((group, gi) => {
+    group.courses.forEach(c => {
+      if (c.code === courseCode) { found = c; foundGroupIdx = gi; }
+    });
+  });
+  if (!found) return;
 
-      function deleteCourse(btn) {
-        if (!confirm("Delete this course?")) return;
-        btn.closest("tr").remove();
-        showCmsToast("Course removed.");
-      }
+  document.getElementById('courseModalTitle').textContent = 'Edit Course';
+  document.getElementById('courseCodeInput').value = found.code;
+  document.getElementById('courseNameInput').value = found.name;
+  document.getElementById('courseUnitsInput').value = found.units;
+  document.getElementById('courseOriginalCode').value = found.code;
+  document.getElementById('courseGroupSelect').value = foundGroupIdx;
+  document.getElementById('courseGroupWrapper').classList.add('hidden');
+  document.getElementById('courseModal').style.display = 'flex';
+}
+
+function closeCourseModal() {
+  document.getElementById('courseModal').style.display = 'none';
+}
+
+function saveCourse() {
+  const code         = document.getElementById('courseCodeInput').value.trim();
+  const name         = document.getElementById('courseNameInput').value.trim();
+  const units        = parseInt(document.getElementById('courseUnitsInput').value);
+  const originalCode = document.getElementById('courseOriginalCode').value.trim();
+  const groupIdx     = parseInt(document.getElementById('courseGroupSelect').value);
+
+  if (!code || !name || !units) { alert('Please fill in all fields.'); return; }
+
+  if (originalCode) {
+    curriculumState.forEach(group => {
+      const idx = group.courses.findIndex(c => c.code === originalCode);
+      if (idx !== -1) group.courses[idx] = { code, name, units };
+    });
+  } else {
+    curriculumState[groupIdx].courses.push({ code, name, units });
+  }
+
+  persistCurriculum();
+  closeCourseModal();
+}
+
+function deleteCourse(btn) {
+  if (!confirm('Delete this course?')) return;
+  const row  = btn.closest('tr');
+  const code = row.querySelector('.font-mono').textContent.trim();
+  curriculumState.forEach(group => {
+    group.courses = group.courses.filter(c => c.code !== code);
+  });
+  row.remove();
+  persistCurriculum();
+}
+
+function persistCurriculum() {
+  fetch('/admin-panel/api/program/cms/update/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken'),
+    },
+    body: JSON.stringify({ program_curriculum: curriculumState }),
+  })
+  .then((res) => {
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  })
+  .then((data) => {
+    if (data.success) location.reload();
+    else alert('Error saving: ' + data.message);
+  })
+  .catch((err) => {
+    alert('Save failed: ' + err.message);
+  });
+}
+
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? decodeURIComponent(match[2]) : '';
+}
 
       /* ── Outcomes ── */
       function addOutcomeRow() {
@@ -5574,8 +5250,9 @@ Ph.D. in Information Technology · Specializes in Advanced Database Systems and 
         const outcomes = [];
         document.querySelectorAll(".outcome-row").forEach((row) => {
           outcomes.push({
+            number: parseInt(row.querySelector(".outcome-num").textContent, 10) || 0,
             title: row.querySelector(".out-title").value,
-            desc: row.querySelector(".out-desc").value,
+            description: row.querySelector(".out-desc").value,
           });
         });
         fetch("/admin-panel/api/cms/update/", {
@@ -5619,7 +5296,8 @@ Ph.D. in Information Technology · Specializes in Advanced Database Systems and 
       function saveAboutObjectives() {
         const objs = [];
         document.querySelectorAll(".objective-row").forEach((row) => {
-          objs.push({ text: row.querySelector(".obj-text").value });
+          const text = row.querySelector(".obj-text").value;
+          objs.push({ title: text, description: text });
         });
         fetch("/admin-panel/api/cms/update/", {
           method: "POST",

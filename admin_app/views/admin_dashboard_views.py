@@ -108,6 +108,11 @@ def admin_dashboard(request):
     except AdminProfile.DoesNotExist:
         pass
 
+    cms_obj = CMSSettings.objects.filter(pk=1).first()
+    if not cms_obj:
+        cms_obj = CMSSettings(pk=1)
+        cms_obj.save()
+
     context = {
         'page_title': 'Admin Dashboard',
         'admin_name': request.user.get_full_name() or request.user.username,
@@ -119,8 +124,7 @@ def admin_dashboard(request):
         'verification_progress': get_verification_progress(),
         'recent_activities': get_activity_log(limit=10),
         # CMS settings for homepage
-        'cms': CMSSettings.objects.filter(pk=1).first() or CMSSettings(),
-        # Serialize as proper JSON so | safe in template produces valid JS
+        'cms': cms_obj,
         'all_applications': json.dumps(all_applications),
         'all_activities': json.dumps(all_activities),
     }

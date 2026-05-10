@@ -626,34 +626,28 @@
             <div class="info-icon"><span class="material-symbols-rounded" style="font-size:18px">account_balance</span></div>
             <div>
               <p class="info-label">Institution</p>
-              <p class="info-val">{{ cms.program_institution }}</p>
+              <p class="info-val">{{ cms.about_info_institution }}</p>
             </div>
           </div>
           <div class="info-row">
             <div class="info-icon"><span class="material-symbols-rounded" style="font-size:18px">assignment</span></div>
             <div>
               <p class="info-label">COPC / CMO Reference</p>
-              <p class="info-val">{{ cms.program_copc_number }}</p>
+              <p class="info-val">{{ cms.about_info_copc }}</p>
             </div>
           </div>
           <div class="info-row">
             <div class="info-icon"><span class="material-symbols-rounded" style="font-size:18px">calendar_today</span></div>
             <div>
               <p class="info-label">Current Effective Academic Year</p>
-              <p class="info-val">{{ cms.program_effective_year }}</p>
+              <p class="info-val">{{ cms.about_info_ay }}</p>
             </div>
           </div>
           <div class="info-row">
             <div class="info-icon"><span class="material-symbols-rounded" style="font-size:18px">verified</span></div>
             <div>
               <p class="info-label">Accrediting Body</p>
-              <p class="info-val">{{ cms.program_accreditor }}</p>
-            </div>
-          </div>
-            <div class="info-icon"><span class="material-symbols-rounded" style="font-size:18px">gavel</span></div>
-            <div>
-              <p class="info-label">Accrediting Body</p>
-              <p class="info-val">Commission on Higher Education (CHED), Philippines</p>
+              <p class="info-val">{{ cms.about_info_accred }}</p>
             </div>
           </div>
         </div>
@@ -661,8 +655,8 @@
         <div class="flex items-start gap-3 rounded-xl px-5 py-4" style="background:#fffbeb;border:1px solid #f5d97c">
           <span class="material-symbols-rounded flex-shrink-0 mt-0.5" style="font-size:22px;color:#d4970a">workspace_premium</span>
           <div>
-            <p class="text-sm font-semibold mb-0.5" style="color:#92600a">CHED Certified Program</p>
-            <p class="text-xs leading-relaxed" style="color:#a8751a">Complies with CHED Resolution No. 405-2019 and Republic Act No. 7722 (Higher Education Act of 1994). Curriculum updated effective S.Y. 2023–2024.</p>
+            <p class="text-sm font-semibold mb-0.5" style="color:#92600a">{{ cms.about_ched_heading }}</p>
+            <p class="text-xs leading-relaxed" style="color:#a8751a">{{ cms.about_ched_desc }}</p>
           </div>
         </div>
       </div>
@@ -670,20 +664,20 @@
       <div>
         <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-7">
           <div class="stat-card">
-            <p class="stat-n" id="stat-units">36</p>
-            <p class="stat-lbl">Total Units</p>
+            <p class="stat-n">{{ cms.about_stat1_val }}</p>
+            <p class="stat-lbl">{{ cms.about_stat1_lbl }}</p>
           </div>
           <div class="stat-card">
-            <p class="stat-n">2</p>
-            <p class="stat-lbl">Years Duration</p>
+            <p class="stat-n">{{ cms.about_stat2_val }}</p>
+            <p class="stat-lbl">{{ cms.about_stat2_lbl }}</p>
           </div>
           <div class="stat-card">
-            <p class="stat-n" id="stat-foundation">12</p>
-            <p class="stat-lbl" id="stat-foundation-lbl">Foundation Units</p>
+            <p class="stat-n">{{ cms.about_stat3_val }}</p>
+            <p class="stat-lbl">{{ cms.about_stat3_lbl }}</p>
           </div>
           <div class="stat-card">
-            <p class="stat-n" id="stat-spec">15</p>
-            <p class="stat-lbl" id="stat-spec-lbl">Specialization Units</p>
+            <p class="stat-n">{{ cms.about_stat4_val }}</p>
+            <p class="stat-lbl">{{ cms.about_stat4_lbl }}</p>
           </div>
         </div>
 
@@ -1045,20 +1039,16 @@
       {% for member in faculty %}
       <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
         <div class="fav h-44 w-full">
-          {% if member.photo %}
-            <img src="{{ member.photo.url }}" alt="{{ member.get_full_name }}" class="w-full h-full object-cover">
-          {% else %}
-            <span>{{ member.first_name.0 }}{{ member.last_name.0 }}</span>
-          {% endif %}
+          <span>{{ member.name|slice:":1"|upper|default:"F" }}</span>
         </div>
         <div class="p-5">
-          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">{{ member.get_full_name }}</p>
+          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">{{ member.name }}</p>
           <p class="eyebrow mt-0.5 mb-2.5">{{ member.title }}</p>
-          <p class="text-xs text-gray-500 leading-relaxed mb-3">{{ member.specializations }}</p>
+          <p class="text-xs text-gray-500 leading-relaxed mb-3">{{ member.bio }}</p>
           <div class="flex flex-wrap gap-1.5">
-            {% if member.specializations_list %}
-              {% for spec in member.specializations_list %}
-                <span class="tag bg-gray-100 text-gray-600">{{ spec }}</span>
+            {% if member.tags %}
+              {% for tag in member.tags %}
+                <span class="tag bg-gray-100 text-gray-600">{{ tag }}</span>
               {% endfor %}
             {% endif %}
           </div>
@@ -1067,13 +1057,13 @@
       {% empty %}
       <!-- Default faculty if none configured -->
       <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="fav h-44 w-full"><span>LS</span></div>
+        <div class="fav h-44 w-full"><span>FM</span></div>
         <div class="p-5">
-          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">Lucy Felix-Sadiwa, MSCS</p>
-          <p class="eyebrow mt-0.5 mb-2.5">Program Chair</p>
-          <p class="text-xs text-gray-500 leading-relaxed mb-3">Ph.D. in Information Technology · Specializes in Advanced Database Systems and Systems Integration</p>
+          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">Faculty Member</p>
+          <p class="eyebrow mt-0.5 mb-2.5">Position</p>
+          <p class="text-xs text-gray-500 leading-relaxed mb-3">Specialization and expertise</p>
           <div class="flex flex-wrap gap-1.5">
-            <span class="tag bg-gray-100 text-gray-600">Databases</span>
+            <span class="tag bg-gray-100 text-gray-600">Subject</span>
           </div>
         </div>
       </div>
@@ -1090,7 +1080,7 @@
 
 
 <!-- ════════════════ COURSE MODAL ════════════════ -->
-<div class="modal-bg" id="courseModal">
+<div class="modal-bg" id="courseDetailModal">
   <div class="modal-box">
     <div class="hero-bg px-6 sm:px-7 py-6 rounded-t-[18px]">
       <div class="flex items-start justify-between gap-4" style="position:relative;z-index:1">
@@ -1363,15 +1353,15 @@ function openModal(c) {
   } else {
     tw.classList.add('hidden');
   }
-  document.getElementById('courseModal').classList.add('open');
+  document.getElementById('courseDetailModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
 function closeModal() {
-  document.getElementById('courseModal').classList.remove('open');
+  document.getElementById('courseDetailModal').classList.remove('open');
   document.body.style.overflow = '';
 }
-document.getElementById('courseModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+document.getElementById('courseDetailModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 /* ─── About Curriculum Switcher ─── */
