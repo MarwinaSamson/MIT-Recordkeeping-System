@@ -1554,10 +1554,16 @@ def update_program_cms(request):
         if curriculum is not None:
             cleaned_curriculum = []
             for group in curriculum:
+                if not isinstance(group, dict):
+                    continue
                 group_title = str(group.get('title', '')).strip()
-                courses_raw = group.get('courses', [])
+                courses_raw = group.get('courses', []) or []
+                if not isinstance(courses_raw, list):
+                    courses_raw = []
                 cleaned_courses = []
                 for course in courses_raw:
+                    if not isinstance(course, dict):
+                        continue
                     code = str(course.get('code', '')).strip()
                     name = str(course.get('name', '')).strip()
                     try:
@@ -1570,7 +1576,10 @@ def update_program_cms(request):
                             'name': name,
                             'units': units
                         })
-                if group_title and cleaned_courses:
+                # Keep titled groups even when empty so the About CMS structure
+                # is not dropped on save (previously only groups with courses
+                # were persisted, which could wipe the catalog).
+                if group_title:
                     cleaned_curriculum.append({
                         'title': group_title,
                         'courses': cleaned_courses

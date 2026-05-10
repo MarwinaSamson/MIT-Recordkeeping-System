@@ -5087,19 +5087,9 @@ Develop students' capacity to conduct both technical and statistical research, c
       }
 
       /* ══════════════════════════════════════════════════════
-           ABOUT PAGE CMS — Course type sub-switcher (Core/Spec/Cap)
+           ABOUT PAGE CMS — Course type tabs (aligned with Django groups)
            Note: switchAboutTab is handled by admin_cms_scripts.js
         ══════════════════════════════════════════════════════ */
-      function switchCourseType(type, btn) {
-        ["core", "spec", "cap"].forEach((t) => {
-          const el = document.getElementById("courseType-" + t);
-          if (el) el.classList.toggle("hidden", t !== type);
-        });
-        document
-          .querySelectorAll("#courseTypeTabRow .cms-tab")
-          .forEach((b) => b.classList.remove("active"));
-        if (btn) btn.classList.add("active");
-      }
 
       /* ── Course Modal ── */
       // Build state from Django on page load
@@ -5159,11 +5149,14 @@ function closeCourseModal() {
 function saveCourse() {
   const code         = document.getElementById('courseCodeInput').value.trim();
   const name         = document.getElementById('courseNameInput').value.trim();
-  const units        = parseInt(document.getElementById('courseUnitsInput').value);
+  const units        = parseInt(document.getElementById('courseUnitsInput').value, 10);
   const originalCode = document.getElementById('courseOriginalCode').value.trim();
-  const groupIdx     = parseInt(document.getElementById('courseGroupSelect').value);
+  const groupIdx     = parseInt(document.getElementById('courseGroupSelect').value, 10);
 
-  if (!code || !name || !units) { alert('Please fill in all fields.'); return; }
+  if (!code || !name || !Number.isFinite(units) || units <= 0) {
+    alert('Please fill in code, title, and a valid number of units.');
+    return;
+  }
 
   if (originalCode) {
     curriculumState.forEach(group => {
@@ -5171,6 +5164,15 @@ function saveCourse() {
       if (idx !== -1) group.courses[idx] = { code, name, units };
     });
   } else {
+    if (
+      !Number.isInteger(groupIdx) ||
+      groupIdx < 0 ||
+      groupIdx >= curriculumState.length ||
+      !curriculumState[groupIdx].courses
+    ) {
+      alert('Please select a valid course group (reload the page if groups are missing).');
+      return;
+    }
     curriculumState[groupIdx].courses.push({ code, name, units });
   }
 
@@ -5194,7 +5196,7 @@ function persistCurriculum() {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRFToken': getCookie('csrftoken'),
+      'X-CSRFToken': getCSRFToken(),
     },
     body: JSON.stringify({ program_curriculum: curriculumState }),
   })
@@ -5209,11 +5211,6 @@ function persistCurriculum() {
   .catch((err) => {
     alert('Save failed: ' + err.message);
   });
-}
-
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? decodeURIComponent(match[2]) : '';
 }
 
       /* ── Outcomes ── */
