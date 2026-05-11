@@ -126,6 +126,9 @@ urlpatterns = [
     # schoolyear endpoints
     path('admin/school-years/summary/', schoolyear_views.school_year_summary, name='school_year_summary'),
     path('admin/school-years/', schoolyear_views.list_school_years, name='list_school_years'),
+     path('admin/school-years/<int:school_year_id>/semesters/', schoolyear_views.list_school_year_semesters, name='list_school_year_semesters'),
+     path('admin/school-years/<int:school_year_id>/semesters/<int:semester_number>/configure/', schoolyear_views.configure_school_year_semester, name='configure_school_year_semester'),
+     path('admin/school-years/<int:school_year_id>/semesters/<int:semester_number>/activate/', schoolyear_views.activate_school_year_semester, name='activate_school_year_semester'),
     path('admin/school-years/archived/', schoolyear_views.list_archived_school_years, name='list_archived_school_years'),
     path('admin/school-years/create/', schoolyear_views.create_school_year, name='create_school_year'),
     path('admin/school-years/<int:school_year_id>/edit/', schoolyear_views.edit_school_year, name='edit_school_year'),

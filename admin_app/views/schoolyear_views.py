@@ -6,7 +6,7 @@ from django.utils import timezone
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
 
-from admin_app.models import SchoolYear
+from admin_app.models import SchoolYear, Semester
 
 
 def is_admin(user):
@@ -36,6 +36,44 @@ def serialize_school_year(sy):
     }
 
 
+def _semester_display_name(semester_number):
+    labels = {
+        1: '1st Semester',
+        2: '2nd Semester',
+        3: 'Summer',
+    }
+    return labels.get(int(semester_number), 'Semester')
+
+
+def _normalize_semester_value(value):
+    text = (value or '').strip().lower()
+    if text in {'1', '1st', 'first', '1st semester', 'first semester'} or '1st' in text or 'first' in text:
+        return '1st Semester'
+    if text in {'2', '2nd', 'second', '2nd semester', 'second semester'} or '2nd' in text or 'second' in text:
+        return '2nd Semester'
+    if 'summer' in text:
+        return 'Summer'
+    return value or ''
+
+
+def serialize_semester(semester):
+    return {
+        'id': semester.pk,
+        'school_year_id': semester.school_year_id,
+        'semester_number': semester.semester_number,
+        'name': semester.name,
+        'start_date': semester.start_date.isoformat() if semester.start_date else None,
+        'end_date': semester.end_date.isoformat() if semester.end_date else None,
+        'enrollment_limit': semester.enrollment_limit,
+        'enrollment_count': semester.get_enrollment_count(),
+        'notes': semester.notes,
+        'is_active': semester.is_active,
+        'is_configured': semester.is_configured,
+        'created_at': semester.created_at.isoformat(),
+        'updated_at': semester.updated_at.isoformat(),
+    }
+
+
 def _parse_iso_date(value):
     """Parse an ISO date string (YYYY-MM-DD) into a date object. Return None if empty/invalid."""
     if not value:
@@ -52,6 +90,16 @@ def _parse_iso_date(value):
             except Exception:
                 return None
     return None
+
+
+def _parse_optional_int(value):
+    if value in (None, ''):
+        return None
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return None
+    return parsed if parsed >= 0 else None
 
 
 # ──────────────────────────────────────────────
@@ -104,6 +152,31 @@ def list_school_years(request):
 
     data = [serialize_school_year(sy) for sy in qs]
     return JsonResponse({'school_years': data})
+
+
+# ──────────────────────────────────────────────
+# GET  /admin/school-years/<id>/semesters/
+# Returns all semester records for a school year
+# ──────────────────────────────────────────────
+
+@login_required
+@user_passes_test(is_admin)
+@require_http_methods(['GET'])
+def list_school_year_semesters(request, school_year_id):
+    try:
+        sy = SchoolYear.objects.get(pk=school_year_id)
+    except SchoolYear.DoesNotExist:
+        return JsonResponse({'error': 'School year not found.'}, status=404)
+
+    sy.ensure_default_semesters()
+    semesters = sy.semesters.all().order_by('semester_number')
+    active_semester = sy.get_active_semester()
+
+    return JsonResponse({
+        'school_year': serialize_school_year(sy),
+        'semesters': [serialize_semester(semester) for semester in semesters],
+        'active_semester': serialize_semester(active_semester) if active_semester else None,
+    })
 
 
 # ──────────────────────────────────────────────
@@ -318,6 +391,99 @@ def delete_school_year(request, school_year_id):
 
 
 # ──────────────────────────────────────────────
+# POST /admin/school-years/<id>/semesters/<semester_number>/configure/
+# Create or update semester dates and notes
+# ──────────────────────────────────────────────
+
+@login_required
+@user_passes_test(is_admin)
+@require_http_methods(['POST'])
+def configure_school_year_semester(request, school_year_id, semester_number):
+    try:
+        sy = SchoolYear.objects.get(pk=school_year_id)
+    except SchoolYear.DoesNotExist:
+        return JsonResponse({'error': 'School year not found.'}, status=404)
+
+    if sy.is_archived:
+        return JsonResponse({'error': 'Cannot configure semesters for an archived school year.'}, status=400)
+
+    if semester_number not in [1, 2, 3]:
+        return JsonResponse({'error': 'Invalid semester selected.'}, status=400)
+
+    try:
+        body = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+
+    start_date = _parse_iso_date(body.get('start_date'))
+    end_date = _parse_iso_date(body.get('end_date'))
+    enrollment_limit = _parse_optional_int(body.get('enrollment_limit'))
+    notes = (body.get('notes') or '').strip()
+
+    if not start_date or not end_date:
+        return JsonResponse({'error': 'Start and end dates are required.'}, status=400)
+
+    if start_date > end_date:
+        return JsonResponse({'error': 'Start date cannot be later than end date.'}, status=400)
+
+    semester, _ = Semester.objects.get_or_create(
+        school_year=sy,
+        semester_number=semester_number,
+    )
+
+    semester.start_date = start_date
+    semester.end_date = end_date
+    semester.enrollment_limit = enrollment_limit
+    semester.notes = notes
+    semester.save()
+
+    return JsonResponse({
+        'success': True,
+        'message': f"{semester.name} configured successfully.",
+        'semester': serialize_semester(semester),
+    })
+
+
+# ──────────────────────────────────────────────
+# POST /admin/school-years/<id>/semesters/<semester_number>/activate/
+# Sets a school year semester as active
+# ──────────────────────────────────────────────
+
+@login_required
+@user_passes_test(is_admin)
+@require_http_methods(['POST'])
+def activate_school_year_semester(request, school_year_id, semester_number):
+    try:
+        sy = SchoolYear.objects.get(pk=school_year_id)
+    except SchoolYear.DoesNotExist:
+        return JsonResponse({'error': 'School year not found.'}, status=404)
+
+    if sy.is_archived:
+        return JsonResponse({'error': 'Cannot activate a semester for an archived school year.'}, status=400)
+
+    if not sy.is_active:
+        return JsonResponse({'error': 'Set the school year as active before activating a semester.'}, status=400)
+
+    if semester_number not in [1, 2, 3]:
+        return JsonResponse({'error': 'Invalid semester selected.'}, status=400)
+
+    sy.ensure_default_semesters()
+    try:
+        semester = sy.semesters.get(semester_number=semester_number)
+    except Semester.DoesNotExist:
+        return JsonResponse({'error': 'Semester not found.'}, status=404)
+
+    semester.activate()
+
+    return JsonResponse({
+        'success': True,
+        'message': f'{semester.name} is now the active semester.',
+        'semester': serialize_semester(semester),
+        'semesters': [serialize_semester(item) for item in sy.semesters.all().order_by('semester_number')],
+    })
+
+
+# ──────────────────────────────────────────────
 # GET  /api/student/school-year/
 # Public endpoint: Returns the active school year for students
 # Used by student dashboard to dynamically display current A.Y. and semester
@@ -349,7 +515,8 @@ def get_active_school_year(request):
     # This is a simple heuristic: June-November = 1st Sem, December-May = 2nd Sem
     from datetime import datetime
     current_month = datetime.now().month
-    semester = '1st Semester' if 6 <= current_month <= 11 else '2nd Semester'
+    fallback_semester = '1st Semester' if 6 <= current_month <= 11 else '2nd Semester'
+    active_semester = active_sy.get_active_semester() if active_sy else None
 
     return JsonResponse({
         'active': True,
@@ -357,6 +524,7 @@ def get_active_school_year(request):
         'year_display': f'{year_start} – {year_end}',
         'year_start': year_start,
         'year_end': year_end,
-        'semester': semester,
+        'semester': active_semester.name if active_semester else fallback_semester,
+        'active_semester': serialize_semester(active_semester) if active_semester else None,
         'name': active_sy.name,
     }, status=200)

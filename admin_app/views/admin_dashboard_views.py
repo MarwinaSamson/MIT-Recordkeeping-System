@@ -9,7 +9,7 @@ from ..utils import (
     get_verification_progress,
     get_activity_log,
 )
-from ..models import Application, AdminProfile
+from ..models import Application, AdminProfile, CMSSettings
 from .document_verification import _build_application_list
 
 

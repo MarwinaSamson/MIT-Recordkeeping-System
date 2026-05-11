@@ -3,7 +3,10 @@
 
 <div id="page-school-year" class="page p-8 w-full">
   <div class="mb-7 fade-in">
-    <h1 class="text-3xl font-bold text-gray-800" style="font-family: &quot;Playfair Display&quot;, serif">
+    <h1
+      class="text-3xl font-bold text-gray-800"
+      style="font-family: &quot;Playfair Display&quot;, serif"
+    >
       School Year Management
     </h1>
     <p class="text-gray-400 text-sm mt-1">
@@ -13,18 +16,24 @@
 
   <!-- Tabs -->
   <div class="flex gap-2 mb-6 border-b border-gray-200">
-    <button onclick="switchSchoolYearTab('manage', this)"
-      class="sy-tab active px-4 py-2 text-sm font-semibold text-red-800 border-b-2 border-red-800">
+    <button
+      onclick="switchSchoolYearTab('manage', this)"
+      class="sy-tab active px-4 py-2 text-sm font-semibold text-red-800 border-b-2 border-red-800"
+    >
       <i data-lucide="calendar" class="w-4 h-4 inline mr-2"></i>Manage School
       Years
     </button>
-    <button onclick="switchSchoolYearTab('semester', this)"
-      class="sy-tab px-4 py-2 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-700">
+    <button
+      onclick="switchSchoolYearTab('semester', this)"
+      class="sy-tab px-4 py-2 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-700"
+    >
       <i data-lucide="book-open" class="w-4 h-4 inline mr-2"></i>Semester
       Management
     </button>
-    <button onclick="switchSchoolYearTab('archive', this)"
-      class="sy-tab px-4 py-2 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-700">
+    <button
+      onclick="switchSchoolYearTab('archive', this)"
+      class="sy-tab px-4 py-2 text-sm font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-700"
+    >
       <i data-lucide="archive" class="w-4 h-4 inline mr-2"></i>School Year
       Archive
     </button>
@@ -36,23 +45,35 @@
       <!-- Summary Cards -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="bg-white rounded-2xl shadow-sm p-5 fade-in">
-          <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
             Active School Years
           </p>
-          <h2 id="activeSchoolYearsCount" class="text-3xl font-bold text-green-600">
+          <h2
+            id="activeSchoolYearsCount"
+            class="text-3xl font-bold text-green-600"
+          >
             0
           </h2>
         </div>
         <div class="bg-white rounded-2xl shadow-sm p-5 fade-in">
-          <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
             Total Enrollment
           </p>
-          <h2 id="totalEnrollmentCount" class="text-3xl font-bold text-blue-600">
+          <h2
+            id="totalEnrollmentCount"
+            class="text-3xl font-bold text-blue-600"
+          >
             0
           </h2>
         </div>
         <div class="bg-white rounded-2xl shadow-sm p-5 fade-in">
-          <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
             Archived Years
           </p>
           <h2 id="archivedYearsCount" class="text-3xl font-bold text-gray-600">
@@ -60,26 +81,40 @@
           </h2>
         </div>
         <div class="bg-white rounded-2xl shadow-sm p-5 fade-in">
-          <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
             Upcoming Years
           </p>
-          <h2 id="upcomingYearsCount" class="text-3xl font-bold text-orange-600">
+          <h2
+            id="upcomingYearsCount"
+            class="text-3xl font-bold text-orange-600"
+          >
             0
           </h2>
         </div>
       </div>
 
       <!-- Current Active School Year Banner -->
-      <div class="bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-200 rounded-2xl p-6 fade-in">
+      <div
+        class="bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-200 rounded-2xl p-6 fade-in"
+      >
         <div class="flex items-center gap-3 mb-4">
-          <div class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
+          <div
+            class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center"
+          >
             <i data-lucide="check-circle-2" class="w-6 h-6 text-white"></i>
           </div>
           <div>
-            <p class="text-xs font-semibold text-green-700 uppercase tracking-wide">
+            <p
+              class="text-xs font-semibold text-green-700 uppercase tracking-wide"
+            >
               Current Active School Year
             </p>
-            <h3 id="activeSchoolYearName" class="text-2xl font-bold text-green-800">
+            <h3
+              id="activeSchoolYearName"
+              class="text-2xl font-bold text-green-800"
+            >
               2027-2028
             </h3>
           </div>
@@ -88,12 +123,16 @@
           Aug 30, 2027 – Aug 30, 2028
         </p>
         <div class="flex gap-3">
-          <button onclick="openEditSchoolYearModal()"
-            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition">
+          <button
+            onclick="openEditSchoolYearModal()"
+            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition"
+          >
             <i data-lucide="edit" class="w-4 h-4 inline mr-2"></i>Edit Details
           </button>
-          <button onclick="toggleEnrollment()"
-            class="px-4 py-2 bg-white hover:bg-gray-50 text-green-700 border border-green-300 rounded-lg text-sm font-medium transition">
+          <button
+            onclick="toggleEnrollment()"
+            class="px-4 py-2 bg-white hover:bg-gray-50 text-green-700 border border-green-300 rounded-lg text-sm font-medium transition"
+          >
             <i data-lucide="lock" class="w-4 h-4 inline mr-2"></i>Manage
             Enrollment
           </button>
@@ -109,15 +148,25 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">School Year</label>
-            <input type="text" id="newSchoolYearInput" placeholder="e.g., 2028-2029"
-              class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700" />
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >School Year</label
+            >
+            <input
+              type="text"
+              id="newSchoolYearInput"
+              placeholder="e.g., 2028-2029"
+              class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700"
+            />
             <p class="text-xs text-gray-400 mt-1">Format: YYYY-YYYY</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Enrollment Status</label>
-            <select id="enrollmentStatusSelect"
-              class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700 appearance-none bg-white cursor-pointer">
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Enrollment Status</label
+            >
+            <select
+              id="enrollmentStatusSelect"
+              class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700 appearance-none bg-white cursor-pointer"
+            >
               <option value="draft">Draft</option>
               <option value="enrollment-open">Enrollment Open</option>
               <option value="enrollment-closed">Enrollment Closed</option>
@@ -126,23 +175,45 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-            <input type="date" id="newStartDateInput"
-              class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700" />
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Start Date</label
+            >
+            <input
+              type="date"
+              id="newStartDateInput"
+              class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700"
+            />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
-            <input type="date" id="newEndDateInput"
-              class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700" />
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >End Date</label
+            >
+            <input
+              type="date"
+              id="newEndDateInput"
+              class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700"
+            />
           </div>
         </div>
         <div class="mt-5">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Notes / Description</label>
-          <textarea id="newSchoolYearNotes" rows="3" placeholder="Optional notes about this school year..."
-            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700 resize-none"></textarea>
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Notes / Description</label
+          >
+          <textarea
+            id="newSchoolYearNotes"
+            rows="3"
+            placeholder="Optional notes about this school year..."
+            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700 resize-none"
+          ></textarea>
         </div>
-        <div class="mt-5 flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-          <input type="checkbox" id="newSchoolYearActive" class="w-4 h-4 rounded accent-red-700 cursor-pointer" />
+        <div
+          class="mt-5 flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200"
+        >
+          <input
+            type="checkbox"
+            id="newSchoolYearActive"
+            class="w-4 h-4 rounded accent-red-700 cursor-pointer"
+          />
           <label for="newSchoolYearActive" class="flex-1 cursor-pointer">
             <div class="text-sm font-medium text-gray-700">
               Set as Active School Year
@@ -152,8 +223,10 @@
             </div>
           </label>
         </div>
-        <button onclick="createNewSchoolYear()"
-          class="mt-5 px-6 py-2.5 bg-red-700 hover:bg-red-800 text-white rounded-lg font-semibold transition flex items-center gap-2">
+        <button
+          onclick="createNewSchoolYear()"
+          class="mt-5 px-6 py-2.5 bg-red-700 hover:bg-red-800 text-white rounded-lg font-semibold transition flex items-center gap-2"
+        >
           <i data-lucide="plus" class="w-4 h-4"></i>Create School Year
         </button>
       </div>
@@ -166,16 +239,22 @@
 
         <!-- Tabs for different statuses -->
         <div class="flex gap-3 mb-5 border-b border-gray-200">
-          <button onclick="filterSchoolYears('active')"
-            class="sy-filter-tab active px-3 py-2 text-sm font-medium text-red-700 border-b-2 border-red-700">
+          <button
+            onclick="filterSchoolYears('active')"
+            class="sy-filter-tab active px-3 py-2 text-sm font-medium text-red-700 border-b-2 border-red-700"
+          >
             Active
           </button>
-          <button onclick="filterSchoolYears('upcoming')"
-            class="sy-filter-tab px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700">
+          <button
+            onclick="filterSchoolYears('upcoming')"
+            class="sy-filter-tab px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700"
+          >
             Upcoming
           </button>
-          <button onclick="filterSchoolYears('draft')"
-            class="sy-filter-tab px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700">
+          <button
+            onclick="filterSchoolYears('draft')"
+            class="sy-filter-tab px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700"
+          >
             Draft
           </button>
         </div>
@@ -192,13 +271,19 @@
   <div id="sy-tab-semester" class="sy-tab-content hidden">
     <div class="space-y-6">
       <!-- Current Active Semester Banner -->
-      <div class="bg-gradient-to-r from-white-50 to-white-100 border-2 border-red-200 rounded-2xl p-6 fade-in">
+      <div
+        class="bg-gradient-to-r from-white-50 to-white-100 border-2 border-red-200 rounded-2xl p-6 fade-in"
+      >
         <div class="flex items-center gap-3 mb-4">
-          <div class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center">
+          <div
+            class="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center"
+          >
             <i data-lucide="book-open" class="w-6 h-6 text-white"></i>
           </div>
           <div>
-            <p class="text-xs font-semibold text-red-700 uppercase tracking-wide">
+            <p
+              class="text-xs font-semibold text-red-700 uppercase tracking-wide"
+            >
               Current Active Semester
             </p>
             <h3 id="activeSemesterName" class="text-2xl font-bold text-red-800">
@@ -216,10 +301,14 @@
         <!-- 1st Semester -->
         <div
           class="bg-white rounded-2xl shadow-sm p-6 fade-in border-2 border-transparent hover:border-red-200 transition"
-          id="semesterCard1">
+          id="semesterCard1"
+        >
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-800">1st Semester</h3>
-            <span id="semester1Badge" class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+            <span
+              id="semester1Badge"
+              class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
+            >
               Inactive
             </span>
           </div>
@@ -227,23 +316,31 @@
             <div class="flex items-center gap-2">
               <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
               <p class="text-sm text-gray-600">
-                <span id="semester1Dates" class="text-gray-500">No dates set</span>
+                <span id="semester1Dates" class="text-gray-500"
+                  >No dates set</span
+                >
               </p>
             </div>
             <div class="flex items-center gap-2">
               <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
               <p class="text-sm text-gray-600">
-                Enrollment: <span id="semester1Enrollment" class="font-medium">0</span>
+                Enrollment:
+                <span id="semester1Enrollment" class="font-medium">0</span>
               </p>
             </div>
           </div>
           <div class="flex gap-2">
-            <button onclick="openSemesterConfigModal('1st', 1)"
-              class="flex-1 px-3 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition flex items-center justify-center gap-2">
+            <button
+              onclick="openSemesterConfigModal('1st', 1)"
+              class="flex-1 px-3 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition flex items-center justify-center gap-2"
+            >
               <i data-lucide="settings" class="w-4 h-4"></i>Configure
             </button>
-            <button onclick="activateSemester('1st', 1)" id="activateSemester1Btn"
-              class="flex-1 px-3 py-2 border border-red-200 text-red-700 text-sm font-medium rounded-lg hover:bg-red-50 transition flex items-center justify-center gap-2">
+            <button
+              onclick="activateSemester('1st', 1)"
+              id="activateSemester1Btn"
+              class="flex-1 px-3 py-2 border border-red-200 text-red-700 text-sm font-medium rounded-lg hover:bg-red-50 transition flex items-center justify-center gap-2"
+            >
               <i data-lucide="zap" class="w-4 h-4"></i>Activate
             </button>
           </div>
@@ -252,10 +349,14 @@
         <!-- 2nd Semester -->
         <div
           class="bg-white rounded-2xl shadow-sm p-6 fade-in border-2 border-transparent hover:border-red-200 transition"
-          id="semesterCard2">
+          id="semesterCard2"
+        >
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-800">2nd Semester</h3>
-            <span id="semester2Badge" class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+            <span
+              id="semester2Badge"
+              class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
+            >
               Inactive
             </span>
           </div>
@@ -263,23 +364,31 @@
             <div class="flex items-center gap-2">
               <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
               <p class="text-sm text-gray-600">
-                <span id="semester2Dates" class="text-gray-500">No dates set</span>
+                <span id="semester2Dates" class="text-gray-500"
+                  >No dates set</span
+                >
               </p>
             </div>
             <div class="flex items-center gap-2">
               <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
               <p class="text-sm text-gray-600">
-                Enrollment: <span id="semester2Enrollment" class="font-medium">0</span>
+                Enrollment:
+                <span id="semester2Enrollment" class="font-medium">0</span>
               </p>
             </div>
           </div>
           <div class="flex gap-2">
-            <button onclick="openSemesterConfigModal('2nd', 2)"
-              class="flex-1 px-3 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition flex items-center justify-center gap-2">
+            <button
+              onclick="openSemesterConfigModal('2nd', 2)"
+              class="flex-1 px-3 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition flex items-center justify-center gap-2"
+            >
               <i data-lucide="settings" class="w-4 h-4"></i>Configure
             </button>
-            <button onclick="activateSemester('2nd', 2)" id="activateSemester2Btn"
-            class="flex-1 px-3 py-2 border border-red-200 text-red-700 text-sm font-medium rounded-lg hover:bg-red-50 transition flex items-center justify-center gap-2">
+            <button
+              onclick="activateSemester('2nd', 2)"
+              id="activateSemester2Btn"
+              class="flex-1 px-3 py-2 border border-red-200 text-red-700 text-sm font-medium rounded-lg hover:bg-red-50 transition flex items-center justify-center gap-2"
+            >
               <i data-lucide="zap" class="w-4 h-4"></i>Activate
             </button>
           </div>
@@ -288,10 +397,14 @@
         <!-- Summer Semester -->
         <div
           class="bg-white rounded-2xl shadow-sm p-6 fade-in border-2 border-transparent hover:border-red-200 transition"
-          id="semesterCard3">
+          id="semesterCard3"
+        >
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-800">Summer</h3>
-            <span id="semester3Badge" class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+            <span
+              id="semester3Badge"
+              class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
+            >
               Inactive
             </span>
           </div>
@@ -299,23 +412,31 @@
             <div class="flex items-center gap-2">
               <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
               <p class="text-sm text-gray-600">
-                <span id="semester3Dates" class="text-gray-500">No dates set</span>
+                <span id="semester3Dates" class="text-gray-500"
+                  >No dates set</span
+                >
               </p>
             </div>
             <div class="flex items-center gap-2">
               <i data-lucide="users" class="w-4 h-4 text-gray-400"></i>
               <p class="text-sm text-gray-600">
-                Enrollment: <span id="semester3Enrollment" class="font-medium">0</span>
+                Enrollment:
+                <span id="semester3Enrollment" class="font-medium">0</span>
               </p>
             </div>
           </div>
           <div class="flex gap-2">
-            <button onclick="openSemesterConfigModal('Summer', 3)"
-              class="flex-1 px-3 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition flex items-center justify-center gap-2">
+            <button
+              onclick="openSemesterConfigModal('Summer', 3)"
+              class="flex-1 px-3 py-2 border border-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition flex items-center justify-center gap-2"
+            >
               <i data-lucide="settings" class="w-4 h-4"></i>Configure
             </button>
-            <button onclick="activateSemester('1st', 1)" id="activateSemester1Btn"
-              class="flex-1 px-3 py-2 border border-red-200 text-red-700 text-sm font-medium rounded-lg hover:bg-red-50 transition flex items-center justify-center gap-2">
+            <button
+              onclick="activateSemester('Summer', 3)"
+              id="activateSemester3Btn"
+              class="flex-1 px-3 py-2 border border-red-200 text-red-700 text-sm font-medium rounded-lg hover:bg-red-50 transition flex items-center justify-center gap-2"
+            >
               <i data-lucide="zap" class="w-4 h-4"></i>Activate
             </button>
           </div>
@@ -331,12 +452,24 @@
           <table class="w-full text-sm">
             <thead>
               <tr class="border-b border-gray-200">
-                <th class="text-left py-3 px-4 font-semibold text-gray-600">Semester</th>
-                <th class="text-left py-3 px-4 font-semibold text-gray-600">Status</th>
-                <th class="text-left py-3 px-4 font-semibold text-gray-600">Start Date</th>
-                <th class="text-left py-3 px-4 font-semibold text-gray-600">End Date</th>
-                <th class="text-left py-3 px-4 font-semibold text-gray-600">Students</th>
-                <th class="text-left py-3 px-4 font-semibold text-gray-600">Actions</th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-600">
+                  Semester
+                </th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-600">
+                  Status
+                </th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-600">
+                  Start Date
+                </th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-600">
+                  End Date
+                </th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-600">
+                  Students
+                </th>
+                <th class="text-left py-3 px-4 font-semibold text-gray-600">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody id="semesterOverviewTable">
@@ -357,14 +490,26 @@
     <div class="space-y-6">
       <!-- Archive Filters -->
       <div
-        class="bg-white rounded-2xl shadow-sm p-5 flex flex-col sm:flex-row gap-3 items-start sm:items-center fade-in">
+        class="bg-white rounded-2xl shadow-sm p-5 flex flex-col sm:flex-row gap-3 items-start sm:items-center fade-in"
+      >
         <div class="flex-1 relative">
-          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-          <input type="text" id="archiveSearch" placeholder="Search by school year..." oninput="filterArchivedYears()"
-            class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
+          <i
+            data-lucide="search"
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+          ></i>
+          <input
+            type="text"
+            id="archiveSearch"
+            placeholder="Search by school year..."
+            oninput="filterArchivedYears()"
+            class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition"
+          />
         </div>
-        <select id="archiveYearFilter" onchange="filterArchivedYears()"
-          class="px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none cursor-pointer focus:ring-2 focus:ring-red-200">
+        <select
+          id="archiveYearFilter"
+          onchange="filterArchivedYears()"
+          class="px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none cursor-pointer focus:ring-2 focus:ring-red-200"
+        >
           <option value="">All Years</option>
           <option value="2026-2027">2026-2027</option>
           <option value="2025-2026">2025-2026</option>
@@ -375,7 +520,9 @@
       <!-- Archive Summary Cards -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-white rounded-2xl shadow-sm p-5">
-          <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
             Total Archived Years
           </p>
           <h2 id="totalArchivedCount" class="text-3xl font-bold text-gray-600">
@@ -383,18 +530,28 @@
           </h2>
         </div>
         <div class="bg-white rounded-2xl shadow-sm p-5">
-          <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
             Total Archived Students
           </p>
-          <h2 id="archivedStudentsCount" class="text-3xl font-bold text-blue-600">
+          <h2
+            id="archivedStudentsCount"
+            class="text-3xl font-bold text-blue-600"
+          >
             0
           </h2>
         </div>
         <div class="bg-white rounded-2xl shadow-sm p-5">
-          <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
+          <p
+            class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
+          >
             Last Updated
           </p>
-          <h2 id="lastArchivedUpdate" class="text-sm font-semibold text-gray-600">
+          <h2
+            id="lastArchivedUpdate"
+            class="text-sm font-semibold text-gray-600"
+          >
             —
           </h2>
         </div>
@@ -413,7 +570,9 @@
       <!-- Export Archive -->
       <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6 fade-in">
         <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
+          <div
+            class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center"
+          >
             <i data-lucide="download" class="w-6 h-6 text-blue-600"></i>
           </div>
           <div class="flex-1">
@@ -425,12 +584,20 @@
               analysis.
             </p>
             <div class="flex gap-2">
-              <button onclick="exportArchiveData('excel')"
-                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition">
-                <i data-lucide="file-spreadsheet" class="w-4 h-4 inline mr-2"></i>Export as Excel
+              <button
+                onclick="exportArchiveData('excel')"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition"
+              >
+                <i
+                  data-lucide="file-spreadsheet"
+                  class="w-4 h-4 inline mr-2"
+                ></i
+                >Export as Excel
               </button>
-              <button onclick="exportArchiveData('pdf')"
-                class="px-4 py-2 bg-white hover:bg-gray-50 text-blue-600 border border-blue-300 rounded-lg text-sm font-medium transition">
+              <button
+                onclick="exportArchiveData('pdf')"
+                class="px-4 py-2 bg-white hover:bg-gray-50 text-blue-600 border border-blue-300 rounded-lg text-sm font-medium transition"
+              >
                 <i data-lucide="file-pdf" class="w-4 h-4 inline mr-2"></i>Export
                 as PDF
               </button>
@@ -447,53 +614,87 @@
 <!-- Edit School Year Modal -->
 <div id="editSchoolYearModal" class="modal-overlay z-50" style="display: none">
   <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl fade-in">
-    <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
+    <div
+      class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100"
+    >
       <h2 class="text-lg font-bold text-gray-800">Edit Active School Year</h2>
-      <button onclick="closeEditSchoolYearModal()"
-        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none">
+      <button
+        onclick="closeEditSchoolYearModal()"
+        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none"
+      >
         &times;
       </button>
     </div>
     <div class="px-6 py-5 space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">School Year</label>
-        <input type="text" id="editSchoolYearInput" placeholder="e.g., 2027-2028"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700" />
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >School Year</label
+        >
+        <input
+          type="text"
+          id="editSchoolYearInput"
+          placeholder="e.g., 2027-2028"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700"
+        />
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-          <input type="date" id="editStartDateInput"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700" />
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Start Date</label
+          >
+          <input
+            type="date"
+            id="editStartDateInput"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700"
+          />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
-          <input type="date" id="editEndDateInput"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700" />
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >End Date</label
+          >
+          <input
+            type="date"
+            id="editEndDateInput"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700"
+          />
         </div>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Enrollment Status</label>
-        <select id="editEnrollmentStatusSelect"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700 appearance-none bg-white cursor-pointer">
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Enrollment Status</label
+        >
+        <select
+          id="editEnrollmentStatusSelect"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700 appearance-none bg-white cursor-pointer"
+        >
           <option value="active">Active</option>
           <option value="enrollment-open">Enrollment Open</option>
           <option value="enrollment-closed">Enrollment Closed</option>
         </select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-        <textarea id="editSchoolYearNotes" rows="3" placeholder="Optional notes..."
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700 resize-none"></textarea>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Notes</label
+        >
+        <textarea
+          id="editSchoolYearNotes"
+          rows="3"
+          placeholder="Optional notes..."
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700 resize-none"
+        ></textarea>
       </div>
     </div>
     <div class="flex gap-3 px-6 py-4 border-t border-gray-100">
-      <button onclick="closeEditSchoolYearModal()"
-        class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition">
+      <button
+        onclick="closeEditSchoolYearModal()"
+        class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition"
+      >
         Cancel
       </button>
-      <button onclick="saveSchoolYearChanges()"
-        class="flex-1 px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg font-medium transition">
+      <button
+        onclick="saveSchoolYearChanges()"
+        class="flex-1 px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg font-medium transition"
+      >
         Save Changes
       </button>
     </div>
@@ -503,46 +704,76 @@
 <!-- Semester Configuration Modal -->
 <div id="semesterConfigModal" class="modal-overlay z-50" style="display: none">
   <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl fade-in">
-    <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
+    <div
+      class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100"
+    >
       <h2 class="text-lg font-bold text-gray-800">
         Configure <span id="semesterConfigTitle">Semester</span>
       </h2>
-      <button onclick="closeSemesterConfigModal()"
-        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none">
+      <button
+        onclick="closeSemesterConfigModal()"
+        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none"
+      >
         &times;
       </button>
     </div>
     <div class="px-6 py-5 space-y-4">
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-          <input type="date" id="semesterStartDate"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Start Date</label
+          >
+          <input
+            type="date"
+            id="semesterStartDate"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+          />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
-          <input type="date" id="semesterEndDate"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >End Date</label
+          >
+          <input
+            type="date"
+            id="semesterEndDate"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+          />
         </div>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Enrollment Limit</label>
-        <input type="number" id="semesterEnrollmentLimit" placeholder="Enter max students"
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Enrollment Limit</label
+        >
+        <input
+          type="number"
+          id="semesterEnrollmentLimit"
+          placeholder="Enter max students"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+        />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-        <textarea id="semesterNotes" rows="3" placeholder="Optional notes for this semester..."
-          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"></textarea>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Notes</label
+        >
+        <textarea
+          id="semesterNotes"
+          rows="3"
+          placeholder="Optional notes for this semester..."
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+        ></textarea>
       </div>
     </div>
     <div class="flex gap-3 px-6 py-4 border-t border-gray-100">
-      <button onclick="closeSemesterConfigModal()"
-        class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition">
+      <button
+        onclick="closeSemesterConfigModal()"
+        class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition"
+      >
         Cancel
       </button>
-      <button onclick="saveSemesterConfig()"
-        class="flex-1 px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg font-medium transition">
+      <button
+        onclick="saveSemesterConfig()"
+        class="flex-1 px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg font-medium transition"
+      >
         Save Configuration
       </button>
     </div>
@@ -550,18 +781,30 @@
 </div>
 
 <!-- Semester Activation Confirmation Modal -->
-<div id="activateSemesterModal" class="modal-overlay z-50" style="display: none">
+<div
+  id="activateSemesterModal"
+  class="modal-overlay z-50"
+  style="display: none"
+>
   <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md fade-in">
-    <div class="flex items-center gap-3 px-6 pt-5 pb-4 border-b border-gray-100">
-      <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+    <div
+      class="flex items-center gap-3 px-6 pt-5 pb-4 border-b border-gray-100"
+    >
+      <div
+        class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0"
+      >
         <i data-lucide="zap" class="w-5 h-5 text-red-700"></i>
       </div>
       <div>
         <h3 class="text-base font-bold text-gray-800">Activate Semester</h3>
-        <p class="text-xs text-gray-400 mt-0.5">Change the current active semester</p>
+        <p class="text-xs text-gray-400 mt-0.5">
+          Change the current active semester
+        </p>
       </div>
-      <button onclick="closeActivateSemesterModal()"
-        class="ml-auto w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none">
+      <button
+        onclick="closeActivateSemesterModal()"
+        class="ml-auto w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none"
+      >
         &times;
       </button>
     </div>
@@ -569,36 +812,54 @@
       <div class="bg-red-50 rounded-xl p-4 mb-4">
         <p class="text-sm text-red-800">
           <i data-lucide="info" class="w-4 h-4 inline mr-2"></i>
-          You are about to set <strong id="activateSemesterName">1st Semester</strong> as the active semester.
+          You are about to set
+          <strong id="activateSemesterName">1st Semester</strong> as the active
+          semester.
         </p>
       </div>
 
       <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4">
         <p class="text-sm text-yellow-800">
           <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-2"></i>
-          This will deactivate any currently active semester. Students will only be able to enroll in the active
-          semester.
+          This will deactivate any currently active semester. Students will only
+          be able to enroll in the active semester.
         </p>
       </div>
 
-      <div id="activateCurrentSemester" class="bg-gray-50 rounded-xl p-3 mb-4 hidden">
-        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Currently Active</p>
+      <div
+        id="activateCurrentSemester"
+        class="bg-gray-50 rounded-xl p-3 mb-4 hidden"
+      >
+        <p
+          class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1"
+        >
+          Currently Active
+        </p>
         <div class="flex items-center gap-2">
-          <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+          <span
+            class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700"
+          >
             <span id="currentActiveSemesterName">—</span>
           </span>
         </div>
       </div>
 
-      <p id="activateSemesterError" class="text-xs text-red-500 mb-4 hidden"></p>
+      <p
+        id="activateSemesterError"
+        class="text-xs text-red-500 mb-4 hidden"
+      ></p>
     </div>
     <div class="flex gap-3 px-6 pb-5 pt-1">
-      <button onclick="closeActivateSemesterModal()"
-        class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition">
+      <button
+        onclick="closeActivateSemesterModal()"
+        class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition"
+      >
         Cancel
       </button>
-      <button onclick="confirmActivateSemester()"
-        class="flex-1 px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg font-medium transition flex items-center justify-center gap-2">
+      <button
+        onclick="confirmActivateSemester()"
+        class="flex-1 px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg font-medium transition flex items-center justify-center gap-2"
+      >
         <i data-lucide="zap" class="w-4 h-4"></i> Activate Semester
       </button>
     </div>
@@ -607,14 +868,20 @@
 
 <!-- View Archive Details Modal -->
 <div id="viewArchiveModal" class="modal-overlay z-50" style="display: none">
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl fade-in max-h-[90vh] overflow-y-auto">
-    <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 sticky top-0 bg-white z-10">
+  <div
+    class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl fade-in max-h-[90vh] overflow-y-auto"
+  >
+    <div
+      class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 sticky top-0 bg-white z-10"
+    >
       <h2 class="text-lg font-bold text-gray-800">
         Archive Details –
         <span id="archiveDetailYear" class="text-red-700">2026-2027</span>
       </h2>
-      <button onclick="closeViewArchiveModal()"
-        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none">
+      <button
+        onclick="closeViewArchiveModal()"
+        class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition text-xl leading-none"
+      >
         &times;
       </button>
     </div>
@@ -622,34 +889,54 @@
       <!-- Summary Section -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-gray-50 rounded-lg p-4">
-          <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1">
+          <p
+            class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1"
+          >
             Total Enrollment
           </p>
-          <h3 id="archiveEnrollmentCount" class="text-2xl font-bold text-gray-800">
+          <h3
+            id="archiveEnrollmentCount"
+            class="text-2xl font-bold text-gray-800"
+          >
             0
           </h3>
         </div>
         <div class="bg-gray-50 rounded-lg p-4">
-          <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1">
+          <p
+            class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1"
+          >
             Promoted
           </p>
-          <h3 id="archivePromotedCount" class="text-2xl font-bold text-green-600">
+          <h3
+            id="archivePromotedCount"
+            class="text-2xl font-bold text-green-600"
+          >
             0
           </h3>
         </div>
         <div class="bg-gray-50 rounded-lg p-4">
-          <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1">
+          <p
+            class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1"
+          >
             Retained
           </p>
-          <h3 id="archiveRetainedCount" class="text-2xl font-bold text-orange-600">
+          <h3
+            id="archiveRetainedCount"
+            class="text-2xl font-bold text-orange-600"
+          >
             0
           </h3>
         </div>
         <div class="bg-gray-50 rounded-lg p-4">
-          <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1">
+          <p
+            class="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-1"
+          >
             Incomplete
           </p>
-          <h3 id="archiveIncompleteCount" class="text-2xl font-bold text-red-600">
+          <h3
+            id="archiveIncompleteCount"
+            class="text-2xl font-bold text-red-600"
+          >
             0
           </h3>
         </div>
@@ -657,60 +944,93 @@
 
       <!-- Tabs for Archive Details -->
       <div class="flex gap-3 mb-4 border-b border-gray-200 overflow-x-auto">
-        <button onclick="switchArchiveTab('enrollment')"
-          class="archive-detail-tab active px-3 py-2 text-sm font-medium text-red-700 border-b-2 border-red-700 whitespace-nowrap">
+        <button
+          onclick="switchArchiveTab('enrollment')"
+          class="archive-detail-tab active px-3 py-2 text-sm font-medium text-red-700 border-b-2 border-red-700 whitespace-nowrap"
+        >
           <i data-lucide="users" class="w-4 h-4 inline mr-1"></i>Enrollments
         </button>
-        <button onclick="switchArchiveTab('academic')"
-          class="archive-detail-tab px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 whitespace-nowrap">
-          <i data-lucide="graduation-cap" class="w-4 h-4 inline mr-1"></i>Academic
+        <button
+          onclick="switchArchiveTab('academic')"
+          class="archive-detail-tab px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 whitespace-nowrap"
+        >
+          <i data-lucide="graduation-cap" class="w-4 h-4 inline mr-1"></i
+          >Academic
         </button>
-        <button onclick="switchArchiveTab('sections')"
-          class="archive-detail-tab px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 whitespace-nowrap">
+        <button
+          onclick="switchArchiveTab('sections')"
+          class="archive-detail-tab px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 whitespace-nowrap"
+        >
           <i data-lucide="layers" class="w-4 h-4 inline mr-1"></i>Sections
         </button>
-        <button onclick="switchArchiveTab('probation')"
-          class="archive-detail-tab px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 whitespace-nowrap">
-          <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1"></i>Probation
+        <button
+          onclick="switchArchiveTab('probation')"
+          class="archive-detail-tab px-3 py-2 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 whitespace-nowrap"
+        >
+          <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-1"></i
+          >Probation
         </button>
       </div>
 
       <!-- Tab Contents -->
       <div id="archive-detail-enrollment" class="archive-detail-tab-content">
-        <div class="bg-gray-50 rounded-lg p-4 text-center text-gray-600 text-sm">
+        <div
+          class="bg-gray-50 rounded-lg p-4 text-center text-gray-600 text-sm"
+        >
           <p>Enrollment data for this school year.</p>
           <p class="text-xs text-gray-500 mt-1">—</p>
         </div>
       </div>
 
-      <div id="archive-detail-academic" class="archive-detail-tab-content hidden">
-        <div class="bg-gray-50 rounded-lg p-4 text-center text-gray-600 text-sm">
+      <div
+        id="archive-detail-academic"
+        class="archive-detail-tab-content hidden"
+      >
+        <div
+          class="bg-gray-50 rounded-lg p-4 text-center text-gray-600 text-sm"
+        >
           <p>Academic performance records.</p>
           <p class="text-xs text-gray-500 mt-1">—</p>
         </div>
       </div>
 
-      <div id="archive-detail-sections" class="archive-detail-tab-content hidden">
-        <div class="bg-gray-50 rounded-lg p-4 text-center text-gray-600 text-sm">
+      <div
+        id="archive-detail-sections"
+        class="archive-detail-tab-content hidden"
+      >
+        <div
+          class="bg-gray-50 rounded-lg p-4 text-center text-gray-600 text-sm"
+        >
           <p>Section and class data.</p>
           <p class="text-xs text-gray-500 mt-1">—</p>
         </div>
       </div>
 
-      <div id="archive-detail-probation" class="archive-detail-tab-content hidden">
-        <div class="bg-gray-50 rounded-lg p-4 text-center text-gray-600 text-sm">
+      <div
+        id="archive-detail-probation"
+        class="archive-detail-tab-content hidden"
+      >
+        <div
+          class="bg-gray-50 rounded-lg p-4 text-center text-gray-600 text-sm"
+        >
           <p>Probation and warning records.</p>
           <p class="text-xs text-gray-500 mt-1">—</p>
         </div>
       </div>
     </div>
-    <div class="flex gap-3 px-6 py-4 border-t border-gray-100 sticky bottom-0 bg-white">
-      <button onclick="closeViewArchiveModal()"
-        class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition">
+    <div
+      class="flex gap-3 px-6 py-4 border-t border-gray-100 sticky bottom-0 bg-white"
+    >
+      <button
+        onclick="closeViewArchiveModal()"
+        class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition"
+      >
         Close
       </button>
-      <button onclick="exportArchiveDetails()"
-        class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition">
+      <button
+        onclick="exportArchiveDetails()"
+        class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition"
+      >
         <i data-lucide="download" class="w-4 h-4 inline mr-2"></i>Export Data
       </button>
     </div>

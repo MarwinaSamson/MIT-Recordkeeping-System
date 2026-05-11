@@ -690,6 +690,7 @@ class SchoolYear(models.Model):
         self.is_active = True
         self.status = 'active'
         self.save()
+        self.ensure_default_semesters()
 
     def archive(self):
         from django.utils import timezone
@@ -698,6 +699,79 @@ class SchoolYear(models.Model):
         self.status = 'archived'
         self.archived_at = timezone.now()
         self.save()
+        self.semesters.update(is_active=False)
+
+    def ensure_default_semesters(self):
+        for semester_number in (1, 2, 3):
+            Semester.objects.get_or_create(
+                school_year=self,
+                semester_number=semester_number,
+            )
+
+    def get_active_semester(self):
+        return self.semesters.filter(is_active=True).first()
+
+
+class Semester(models.Model):
+    SEMESTER_CHOICES = [
+        (1, '1st Semester'),
+        (2, '2nd Semester'),
+        (3, 'Summer'),
+    ]
+
+    school_year = models.ForeignKey(
+        SchoolYear,
+        on_delete=models.CASCADE,
+        related_name='semesters',
+    )
+    semester_number = models.PositiveSmallIntegerField(choices=SEMESTER_CHOICES)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    enrollment_limit = models.PositiveIntegerField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    is_active = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Semester'
+        verbose_name_plural = 'Semesters'
+        ordering = ['semester_number']
+        unique_together = [('school_year', 'semester_number')]
+
+    def __str__(self):
+        return f"{self.school_year.name} - {self.get_semester_number_display()}"
+
+    @property
+    def name(self):
+        return self.get_semester_number_display()
+
+    @property
+    def is_configured(self):
+        return bool(self.start_date and self.end_date)
+
+    def activate(self):
+        self.school_year.semesters.exclude(pk=self.pk).update(is_active=False)
+        self.is_active = True
+        self.save()
+
+    def get_enrollment_count(self):
+        label = self.get_semester_number_display().lower()
+        applications = Application.objects.filter(year_admitted=self.school_year.name)
+        count = 0
+        for application in applications:
+            semester_value = (application.semester or '').strip().lower()
+            if not semester_value:
+                continue
+
+            if label == 'summer' and 'summer' in semester_value:
+                count += 1
+            elif label == '1st semester' and ('1st' in semester_value or 'first' in semester_value or semester_value == '1'):
+                count += 1
+            elif label == '2nd semester' and ('2nd' in semester_value or 'second' in semester_value or semester_value == '2'):
+                count += 1
+
+        return count
 
 
 class Prospectus(models.Model):
