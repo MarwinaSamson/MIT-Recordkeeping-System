@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from .models import DocumentVerification
 from students_app.models import Notification
@@ -39,6 +39,16 @@ def notify_student_on_status_change(sender, instance, created, **kwargs):
     Fires every time a DocumentVerification record is saved.
     Creates a Notification for the student if the status changed.
     """
+    previous_status = getattr(instance, '_previous_status', None)
+
+    # Skip saves where status did not actually change.
+    if previous_status == instance.status:
+        return
+
+    # Skip implicit first-save pending entries created by get_or_create.
+    if created and instance.status == 'pending':
+        return
+
     student = instance.document.user
     if not student:
         return
@@ -58,19 +68,25 @@ def notify_student_on_status_change(sender, instance, created, **kwargs):
         reason=rejection_note,
     )
 
-    # Avoid duplicate notifications: skip if the latest notification for
-    # this document + status already exists (prevents double-saves firing twice)
-    already_exists = Notification.objects.filter(
+    Notification.objects.create(
         user=student,
         notification_type=config['type'],
         title=config['title'],
         message=message,
-    ).exists()
+    )
 
-    if not already_exists:
-        Notification.objects.create(
-            user=student,
-            notification_type=config['type'],
-            title=config['title'],
-            message=message,
-        )
+
+@receiver(pre_save, sender=DocumentVerification)
+def capture_previous_document_status(sender, instance, **kwargs):
+    """
+    Attach previous status so post_save can determine real transitions.
+    """
+    if not instance.pk:
+        instance._previous_status = None
+        return
+
+    instance._previous_status = (
+        sender.objects.filter(pk=instance.pk)
+        .values_list('status', flat=True)
+        .first()
+    )

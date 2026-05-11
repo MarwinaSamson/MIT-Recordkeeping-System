@@ -2221,8 +2221,48 @@
       if(e.target === $('msgViewModal')) closeMsgView();
     });
 
-    function markRead(id) { const n=notifications.find(x=>x.id===id); if(n)n.unread=false; updateBadge(); renderNotifs('notifList'); renderNotifs('notifPreview',3); }
-    function markAllRead() { notifications.forEach(n=>n.unread=false); updateBadge(); renderNotifs('notifList'); renderNotifs('notifPreview',3); }
+    async function markRead(id) {
+      try {
+        const res = await fetch('/api/notifications/read/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: JSON.stringify({ notification_id: id })
+        });
+
+        if (res.ok) {
+          const n = notifications.find(x => x.id === id);
+          if (n) n.unread = false;
+          updateBadge();
+          renderNotifs('notifList');
+          renderNotifs('notifPreview', 3);
+        }
+      } catch (err) {
+        console.error('markRead error:', err);
+      }
+    }
+
+    async function markAllRead() {
+      try {
+        const res = await fetch('/api/notifications/read-all/', {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+
+        if (res.ok) {
+          notifications.forEach(n => n.unread = false);
+          updateBadge();
+          renderNotifs('notifList');
+          renderNotifs('notifPreview', 3);
+        }
+      } catch (err) {
+        console.error('markAllRead error:', err);
+      }
+    }
     function markAllInboxRead() { inboxMessages.forEach(m=>m.unread=false); updateInboxBadge(); renderInbox(); showToast('All messages marked as read.','success'); }
 
     function updateBadge() {
