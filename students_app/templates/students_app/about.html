@@ -688,160 +688,53 @@
           </p>
 
           <div class="cs-wrap">
-            <div class="cs-toggle">
-              <button class="cs-btn" id="cs-btn-2019" onclick="switchCurriculum('2019')">
-                <span class="cs-year">2019</span>
-                <span style="font-size:.52rem;letter-spacing:.08em">–2020</span>
-                <span class="cs-badge cs-badge-orig">Old</span>
-              </button>
-              <button class="cs-btn active" id="cs-btn-2023" onclick="switchCurriculum('2023')">
-                <span class="cs-year">2023</span>
-                <span style="font-size:.52rem;letter-spacing:.08em">–2024</span>
-                <span class="cs-badge cs-badge-new">Current</span>
-              </button>
-            </div>
-
-            <div class="cs-panel" id="cs-2019">
-              <div class="cs-yr-label">First Year — First Semester</div>
+            <div class="cs-panel active" id="cs-cms" style="display:block">
+              {% for curriculum_group in curriculum_groups %}
+              <div class="cs-yr-label">{{ curriculum_group.title }}</div>
               <div class="cs-sem-grid">
-                <div class="cs-sem">
-                  <div class="cs-sem-head">1st Semester <span class="total-pill">12 Units</span></div>
+                <div class="cs-sem" style="grid-column:1/-1;">
+                  <div class="cs-sem-head">
+                    Subject List
+                    <span class="total-pill">{{ curriculum_group.total_units }} Units</span>
+                  </div>
                   <table class="cs-tbl">
-                    <tr><td class="c-code">MIT 201</td><td>Adv. Operating System &amp; Networking</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 202</td><td>Adv. Systems Design &amp; Implementation</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 203</td><td>Advanced Database Systems</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 204</td><td>Technology &amp; Project Management</td><td class="c-units">3</td></tr>
-                    <tr class="c-foot"><td colspan="2">Total</td><td class="c-units">12</td></tr>
-                  </table>
-                </div>
-                <div class="cs-sem">
-                  <div class="cs-sem-head">2nd Semester <span class="total-pill">12 Units</span></div>
-                  <table class="cs-tbl">
-                    <tr><td class="c-code">MIT 205</td><td>Technical Research</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 206</td><td>Statistical Research</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 207</td><td>Specialization Course 1</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 208</td><td>Specialization Course 2</td><td class="c-units">3</td></tr>
-                    <tr class="c-foot"><td colspan="2">Total</td><td class="c-units">12</td></tr>
+                    {% for course in curriculum_group.courses %}
+                    <tr>
+                      <td class="c-code">{{ course.code }}</td>
+                      <td>{{ course.name }}</td>
+                      <td class="c-units">{{ course.units }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                      <td colspan="3" class="text-center text-gray-400 py-3 text-xs">No subjects in this group.</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="c-foot">
+                      <td colspan="2">Total</td>
+                      <td class="c-units">{{ curriculum_group.total_units }}</td>
+                    </tr>
                   </table>
                 </div>
               </div>
-
-              <div class="cs-yr-label">Second Year</div>
-              <div class="cs-sem-grid">
-                <div class="cs-sem">
-                  <div class="cs-sem-head">1st Semester <span class="total-pill">9 Units</span></div>
-                  <table class="cs-tbl">
-                    <tr><td class="c-code">MIT 209</td><td>Specialization Course 3</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 210</td><td>Specialization Course 4</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 211</td><td>Specialization Course 5</td><td class="c-units">3</td></tr>
-                    <tr class="c-foot"><td colspan="2">Total</td><td class="c-units">9</td></tr>
-                  </table>
-                </div>
-                <div class="cs-sem">
-                  <div class="cs-sem-head">2nd Semester <span class="total-pill">6 Units</span></div>
-                  <table class="cs-tbl">
-                    <tr><td class="c-code">MIT 212A</td><td>Capstone Project 1</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 212B</td><td>Capstone Project 2</td><td class="c-units">3</td></tr>
-                    <tr class="c-foot"><td colspan="2">Total</td><td class="c-units">6</td></tr>
-                  </table>
-                </div>
+              {% empty %}
+              <div class="cs-note" style="margin: 16px;">
+                <span class="material-symbols-rounded flex-shrink-0" style="font-size:16px;color:#9a7010;margin-top:1px">info</span>
+                <span>No curriculum data available yet. Please add subjects in CMS Settings.</span>
               </div>
+              {% endfor %}
 
+              {% if curriculum_groups %}
               <div class="cs-summary">
                 <div class="cs-summary-head">Summary of Units</div>
                 <table class="cs-sum-tbl">
                   <tr><th>Course Type</th><th style="text-align:center">Units</th></tr>
-                  <tr><td>IT Core Courses</td><td class="s-total">12</td></tr>
-                  <tr><td>Specialization Courses</td><td class="s-total">21</td></tr>
-                  <tr><td>Capstone Project</td><td class="s-total">6</td></tr>
-                  <tr><td>TOTAL</td><td class="s-total">39</td></tr>
+                  {% for curriculum_group in curriculum_groups %}
+                  <tr><td>{{ curriculum_group.title }}</td><td class="s-total">{{ curriculum_group.total_units }}</td></tr>
+                  {% endfor %}
+                  <tr><td>TOTAL</td><td class="s-total">{{ curriculum_grand_total_units }}</td></tr>
                 </table>
               </div>
-            </div>
-
-            <div class="cs-panel active" id="cs-2023">
-              <div class="cs-yr-label">First Year</div>
-              <div class="cs-sem-grid">
-                <div class="cs-sem">
-                  <div class="cs-sem-head">1st Semester <span class="total-pill">12 Units</span></div>
-                  <table class="cs-tbl">
-                    <tr><td class="c-code">MIT 201</td><td>Adv. Operating Systems &amp; Networking</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 202</td><td>Adv. System Design &amp; Implementation</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 203</td><td>Advance Database Systems</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 204</td><td>Technology and Project Management</td><td class="c-units">3</td></tr>
-                    <tr class="c-foot"><td colspan="2">Total</td><td class="c-units">12</td></tr>
-                  </table>
-                </div>
-                <div class="cs-sem">
-                  <div class="cs-sem-head">2nd Semester <span class="total-pill">12 Units</span></div>
-                  <table class="cs-tbl">
-                    <tr><td class="c-code">MIT 205</td><td>Systems Development</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 206</td><td>Information Management</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 207</td><td>Interactive Systems</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">—</td><td>Cognate (choose one) ★</td><td class="c-units">3</td></tr>
-                    <tr class="c-foot"><td colspan="2">Total</td><td class="c-units">12</td></tr>
-                  </table>
-                </div>
-              </div>
-
-              <div class="cs-yr-label">Summer <span class="cs-diff-badge diff-add">NEW</span></div>
-              <div class="cs-sem-grid">
-                <div class="cs-sem" style="grid-column:1/-1;max-width:280px">
-                  <div class="cs-sem-head summer">Summer Term <span class="total-pill">6 Units</span></div>
-                  <table class="cs-tbl">
-                    <tr><td class="c-code">MIT 208</td><td>Intelligent Systems</td><td class="c-units">3</td></tr>
-                    <tr><td class="c-code">MIT 209</td><td>Data Analytics <span class="cs-diff-badge diff-add">NEW</span></td><td class="c-units">3</td></tr>
-                    <tr class="c-foot"><td colspan="2">Total</td><td class="c-units">6</td></tr>
-                  </table>
-                </div>
-              </div>
-
-              <div class="cs-yr-label">Second Year</div>
-              <div class="cs-sem-grid">
-                <div class="cs-sem">
-                  <div class="cs-sem-head">1st Semester <span class="total-pill">3 Units</span></div>
-                  <table class="cs-tbl">
-                    <tr><td class="c-code">—</td><td>Capstone Project 1</td><td class="c-units">3</td></tr>
-                    <tr class="c-foot"><td colspan="2">Total</td><td class="c-units">3</td></tr>
-                  </table>
-                </div>
-                <div class="cs-sem">
-                  <div class="cs-sem-head">2nd Semester <span class="total-pill">3 Units</span></div>
-                  <table class="cs-tbl">
-                    <tr><td class="c-code">—</td><td>Capstone Project 2</td><td class="c-units">3</td></tr>
-                    <tr class="c-foot"><td colspan="2">Total</td><td class="c-units">3</td></tr>
-                  </table>
-                </div>
-              </div>
-
-              <div class="cs-cognate-box">
-                <div class="cs-cognate-head">
-                  <span class="material-symbols-rounded" style="font-size:14px;color:#8a5800">star</span>
-                  MIT Cognates — choose only one (3 Units)
-                </div>
-                <table class="cs-tbl">
-                  <tr><td class="c-code">MITCC1</td><td>Emerging Trends of Computing</td><td class="c-units">3</td></tr>
-                  <tr><td class="c-code">MITCC2</td><td>Cloud Computing</td><td class="c-units">3</td></tr>
-                  <tr><td class="c-code">MITCC3</td><td>Machine Learning</td><td class="c-units">3</td></tr>
-                </table>
-              </div>
-
-              <div class="cs-summary">
-                <div class="cs-summary-head">Summary of Units</div>
-                <table class="cs-sum-tbl">
-                  <tr><th>Course Type</th><th style="text-align:center">CMO</th><th style="text-align:center">Additional</th><th style="text-align:center">Total</th></tr>
-                  <tr><td>Foundation Courses</td><td class="s-total">12</td><td class="s-muted">—</td><td class="s-total">12</td></tr>
-                  <tr><td>Specialization Courses</td><td class="s-total">15</td><td class="s-muted">—</td><td class="s-total">15</td></tr>
-                  <tr><td>Cognate Courses</td><td class="s-total">3</td><td class="s-muted">—</td><td class="s-total">3</td></tr>
-                  <tr><td>Capstone Project</td><td class="s-total">3</td><td class="s-total">3</td><td class="s-total">6</td></tr>
-                  <tr><td>TOTAL</td><td class="s-muted">—</td><td class="s-muted">—</td><td class="s-total">36</td></tr>
-                </table>
-              </div>
-
-              <div class="cs-note">
-                <span class="material-symbols-rounded flex-shrink-0" style="font-size:16px;color:#9a7010;margin-top:1px">info</span>
-                <span>CMO 15, S.2019 · BOR No. 70, S.2023 · Effective SY 2023–2024. Capstone must be presented at a research forum or conference, preferably at a national or international level.</span>
-              </div>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -904,7 +797,7 @@
         {% endif %}
         <div class="course-grid">
           {% for course in curriculum_group.courses %}
-          <div class="course-card" onclick="openModal('{{ course.code }}', '{{ course.name }}', '{{ course.units }}', 'None', 'Course description for {{ course.name }}', '')">
+          <div class="course-card" onclick="openModal('{{ course.code|escapejs }}', '{{ course.name|escapejs }}', '{{ course.units }}', 'None', '{{ course.description|escapejs }}', '')">
             <div class="course-code">{{ course.code }}</div>
             <div class="course-name">{{ course.name }}</div>
             <div class="course-meta">
@@ -1331,7 +1224,20 @@ function switchCourseCurriculum(yr) {
 }
 
 /* ─── Modal ─── */
-function openModal(c) {
+function openModal(c, title, unitsRaw, prereq, descFromServer, topicsStr) {
+  if (typeof c === 'string' && arguments.length >= 6) {
+    const u = unitsRaw != null ? String(unitsRaw).trim() : '';
+    openModal({
+      code: c,
+      title: title || '',
+      units: /\bunits\b/i.test(u) ? u : (u ? `${u} Units` : ''),
+      prereq: prereq || 'None',
+      type: 'Course',
+      desc: descFromServer || '',
+      topics: [],
+    });
+    return;
+  }
   document.getElementById('modal-code').textContent   = c.code;
   document.getElementById('modal-title').textContent  = c.title;
   document.getElementById('modal-units').textContent  = c.units;
@@ -1363,25 +1269,6 @@ function closeModal() {
 }
 document.getElementById('courseDetailModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-/* ─── About Curriculum Switcher ─── */
-const STATS = {
-  '2019': { units: 39, foundation: 12, foundationLbl: 'Core Course Units', spec: 21, specLbl: 'Specialization Units' },
-  '2023': { units: 36, foundation: 12, foundationLbl: 'Foundation Units',   spec: 15, specLbl: 'Specialization Units' }
-};
-
-function switchCurriculum(yr) {
-  ['2019','2023'].forEach(y => {
-    document.getElementById('cs-' + y).classList.toggle('active', y === yr);
-    document.getElementById('cs-btn-' + y).classList.toggle('active', y === yr);
-  });
-  const s = STATS[yr];
-  document.getElementById('stat-units').textContent          = s.units;
-  document.getElementById('stat-foundation').textContent     = s.foundation;
-  document.getElementById('stat-foundation-lbl').textContent = s.foundationLbl;
-  document.getElementById('stat-spec').textContent           = s.spec;
-  document.getElementById('stat-spec-lbl').textContent       = s.specLbl;
-}
 
 /* ─── Main Tab Switcher ─── */
 function switchTab(target) {

@@ -840,6 +840,30 @@ def update_cms_settings(request):
                     })
             update_data['about_objectives'] = cleaned_objectives
 
+        # Flat course catalog for About page (Others → Curriculum Structure) [{code, name, units, description}]
+        raw_about_courses = data.get('about_courses', None)
+        if raw_about_courses is not None:
+            cleaned_about_courses = []
+            if isinstance(raw_about_courses, list):
+                for item in raw_about_courses:
+                    if not isinstance(item, dict):
+                        continue
+                    code = str(item.get('code', '')).strip()
+                    name = str(item.get('name', '')).strip()
+                    description = str(item.get('description', '') or '').strip()
+                    try:
+                        units = int(item.get('units', 0))
+                    except (ValueError, TypeError):
+                        units = 0
+                    if code and name and units > 0:
+                        cleaned_about_courses.append({
+                            'code': code,
+                            'name': name,
+                            'units': units,
+                            'description': description,
+                        })
+            update_data['about_courses'] = cleaned_about_courses
+
         # Validate and save about faculty list [{name: str, title: str, bio: str, tags: [str]}]
         raw_about_faculty = data.get('about_faculty', None)
         if raw_about_faculty is not None:

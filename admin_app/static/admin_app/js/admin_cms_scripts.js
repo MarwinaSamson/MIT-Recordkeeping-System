@@ -115,6 +115,7 @@ function switchOthersTab(name, btn) {
   btn.classList.add('active');
   if (name === 'schoolyear') loadSchoolYears();
   if (name === 'requirements') loadOtherRequirementTypes();
+  if (name === 'curriculumStruct' && typeof renderCurriculumStructTable === 'function') renderCurriculumStructTable();
   lucide.createIcons();
 }
 
