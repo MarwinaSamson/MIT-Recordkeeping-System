@@ -123,7 +123,7 @@ class Document(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    document_type = models.CharField(max_length=255, choices=DOCUMENT_TYPE_CHOICES)
+    document_type = models.CharField(max_length=255)
     file = models.FileField(upload_to='documents/')
     file_name = models.CharField(max_length=255, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)

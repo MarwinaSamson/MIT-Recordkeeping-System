@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 from django.core.files.storage import default_storage
+from django.views.decorators.csrf import csrf_exempt
 import json
 
 from ..models import Application, DocumentVerification, AdminActivityLog, AdminProfile, SchoolYear
@@ -66,13 +67,15 @@ def verify_document(request):
         app_id = data.get('application_id')
         doc_id = data.get('document_id')
 
-        # Get the application
+        if not app_id or not doc_id:
+            return JsonResponse({
+                'success': False,
+                'message': f'Missing fields: application_id={app_id}, document_id={doc_id}'
+            }, status=400)
+
         app = Application.objects.get(application_id=app_id)
+        doc = Document.objects.get(id=doc_id)
 
-        # Get the document
-        doc = Document.objects.get(id=doc_id, user=app.user)
-
-        # Get or create verification record
         verification, created = DocumentVerification.objects.get_or_create(
             document=doc)
         verification.status = 'verified'
@@ -80,7 +83,6 @@ def verify_document(request):
         verification.verified_at = timezone.now()
         verification.save()
 
-        # Log the activity
         AdminActivityLog.objects.create(
             admin=request.user,
             action='verified',
@@ -91,14 +93,20 @@ def verify_document(request):
 
         return JsonResponse({
             'success': True,
-            'message': f'Document {doc.file_name} marked as verified.',
+            'message': f'Document verified successfully.',
             'status': 'verified'
         })
+    except Application.DoesNotExist:
+        return JsonResponse({'success': False, 'message': f'Application {app_id} not found.'}, status=404)
+    except Document.DoesNotExist:
+        return JsonResponse({'success': False, 'message': f'Document {doc_id} not found.'}, status=404)
     except Exception as e:
+        import traceback
         return JsonResponse({
             'success': False,
-            'message': str(e)
-        }, status=400)
+            'message': str(e),
+            'detail': traceback.format_exc()
+        }, status=500)
 
 
 @login_required(login_url='login')
@@ -110,22 +118,29 @@ def reject_document(request):
         data = json.loads(request.body)
         app_id = data.get('application_id')
         doc_id = data.get('document_id')
-        reason = data.get('reason', 'Document rejected.')
+        reason = data.get('reason', '').strip()
 
-        # Get the application
+        if not app_id or not doc_id:
+            return JsonResponse({
+                'success': False,
+                'message': f'Missing fields: application_id={app_id}, document_id={doc_id}'
+            }, status=400)
+
+        if not reason:
+            return JsonResponse({
+                'success': False,
+                'message': 'Rejection reason is required.'
+            }, status=400)
+
         app = Application.objects.get(application_id=app_id)
+        doc = Document.objects.get(id=doc_id)
 
-        # Get the document
-        doc = Document.objects.get(id=doc_id, user=app.user)
-
-        # Get or create verification record
         verification, created = DocumentVerification.objects.get_or_create(
             document=doc)
         verification.status = 'rejected'
         verification.rejection_reason = reason
         verification.save()
 
-        # Log the activity
         AdminActivityLog.objects.create(
             admin=request.user,
             action='rejected',
@@ -136,66 +151,73 @@ def reject_document(request):
 
         return JsonResponse({
             'success': True,
-            'message': f'Document {doc.file_name} marked as rejected.',
+            'message': f'Document rejected successfully.',
             'status': 'rejected'
         })
+    except Application.DoesNotExist:
+        return JsonResponse({'success': False, 'message': f'Application {app_id} not found.'}, status=404)
+    except Document.DoesNotExist:
+        return JsonResponse({'success': False, 'message': f'Document {doc_id} not found.'}, status=404)
     except Exception as e:
+        import traceback
         return JsonResponse({
             'success': False,
-            'message': str(e)
-        }, status=400)
+            'message': str(e),
+            'detail': traceback.format_exc()
+        }, status=500)
 
 
 @login_required(login_url='login')
 @user_passes_test(is_superuser, login_url='login')
 @require_http_methods(["POST"])
 def reset_document_verification(request):
-    """Reset document verification status back to pending/under review."""
+    """Reset document verification status back to under review."""
     try:
         data = json.loads(request.body)
         app_id = data.get('application_id')
         doc_id = data.get('document_id')
 
-        # Get the application
-        app = Application.objects.get(application_id=app_id)
-
-        # Get the document
-        doc = Document.objects.get(id=doc_id, user=app.user)
-
-        # Get verification record
-        try:
-            verification = DocumentVerification.objects.get(document=doc)
-            old_status = verification.status
-            verification.status = 'reviewing'
-            verification.verified_by = None
-            verification.verified_at = None
-            verification.rejection_reason = ''
-            verification.save()
-
-            # Log the activity
-            AdminActivityLog.objects.create(
-                admin=request.user,
-                action='resubmit',
-                application=app,
-                document=doc,
-                notes=f"Document verification reset from {old_status} to reviewing."
-            )
-
-            return JsonResponse({
-                'success': True,
-                'message': f'Document {doc.file_name} verification reset.',
-                'status': 'reviewing'
-            })
-        except DocumentVerification.DoesNotExist:
+        if not app_id or not doc_id:
             return JsonResponse({
                 'success': False,
-                'message': 'No verification record found for this document.'
-            }, status=404)
+                'message': f'Missing fields: application_id={app_id}, document_id={doc_id}'
+            }, status=400)
+
+        app = Application.objects.get(application_id=app_id)
+        doc = Document.objects.get(id=doc_id)
+
+        verification, created = DocumentVerification.objects.get_or_create(document=doc)
+        old_status = verification.status
+        verification.status = 'reviewing'
+        verification.verified_by = None
+        verification.verified_at = None
+        verification.rejection_reason = ''
+        verification.save()
+
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='resubmit',
+            application=app,
+            document=doc,
+            notes=f"Document verification reset from {old_status} to reviewing."
+        )
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Document reset to Under Review.',
+            'status': 'reviewing'
+        })
+    except Application.DoesNotExist:
+        return JsonResponse({'success': False, 'message': f'Application {app_id} not found.'}, status=404)
+    except Document.DoesNotExist:
+        return JsonResponse({'success': False, 'message': f'Document {doc_id} not found.'}, status=404)
     except Exception as e:
+        import traceback
         return JsonResponse({
             'success': False,
-            'message': str(e)
-        }, status=400)
+            'message': str(e),
+            'detail': traceback.format_exc()
+        }, status=500)
 
 
 @login_required(login_url='login')

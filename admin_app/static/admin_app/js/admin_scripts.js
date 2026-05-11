@@ -292,14 +292,16 @@ function assignProspectus(){
 
 // Document status summary function
 function getDocStatus(docs){
-  const v=docs.filter(d=>d.status==="Verified").length;
-  const p=docs.filter(d=>d.status==="Pending Review"||d.status==="Under Review").length;
-  const r=docs.filter(d=>d.status==="Rejected").length;
-  let h="";
-  if(v) h+=`<span class="flex items-center gap-1"><span class="dot dot-green"></span>${v} Verified</span>`;
-  if(p) h+=`<span class="flex items-center gap-1"><span class="dot dot-orange"></span>${p} Pending</span>`;
-  if(r) h+=`<span class="flex items-center gap-1"><span class="dot dot-red"></span>${r} Rejected</span>`;
-  return h||`<span class="text-gray-400 text-xs">No docs</span>`;
+  const v = docs.filter(d => d.status === "Verified").length;
+  const p = docs.filter(d => d.status === "Pending Review" || d.status === "Under Review").length;
+  const r = docs.filter(d => d.status === "Rejected").length;
+  const m = docs.filter(d => d.missing === true || d.status === "Missing").length;
+  let h = "";
+  if(v) h += `<span class="flex items-center gap-1"><span class="dot dot-green"></span>${v} Verified</span>`;
+  if(p) h += `<span class="flex items-center gap-1"><span class="dot dot-orange"></span>${p} Pending</span>`;
+  if(r) h += `<span class="flex items-center gap-1"><span class="dot dot-red"></span>${r} Rejected</span>`;
+  if(m) h += `<span class="flex items-center gap-1"><span class="dot dot-red"></span>${m} Missing</span>`;
+  return h || `<span class="text-gray-400 text-xs">No docs</span>`;
 }
 function statusBadge(s){
   const normalized = s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
@@ -335,11 +337,12 @@ function switchPage(pageId,el){
   document.getElementById('page-'+pageId).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(el) el.classList.add('active');
-  if(pageId==='documents') renderTable();
-    // Reset select all checkbox when switching to documents page
-    const selectAll = document.getElementById('selectAllApps');
-    if(selectAll) selectAll.checked = false;
-
+  if(pageId==='documents') {
+    if (typeof switchDocVerTab === 'function') {
+      switchDocVerTab('application');
+    }
+    renderTable();
+  }
   if(pageId==='students')  renderStudents();
   if(pageId==='history')   renderHistory();
   if(pageId==='dashboard') renderDashboard();
@@ -434,6 +437,7 @@ function renderTable(){
           <td class="px-4 py-4 text-xs text-gray-400">${app.last_activity}</td>
           <td class="px-4 py-4">
             <div class="flex items-center gap-2">
+              <button onclick="openApplicationTab('${app.id}')" class="flex items-center gap-1.5 bg-gray-100 text-gray-800 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-200 transition"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> Details</button>
               <button onclick="openModal('${app.id}')" class="flex items-center gap-1.5 bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-gray-700 transition"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Review</button>
               <button onclick="deleteApp('${app.id}')" class="w-7 h-7 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
             </div>
@@ -703,7 +707,14 @@ function closeDocPreview(){
 
 function navDocPreview(dir){
   const total = selectedApp.docs.length;
-  docPreviewCurrentIdx = (docPreviewCurrentIdx + dir + total) % total;
+  let next = (docPreviewCurrentIdx + dir + total) % total;
+  // Skip missing docs when navigating
+  let attempts = 0;
+  while(selectedApp.docs[next].missing && attempts < total){
+    next = (next + dir + total) % total;
+    attempts++;
+  }
+  docPreviewCurrentIdx = next;
   _renderDocPreviewModal();
   lucide.createIcons();
 }
@@ -825,55 +836,94 @@ function _renderDocPreviewModal(){
 })();
 
 function renderDocCards(){
-  const container=document.getElementById("docCards");
-  container.innerHTML="";
-  
+  const container = document.getElementById("docCards");
+  container.innerHTML = "";
+
   if(!selectedApp.docs || selectedApp.docs.length === 0){
-    container.innerHTML=`<div class="col-span-full py-10 text-center text-gray-400"><i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-40"></i><p class="text-sm">No documents submitted yet.</p></div>`;
+    container.innerHTML = `<div class="col-span-full py-10 text-center text-gray-400">
+      <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
+      <p class="text-sm">No documents submitted yet.</p></div>`;
     lucide.createIcons(); return;
   }
-  
-  selectedApp.docs.forEach((doc, idx)=>{
-    doc._idx = idx; // stash index for preview nav
-    const isV=doc.status==="Verified", isR=doc.status==="Rejected";
-    const border=isV?"border-green-300 bg-green-50/30":isR?"border-red-300 bg-red-50/30":"border-orange-200 bg-orange-50/20";
-    const badge=isV
-      ?`<span class="status-badge badge-verified"><i data-lucide="check-circle" class="w-3 h-3"></i>Verified</span>`
-      :isR
-      ?`<span class="status-badge badge-rejected"><i data-lucide="x-circle" class="w-3 h-3"></i>Rejected</span>`
-      :`<span class="status-badge badge-review"><i data-lucide="clock" class="w-3 h-3"></i>${doc.status}</span>`;
-    const issues=doc.issues&&doc.issues.length
-      ?`<div class="mt-1.5 px-2 py-1.5 bg-red-50 rounded-lg"><p class="text-[11px] font-semibold text-red-500 mb-0.5">Issues:</p>${doc.issues.map(i=>`<p class="text-[11px] text-red-500 flex items-start gap-1"><span>•</span>${i}</p>`).join("")}</div>`:"";
-    const verInfo=isV&&doc.verifiedBy
-      ?`<p class="text-[11px] text-green-600 mt-1 flex items-center gap-1"><i data-lucide="user-check" class="w-3 h-3"></i>${doc.verifiedBy} · ${doc.verifiedOn}</p>`:"";
-    const btns=!isV&&!isR
-      ?`<div class="flex gap-2 mt-3">
-          <button onclick="verifyDoc(${idx})" class="flex-1 flex items-center justify-center gap-1 bg-green-500 text-white text-xs font-semibold py-2 rounded-xl hover:bg-green-600 transition shadow-sm"><i data-lucide="check" class="w-3 h-3"></i> Verify</button>
-          <button onclick="rejectDoc(${idx})" class="flex-1 flex items-center justify-center gap-1 bg-red-500 text-white text-xs font-semibold py-2 rounded-xl hover:bg-red-600 transition shadow-sm"><i data-lucide="x" class="w-3 h-3"></i> Reject</button>
-        </div>`
-      :`<button onclick="unsetDoc(${idx})" class="w-full mt-3 text-xs text-gray-500 border border-gray-200 rounded-xl py-2 hover:bg-gray-50 transition">${isV?"↩ Undo Verify":"↩ Undo Reject"}</button>`;
 
-    // Thumbnail label overlay for PDF
-    const ext = getFileExt(doc.fileUrl||'');
-    const isPdf = ext==='pdf';
+  selectedApp.docs.forEach((doc, idx) => {
+    doc._idx = idx;
+
+    // ── MISSING document card ──────────────────────────────────────────────
+    if(doc.missing || doc.status === 'Missing'){
+      container.innerHTML += `
+        <div class="doc-card border-2 border-dashed border-red-300 bg-red-50/40 rounded-2xl p-4 flex flex-col text-sm">
+          <div class="flex items-start justify-between gap-2 mb-3">
+            <p class="font-semibold text-gray-800 text-xs leading-snug flex-1">${doc.name}</p>
+            <span class="status-badge" style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap">
+              <i data-lucide="alert-circle" class="w-3 h-3"></i>Missing
+            </span>
+          </div>
+          <!-- Placeholder thumbnail -->
+          <div class="rounded-xl overflow-hidden mb-3 flex flex-col items-center justify-center bg-red-100/60 border border-dashed border-red-300"
+               style="height:140px">
+            <i data-lucide="file-x" class="w-8 h-8 text-red-400 mb-1.5"></i>
+            <p class="text-[11px] font-semibold text-red-500">Not Submitted</p>
+            <p class="text-[10px] text-red-400 mt-0.5">Awaiting student upload</p>
+          </div>
+          <!-- Meta -->
+          <p class="text-[11px] text-gray-500"><span class="font-semibold text-gray-600">Type:</span> ${doc.type}</p>
+          <p class="text-[11px] text-red-400 mt-0.5 flex items-center gap-1">
+            <i data-lucide="clock" class="w-3 h-3"></i> Student has not uploaded this document
+          </p>
+          <!-- Action: notify student -->
+          <button
+            onclick="notifyMissingDoc('${doc.docType}', '${doc.name}')"
+            class="w-full mt-3 flex items-center justify-center gap-1.5 border border-red-300 text-red-600 text-xs font-semibold py-2 rounded-xl hover:bg-red-50 transition">
+            <i data-lucide="bell" class="w-3.5 h-3.5"></i> Notify Student
+          </button>
+        </div>`;
+      return; // skip the rest for missing docs
+    }
+
+    // ── SUBMITTED document card (existing logic) ───────────────────────────
+    const isV = doc.status === "Verified";
+    const isR = doc.status === "Rejected";
+    const border = isV ? "border-green-300 bg-green-50/30" : isR ? "border-red-300 bg-red-50/30" : "border-orange-200 bg-orange-50/20";
+    const badge = isV
+      ? `<span class="status-badge badge-verified"><i data-lucide="check-circle" class="w-3 h-3"></i>Verified</span>`
+      : isR
+      ? `<span class="status-badge badge-rejected"><i data-lucide="x-circle" class="w-3 h-3"></i>Rejected</span>`
+      : `<span class="status-badge badge-review"><i data-lucide="clock" class="w-3 h-3"></i>${doc.status}</span>`;
+    const issues = doc.issues && doc.issues.length
+      ? `<div class="mt-1.5 px-2 py-1.5 bg-red-50 rounded-lg">
+          <p class="text-[11px] font-semibold text-red-500 mb-0.5">Issues:</p>
+          ${doc.issues.map(i => `<p class="text-[11px] text-red-500 flex items-start gap-1"><span>•</span>${i}</p>`).join("")}
+        </div>` : "";
+    const verInfo = isV && doc.verifiedBy
+      ? `<p class="text-[11px] text-green-600 mt-1 flex items-center gap-1">
+          <i data-lucide="user-check" class="w-3 h-3"></i>${doc.verifiedBy} · ${doc.verifiedOn}</p>` : "";
+    const btns = !isV && !isR
+      ? `<div class="flex gap-2 mt-3">
+          <button onclick="verifyDoc(${idx})" class="flex-1 flex items-center justify-center gap-1 bg-green-500 text-white text-xs font-semibold py-2 rounded-xl hover:bg-green-600 transition shadow-sm">
+            <i data-lucide="check" class="w-3 h-3"></i> Verify</button>
+          <button onclick="rejectDoc(${idx})" class="flex-1 flex items-center justify-center gap-1 bg-red-500 text-white text-xs font-semibold py-2 rounded-xl hover:bg-red-600 transition shadow-sm">
+            <i data-lucide="x" class="w-3 h-3"></i> Reject</button>
+        </div>`
+      : `<button onclick="unsetDoc(${idx})" class="w-full mt-3 text-xs text-gray-500 border border-gray-200 rounded-xl py-2 hover:bg-gray-50 transition">
+          ${isV ? "↩ Undo Verify" : "↩ Undo Reject"}</button>`;
+
+    const ext = getFileExt(doc.fileUrl || '');
+    const isPdf = ext === 'pdf';
     const previewLabel = isPdf
       ? `<span style="position:absolute;top:6px;left:6px;background:rgba(239,68,68,0.9);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.04em">PDF</span>`
       : '';
 
-
-    container.innerHTML+=`
+    container.innerHTML += `
       <div class="doc-card border-2 ${border} rounded-2xl p-4 flex flex-col text-sm transition-shadow">
-        <!-- Doc name + badge -->
         <div class="flex items-start justify-between gap-2 mb-3">
           <p class="font-semibold text-gray-800 text-xs leading-snug flex-1">${doc.name}</p>
           ${badge}
         </div>
-        <!-- Clickable thumbnail preview -->
         <div class="relative rounded-xl overflow-hidden mb-3 cursor-pointer group" style="height:140px;background:#f3f4f6"
           onclick="openDocPreview(${idx})">
           ${getDocumentPreviewMarkup(doc, 'thumb')}
           ${previewLabel}
-          <!-- hover overlay -->
           <div style="position:absolute;inset:0;background:rgba(0,0,0,0);transition:background .2s;display:flex;align-items:center;justify-content:center"
             class="group-hover:bg-black/20">
             <span style="opacity:0;transition:opacity .2s;background:rgba(0,0,0,0.65);color:#fff;font-size:11px;font-weight:600;padding:5px 12px;border-radius:8px;display:flex;align-items:center;gap:5px"
@@ -882,7 +932,6 @@ function renderDocCards(){
             </span>
           </div>
         </div>
-        <!-- Meta -->
         <p class="text-[11px] text-gray-500"><span class="font-semibold text-gray-600">Type:</span> ${doc.type}</p>
         <p class="text-[11px] text-gray-500"><span class="font-semibold text-gray-600">Uploaded:</span> ${doc.uploadDate}</p>
         ${verInfo}${issues}
@@ -892,6 +941,7 @@ function renderDocCards(){
         </button>
       </div>`;
   });
+
   lucide.createIcons();
 }
 
@@ -2570,3 +2620,430 @@ function getDoctoralProgramValue() {
   }
   return selectedProgram;
 }
+
+function notifyMissingDoc(docType, docName) {
+  if(!selectedApp) return;
+  showToast(`Notification queued: ${docName} missing for ${selectedApp.name}`, 'warn');
+  // TODO: wire to /admin-panel/api/requirements/notify/ with the student's user ID
+  // and the relevant requirement, or send an email via a dedicated endpoint.
+}
+
+/* ═══ DOC VER TABS ═══ */
+function switchDocVerTab(tab) {
+  closeModal();          // close any open modal first
+  document.querySelectorAll('.doc-ver-panel').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('.doc-ver-tab').forEach(b => {
+    b.classList.remove('active', 'bg-white', 'text-red-800', 'shadow-sm');
+    b.classList.add('text-gray-500');
+  });
+
+  const panel = document.getElementById('docVerPanel-' + tab);
+  if (panel) panel.classList.remove('hidden');
+  const btn = document.getElementById('docVerTab-' + tab);
+  if (btn) {
+    btn.classList.add('active', 'bg-white', 'text-red-800', 'shadow-sm');
+    btn.classList.remove('text-gray-500');
+  }
+
+  // Always update the stat cards for whichever tab is active
+  if (tab === 'application') { renderApplicationCards(); renderApplicationPanel(); }
+  if (tab === 'admission')   { renderTable(); }          // updateCounts() is called inside renderTable
+  if (tab === 'cor')         { typeof renderCORTable === 'function' && renderCORTable(); }
+  if (tab === 'grades')      { typeof renderGradesTable === 'function' && renderGradesTable(); }
+
+  lucide.createIcons();
+}
+
+function openApplicationTab(id) {
+  initializeData();
+  selectedApp = applications.find(a => a.id === id);
+  if (!selectedApp) { showToast('Application not found', 'error'); return; }
+  renderApplicationCards();
+  switchDocVerTab('application');
+  renderApplicationPanel();
+}
+
+function renderApplicationCards() {
+  const root = document.getElementById('applicationCards');
+  const empty = document.getElementById('applicationEmpty');
+  if (!root) return;
+  root.innerHTML = '';
+  updateApplicationStats();
+
+  if (!applications || !applications.length) {
+    if (empty) empty.classList.remove('hidden');
+    return;
+  }
+  if (empty) empty.classList.add('hidden');
+
+  applications.forEach(app => {
+    const submittedDocs = (app.docs || []).filter(d => !d.missing).length;
+    const totalDocs = (app.docs || []).length;
+
+    root.insertAdjacentHTML('beforeend', `
+      <div class="bg-white rounded-2xl shadow-sm p-5 fade-in hover:shadow-md transition cursor-pointer border border-gray-100 hover:border-gray-200"
+           onclick="selectApplicationCard('${app.id}')">
+        <div class="flex items-center gap-4 mb-3">
+          <div class="w-12 h-12 rounded-full ${avatarBg(app.name || 'A')} flex items-center justify-center font-bold text-base flex-shrink-0">
+            ${initials(app.name || '—')}
+          </div>
+          <div>
+            <p class="font-bold text-gray-800 text-sm leading-tight">${escapeHtml(app.name || '—')}</p>
+            <p class="text-xs text-gray-400">${escapeHtml(app.course || '—')} · ${escapeHtml(app.id || '—')}</p>
+          </div>
+        </div>
+        <div class="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-gray-500 font-semibold uppercase tracking-wide">Status</span>
+            <div>${statusBadge(app.status || '')}</div>
+          </div>
+        </div>
+        <div class="space-y-1.5 text-xs text-gray-500 mb-3">
+          <p class="flex items-center gap-2"><i data-lucide="calendar" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>Submitted: ${escapeHtml(app.submission_date || '—')}</p>
+          <p class="flex items-center gap-2"><i data-lucide="file-check" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>${submittedDocs}/${totalDocs} docs submitted</p>
+        </div>
+        <div class="border-t border-gray-100 pt-3 flex gap-2">
+          <button onclick="event.stopPropagation(); verifyDocsForApp('${app.id}')"
+            class="flex-1 flex items-center justify-center gap-1 text-xs font-semibold py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i> Verify Docs
+          </button>
+          <button onclick="event.stopPropagation(); verifyCORForApp('${app.id}')"
+            class="flex-1 flex items-center justify-center gap-1 text-xs font-semibold py-2 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition">
+            <i data-lucide="receipt" class="w-3.5 h-3.5"></i> Verify COR
+          </button>
+          <button onclick="event.stopPropagation(); verifyGradesForApp('${app.id}')"
+            class="flex-1 flex items-center justify-center gap-1 text-xs font-semibold py-2 rounded-xl bg-green-50 text-green-700 hover:bg-green-100 transition">
+            <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> Verify Grade
+          </button>
+        </div>
+      </div>
+    `);
+  });
+  lucide.createIcons();
+}
+
+function selectApplicationCard(id) {
+  selectedApp = applications.find(a => a.id === id);
+  if (!selectedApp) return;
+  openAppDetailsModal();
+}
+
+function openAppDetailsModal() {
+  if (!selectedApp) return;
+  const modal = document.getElementById('appDetailsModal');
+  if (!modal) return;
+  const reviewSections = document.getElementById('appModalReviewSections');
+  
+  // Populate modal with application data
+  document.getElementById('appModalID').textContent = selectedApp.id || '—';
+  document.getElementById('appModalSummaryID').textContent = selectedApp.id || '—';
+  document.getElementById('appModalSummaryCourse').textContent = selectedApp.course || '—';
+  document.getElementById('appModalSummaryDate').textContent = selectedApp.submission_date || '—';
+  document.getElementById('appModalSummaryActivity').textContent = selectedApp.last_activity || '—';
+  document.getElementById('appModalSummaryStatus').innerHTML = statusBadge(selectedApp.status || '');
+
+  const personal = selectedApp.personal || {};
+  const education = selectedApp.education || {};
+  const working = selectedApp.working || {};
+  const privacy = selectedApp.privacy || {};
+
+  const fieldValue = (value, fallback = '—') => {
+    if (value === null || value === undefined || value === '') return fallback;
+    return escapeHtml(String(value));
+  };
+
+  const optionValue = (value, otherValue) => {
+    if (!value) return '—';
+    return value === 'Other' ? (otherValue || '—') : value;
+  };
+
+  const renderSection = (title, items) => {
+    const rows = items
+      .filter((item) => item[1] !== undefined && item[1] !== null && item[1] !== '')
+      .map(([label, value]) => `
+        <div class="border-b border-gray-100 pb-2 last:border-0">
+          <span class="text-xs text-gray-400 uppercase tracking-wider">${escapeHtml(label)}</span>
+          <p class="text-sm font-medium text-gray-800">${value}</p>
+        </div>
+      `)
+      .join('');
+
+    if (!rows) return '';
+
+    return `
+      <div class="review-section border border-gray-200 rounded-xl p-5 space-y-3 bg-white hover:shadow-md transition-all">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-bold text-brand" style="font-family:'Merriweather',serif">${escapeHtml(title)}</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">${rows}</div>
+      </div>
+    `;
+  };
+
+  if (reviewSections) {
+    reviewSections.innerHTML = [
+      renderSection('Personal Details', [
+        ['Full Name', fieldValue(personal.full_name || selectedApp.name)],
+        ['Date of Birth', fieldValue(personal.dob)],
+        ['Age', fieldValue(personal.age)],
+        ['Gender', fieldValue(personal.gender)],
+        ['Civil Status', fieldValue(personal.civil_status)],
+        ['Place of Birth', fieldValue(personal.place_of_birth)],
+        ['Religion', fieldValue(optionValue(personal.religion, personal.religion_other))],
+        ['Ethnicity', fieldValue(optionValue(personal.ethnicity, personal.ethnicity_other))],
+        ['Nationality', fieldValue(optionValue(personal.nationality, personal.nationality_other))],
+        ['Disability', fieldValue(optionValue(personal.disability, personal.disability_other))],
+        ['Permanent Address', fieldValue(personal.permanent_address)],
+        ['Current Address', fieldValue(personal.current_address || personal.permanent_address)],
+        ['Contact Number', fieldValue(personal.contact_number || selectedApp.mobile)],
+        ['Email Address', fieldValue(personal.email || selectedApp.email)],
+        ['Name of Parent', fieldValue(personal.name_of_parent)],
+        ['Parent Relationship', fieldValue(personal.relationship)],
+        ['Parent Monthly Income', fieldValue(personal.parent_income ? `₱${personal.parent_income}` : '')],
+        ['Name of Spouse', fieldValue(personal.name_of_spouse)],
+        ['Spouse Contact', fieldValue(personal.spouse_contact_number)],
+        ['Spouse Monthly Income', fieldValue(personal.spouse_income ? `₱${personal.spouse_income}` : '')],
+      ]),
+      renderSection('Educational Background', [
+        ['Elementary - School', fieldValue((education.elementary || {}).school_name)],
+        ['Elementary - Degree', fieldValue((education.elementary || {}).degree_course)],
+        ['Elementary - Year', fieldValue((education.elementary || {}).year_completed)],
+        ['Secondary - School', fieldValue((education.secondary || {}).school_name)],
+        ['Secondary - Degree', fieldValue((education.secondary || {}).degree_course)],
+        ['Secondary - Year', fieldValue((education.secondary || {}).year_completed)],
+        ['College - School', fieldValue((education.college || {}).school_name)],
+        ['College - Degree', fieldValue((education.college || {}).degree_course)],
+        ['College - Year', fieldValue((education.college || {}).year_completed)],
+        ['Scholarship/Awards', fieldValue(education.scholarship || (education.college || {}).scholarship)],
+        ['Graduate Studies - School', fieldValue((education.graduate || {}).school_name)],
+        ['Graduate Studies - Degree', fieldValue((education.graduate || {}).degree_course)],
+        ['Graduate Studies - Year', fieldValue((education.graduate || {}).year_completed)],
+      ]),
+      working.is_employed ? renderSection('Employment Information', [
+        ['Position', fieldValue(working.position)],
+        ['Monthly Income', fieldValue(working.monthly_income ? `₱${working.monthly_income}` : '')],
+        ['Employment Status', fieldValue(optionValue(working.employment_status, working.employment_status_other))],
+        ['Employer Name', fieldValue(working.employer_name)],
+        ['Employer Address', fieldValue(working.employer_address)],
+        ['Employer Contact', fieldValue(working.employer_contact)],
+        ['Employer Classification', fieldValue(optionValue(working.employer_classification, working.employer_classification_other))],
+      ]) : '',
+      renderSection('Uploaded Documents', [
+        ['MIT Curriculum', fieldValue((education.college || {}).mit_curriculum || (education.graduate || {}).mit_curriculum || 'Not selected')],
+        ...(selectedApp.docs || []).map((doc) => [doc.name, fieldValue(doc.status === 'Missing' ? 'Missing' : `${doc.status}${doc.uploadDate ? ` · ${doc.uploadDate}` : ''}`)]),
+      ]),
+      privacy.agreed ? renderSection('Privacy Notice Consent', [
+        ['Name', fieldValue(privacy.name || personal.full_name || selectedApp.name)],
+        ['Date & Time', fieldValue(privacy.signed_at)],
+        ['Consent Status', '✓ Agreed to Privacy Notice'],
+        ['IP Address', fieldValue(privacy.ip_address || 'Collected upon submission')],
+        ['Browser', fieldValue(privacy.user_agent ? privacy.user_agent.split(' ').slice(0, 3).join(' ') : '—')],
+      ]) : '',
+    ].filter(Boolean).join('');
+  }
+  
+  // REMOVE OLD Program Details section (these lines can be removed since the Admission Details section now handles this)
+  // document.getElementById('appModalPDLevel').textContent = (selectedApp.program_level || '—');
+  // document.getElementById('appModalPDIntake').textContent = (selectedApp.semester || '—');
+  // document.getElementById('appModalPDSpecialization').textContent = (selectedApp.specialization || '—');
+  
+  // ========== NEW: Populate Admission Details fields ==========
+  // Populate semester dropdown
+  const semesterSelect = document.getElementById('admSemester');
+  if (semesterSelect) {
+    semesterSelect.value = selectedApp.semester || '';
+  }
+  
+  // Populate school year dropdown
+  const yearSelect = document.getElementById('admYear');
+  if (yearSelect) {
+    yearSelect.value = selectedApp.year_admitted || '';
+  }
+  
+  // Populate program level dropdown
+  const programLevelSelect = document.getElementById('admProgramLevel');
+  if (programLevelSelect) {
+    programLevelSelect.value = selectedApp.program_level || '';
+    // Trigger curriculum fields if program level is selected
+    if (selectedApp.program_level) {
+      toggleCurriculumFields();
+    }
+  }
+  
+  // Populate curriculum dropdown
+  const curriculumSelect = document.getElementById('admCurriculum');
+  if (curriculumSelect) {
+    curriculumSelect.value = selectedApp.curriculum || '';
+  }
+  
+  // Load curriculum data if exists
+  if (selectedApp.curriculum_data) {
+    loadCurriculumData(selectedApp.curriculum_data);
+  }
+  
+  // Also populate the curriculum batch year if available in the data
+  if (selectedApp.curriculum_data && selectedApp.curriculum_data.batch_year) {
+    const batchYearInput = document.getElementById('curriculumBatchYear');
+    if (batchYearInput) {
+      batchYearInput.value = selectedApp.curriculum_data.batch_year;
+    }
+  }
+  
+  modal.style.display = 'flex';
+  modal.classList.add('fade-in');
+  lucide.createIcons();
+}
+
+function closeAppDetailsModal() {
+  const modal = document.getElementById('appDetailsModal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('fade-in');
+  }
+}
+function updateApplicationStats(){
+  const s = applications.map(a=>(a.status||'').toLowerCase());
+  document.getElementById("appTotalCount").innerText     =applications.length;
+  document.getElementById("appPendingCount").innerText   =s.filter(x=>x==="pending review").length;
+  document.getElementById("appReviewCount").innerText    =s.filter(x=>x==="under review").length;
+  document.getElementById("appVerifiedCount").innerText  =s.filter(x=>x==="verified").length;
+  document.getElementById("appIncompleteCount").innerText=s.filter(x=>x==="incomplete").length;
+}
+
+function _switchAndOpen(tabName, callback) {
+  switchDocVerTab(tabName);
+  // Wait one frame for the panel to become visible, then open modal
+  requestAnimationFrame(() => {
+    setTimeout(callback, 80);
+  });
+}
+
+function verifyDocsForApp(id) {
+  selectedApp = applications.find(a => a.id === id);
+  if (!selectedApp) return;
+  // Switch to Admission Documents tab, then open the review modal
+  _switchAndOpen('admission', () => openModal(id));
+}
+function verifyCORForApp(id) {
+  selectedApp = applications.find(a => a.id === id);
+  if (!selectedApp) return;
+  _switchAndOpen('cor', () => {
+    // TODO: wire COR modal data fetch; for now only open the modal container
+    // so UI flow is smooth.
+    const m = document.getElementById('corModal');
+    if (m) {
+      m.classList.add('open');
+      m.style.display = 'flex';
+      // lightweight placeholder values
+      document.getElementById('corModalStudentName')?.replaceChildren(document.createTextNode(selectedApp.name || '—'));
+      lucide.createIcons();
+    } else {
+      showToast('COR modal not found', 'error');
+    }
+  });
+}
+function verifyGradesForApp(id) {
+  selectedApp = applications.find(a => a.id === id);
+  if (!selectedApp) return;
+  _switchAndOpen('grades', () => {
+    const m = document.getElementById('gradesModal');
+    if (m) {
+      m.classList.add('open');
+      m.style.display = 'flex';
+      document.getElementById('gradesModalStudentName')?.replaceChildren(document.createTextNode(selectedApp.name || '—'));
+      lucide.createIcons();
+    } else {
+      showToast('Grades modal not found', 'error');
+    }
+  });
+}
+
+
+function renderApplicationPanel(){
+  const container = document.getElementById('docVerPanel-application');
+  if(!container) return;
+  const app = selectedApp || (applications.length? applications[0] : null);
+  if(!app){
+    container.querySelectorAll('span[id^="app"], span[id^="pi"], span[id^="ab"], span[id^="pd"]').forEach(el=>el.innerText='—');
+    document.getElementById('requirementsList').innerHTML = '<div class="text-xs text-gray-400">Select an application from Admission Documents and click Details.</div>';
+    document.getElementById('appProgressBar').style.width='0%';
+    document.getElementById('timelineDates').innerText='';
+    return;
+  }
+  // Summary
+  document.getElementById('appID').innerText = app.id || '—';
+  document.getElementById('appName').innerText = app.name || '—';
+  document.getElementById('appCourse').innerText = app.course || '—';
+  document.getElementById('appDate').innerText = app.submission_date || '—';
+  document.getElementById('appStatus').innerHTML = statusBadge(app.status||'');
+
+  // Personal info
+  document.getElementById('piName').innerText = app.name || '—';
+  document.getElementById('piDOB').innerText = app.dob || '—';
+  document.getElementById('piAge').innerText = app.age || '—';
+  document.getElementById('piGender').innerText = app.gender || '—';
+  document.getElementById('piCitizenship').innerText = app.citizenship || '—';
+  document.getElementById('piContact').innerText = app.mobile || '—';
+  document.getElementById('piEmail').innerText = app.email || '—';
+  document.getElementById('piAddress').innerText = app.address || '—';
+
+  // Academic background
+  document.getElementById('abSchool').innerText = (app.academic||{}).school || '—';
+  document.getElementById('abYearGrad').innerText = (app.academic||{}).year_graduated || '—';
+  document.getElementById('abDegree').innerText = (app.academic||{}).degree || '—';
+  document.getElementById('abGWA').innerText = (app.academic||{}).gwa || '—';
+  document.getElementById('abHonors').innerText = (app.academic||{}).honors || '—';
+
+  // Program details
+  document.getElementById('pdCourse').innerText = app.course || '—';
+  document.getElementById('pdLevel').innerText = app.program_level || app.level || '—';
+  document.getElementById('pdSpecialization').innerText = app.specialization || '—';
+  document.getElementById('pdIntake').innerText = app.intake || '—';
+
+  // Requirements checklist (expecting app.docs array)
+  const reqRoot = document.getElementById('requirementsList');
+  reqRoot.innerHTML = '';
+  const docs = app.docs || [];
+  // show first 6 docs or pad missing
+  for(let i=0;i<6;i++){
+    const d = docs[i] || {name: `Requirement ${i+1}`, status: 'Missing', uploadDate: ''};
+    const status = d.status || (d.missing? 'Missing' : 'Pending Review');
+    reqRoot.innerHTML += `
+      <div class="p-3 border rounded-lg bg-white">
+        <div class="flex items-center justify-between mb-1">
+          <div class="text-sm font-medium text-gray-800">${escapeHtml(d.name)}</div>
+          <div class="text-xs text-gray-500">${d.uploadDate||''}</div>
+        </div>
+        <div class="text-xs mt-1">${statusBadge(status)}</div>
+      </div>`;
+  }
+
+  // Timeline: interpret app.status stages
+  const stages = ['Submitted','Documents Verified','Under Review','Decision Made','Processed'];
+  const idx = Math.max(0, stages.indexOf(app.status) );
+  const pct = Math.min(100, Math.round(((idx+1)/stages.length)*100));
+  document.getElementById('appProgressBar').style.width = pct + '%';
+  const td = document.getElementById('timelineDates');
+  td.innerHTML = stages.map((s,i)=>{
+    const date = (app.timeline && app.timeline[s]) || (i===0 ? app.submission_date : '—');
+    return `<div><strong class="text-gray-700">${escapeHtml(s)}:</strong> <span class="text-gray-500 text-xs">${escapeHtml(date||'—')}</span></div>`;
+  }).join('');
+
+  lucide.createIcons();
+}
+
+function _postDecision(decision){
+  if(!selectedApp) { showToast('No application selected','error'); return; }
+  if(!confirm(`Confirm ${decision} for application ${selectedApp.id}?`)) return;
+  fetch('/admin-panel/api/application/decision/', {
+    method: 'POST', credentials: 'same-origin', headers: {'Content-Type':'application/json','X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify({ application_id: selectedApp.id, decision: decision })
+  }).then(r=>r.json()).then(res=>{
+    if(res.success){ showToast(res.message||'Updated'); selectedApp.status = decision; renderApplicationPanel(); renderTable(); }
+    else showToast(res.message||'Unable to update','error');
+  }).catch(err=>{ console.error(err); showToast('Network error','error'); });
+}
+
+function acceptApplication(){ _postDecision('Accepted'); }
+function waitlistApplication(){ _postDecision('Waitlisted'); }
+function rejectApplication(){ _postDecision('Rejected'); }

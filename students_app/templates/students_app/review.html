@@ -1148,12 +1148,14 @@
       }
 
       // ===== DOCUMENTS SECTION =====
-      const serverDocuments = JSON.parse(
-        document.getElementById("serverDocuments").textContent || "{}",
-      );
-      const serverMIT = JSON.parse(
-        document.getElementById("serverMITCurriculum").textContent || '""',
-      );
+      const serverDocumentsEl = document.getElementById("serverDocuments");
+      const serverDocuments = serverDocumentsEl
+        ? JSON.parse(serverDocumentsEl.textContent || "{}")
+        : {};
+      const serverMITEl = document.getElementById("serverMITCurriculum");
+      const serverMIT = serverMITEl
+        ? JSON.parse(serverMITEl.textContent || '""')
+        : "";
       const documentItems = [
         [
           "MIT Curriculum",
