@@ -286,8 +286,51 @@ function removeProgramRow(btn) {
 /* ══════════════════════════════════════════════════════════════
    DOWNLOADS (cms-downloads panel)
 ══════════════════════════════════════════════════════════════ */
+function collectDownloadsPayload() {
+  const list = document.getElementById('downloadsList');
+  if (!list) return [];
+  const out = [];
+  list.querySelectorAll('.download-row').forEach((row) => {
+    const name = (row.dataset.name || '').trim();
+    const url = (row.dataset.url || '').trim();
+    const file_type = (row.dataset.fileType || '').trim();
+    if (name && url) out.push({ name, url, file_type });
+  });
+  return out;
+}
+
+/** Persist #downloadsList rows to CMSSettings.downloads (homepage uses this). */
+async function persistDownloadsList(options = {}) {
+  const { silentSuccess = false } = options;
+  const downloads = collectDownloadsPayload();
+  try {
+    const res = await fetch('/admin-panel/api/cms/update/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+      body: JSON.stringify({ downloads }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      if (!silentSuccess) showCmsToast('Downloadables saved.', 'success');
+    } else {
+      showCmsToast('Could not save downloadables: ' + (data.message || 'Unknown error'), 'error');
+    }
+    return data.success;
+  } catch {
+    showCmsToast('Network error saving downloadables.', 'error');
+    return false;
+  }
+}
+
 function removeDownloadRow(btn) {
-  btn.closest('.download-row').remove();
+  const row = btn.closest('.download-row');
+  if (row) row.remove();
+  const list = document.getElementById('downloadsList');
+  if (list && !list.querySelector('.download-row')) {
+    list.innerHTML =
+      '<p class="text-xs text-gray-400 py-4 text-center">No downloads yet. Upload files to display them on the homepage.</p>';
+  }
+  persistDownloadsList();
 }
 
 function _initDownloadsUpload() {
@@ -316,7 +359,8 @@ function _initDownloadsUpload() {
       const data = await res.json();
       if (data.success) {
         _appendDownloadRow(data.data || { name: file.name, url: '', file_type: file.name.split('.').pop().toUpperCase() });
-        showCmsToast('File uploaded!', 'success');
+        const saved = await persistDownloadsList({ silentSuccess: true });
+        showCmsToast(saved ? 'File uploaded and saved to the homepage list.' : 'File uploaded, but saving the list failed — try removing and re-uploading.', saved ? 'success' : 'error');
       } else {
         showCmsToast('Upload error: ' + data.message, 'error');
       }
@@ -340,6 +384,9 @@ function _appendDownloadRow(file) {
   const ext = (file.file_type || '').toUpperCase() || file.name.split('.').pop().toUpperCase();
   const div = document.createElement('div');
   div.className = 'download-row flex items-center gap-3 row-card';
+  div.dataset.name = file.name || '';
+  div.dataset.url = file.url || '';
+  div.dataset.fileType = ext;
   div.innerHTML = `
     <div class="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0 text-xs font-bold text-red-700">
       ${ext}

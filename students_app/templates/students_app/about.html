@@ -1,1190 +1,2626 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MIT Program – WMSU College of Computing Studies</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0"/>
-
-  <style>
-    :root {
-      --crimson:       #7b1113;
-      --crimson-dark:  #5a0c0e;
-      --crimson-light: #9b1416;
-      --gold:          #c9a84c;
-      --gold-light:    #e6c97a;
-      --cream:         #fdfaf5;
-      --slate:         #f6f5f3;
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: #1a1a1a; overflow-x: hidden; }
-    h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
-
-    .material-symbols-rounded {
-      font-family: 'Material Symbols Rounded';
-      font-variation-settings: 'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;
-      vertical-align: middle; line-height: 1; display: inline-block;
-    }
-
-    .panel { display: none; }
-    .panel.active { display: block; }
-
-    .tab-btn {
-      position: relative;
-      transition: color .2s, background .2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .tab-btn::after {
-      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-      height: 2px; background: var(--gold);
-      transform: scaleX(0); transform-origin: center; transition: transform .25s ease;
-    }
-    .tab-btn.active { color: var(--crimson); }
-    .tab-btn.active::after { transform: scaleX(1); }
-    .tab-btn:not(.active):hover { color: var(--crimson); background: rgba(123,17,19,.04); }
-
-    .hero-bg {
-      background: linear-gradient(145deg, #3d0709 0%, var(--crimson-dark) 30%, var(--crimson) 65%, var(--crimson-light) 100%);
-      position: relative; overflow: hidden;
-    }
-    .hero-bg::before {
-      content: ''; position: absolute; inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
-      background-size: 44px 44px; pointer-events: none;
-    }
-    .hero-bg::after {
-      content: ''; position: absolute; top: -30%; right: -5%;
-      width: 600px; height: 600px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(201,168,76,.07) 0%, transparent 65%);
-      pointer-events: none;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .a1 { opacity: 0; animation: fadeUp .55s .08s forwards; }
-    .a2 { opacity: 0; animation: fadeUp .55s .22s forwards; }
-    .a3 { opacity: 0; animation: fadeUp .55s .36s forwards; }
-    .a4 { opacity: 0; animation: fadeUp .55s .50s forwards; }
-
-    .hov { transition: transform .22s cubic-bezier(.22,.68,0,1.2), box-shadow .22s; }
-    .hov:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(123,17,19,.11); }
-
-    .obj { transition: transform .18s, border-color .18s; }
-    .obj:hover { transform: translateX(4px); border-left-color: var(--crimson) !important; }
-
-    .modal-bg {
-      position: fixed; inset: 0; z-index: 900;
-      background: rgba(15,10,12,.55); backdrop-filter: blur(5px);
-      display: flex; align-items: center; justify-content: center; padding: 1rem;
-      opacity: 0; pointer-events: none; transition: opacity .22s;
-    }
-    .modal-bg.open { opacity: 1; pointer-events: all; }
-    .modal-box {
-      background: #fff; border-radius: 18px;
-      max-width: 660px; width: 100%; max-height: 88vh; overflow-y: auto;
-      box-shadow: 0 32px 80px rgba(0,0,0,.22);
-      transform: translateY(16px) scale(.98);
-      transition: transform .25s, opacity .25s;
-    }
-    .modal-bg.open .modal-box { transform: translateY(0) scale(1); }
-    .modal-box::-webkit-scrollbar { width: 5px; }
-    .modal-box::-webkit-scrollbar-track { background: #f5f5f5; }
-    .modal-box::-webkit-scrollbar-thumb { background: var(--crimson); border-radius: 6px; }
-
-    #mobile-menu { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
-    #mobile-menu.open { max-height: 400px; }
-
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: #f1f1f1; }
-    ::-webkit-scrollbar-thumb { background: var(--crimson); border-radius: 6px; }
-
-    .tag {
-      display: inline-flex; align-items: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .62rem; font-weight: 600; border-radius: 5px; padding: .2rem .55rem;
-      letter-spacing: .02em;
-    }
-    .stat-n { font-family: 'Playfair Display', serif; font-size: 2.6rem; font-weight: 700; line-height: 1; color: var(--crimson); }
-    .sh { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem,4vw,2.4rem); font-weight: 700; color: #1a1a1a; line-height: 1.2; }
-    .gold-divider { width: 36px; height: 2px; background: var(--gold); border-radius: 2px; }
-    .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: .625rem; letter-spacing: .22em; text-transform: uppercase; color: var(--crimson); }
-
-    .info-card { background: #fff; border: 1px solid #ede8e0; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
-    .info-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-bottom: 1px solid #f0ece5; }
-    .info-row:last-child { border-bottom: none; }
-    .info-icon { width: 36px; height: 36px; min-width: 36px; border-radius: 9px; background: rgba(123,17,19,.07); display: flex; align-items: center; justify-content: center; color: var(--crimson); }
-    .info-label { font-family: 'JetBrains Mono', monospace; font-size: .56rem; letter-spacing: .14em; text-transform: uppercase; color: #a89a8a; font-weight: 600; }
-    .info-val { font-size: .825rem; color: #1a1a1a; font-weight: 500; margin-top: 2px; }
-
-    .stat-card { background: #fff; border: 1px solid #ede8e0; border-left: 3px solid var(--crimson); border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,.04); transition: transform .2s, box-shadow .2s; }
-    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(123,17,19,.09); }
-    .stat-lbl { font-family: 'JetBrains Mono', monospace; font-size: .56rem; letter-spacing: .12em; text-transform: uppercase; color: #998879; margin-top: 4px; }
-
-    .cpill { display: flex; align-items: flex-start; gap: .75rem; background: #fff; border: 1px solid #ede8e0; border-radius: 12px; padding: 1rem 1.1rem; cursor: pointer; transition: border-color .2s, box-shadow .2s, transform .2s; }
-    .cpill:hover { border-color: #e6c97a; box-shadow: 0 6px 22px rgba(123,17,19,.09); transform: translateY(-2px); }
-    .cpill-icon { width: 34px; height: 34px; min-width: 34px; border-radius: 8px; background: rgba(123,17,19,.07); display: flex; align-items: center; justify-content: center; font-size: 17px; color: var(--crimson); }
-
-    .fav { display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 1.9rem; font-weight: 700; color: rgba(255,255,255,.92); background: linear-gradient(135deg, #5a0c0e, #9b1416); }
-
-    .glance-head { padding: 12px 18px; display: flex; align-items: center; gap: 8px; }
-    .glance-head-txt { font-family: 'JetBrains Mono', monospace; font-size: .62rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.85); }
-
-    .cs-wrap { background: #fff; border: 1px solid #ede8e0; border-radius: 18px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
-
-    .cs-toggle { display: flex; border-bottom: 1px solid #ede8e0; }
-    .cs-btn {
-      flex: 1; padding: 12px 10px; display: flex; flex-direction: column; align-items: center; gap: 3px;
-      font-family: 'JetBrains Mono', monospace; font-size: .6rem; font-weight: 600; letter-spacing: .1em;
-      text-transform: uppercase; border: none; background: #faf8f5; color: #a89a8a;
-      cursor: pointer; border-right: 1px solid #ede8e0; transition: all .2s;
-    }
-    .cs-btn:last-child { border-right: none; }
-    .cs-btn .cs-year { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: #c0b0a0; line-height: 1; transition: color .2s; }
-    .cs-btn.active { background: #fff; color: var(--crimson); box-shadow: inset 0 -2px 0 var(--gold); }
-    .cs-btn.active .cs-year { color: var(--crimson); }
-    .cs-btn:not(.active):hover { background: #fdf6f0; color: var(--crimson-light); }
-    .cs-btn:not(.active):hover .cs-year { color: var(--crimson-light); }
-
-    .cs-badge {
-      display: inline-block; font-family: 'JetBrains Mono', monospace;
-      font-size: .48rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
-      padding: 2px 6px; border-radius: 4px;
-    }
-    .cs-badge-orig { background: #edf9f3; color: #0a7a4a; }
-    .cs-badge-new  { background: #fff4e0; color: #8a5800; }
-
-    .cs-panel { display: none; padding: 16px; }
-    .cs-panel.active { display: block; }
-
-    .cs-yr-label {
-      font-family: 'JetBrains Mono', monospace; font-size: .55rem; letter-spacing: .18em;
-      text-transform: uppercase; color: var(--crimson); margin: 12px 0 8px;
-      border-bottom: 1px solid #f0ece5; padding-bottom: 6px;
-    }
-    .cs-yr-label:first-child { margin-top: 0; }
-
-    .cs-sem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 4px; }
-    @media(max-width: 520px) { .cs-sem-grid { grid-template-columns: 1fr; } }
-
-    .cs-sem { background: #faf8f5; border: 1px solid #ede8e0; border-radius: 10px; overflow: hidden; }
-    .cs-sem-head {
-      padding: 7px 11px; font-family: 'JetBrains Mono', monospace;
-      font-size: .55rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-      background: var(--crimson); color: rgba(255,255,255,.9); display: flex; justify-content: space-between; align-items: center;
-    }
-    .cs-sem-head.summer { background: #9a6020; }
-    .cs-sem-head .total-pill { background: rgba(255,255,255,.2); border-radius: 4px; padding: 1px 6px; font-size: .5rem; }
-
-    .cs-tbl { width: 100%; border-collapse: collapse; }
-    .cs-tbl tr { border-bottom: 1px solid #f0ece5; }
-    .cs-tbl tr:last-child { border-bottom: none; }
-    .cs-tbl td { padding: 5px 11px; font-size: .72rem; color: #2a2a2a; }
-    .cs-tbl .c-code { font-family: 'JetBrains Mono', monospace; font-size: .58rem; color: var(--crimson-light); width: 58px; white-space: nowrap; }
-    .cs-tbl .c-units { text-align: center; width: 28px; font-weight: 600; font-size: .7rem; color: var(--crimson); white-space: nowrap; }
-    .cs-tbl .c-foot td { background: #f5f0ea; font-size: .62rem; font-weight: 700; color: #7a6a55; font-family: 'JetBrains Mono', monospace; letter-spacing: .05em; }
-
-    .cs-cognate-box { margin-top: 10px; border: 1px solid #ede8e0; border-radius: 10px; overflow: hidden; }
-    .cs-cognate-head { padding: 7px 11px; background: #faf3e0; font-family: 'JetBrains Mono', monospace; font-size: .55rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #8a5800; display: flex; align-items: center; gap: 6px; }
-
-    .cs-summary { margin-top: 12px; border: 1px solid #ede8e0; border-radius: 10px; overflow: hidden; }
-    .cs-summary-head { padding: 7px 12px; background: var(--slate); font-family: 'JetBrains Mono', monospace; font-size: .55rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #7a6a55; }
-    .cs-sum-tbl { width: 100%; border-collapse: collapse; }
-    .cs-sum-tbl th { padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: .55rem; letter-spacing: .08em; text-transform: uppercase; color: #a89a8a; font-weight: 600; background: var(--slate); border-bottom: 1px solid #ede8e0; text-align: left; }
-    .cs-sum-tbl td { padding: 7px 12px; font-size: .78rem; border-bottom: 1px solid #f0ece5; }
-    .cs-sum-tbl tr:last-child td { border-bottom: none; background: #fdf6ee; font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: .7rem; color: var(--crimson); }
-    .cs-sum-tbl .s-total { text-align: center; font-weight: 700; color: var(--crimson); }
-    .cs-sum-tbl .s-muted { text-align: center; color: #c0b0a0; font-size: .7rem; }
-
-    .cs-note { margin-top: 10px; padding: 8px 12px; background: #fffbeb; border: 1px solid #f0d87c; border-radius: 8px; font-size: .7rem; color: #8a6510; line-height: 1.55; display: flex; gap: 7px; align-items: flex-start; }
-    .cs-diff-badge { display: inline-block; font-size: .55rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-left: 4px; vertical-align: middle; }
-    .diff-add { background: #edfbf3; color: #0a6b40; }
-    .diff-change { background: #fff3e0; color: #8a4f00; }
-
-    /* ══════════════════════════════════════
-       COURSES PAGE — CURRICULUM SWITCHER
-    ══════════════════════════════════════ */
-    .curr-switcher-bar {
-      display: flex;
-      background: #fff;
-      border: 1px solid #ede8e0;
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,.06);
-      margin-bottom: 2rem;
-    }
-    .curr-tab-btn {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      padding: 14px 12px;
-      border: none;
-      background: #faf8f5;
-      cursor: pointer;
-      border-right: 1px solid #ede8e0;
-      transition: all .2s;
-      position: relative;
-    }
-    .curr-tab-btn:last-child { border-right: none; }
-    .curr-tab-btn .ct-year {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #c0b0a0;
-      line-height: 1;
-      transition: color .2s;
-    }
-    .curr-tab-btn .ct-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .52rem;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: #b0a090;
-      transition: color .2s;
-    }
-    .curr-tab-btn .ct-badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .45rem;
-      font-weight: 700;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      padding: 2px 7px;
-      border-radius: 4px;
-    }
-    .curr-tab-btn.active {
-      background: #fff;
-      box-shadow: inset 0 -3px 0 var(--gold);
-    }
-    .curr-tab-btn.active .ct-year { color: var(--crimson); }
-    .curr-tab-btn.active .ct-label { color: var(--crimson); }
-    .curr-tab-btn:not(.active):hover { background: #fdf6f0; }
-    .curr-tab-btn:not(.active):hover .ct-year { color: var(--crimson-light); }
-
-    /* Course section panels */
-    .curr-panel { display: none; }
-    .curr-panel.active { display: block; }
-
-    /* Section header for courses */
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 1.25rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid #ede8e0;
-    }
-    .section-icon {
-      width: 40px; height: 40px;
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .section-meta { flex: 1; }
-    .section-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #1a1a1a;
-      line-height: 1.2;
-    }
-    .section-subtitle {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .56rem;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: #a89a8a;
-      margin-top: 2px;
-    }
-    .unit-badge-lg {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .62rem;
-      font-weight: 700;
-      background: rgba(123,17,19,.08);
-      color: var(--crimson);
-      border-radius: 8px;
-      padding: 5px 10px;
-      white-space: nowrap;
-    }
-
-    /* Enhanced course card */
-    .course-block {
-      margin-bottom: 2.5rem;
-    }
-    .course-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    @media (max-width: 640px) {
-      .course-grid { grid-template-columns: 1fr; }
-    }
-
-    .cpill-v2 {
-      display: flex;
-      align-items: flex-start;
-      gap: .85rem;
-      background: #fff;
-      border: 1px solid #ede8e0;
-      border-radius: 14px;
-      padding: 1.1rem 1.2rem;
-      cursor: pointer;
-      transition: border-color .2s, box-shadow .2s, transform .2s;
-      position: relative;
-      overflow: hidden;
-    }
-    .cpill-v2::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: var(--crimson);
-      opacity: 0;
-      transition: opacity .2s;
-    }
-    .cpill-v2:hover {
-      border-color: rgba(201,168,76,.5);
-      box-shadow: 0 8px 28px rgba(123,17,19,.1);
-      transform: translateY(-2px);
-    }
-    .cpill-v2:hover::before { opacity: 1; }
-    .cpill-icon-v2 {
-      width: 38px; height: 38px; min-width: 38px;
-      border-radius: 10px;
-      background: rgba(123,17,19,.07);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--crimson);
-      transition: background .2s;
-    }
-    .cpill-v2:hover .cpill-icon-v2 { background: rgba(123,17,19,.12); }
-    .cpill-code {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .58rem;
-      color: var(--crimson-light);
-      font-weight: 600;
-      letter-spacing: .05em;
-      margin-bottom: 3px;
-    }
-    .cpill-name {
-      font-size: .85rem;
-      font-weight: 600;
-      color: #1a1a1a;
-      line-height: 1.35;
-      margin-bottom: 6px;
-    }
-    .cpill-units-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .55rem;
-      font-weight: 700;
-      background: rgba(123,17,19,.06);
-      color: var(--crimson);
-      border-radius: 20px;
-      padding: 3px 9px;
-    }
-    .cpill-arrow {
-      margin-left: auto;
-      flex-shrink: 0;
-      margin-top: 2px;
-      opacity: 0;
-      transition: opacity .2s, transform .2s;
-    }
-    .cpill-v2:hover .cpill-arrow { opacity: 1; transform: translateX(2px); }
-
-    /* Cognate note box */
-    .cognate-note {
-      background: linear-gradient(135deg, #fffbeb, #fff9e0);
-      border: 1px solid #f5d97c;
-      border-radius: 12px;
-      padding: 14px 16px;
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      margin-bottom: 10px;
-    }
-    .cognate-note p {
-      font-size: .8rem;
-      color: #8a6510;
-      line-height: 1.5;
-    }
-    .cognate-note strong { color: #6a4a08; }
-
-    /* Legacy 2019 style (same cpill-v2 but gold accent) */
-    .cpill-v2.legacy::before { background: #9a6020; }
-    .cpill-v2.legacy .cpill-icon-v2 { background: rgba(154,96,32,.08); color: #9a6020; }
-    .cpill-v2.legacy:hover { border-color: rgba(154,96,32,.4); box-shadow: 0 8px 28px rgba(154,96,32,.1); }
-    .cpill-v2.legacy:hover .cpill-icon-v2 { background: rgba(154,96,32,.14); }
-    .cpill-v2.legacy .cpill-code { color: #9a6020; }
-    .cpill-v2.legacy .cpill-units-pill { background: rgba(154,96,32,.07); color: #9a6020; }
-
-    /* Curriculum summary card at bottom */
-    .curr-summary-card {
-      background: #fff;
-      border: 1px solid #ede8e0;
-      border-radius: 14px;
-      overflow: hidden;
-      margin-top: 2.5rem;
-      box-shadow: 0 1px 6px rgba(0,0,0,.05);
-    }
-    .curr-summary-head {
-      padding: 12px 18px;
-      background: var(--slate);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .curr-summary-head-txt {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .58rem;
-      font-weight: 700;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: #7a6a55;
-    }
-    .curr-sum-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-    }
-    @media (max-width: 540px) { .curr-sum-grid { grid-template-columns: repeat(2, 1fr); } }
-    .curr-sum-cell {
-      padding: 14px 16px;
-      border-right: 1px solid #f0ece5;
-      border-bottom: 1px solid #f0ece5;
-    }
-    .curr-sum-cell:nth-child(4n) { border-right: none; }
-    .curr-sum-cell:nth-last-child(-n+4) { border-bottom: none; }
-    @media (max-width: 540px) {
-      .curr-sum-cell:nth-child(2n) { border-right: none; }
-      .curr-sum-cell:nth-last-child(-n+2) { border-bottom: none; }
-      .curr-sum-cell:nth-child(4n) { border-right: 1px solid #f0ece5; }
-    }
-    .curr-sum-num {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: var(--crimson);
-      line-height: 1;
-    }
-    .curr-sum-lbl {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .5rem;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: #a89a8a;
-      margin-top: 3px;
-    }
-    .curr-sum-total {
-      grid-column: 1 / -1;
-      padding: 12px 16px;
-      background: linear-gradient(135deg, rgba(123,17,19,.04), rgba(201,168,76,.06));
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-top: 1px solid #ede8e0;
-    }
-    .curr-sum-total-lbl {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .6rem;
-      font-weight: 700;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      color: #7a6a55;
-    }
-    .curr-sum-total-num {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--crimson);
-    }
-
-    /* prereq badge */
-    .prereq-badge {
-      display: inline-flex; align-items: center; gap: 3px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: .5rem; font-weight: 600;
-      background: #f0f8ff; color: #2a6090;
-      border: 1px solid #bdd6e8;
-      border-radius: 4px; padding: 2px 6px;
-      margin-top: 4px;
-    }
-  </style>
-</head>
-<body>
-
-<!-- ════════════════ NAVIGATION ════════════════ -->
-<nav class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6">
-    <div class="flex items-center justify-between h-14">
-      <div class="flex items-center gap-2.5 flex-shrink-0">
-        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--crimson)">
-          <span class="material-symbols-rounded text-white" style="font-size:17px">school</span>
-        </div>
-        <div class="leading-tight hidden sm:block">
-          <p class="font-mono text-[10px] font-semibold uppercase tracking-widest leading-none" style="color:var(--crimson)">WMSU · CCS</p>
-          <p class="text-[11px] font-semibold text-gray-700 leading-none mt-0.5">MIT Program</p>
-        </div>
-      </div>
-
-      <div class="hidden md:flex items-center h-14" role="tablist">
-        <a href="{% url 'index' %}" class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap">
-          <span class="material-symbols-rounded" style="font-size:15px">home</span>Home
-        </a>
-        <button class="tab-btn active flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap" data-tab="about">
-          <span class="material-symbols-rounded" style="font-size:15px">info</span>About
-        </button>
-        <button class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap" data-tab="courses">
-          <span class="material-symbols-rounded" style="font-size:15px">menu_book</span>Courses
-        </button>
-        <button class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap" data-tab="outcomes">
-          <span class="material-symbols-rounded" style="font-size:15px">emoji_events</span>Outcomes
-        </button>
-        <button class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap" data-tab="objectives">
-          <span class="material-symbols-rounded" style="font-size:15px">flag</span>Objectives
-        </button>
-        <button class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap" data-tab="faculty">
-          <span class="material-symbols-rounded" style="font-size:15px">people</span>Faculty
-        </button>
-      </div>
-
-      <button id="hamburger" class="md:hidden flex items-center justify-center w-9 h-9 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors" aria-label="Toggle menu">
-        <span class="material-symbols-rounded" id="ham-icon" style="font-size:22px">menu</span>
-      </button>
-    </div>
-
-    <div id="mobile-menu" class="md:hidden border-t border-gray-100">
-      <div class="py-2 flex flex-col gap-0.5">
-        <a href="{% url 'index' %}" class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors">
-          <span class="material-symbols-rounded text-gray-400" style="font-size:18px">home</span>Home
-        </a>
-        <button class="mob-tab active-mob flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-lg mx-1" style="color:var(--crimson);background:rgba(123,17,19,.06)" data-tab="about">
-          <span class="material-symbols-rounded" style="font-size:18px;color:var(--crimson)">info</span>About
-        </button>
-        <button class="mob-tab flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors" data-tab="courses">
-          <span class="material-symbols-rounded text-gray-400" style="font-size:18px">menu_book</span>Courses
-        </button>
-        <button class="mob-tab flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors" data-tab="outcomes">
-          <span class="material-symbols-rounded text-gray-400" style="font-size:18px">emoji_events</span>Outcomes
-        </button>
-        <button class="mob-tab flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors" data-tab="objectives">
-          <span class="material-symbols-rounded text-gray-400" style="font-size:18px">flag</span>Objectives
-        </button>
-        <button class="mob-tab flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors" data-tab="faculty">
-          <span class="material-symbols-rounded text-gray-400" style="font-size:18px">people</span>Faculty
-        </button>
-      </div>
-    </div>
-  </div>
-</nav>
-
-
-<!-- ════════════════ ABOUT PANEL ════════════════ -->
-<div id="tab-about" class="panel active">
-
-  <div class="hero-bg">
-    <div class="relative max-w-4xl mx-auto px-6 py-20 sm:py-28 text-center" style="z-index:1;position:relative">
-      <p class="a1 eyebrow mb-3" style="color:rgba(201,168,76,.85)">{{ cms.about_hero_eyebrow }}</p>
-      <h1 class="a2 font-serif font-black text-white leading-tight mb-5" style="font-size:clamp(2rem,5vw,3.2rem)">
-        {{ cms.about_hero_title }} <em class="italic" style="color:var(--gold-light)">{{ cms.about_hero_title_italic }}</em>
-      </h1>
-      <p class="a3 text-base sm:text-lg leading-relaxed max-w-xl mx-auto mb-7" style="color:rgba(255,255,255,.65)">
-        {{ cms.about_hero_tagline }}
-      </p>
-      <div class="a4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs sm:text-sm font-medium" style="border:1px solid rgba(201,168,76,.35);background:rgba(201,168,76,.1);color:rgba(255,245,220,.9)">
-        <span class="material-symbols-rounded" style="font-size:15px;color:var(--gold-light)">verified</span>
-        {{ cms.about_hero_badge }}
-      </div>
-    </div>
-  </div>
-
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-
-      <div>
-        <p class="eyebrow mb-1">Program Overview</p>
-        <h2 class="sh mb-3">About the MIT Program</h2>
-        <div class="gold-divider mb-7"></div>
-
-        <p class="text-gray-600 leading-relaxed text-[.95rem] mb-8">
-          {{ cms.about_overview_text }}
-        </p>
-
-        <div class="info-card mb-6">
-          <div class="info-row">
-            <div class="info-icon"><span class="material-symbols-rounded" style="font-size:18px">account_balance</span></div>
-            <div>
-              <p class="info-label">Institution</p>
-              <p class="info-val">{{ cms.about_info_institution }}</p>
-            </div>
-          </div>
-          <div class="info-row">
-            <div class="info-icon"><span class="material-symbols-rounded" style="font-size:18px">assignment</span></div>
-            <div>
-              <p class="info-label">COPC / CMO Reference</p>
-              <p class="info-val">{{ cms.about_info_copc }}</p>
-            </div>
-          </div>
-          <div class="info-row">
-            <div class="info-icon"><span class="material-symbols-rounded" style="font-size:18px">calendar_today</span></div>
-            <div>
-              <p class="info-label">Current Effective Academic Year</p>
-              <p class="info-val">{{ cms.about_info_ay }}</p>
-            </div>
-          </div>
-          <div class="info-row">
-            <div class="info-icon"><span class="material-symbols-rounded" style="font-size:18px">verified</span></div>
-            <div>
-              <p class="info-label">Accrediting Body</p>
-              <p class="info-val">{{ cms.about_info_accred }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex items-start gap-3 rounded-xl px-5 py-4" style="background:#fffbeb;border:1px solid #f5d97c">
-          <span class="material-symbols-rounded flex-shrink-0 mt-0.5" style="font-size:22px;color:#d4970a">workspace_premium</span>
-          <div>
-            <p class="text-sm font-semibold mb-0.5" style="color:#92600a">{{ cms.about_ched_heading }}</p>
-            <p class="text-xs leading-relaxed" style="color:#a8751a">{{ cms.about_ched_desc }}</p>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-7">
-          <div class="stat-card">
-            <p class="stat-n">{{ cms.about_stat1_val }}</p>
-            <p class="stat-lbl">{{ cms.about_stat1_lbl }}</p>
-          </div>
-          <div class="stat-card">
-            <p class="stat-n">{{ cms.about_stat2_val }}</p>
-            <p class="stat-lbl">{{ cms.about_stat2_lbl }}</p>
-          </div>
-          <div class="stat-card">
-            <p class="stat-n">{{ cms.about_stat3_val }}</p>
-            <p class="stat-lbl">{{ cms.about_stat3_lbl }}</p>
-          </div>
-          <div class="stat-card">
-            <p class="stat-n">{{ cms.about_stat4_val }}</p>
-            <p class="stat-lbl">{{ cms.about_stat4_lbl }}</p>
-          </div>
-        </div>
-
-        <div>
-          <p class="eyebrow mb-2" style="display:flex;align-items:center;gap:6px">
-            <span class="material-symbols-rounded" style="font-size:14px">swap_horiz</span>
-            Curriculum Structure
-          </p>
-
-          <div class="cs-wrap">
-            <div class="cs-panel active" id="cs-cms" style="display:block">
-              {% for curriculum_group in curriculum_groups %}
-              <div class="cs-yr-label">{{ curriculum_group.title }}</div>
-              <div class="cs-sem-grid">
-                <div class="cs-sem" style="grid-column:1/-1;">
-                  <div class="cs-sem-head">
-                    Subject List
-                    <span class="total-pill">{{ curriculum_group.total_units }} Units</span>
-                  </div>
-                  <table class="cs-tbl">
-                    {% for course in curriculum_group.courses %}
-                    <tr>
-                      <td class="c-code">{{ course.code }}</td>
-                      <td>{{ course.name }}</td>
-                      <td class="c-units">{{ course.units }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                      <td colspan="3" class="text-center text-gray-400 py-3 text-xs">No subjects in this group.</td>
-                    </tr>
-                    {% endfor %}
-                    <tr class="c-foot">
-                      <td colspan="2">Total</td>
-                      <td class="c-units">{{ curriculum_group.total_units }}</td>
-                    </tr>
-                  </table>
-                </div>
-              </div>
-              {% empty %}
-              <div class="cs-note" style="margin: 16px;">
-                <span class="material-symbols-rounded flex-shrink-0" style="font-size:16px;color:#9a7010;margin-top:1px">info</span>
-                <span>No curriculum data available yet. Please add subjects in CMS Settings.</span>
-              </div>
-              {% endfor %}
-
-              {% if curriculum_groups %}
-              <div class="cs-summary">
-                <div class="cs-summary-head">Summary of Units</div>
-                <table class="cs-sum-tbl">
-                  <tr><th>Course Type</th><th style="text-align:center">Units</th></tr>
-                  {% for curriculum_group in curriculum_groups %}
-                  <tr><td>{{ curriculum_group.title }}</td><td class="s-total">{{ curriculum_group.total_units }}</td></tr>
-                  {% endfor %}
-                  <tr><td>TOTAL</td><td class="s-total">{{ curriculum_grand_total_units }}</td></tr>
-                </table>
-              </div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ════════════════ COURSES PANEL ════════════════ -->
-<div id="tab-courses" class="panel">
-  <div class="hero-bg">
-    <div class="relative max-w-4xl mx-auto px-6 py-20 sm:py-24 text-center" style="z-index:1;position:relative">
-      <p class="a1 eyebrow mb-3" style="color:rgba(201,168,76,.85)">MIT Program · WMSU</p>
-      <h1 class="a2 font-serif font-black text-white leading-tight mb-4" style="font-size:clamp(2rem,5vw,3rem)">Course <em class="italic" style="color:var(--gold-light)">Catalog</em></h1>
-      <p class="a3 text-base sm:text-lg" style="color:rgba(255,255,255,.65)">Browse subjects by curriculum year. Click any course to read its full description and key topics.</p>
-    </div>
-  </div>
-
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-
-    <!-- Curriculum Year Switcher -->
-    <div class="mb-8">
-      <p class="eyebrow mb-3" style="display:flex;align-items:center;gap:6px">
-        <span class="material-symbols-rounded" style="font-size:14px">swap_horiz</span>
-        Select Curriculum Year
-      </p>
-      <div class="curr-switcher-bar">
-        <button class="curr-tab-btn active" id="curr-btn-1" onclick="switchCourseCurriculum('1')">
-          <span class="ct-year">2023</span>
-          <span class="ct-label">– 2024 Curriculum</span>
-          <span class="ct-badge" style="background:#fff4e0;color:#8a5800;">Current</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- ═══ CURRICULUM PANEL ═══ -->
-    <div class="curr-panel active" id="curr-1">
-      {% for curriculum_group in curriculum_groups %}
-      <div class="course-block">
-        <div class="section-header">
-          <div class="section-icon" style="background:{% if curriculum_group.title|lower == 'foundation' or curriculum_group.title|lower == 'core' %}var(--crimson){% elif curriculum_group.title|lower == 'specialization' %}var(--crimson){% elif curriculum_group.title|lower == 'cognate' %}#9a6020{% else %}var(--crimson){% endif %}">
-            <span class="material-symbols-rounded text-white" style="font-size:19px">
-              {% if curriculum_group.title|lower == 'foundation' or curriculum_group.title|lower == 'core' %}settings{% elif curriculum_group.title|lower == 'specialization' %}star{% elif curriculum_group.title|lower == 'cognate' %}brightness_5{% else %}emoji_events{% endif %}
-            </span>
-          </div>
-          <div class="section-meta">
-            <p class="section-title">{{ curriculum_group.title }}</p>
-            <p class="section-subtitle">Program Courses</p>
-          </div>
-          <span class="unit-badge-lg"{% if curriculum_group.title|lower == 'cognate' %} style="background:rgba(154,96,32,.08);color:#9a6020"{% endif %}>
-            {{ curriculum_group.total_units }} Units
-          </span>
-        </div>
-        {% if curriculum_group.title|lower == 'cognate' %}
-        <div class="cognate-note">
-          <span class="material-symbols-rounded flex-shrink-0" style="font-size:18px;color:#d4970a">info</span>
-          <p><strong>Note:</strong> Choose only one from the following MIT Cognates. The selected cognate course counts as 3 units toward your total degree requirement.</p>
-        </div>
-        {% endif %}
-        <div class="course-grid">
-          {% for course in curriculum_group.courses %}
-          <div class="course-card" onclick="openModal('{{ course.code|escapejs }}', '{{ course.name|escapejs }}', '{{ course.units }}', 'None', '{{ course.description|escapejs }}', '')">
-            <div class="course-code">{{ course.code }}</div>
-            <div class="course-name">{{ course.name }}</div>
-            <div class="course-meta">
-              <span class="course-units">{{ course.units }} Units</span>
-              <span class="course-prereq">Pre: None</span>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-      {% endfor %}
-
-      <!-- Summary -->
-      <div class="curr-summary-card">
-        <div class="curr-summary-head">
-          <span class="material-symbols-rounded" style="font-size:16px;color:#7a6a55">summarize</span>
-          <span class="curr-summary-head-txt">Summary of Units · Program Curriculum</span>
-        </div>
-        <div class="curr-sum-grid">
-          {% for group in curriculum_groups %}
-          <div class="curr-sum-cell">
-            <p class="curr-sum-num">{{ group.total_units }}</p>
-            <p class="curr-sum-lbl">{{ group.title }} Units</p>
-          </div>
-          {% endfor %}
-        </div>
-        <div class="curr-sum-total">
-          <span class="curr-sum-total-lbl">Grand Total</span>
-          <span class="curr-sum-total-num">
-            {{ curriculum_grand_total_units }} Units
-          </span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-
-<!-- ════════════════ OUTCOMES PANEL ════════════════ -->
-<div id="tab-outcomes" class="panel">
-  <div class="hero-bg">
-    <div class="relative max-w-4xl mx-auto px-6 py-20 sm:py-24 text-center" style="z-index:1;position:relative">
-      <p class="a1 eyebrow mb-3" style="color:rgba(201,168,76,.85)">MIT Program · WMSU</p>
-      <h1 class="a2 font-serif font-black text-white leading-tight mb-4" style="font-size:clamp(2rem,5vw,3rem)">Program <em class="italic" style="color:var(--gold-light)">Outcomes</em></h1>
-      <p class="a3 text-base sm:text-lg" style="color:rgba(255,255,255,.65)">What graduates are expected to know and be able to do upon completion.</p>
-    </div>
-  </div>
-
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-    <p class="eyebrow mb-1">Graduate Competencies</p>
-    <h2 class="sh mb-3">Program Outcomes</h2>
-    <div class="gold-divider mb-10"></div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      {% for outcome in cms.about_outcomes %}
-      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)">
-            <span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">
-              {% if outcome.number == 1 %}dns{% elif outcome.number == 2 %}science{% elif outcome.number == 3 %}hub{% elif outcome.number == 4 %}layers{% elif outcome.number == 5 %}manage_accounts{% elif outcome.number == 6 %}lightbulb{% elif outcome.number == 7 %}smart_toy{% else %}storage{% endif %}
-            </span>
-          </div>
-          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">{{ outcome.number|stringformat:"02d" }}</span>
-        </div>
-        <p class="font-semibold text-gray-900 text-sm mb-2">{{ outcome.title }}</p>
-        <p class="text-xs text-gray-500 leading-relaxed">{{ outcome.description }}</p>
-      </div>
-      {% empty %}
-      <!-- Default outcomes if none configured -->
-      <div class="hov bg-white rounded-2xl p-6" style="border:1px solid #ede8e0;border-top:4px solid var(--crimson);box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(123,17,19,.07)"><span class="material-symbols-rounded" style="font-size:20px;color:var(--crimson)">dns</span></div>
-          <span class="font-serif text-4xl font-bold text-gray-100 leading-none">01</span>
-        </div>
-        <p class="font-semibold text-gray-900 text-sm mb-2">Advanced Systems Knowledge</p>
-        <p class="text-xs text-gray-500 leading-relaxed">Demonstrate advanced understanding of operating systems, networking, database systems, and systems design applicable to complex IT environments.</p>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</div>
-
-
-<!-- ════════════════ OBJECTIVES PANEL ════════════════ -->
-<div id="tab-objectives" class="panel">
-  <div class="hero-bg">
-    <div class="relative max-w-4xl mx-auto px-6 py-20 sm:py-24 text-center" style="z-index:1;position:relative">
-      <p class="a1 eyebrow mb-3" style="color:rgba(201,168,76,.85)">MIT Program · WMSU</p>
-      <h1 class="a2 font-serif font-black text-white leading-tight mb-4" style="font-size:clamp(2rem,5vw,3rem)">Program <em class="italic" style="color:var(--gold-light)">Objectives</em></h1>
-      <p class="a3 text-base sm:text-lg" style="color:rgba(255,255,255,.65)">The goals and aims that guide the MIT program's design and delivery.</p>
-    </div>
-  </div>
-
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-    <p class="eyebrow mb-1">Program Goals</p>
-    <h2 class="sh mb-3">Program Objectives</h2>
-    <div class="gold-divider mb-10"></div>
-    <ul class="space-y-3">
-      {% for objective in cms.about_objectives %}
-      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)"><span class="text-white text-xs font-bold font-mono">{{ objective.number }}</span></div>
-        <p class="text-gray-600 leading-relaxed text-sm">{{ objective.description|safe }}</p>
-      </li>
-      {% empty %}
-      <!-- Default objectives if none configured -->
-      <li class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start" style="border-left-color:#ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style="background:var(--crimson)"><span class="text-white text-xs font-bold font-mono">1</span></div>
-        <p class="text-gray-600 leading-relaxed text-sm">Provide graduate-level education in Information Technology emphasizing the acquisition of advanced concepts, tools, and technologies necessary for professional practice.</p>
-      </li>
-      {% endfor %}
-    </ul>
-  </div>
-</div>
-
-
-<!-- ════════════════ FACULTY PANEL ════════════════ -->
-<div id="tab-faculty" class="panel">
-  <div class="hero-bg">
-    <div class="relative max-w-4xl mx-auto px-6 py-20 sm:py-24 text-center" style="z-index:1;position:relative">
-      <p class="a1 eyebrow mb-3" style="color:rgba(201,168,76,.85)">MIT Program · WMSU</p>
-      <h1 class="a2 font-serif font-black text-white leading-tight mb-4" style="font-size:clamp(2rem,5vw,3rem)">Meet the <em class="italic" style="color:var(--gold-light)">Faculty</em></h1>
-      <p class="a3 text-base sm:text-lg" style="color:rgba(255,255,255,.65)">Our dedicated educators and researchers guiding the next generation of IT professionals.</p>
-    </div>
-  </div>
-
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-    <p class="eyebrow mb-1">Our Educators</p>
-    <h2 class="sh mb-3">Meet the Faculty</h2>
-    <div class="gold-divider mb-10"></div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-      {% for member in faculty %}
-      <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="fav h-44 w-full">
-          <span>{{ member.name|slice:":1"|upper|default:"F" }}</span>
-        </div>
-        <div class="p-5">
-          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">{{ member.name }}</p>
-          <p class="eyebrow mt-0.5 mb-2.5">{{ member.title }}</p>
-          <p class="text-xs text-gray-500 leading-relaxed mb-3">{{ member.bio }}</p>
-          <div class="flex flex-wrap gap-1.5">
-            {% if member.tags %}
-              {% for tag in member.tags %}
-                <span class="tag bg-gray-100 text-gray-600">{{ tag }}</span>
-              {% endfor %}
-            {% endif %}
-          </div>
-        </div>
-      </div>
-      {% empty %}
-      <!-- Default faculty if none configured -->
-      <div class="hov bg-white rounded-2xl overflow-hidden" style="border:1px solid #ede8e0;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <div class="fav h-44 w-full"><span>FM</span></div>
-        <div class="p-5">
-          <p class="font-serif text-lg font-bold text-gray-900 leading-snug">Faculty Member</p>
-          <p class="eyebrow mt-0.5 mb-2.5">Position</p>
-          <p class="text-xs text-gray-500 leading-relaxed mb-3">Specialization and expertise</p>
-          <div class="flex flex-wrap gap-1.5">
-            <span class="tag bg-gray-100 text-gray-600">Subject</span>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</div>
-
-<footer class="text-center py-5 px-4" style="background:#2a0406">
-  <p class="font-mono text-[10px] tracking-widest uppercase" style="color:rgba(201,168,76,.35)">
-    © Western Mindanao State University · College of Computing Studies · MIT Program · CMO 15, S.2019 · BOR No. 70, S.2023
-  </p>
-</footer>
-
-
-<!-- ════════════════ COURSE MODAL ════════════════ -->
-<div class="modal-bg" id="courseDetailModal">
-  <div class="modal-box">
-    <div class="hero-bg px-6 sm:px-7 py-6 rounded-t-[18px]">
-      <div class="flex items-start justify-between gap-4" style="position:relative;z-index:1">
-        <div class="min-w-0">
-          <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span class="eyebrow" style="color:rgba(201,168,76,.9)" id="modal-code">MIT 201</span>
-            <span class="tag text-[10px]" style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.8)" id="modal-type">Core Course</span>
-          </div>
-          <h3 class="font-serif text-xl sm:text-2xl font-bold text-white leading-tight" id="modal-title">Course Title</h3>
-        </div>
-        <button onclick="closeModal()" class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors" style="background:rgba(255,255,255,.12)" onmouseover="this.style.background='rgba(255,255,255,.22)'" onmouseout="this.style.background='rgba(255,255,255,.12)'">
-          <span class="material-symbols-rounded text-white" style="font-size:18px">close</span>
-        </button>
-      </div>
-      <div class="flex items-center gap-2 mt-4" style="position:relative;z-index:1">
-        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg" style="background:rgba(255,255,255,.12)">
-          <span class="material-symbols-rounded" style="color:var(--gold-light);font-size:13px">schedule</span>
-          <span class="text-[11px] font-medium" style="color:rgba(255,255,255,.85)" id="modal-units">3 Units</span>
-        </div>
-        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg" style="background:rgba(255,255,255,.12)">
-          <span class="material-symbols-rounded" style="color:var(--gold-light);font-size:13px">block</span>
-          <span class="text-[11px] font-medium" style="color:rgba(255,255,255,.85)" id="modal-prereq">Prerequisite: None</span>
-        </div>
-      </div>
-    </div>
-    <div class="px-6 sm:px-7 py-6">
-      <div class="flex items-center gap-2 mb-3">
-        <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson)">description</span>
-        <p class="eyebrow">Course Description</p>
-      </div>
-      <p class="text-gray-600 leading-relaxed text-sm mb-6" id="modal-desc"></p>
-      <div id="topics-wrap" class="hidden">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson)">topic</span>
-          <p class="eyebrow">Key Topics</p>
-        </div>
-        <div class="flex flex-wrap gap-2 mb-6" id="modal-topics"></div>
-      </div>
-      <div class="flex items-center gap-3 rounded-xl px-4 py-3.5" style="background:#f6f5f3;border:1px solid #ede8e0">
-        <span class="material-symbols-rounded" style="font-size:18px;color:var(--crimson)">school</span>
-        <div>
-          <p class="eyebrow">Program</p>
-          <p class="text-xs text-gray-700 font-medium mt-0.5">Master in Information Technology · WMSU-CCS</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          cr: { 50:'#fdf2f2',100:'#fce0e0',200:'#facaca',300:'#f5a0a2',400:'#ee6669',500:'#e03b3e',600:'#c01e21',700:'#9b1416',800:'#7b1113',900:'#5a0c0e',950:'#380508' },
-          gold: { 50:'#fdfaf0',100:'#faf0cc',200:'#f5df99',300:'#e6c97a',400:'#d4aa52',500:'#c9a84c',600:'#a8892e',700:'#7d6420',800:'#5c4815',900:'#3d300d' }
-        },
-        fontFamily: {
-          serif: ['Playfair Display','Georgia','serif'],
-          sans:  ['DM Sans','sans-serif'],
-          mono:  ['JetBrains Mono','monospace'],
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MIT Program – WMSU College of Computing Studies</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0"
+    />
+
+    <style>
+      :root {
+        --crimson: #7b1113;
+        --crimson-dark: #5a0c0e;
+        --crimson-light: #9b1416;
+        --gold: #c9a84c;
+        --gold-light: #e6c97a;
+        --cream: #fdfaf5;
+        --slate: #f6f5f3;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--cream);
+        color: #1a1a1a;
+        overflow-x: hidden;
+      }
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: "Playfair Display", serif;
+      }
+
+      .material-symbols-rounded {
+        font-family: "Material Symbols Rounded";
+        font-variation-settings:
+          "FILL" 1,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+        vertical-align: middle;
+        line-height: 1;
+        display: inline-block;
+      }
+
+      .panel {
+        display: none;
+      }
+      .panel.active {
+        display: block;
+      }
+
+      .tab-btn {
+        position: relative;
+        transition:
+          color 0.2s,
+          background 0.2s;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .tab-btn::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--gold);
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform 0.25s ease;
+      }
+      .tab-btn.active {
+        color: var(--crimson);
+      }
+      .tab-btn.active::after {
+        transform: scaleX(1);
+      }
+      .tab-btn:not(.active):hover {
+        color: var(--crimson);
+        background: rgba(123, 17, 19, 0.04);
+      }
+
+      .hero-bg {
+        background: linear-gradient(
+          145deg,
+          #3d0709 0%,
+          var(--crimson-dark) 30%,
+          var(--crimson) 65%,
+          var(--crimson-light) 100%
+        );
+        position: relative;
+        overflow: hidden;
+      }
+      .hero-bg::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.035) 1px,
+            transparent 1px
+          );
+        background-size: 44px 44px;
+        pointer-events: none;
+      }
+      .hero-bg::after {
+        content: "";
+        position: absolute;
+        top: -30%;
+        right: -5%;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(201, 168, 76, 0.07) 0%,
+          transparent 65%
+        );
+        pointer-events: none;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
       }
-    }
-  }
-</script>
+      .a1 {
+        opacity: 0;
+        animation: fadeUp 0.55s 0.08s forwards;
+      }
+      .a2 {
+        opacity: 0;
+        animation: fadeUp 0.55s 0.22s forwards;
+      }
+      .a3 {
+        opacity: 0;
+        animation: fadeUp 0.55s 0.36s forwards;
+      }
+      .a4 {
+        opacity: 0;
+        animation: fadeUp 0.55s 0.5s forwards;
+      }
 
-<script>
-/* ─── Course Data ─── */
-const COURSES_2023 = {
-  core: [
-    { code:'MIT 201', icon:'dns', units:'3 Units', prereq:'None', type:'Foundation Course',
-      title:'Advanced Operating Systems and Networking',
-      desc:'This course provides operating system concepts, process scheduling, CPU scheduling, deadlock, memory management, and file systems. Students will study widely used operating systems such as Windows and UNIX. Topics include kernel design, the I/O system, scheduling algorithms, process control, inter-process communication, system calls, memory management, and protection and security issues. This course also covers the different network protocols, setting and managing network connectivity, and network topologies.',
-      topics:['Process Scheduling','CPU Scheduling','Memory Management','Deadlock','File Systems','Kernel Design','Network Protocols','Network Topologies','Security & Protection'] },
-    { code:'MIT 202', icon:'architecture', units:'3 Units', prereq:'None', type:'Foundation Course',
-      title:'Advanced System Design and Implementation',
-      desc:'This course focuses on the analysis, logical design, and implementation of computer-based information systems. Emphasis is placed upon the development of requirements specifications that serve the business needs of the organization. The course provides advanced topics on design using an object-oriented approach bridging from analysis to implementation.',
-      topics:['Requirements Analysis','Logical Design','OOP Approach','Systems Implementation','Software Architecture','Scalability','UML Modeling'] },
-    { code:'MIT 203', icon:'storage', units:'3 Units', prereq:'None', type:'Foundation Course',
-      title:'Advance Database Systems',
-      desc:'This course provides a solid foundation and advances in database technology and its implementation. Topics include different approaches to database application development, conceptual and logical data models, physical database design, relational algebra, functional dependencies, constraints and triggers, NoSQL, Parallel and Distributed Databases, Transactions, and SQL Query Optimization.',
-      topics:['Relational Algebra','Data Modeling','Physical Database Design','NoSQL','Distributed Databases','Query Optimization','Transactions','Constraints & Triggers'] },
-    { code:'MIT 204', icon:'manage_accounts', units:'3 Units', prereq:'None', type:'Foundation Course',
-      title:'Technology and Project Management',
-      desc:'The course covers fundamental project management principles and methodologies for managing the software development life cycle and process models. Topics include process metrics, software project planning, monitoring, control, scheduling mechanisms, budget estimates, risk assessment, leadership, motivation, and team building.',
-      topics:['SDLC','Agile Methodologies','Risk Assessment','Project Scheduling','Budget Estimation','Team Leadership','Process Metrics','Quality Control'] }
-  ],
-  spec: [
-    { code:'MIT 205', icon:'code', units:'3 Units', prereq:'None', type:'Specialization Course',
-      title:'Systems Development',
-      desc:'This course deals with the advanced study of methods and best practices in system development. It involves in-depth analysis of organizational, business, and socio-technical issues in the implementation of IT. Tracks include E-Commerce Solutions and E-Learning Solutions.',
-      topics:['System Development Methods','E-Commerce Solutions','E-Learning Solutions','Socio-Technical Issues','IT Implementation','Design Patterns','API Development'] },
-    { code:'MIT 206', icon:'inventory_2', units:'3 Units', prereq:'None', type:'Specialization Course',
-      title:'Information Management',
-      desc:'This course focuses on the advancement of information management processes and their design and analysis using relevant data management technologies. Covers advances in data and process modeling techniques, database design, and query optimization. Tracks include IM Modelling & Design and IM Implementation, Configuration, and Administration.',
-      topics:['IM Modelling & Design','IM Implementation','Data Governance','Process Modeling','Query Optimization','Business Intelligence','Data Visualization'] },
-    { code:'MIT 207', icon:'touch_app', units:'3 Units', prereq:'None', type:'Specialization Course',
-      title:'Interactive Systems',
-      desc:'Interactive systems are computer systems characterized by significant amounts of interaction between humans and computers. This course concentrates on theories, principles, and methodologies of interactive system design and evaluation — including user-centered design, experience design, usability analysis, and task analysis. Tracks include Multimedia Solutions and Human-Computer Interaction.',
-      topics:['HCI Principles','User-Centered Design','Usability Testing','Experience Design','Task Analysis','Multimedia Solutions','Accessibility','Prototyping'] },
-    { code:'MIT 208', icon:'smart_toy', units:'3 Units', prereq:'None', type:'Specialization Course',
-      title:'Intelligent Systems',
-      desc:'This course focuses on AI-driven technologies for information management. Topics include machine learning, expert systems, neural networks, knowledge representation, and intelligent decision-making. Tracks include Expert Systems and Artificial Intelligence.',
-      topics:['Machine Learning','Expert Systems','Neural Networks','Artificial Intelligence','Knowledge Representation','Intelligent Decision Systems','AI Ethics'] },
-    { code:'MIT 209', icon:'bar_chart', units:'3 Units', prereq:'None', type:'Specialization Course',
-      title:'Data Analytics',
-      desc:'This course introduces modern data analytics tools and methodologies. Topics include statistical analysis, data mining, visualization, and the application of analytical methods to real-world IT problems. Students learn to derive insights from large datasets to support organizational decision-making.',
-      topics:['Data Mining','Statistical Analysis','Data Visualization','Predictive Analytics','Big Data','Python/R Analytics','Business Intelligence','Decision Support'] }
-  ],
-  cogn: [
-    { code:'MITCC1', icon:'rocket_launch', units:'3 Units', prereq:'None', type:'Cognate Course',
-      title:'Emerging Trends of Computing',
-      desc:'This course introduces modern technologies used in the industry to solve complex and challenging problems. It involves discussions of modern algorithms based on Machine Learning and Artificial Intelligence. Students will apply these concepts to real-world problems to provide meaningful solutions.',
-      topics:['Cloud Computing','IoT','Blockchain','Quantum Computing','Edge Computing','Cybersecurity Trends','AI & ML Algorithms','Technology Assessment'] },
-    { code:'MITCC2', icon:'cloud', units:'3 Units', prereq:'None', type:'Cognate Course',
-      title:'Cloud Computing',
-      desc:'This course provides an in-depth study of cloud computing paradigms, architectures, and services. Topics include cloud service models (IaaS, PaaS, SaaS), deployment models, virtualization, containerization, and cloud security. Students gain hands-on experience with major cloud platforms.',
-      topics:['IaaS / PaaS / SaaS','Cloud Architecture','Virtualization','Containerization','Docker / Kubernetes','Cloud Security','Serverless Computing','AWS / Azure / GCP'] },
-    { code:'MITCC3', icon:'model_training', units:'3 Units', prereq:'None', type:'Cognate Course',
-      title:'Machine Learning',
-      desc:'This course provides a comprehensive introduction to machine learning theory and practice. Topics include supervised and unsupervised learning, deep learning foundations, model evaluation, and practical deployment. Students implement ML pipelines for real-world applications.',
-      topics:['Supervised Learning','Unsupervised Learning','Deep Learning','Neural Networks','Model Evaluation','Feature Engineering','scikit-learn / TensorFlow','ML Deployment'] }
-  ],
-  cap: [
-    { code:'Capstone 1', icon:'science', units:'3 Units', prereq:'None', type:'Capstone Project',
-      title:'Capstone Project 1 – Directed Research',
-      desc:'Capstone Project 1 focuses on the infrastructure, application, or processes involved in implementing a computing solution to a problem. Students propose a capstone project that introduces either a new application, technology, or process that can be used as a tool to solve an organizational or societal problem.',
-      topics:['Problem Identification','Research Design','Proposal Writing','System Design','Prototype Development','Faculty Mentorship','Feasibility Study'] },
-    { code:'Capstone 2', icon:'emoji_events', units:'3 Units', prereq:'Capstone Project 1', type:'Capstone Project',
-      title:'Capstone Project 2 – National/International Forum',
-      desc:'Students present the final capstone project including the system and complete documentation. The project should produce innovative results, generate new knowledge or theories, or explore new frontiers of knowledge. The final output must be presented in a national or international public forum.',
-      topics:['Full Implementation','System Testing','Evaluation','Public Presentation','Oral Defense','Technical Documentation','Publication-Ready Output'] }
-  ]
-};
+      .hov {
+        transition:
+          transform 0.22s cubic-bezier(0.22, 0.68, 0, 1.2),
+          box-shadow 0.22s;
+      }
+      .hov:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 36px rgba(123, 17, 19, 0.11);
+      }
 
-const COURSES_2019 = {
-  core: [
-    { code:'MIT 201', icon:'dns', units:'3 Units', prereq:'None', type:'IT Core Course',
-      title:'Advanced Operating System and Networking',
-      desc:'This course provides operating system concepts, process scheduling, CPU scheduling, deadlock, memory management, and file systems. Students will study widely used operating systems such as Windows and UNIX. Topics include kernel design, the I/O system, scheduling algorithms, process control, inter-process communication, system calls, memory management, and protection and security issues. This course also covers the different network protocols, setting and managing network connectivity, and network topologies.',
-      topics:['Process Scheduling','CPU Scheduling','Memory Management','Deadlock','File Systems','Kernel Design','Network Protocols','Network Topologies'] },
-    { code:'MIT 202', icon:'architecture', units:'3 Units', prereq:'None', type:'IT Core Course',
-      title:'Advanced Systems Design and Implementation',
-      desc:'This course focuses on the analysis, logical design, and implementation of computer-based information systems. Emphasis is placed upon the development of requirements specifications that serve the business needs of the organization. The course provides advanced topics on design using an object-oriented approach bridging from analysis to implementation.',
-      topics:['Requirements Analysis','Logical Design','OOP Approach','Systems Implementation','Software Architecture','UML Modeling'] },
-    { code:'MIT 203', icon:'storage', units:'3 Units', prereq:'None', type:'IT Core Course',
-      title:'Advanced Database Systems',
-      desc:'This course provides a solid foundation and advances in database technology and its implementation. Topics include different approaches to database application development, conceptual and logical data models, physical database design, relational algebra, functional dependencies, constraints and triggers, NoSQL, Parallel and Distributed Databases, Transactions, and SQL Query Optimization.',
-      topics:['Relational Algebra','Data Modeling','Physical Database Design','NoSQL','Distributed Databases','Query Optimization','Transactions'] },
-    { code:'MIT 204', icon:'manage_accounts', units:'3 Units', prereq:'None', type:'IT Core Course',
-      title:'Technology and Project Management',
-      desc:'The course covers fundamental project management principles and methodologies for managing the software development life cycle and process models. Topics include process metrics, software project planning, monitoring, control, scheduling mechanisms, budget estimates, risk assessment, leadership, motivation, and team building.',
-      topics:['SDLC','Project Planning','Risk Assessment','Scheduling','Budget Estimation','Team Leadership','Quality Control'] }
-  ],
-  research: [
-    { code:'MIT 205', icon:'science', units:'3 Units', prereq:'None', type:'Research Course',
-      title:'Technical Research',
-      desc:'This course develops student competencies in conducting technical research within the IT discipline. Topics include research design, methodology selection, data collection methods, technical writing, and presentation of findings. Students produce a substantial research proposal addressing a real-world IT problem.',
-      topics:['Research Design','Methodology Selection','Data Collection','Technical Writing','Literature Review','Research Ethics','Proposal Writing'] },
-    { code:'MIT 206', icon:'query_stats', units:'3 Units', prereq:'None', type:'Research Course',
-      title:'Statistical Research',
-      desc:'This course covers statistical methods and tools applied to research in information technology. Topics include descriptive and inferential statistics, hypothesis testing, regression analysis, data sampling, and statistical software tools. Students learn to interpret and present statistical findings effectively.',
-      topics:['Descriptive Statistics','Inferential Statistics','Hypothesis Testing','Regression Analysis','SPSS / R','Data Sampling','Statistical Reporting'] }
-  ],
-  spec: [
-    { code:'MIT 207', icon:'code', units:'3 Units', prereq:'None', type:'Specialization Course',
-      title:'Specialization Course 1',
-      desc:'This specialization course provides an in-depth study of selected IT topics relevant to current industry needs. Students explore advanced methodologies and frameworks within a chosen area of specialization, developing both theoretical understanding and practical application skills.',
-      topics:['Advanced IT Topics','Industry Frameworks','Applied Research','Practical Implementation'] },
-    { code:'MIT 208', icon:'hub', units:'3 Units', prereq:'None', type:'Specialization Course',
-      title:'Specialization Course 2',
-      desc:'Continuing the specialization track, this course deepens knowledge in the selected domain, covering advanced tools, technologies, and emerging practices. Students engage in project-based learning and case study analysis.',
-      topics:['Domain-Specific Tools','Emerging Practices','Case Studies','Project-Based Learning'] },
-    { code:'MIT 209', icon:'layers', units:'3 Units', prereq:'None', type:'Specialization Course',
-      title:'Specialization Course 3',
-      desc:'The third specialization course extends the student\'s expertise in the chosen IT domain, introducing complex problems and cutting-edge solutions. Students develop a mini-project as part of this course.',
-      topics:['Complex Problem Solving','Cutting-Edge Solutions','Mini-Project','Domain Mastery'] },
-    { code:'MIT 210', icon:'star', units:'3 Units', prereq:'None', type:'Specialization Course',
-      title:'Specialization Course 4',
-      desc:'Building upon previous specialization courses, students engage with advanced research and implementation challenges in their chosen domain. Collaboration and peer review are emphasized.',
-      topics:['Advanced Research','Implementation Challenges','Collaboration','Peer Review'] },
-    { code:'MIT 211', icon:'lightbulb', units:'3 Units', prereq:'None', type:'Specialization Course',
-      title:'Specialization Course 5',
-      desc:'The final specialization course prepares students for the capstone project by consolidating their domain expertise. Students synthesize knowledge from all previous specialization courses and demonstrate mastery through comprehensive assessment.',
-      topics:['Knowledge Synthesis','Capstone Preparation','Comprehensive Assessment','Domain Expertise'] }
-  ],
-  cap: [
-    { code:'MIT 212A', icon:'science', units:'3 Units', prereq:'None', type:'Capstone Project',
-      title:'Capstone Project 1',
-      desc:'Capstone Project 1 focuses on the infrastructure, application, or processes involved in implementing a computing solution to a problem. Students propose a capstone project that introduces either a new application, technology, or process that can be used as a tool to solve an organizational or societal problem.',
-      topics:['Problem Identification','Research Design','Proposal Writing','System Design','Prototype Development'] },
-    { code:'MIT 212B', icon:'emoji_events', units:'3 Units', prereq:'MIT 212A', type:'Capstone Project',
-      title:'Capstone Project 2',
-      desc:'Students present the final capstone project including the system and complete documentation. The project should produce innovative results, generate new knowledge or theories, or explore new frontiers of knowledge. The final output must be presented in a national or international public forum.',
-      topics:['Full Implementation','System Testing','Evaluation','Public Presentation','Oral Defense','Technical Documentation'] }
-  ]
-};
+      .obj {
+        transition:
+          transform 0.18s,
+          border-color 0.18s;
+      }
+      .obj:hover {
+        transform: translateX(4px);
+        border-left-color: var(--crimson) !important;
+      }
 
-/* ─── Build course cards ─── */
-function buildCourseCards(list, containerId, isLegacy) {
-  const c = document.getElementById(containerId);
-  if (!c) return;
-  c.innerHTML = '';
-  list.forEach(course => {
-    const el = document.createElement('div');
-    el.className = 'cpill-v2' + (isLegacy ? ' legacy' : '');
-    el.onclick = () => openModal(course);
-    el.innerHTML = `
+      .modal-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 900;
+        background: rgba(15, 10, 12, 0.55);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.22s;
+      }
+      .modal-bg.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .modal-box {
+        background: #fff;
+        border-radius: 18px;
+        max-width: 660px;
+        width: 100%;
+        max-height: 88vh;
+        overflow-y: auto;
+        box-shadow: 0 32px 80px rgba(0, 0, 0, 0.22);
+        transform: translateY(16px) scale(0.98);
+        transition:
+          transform 0.25s,
+          opacity 0.25s;
+      }
+      .modal-bg.open .modal-box {
+        transform: translateY(0) scale(1);
+      }
+      .modal-box::-webkit-scrollbar {
+        width: 5px;
+      }
+      .modal-box::-webkit-scrollbar-track {
+        background: #f5f5f5;
+      }
+      .modal-box::-webkit-scrollbar-thumb {
+        background: var(--crimson);
+        border-radius: 6px;
+      }
+
+      #mobile-menu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+      #mobile-menu.open {
+        max-height: 400px;
+      }
+
+      ::-webkit-scrollbar {
+        width: 5px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--crimson);
+        border-radius: 6px;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.62rem;
+        font-weight: 600;
+        border-radius: 5px;
+        padding: 0.2rem 0.55rem;
+        letter-spacing: 0.02em;
+      }
+      .stat-n {
+        font-family: "Playfair Display", serif;
+        font-size: 2.6rem;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--crimson);
+      }
+      .sh {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(1.7rem, 4vw, 2.4rem);
+        font-weight: 700;
+        color: #1a1a1a;
+        line-height: 1.2;
+      }
+      .gold-divider {
+        width: 36px;
+        height: 2px;
+        background: var(--gold);
+        border-radius: 2px;
+      }
+      .eyebrow {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.625rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--crimson);
+      }
+
+      .info-card {
+        background: #fff;
+        border: 1px solid #ede8e0;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+      }
+      .info-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 18px;
+        border-bottom: 1px solid #f0ece5;
+      }
+      .info-row:last-child {
+        border-bottom: none;
+      }
+      .info-icon {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        border-radius: 9px;
+        background: rgba(123, 17, 19, 0.07);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--crimson);
+      }
+      .info-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.56rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #a89a8a;
+        font-weight: 600;
+      }
+      .info-val {
+        font-size: 0.825rem;
+        color: #1a1a1a;
+        font-weight: 500;
+        margin-top: 2px;
+      }
+
+      .stat-card {
+        background: #fff;
+        border: 1px solid #ede8e0;
+        border-left: 3px solid var(--crimson);
+        border-radius: 12px;
+        padding: 16px 18px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(123, 17, 19, 0.09);
+      }
+      .stat-lbl {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.56rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #998879;
+        margin-top: 4px;
+      }
+
+      .cpill {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        background: #fff;
+        border: 1px solid #ede8e0;
+        border-radius: 12px;
+        padding: 1rem 1.1rem;
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s,
+          transform 0.2s;
+      }
+      .cpill:hover {
+        border-color: #e6c97a;
+        box-shadow: 0 6px 22px rgba(123, 17, 19, 0.09);
+        transform: translateY(-2px);
+      }
+      .cpill-icon {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        border-radius: 8px;
+        background: rgba(123, 17, 19, 0.07);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        color: var(--crimson);
+      }
+
+      .fav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Playfair Display", serif;
+        font-size: 1.9rem;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.92);
+        background: linear-gradient(135deg, #5a0c0e, #9b1416);
+      }
+
+      .glance-head {
+        padding: 12px 18px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .glance-head-txt {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.62rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      .cs-wrap {
+        background: #fff;
+        border: 1px solid #ede8e0;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+      }
+
+      .cs-toggle {
+        display: flex;
+        border-bottom: 1px solid #ede8e0;
+      }
+      .cs-btn {
+        flex: 1;
+        padding: 12px 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.6rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        border: none;
+        background: #faf8f5;
+        color: #a89a8a;
+        cursor: pointer;
+        border-right: 1px solid #ede8e0;
+        transition: all 0.2s;
+      }
+      .cs-btn:last-child {
+        border-right: none;
+      }
+      .cs-btn .cs-year {
+        font-family: "Playfair Display", serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #c0b0a0;
+        line-height: 1;
+        transition: color 0.2s;
+      }
+      .cs-btn.active {
+        background: #fff;
+        color: var(--crimson);
+        box-shadow: inset 0 -2px 0 var(--gold);
+      }
+      .cs-btn.active .cs-year {
+        color: var(--crimson);
+      }
+      .cs-btn:not(.active):hover {
+        background: #fdf6f0;
+        color: var(--crimson-light);
+      }
+      .cs-btn:not(.active):hover .cs-year {
+        color: var(--crimson-light);
+      }
+
+      .cs-badge {
+        display: inline-block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.48rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+      .cs-badge-orig {
+        background: #edf9f3;
+        color: #0a7a4a;
+      }
+      .cs-badge-new {
+        background: #fff4e0;
+        color: #8a5800;
+      }
+
+      .cs-panel {
+        display: none;
+        padding: 16px;
+      }
+      .cs-panel.active {
+        display: block;
+      }
+
+      .cs-yr-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.55rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--crimson);
+        margin: 12px 0 8px;
+        border-bottom: 1px solid #f0ece5;
+        padding-bottom: 6px;
+      }
+      .cs-yr-label:first-child {
+        margin-top: 0;
+      }
+
+      .cs-sem-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+      @media (max-width: 520px) {
+        .cs-sem-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .cs-sem {
+        background: #faf8f5;
+        border: 1px solid #ede8e0;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .cs-sem-head {
+        padding: 7px 11px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.55rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        background: var(--crimson);
+        color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .cs-sem-head.summer {
+        background: #9a6020;
+      }
+      .cs-sem-head .total-pill {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        padding: 1px 6px;
+        font-size: 0.5rem;
+      }
+
+      .cs-tbl {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .cs-tbl tr {
+        border-bottom: 1px solid #f0ece5;
+      }
+      .cs-tbl tr:last-child {
+        border-bottom: none;
+      }
+      .cs-tbl td {
+        padding: 5px 11px;
+        font-size: 0.72rem;
+        color: #2a2a2a;
+      }
+      .cs-tbl .c-code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.58rem;
+        color: var(--crimson-light);
+        width: 58px;
+        white-space: nowrap;
+      }
+      .cs-tbl .c-units {
+        text-align: center;
+        width: 28px;
+        font-weight: 600;
+        font-size: 0.7rem;
+        color: var(--crimson);
+        white-space: nowrap;
+      }
+      .cs-tbl .c-foot td {
+        background: #f5f0ea;
+        font-size: 0.62rem;
+        font-weight: 700;
+        color: #7a6a55;
+        font-family: "JetBrains Mono", monospace;
+        letter-spacing: 0.05em;
+      }
+
+      .cs-cognate-box {
+        margin-top: 10px;
+        border: 1px solid #ede8e0;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .cs-cognate-head {
+        padding: 7px 11px;
+        background: #faf3e0;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.55rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #8a5800;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .cs-summary {
+        margin-top: 12px;
+        border: 1px solid #ede8e0;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .cs-summary-head {
+        padding: 7px 12px;
+        background: var(--slate);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.55rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #7a6a55;
+      }
+      .cs-sum-tbl {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .cs-sum-tbl th {
+        padding: 6px 12px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.55rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #a89a8a;
+        font-weight: 600;
+        background: var(--slate);
+        border-bottom: 1px solid #ede8e0;
+        text-align: left;
+      }
+      .cs-sum-tbl td {
+        padding: 7px 12px;
+        font-size: 0.78rem;
+        border-bottom: 1px solid #f0ece5;
+      }
+      .cs-sum-tbl tr:last-child td {
+        border-bottom: none;
+        background: #fdf6ee;
+        font-weight: 700;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--crimson);
+      }
+      .cs-sum-tbl .s-total {
+        text-align: center;
+        font-weight: 700;
+        color: var(--crimson);
+      }
+      .cs-sum-tbl .s-muted {
+        text-align: center;
+        color: #c0b0a0;
+        font-size: 0.7rem;
+      }
+
+      .cs-note {
+        margin-top: 10px;
+        padding: 8px 12px;
+        background: #fffbeb;
+        border: 1px solid #f0d87c;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        color: #8a6510;
+        line-height: 1.55;
+        display: flex;
+        gap: 7px;
+        align-items: flex-start;
+      }
+      .cs-diff-badge {
+        display: inline-block;
+        font-size: 0.55rem;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        padding: 1px 5px;
+        border-radius: 3px;
+        margin-left: 4px;
+        vertical-align: middle;
+      }
+      .diff-add {
+        background: #edfbf3;
+        color: #0a6b40;
+      }
+      .diff-change {
+        background: #fff3e0;
+        color: #8a4f00;
+      }
+
+      /* ══════════════════════════════════════
+       COURSES PAGE — CURRICULUM SWITCHER
+    ══════════════════════════════════════ */
+      .curr-switcher-bar {
+        display: flex;
+        background: #fff;
+        border: 1px solid #ede8e0;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        margin-bottom: 2rem;
+      }
+      .curr-tab-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 14px 12px;
+        border: none;
+        background: #faf8f5;
+        cursor: pointer;
+        border-right: 1px solid #ede8e0;
+        transition: all 0.2s;
+        position: relative;
+      }
+      .curr-tab-btn:last-child {
+        border-right: none;
+      }
+      .curr-tab-btn .ct-year {
+        font-family: "Playfair Display", serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #c0b0a0;
+        line-height: 1;
+        transition: color 0.2s;
+      }
+      .curr-tab-btn .ct-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.52rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #b0a090;
+        transition: color 0.2s;
+      }
+      .curr-tab-btn .ct-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.45rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 2px 7px;
+        border-radius: 4px;
+      }
+      .curr-tab-btn.active {
+        background: #fff;
+        box-shadow: inset 0 -3px 0 var(--gold);
+      }
+      .curr-tab-btn.active .ct-year {
+        color: var(--crimson);
+      }
+      .curr-tab-btn.active .ct-label {
+        color: var(--crimson);
+      }
+      .curr-tab-btn:not(.active):hover {
+        background: #fdf6f0;
+      }
+      .curr-tab-btn:not(.active):hover .ct-year {
+        color: var(--crimson-light);
+      }
+
+      /* Course section panels */
+      .curr-panel {
+        display: none;
+      }
+      .curr-panel.active {
+        display: block;
+      }
+
+      /* Section header for courses */
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 1.25rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #ede8e0;
+      }
+      .section-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .section-meta {
+        flex: 1;
+      }
+      .section-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        line-height: 1.2;
+      }
+      .section-subtitle {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.56rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #a89a8a;
+        margin-top: 2px;
+      }
+      .unit-badge-lg {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.62rem;
+        font-weight: 700;
+        background: rgba(123, 17, 19, 0.08);
+        color: var(--crimson);
+        border-radius: 8px;
+        padding: 5px 10px;
+        white-space: nowrap;
+      }
+
+      /* Enhanced course card */
+      .course-block {
+        margin-bottom: 2.5rem;
+      }
+      .course-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      @media (max-width: 640px) {
+        .course-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .cpill-v2 {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        background: #fff;
+        border: 1px solid #ede8e0;
+        border-radius: 14px;
+        padding: 1.1rem 1.2rem;
+        cursor: pointer;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s,
+          transform 0.2s;
+        position: relative;
+        overflow: hidden;
+      }
+      .cpill-v2::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: var(--crimson);
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .cpill-v2:hover {
+        border-color: rgba(201, 168, 76, 0.5);
+        box-shadow: 0 8px 28px rgba(123, 17, 19, 0.1);
+        transform: translateY(-2px);
+      }
+      .cpill-v2:hover::before {
+        opacity: 1;
+      }
+      .cpill-icon-v2 {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        border-radius: 10px;
+        background: rgba(123, 17, 19, 0.07);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--crimson);
+        transition: background 0.2s;
+      }
+      .cpill-v2:hover .cpill-icon-v2 {
+        background: rgba(123, 17, 19, 0.12);
+      }
+      .cpill-code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.58rem;
+        color: var(--crimson-light);
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        margin-bottom: 3px;
+      }
+      .cpill-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        line-height: 1.35;
+        margin-bottom: 6px;
+      }
+      .cpill-units-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.55rem;
+        font-weight: 700;
+        background: rgba(123, 17, 19, 0.06);
+        color: var(--crimson);
+        border-radius: 20px;
+        padding: 3px 9px;
+      }
+      .cpill-arrow {
+        margin-left: auto;
+        flex-shrink: 0;
+        margin-top: 2px;
+        opacity: 0;
+        transition:
+          opacity 0.2s,
+          transform 0.2s;
+      }
+      .cpill-v2:hover .cpill-arrow {
+        opacity: 1;
+        transform: translateX(2px);
+      }
+
+      /* Cognate note box */
+      .cognate-note {
+        background: linear-gradient(135deg, #fffbeb, #fff9e0);
+        border: 1px solid #f5d97c;
+        border-radius: 12px;
+        padding: 14px 16px;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        margin-bottom: 10px;
+      }
+      .cognate-note p {
+        font-size: 0.8rem;
+        color: #8a6510;
+        line-height: 1.5;
+      }
+      .cognate-note strong {
+        color: #6a4a08;
+      }
+
+      /* Legacy 2019 style (same cpill-v2 but gold accent) */
+      .cpill-v2.legacy::before {
+        background: #9a6020;
+      }
+      .cpill-v2.legacy .cpill-icon-v2 {
+        background: rgba(154, 96, 32, 0.08);
+        color: #9a6020;
+      }
+      .cpill-v2.legacy:hover {
+        border-color: rgba(154, 96, 32, 0.4);
+        box-shadow: 0 8px 28px rgba(154, 96, 32, 0.1);
+      }
+      .cpill-v2.legacy:hover .cpill-icon-v2 {
+        background: rgba(154, 96, 32, 0.14);
+      }
+      .cpill-v2.legacy .cpill-code {
+        color: #9a6020;
+      }
+      .cpill-v2.legacy .cpill-units-pill {
+        background: rgba(154, 96, 32, 0.07);
+        color: #9a6020;
+      }
+
+      /* Curriculum summary card at bottom */
+      .curr-summary-card {
+        background: #fff;
+        border: 1px solid #ede8e0;
+        border-radius: 14px;
+        overflow: hidden;
+        margin-top: 2.5rem;
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+      }
+      .curr-summary-head {
+        padding: 12px 18px;
+        background: var(--slate);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .curr-summary-head-txt {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #7a6a55;
+      }
+      .curr-sum-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+      }
+      @media (max-width: 540px) {
+        .curr-sum-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      .curr-sum-cell {
+        padding: 14px 16px;
+        border-right: 1px solid #f0ece5;
+        border-bottom: 1px solid #f0ece5;
+      }
+      .curr-sum-cell:nth-child(4n) {
+        border-right: none;
+      }
+      .curr-sum-cell:nth-last-child(-n + 4) {
+        border-bottom: none;
+      }
+      @media (max-width: 540px) {
+        .curr-sum-cell:nth-child(2n) {
+          border-right: none;
+        }
+        .curr-sum-cell:nth-last-child(-n + 2) {
+          border-bottom: none;
+        }
+        .curr-sum-cell:nth-child(4n) {
+          border-right: 1px solid #f0ece5;
+        }
+      }
+      .curr-sum-num {
+        font-family: "Playfair Display", serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--crimson);
+        line-height: 1;
+      }
+      .curr-sum-lbl {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.5rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #a89a8a;
+        margin-top: 3px;
+      }
+      .curr-sum-total {
+        grid-column: 1 / -1;
+        padding: 12px 16px;
+        background: linear-gradient(
+          135deg,
+          rgba(123, 17, 19, 0.04),
+          rgba(201, 168, 76, 0.06)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-top: 1px solid #ede8e0;
+      }
+      .curr-sum-total-lbl {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #7a6a55;
+      }
+      .curr-sum-total-num {
+        font-family: "Playfair Display", serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--crimson);
+      }
+
+      /* prereq badge */
+      .prereq-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.5rem;
+        font-weight: 600;
+        background: #f0f8ff;
+        color: #2a6090;
+        border: 1px solid #bdd6e8;
+        border-radius: 4px;
+        padding: 2px 6px;
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ════════════════ NAVIGATION ════════════════ -->
+    <nav class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6">
+        <div class="flex items-center justify-between h-14">
+          <div class="flex items-center gap-2.5 flex-shrink-0">
+            <div
+              class="w-8 h-8 rounded-lg flex items-center justify-center"
+              style="background: var(--crimson)"
+            >
+              <span
+                class="material-symbols-rounded text-white"
+                style="font-size: 17px"
+                >school</span
+              >
+            </div>
+            <div class="leading-tight hidden sm:block">
+              <p
+                class="font-mono text-[10px] font-semibold uppercase tracking-widest leading-none"
+                style="color: var(--crimson)"
+              >
+                WMSU · CCS
+              </p>
+              <p
+                class="text-[11px] font-semibold text-gray-700 leading-none mt-0.5"
+              >
+                MIT Program
+              </p>
+            </div>
+          </div>
+
+          <div class="hidden md:flex items-center h-14" role="tablist">
+            <a
+              href="{% url 'index' %}"
+              class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap"
+            >
+              <span class="material-symbols-rounded" style="font-size: 15px"
+                >home</span
+              >Home
+            </a>
+            <button
+              class="tab-btn active flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap"
+              data-tab="about"
+            >
+              <span class="material-symbols-rounded" style="font-size: 15px"
+                >info</span
+              >About
+            </button>
+            <button
+              class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap"
+              data-tab="courses"
+            >
+              <span class="material-symbols-rounded" style="font-size: 15px"
+                >menu_book</span
+              >Courses
+            </button>
+            <button
+              class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap"
+              data-tab="outcomes"
+            >
+              <span class="material-symbols-rounded" style="font-size: 15px"
+                >emoji_events</span
+              >Outcomes
+            </button>
+            <button
+              class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap"
+              data-tab="objectives"
+            >
+              <span class="material-symbols-rounded" style="font-size: 15px"
+                >flag</span
+              >Objectives
+            </button>
+            <button
+              class="tab-btn flex items-center gap-1.5 px-4 h-full text-[11px] font-semibold tracking-widest uppercase text-gray-500 border-b-2 border-transparent whitespace-nowrap"
+              data-tab="faculty"
+            >
+              <span class="material-symbols-rounded" style="font-size: 15px"
+                >people</span
+              >Faculty
+            </button>
+          </div>
+
+          <button
+            id="hamburger"
+            class="md:hidden flex items-center justify-center w-9 h-9 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+            aria-label="Toggle menu"
+          >
+            <span
+              class="material-symbols-rounded"
+              id="ham-icon"
+              style="font-size: 22px"
+              >menu</span
+            >
+          </button>
+        </div>
+
+        <div id="mobile-menu" class="md:hidden border-t border-gray-100">
+          <div class="py-2 flex flex-col gap-0.5">
+            <a
+              href="{% url 'index' %}"
+              class="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors"
+            >
+              <span
+                class="material-symbols-rounded text-gray-400"
+                style="font-size: 18px"
+                >home</span
+              >Home
+            </a>
+            <button
+              class="mob-tab active-mob flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-lg mx-1"
+              style="color: var(--crimson); background: rgba(123, 17, 19, 0.06)"
+              data-tab="about"
+            >
+              <span
+                class="material-symbols-rounded"
+                style="font-size: 18px; color: var(--crimson)"
+                >info</span
+              >About
+            </button>
+            <button
+              class="mob-tab flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors"
+              data-tab="courses"
+            >
+              <span
+                class="material-symbols-rounded text-gray-400"
+                style="font-size: 18px"
+                >menu_book</span
+              >Courses
+            </button>
+            <button
+              class="mob-tab flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors"
+              data-tab="outcomes"
+            >
+              <span
+                class="material-symbols-rounded text-gray-400"
+                style="font-size: 18px"
+                >emoji_events</span
+              >Outcomes
+            </button>
+            <button
+              class="mob-tab flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors"
+              data-tab="objectives"
+            >
+              <span
+                class="material-symbols-rounded text-gray-400"
+                style="font-size: 18px"
+                >flag</span
+              >Objectives
+            </button>
+            <button
+              class="mob-tab flex items-center gap-3 px-4 py-3 text-sm font-semibold text-gray-600 rounded-lg mx-1 hover:bg-red-50 transition-colors"
+              data-tab="faculty"
+            >
+              <span
+                class="material-symbols-rounded text-gray-400"
+                style="font-size: 18px"
+                >people</span
+              >Faculty
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ════════════════ ABOUT PANEL ════════════════ -->
+    <div id="tab-about" class="panel active">
+      <div class="hero-bg">
+        <div
+          class="relative max-w-4xl mx-auto px-6 py-20 sm:py-28 text-center"
+          style="z-index: 1; position: relative"
+        >
+          <p class="a1 eyebrow mb-3" style="color: rgba(201, 168, 76, 0.85)">
+            {{ cms.about_hero_eyebrow }}
+          </p>
+          <h1
+            class="a2 font-serif font-black text-white leading-tight mb-5"
+            style="font-size: clamp(2rem, 5vw, 3.2rem)"
+          >
+            {{ cms.about_hero_title }}
+            <em class="italic" style="color: var(--gold-light)"
+              >{{ cms.about_hero_title_italic }}</em
+            >
+          </h1>
+          <p
+            class="a3 text-base sm:text-lg leading-relaxed max-w-xl mx-auto mb-7"
+            style="color: rgba(255, 255, 255, 0.65)"
+          >
+            {{ cms.about_hero_tagline }}
+          </p>
+          <div
+            class="a4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs sm:text-sm font-medium"
+            style="
+              border: 1px solid rgba(201, 168, 76, 0.35);
+              background: rgba(201, 168, 76, 0.1);
+              color: rgba(255, 245, 220, 0.9);
+            "
+          >
+            <span
+              class="material-symbols-rounded"
+              style="font-size: 15px; color: var(--gold-light)"
+              >verified</span
+            >
+            {{ cms.about_hero_badge }}
+          </div>
+        </div>
+      </div>
+
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <div
+          class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start"
+        >
+          <div>
+            <p class="eyebrow mb-1">Program Overview</p>
+            <h2 class="sh mb-3">About the MIT Program</h2>
+            <div class="gold-divider mb-7"></div>
+
+            <p class="text-gray-600 leading-relaxed text-[.95rem] mb-8">
+              {{ cms.about_overview_text }}
+            </p>
+
+            <div class="info-card mb-6">
+              <div class="info-row">
+                <div class="info-icon">
+                  <span class="material-symbols-rounded" style="font-size: 18px"
+                    >account_balance</span
+                  >
+                </div>
+                <div>
+                  <p class="info-label">Institution</p>
+                  <p class="info-val">{{ cms.about_info_institution }}</p>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon">
+                  <span class="material-symbols-rounded" style="font-size: 18px"
+                    >assignment</span
+                  >
+                </div>
+                <div>
+                  <p class="info-label">COPC / CMO Reference</p>
+                  <p class="info-val">{{ cms.about_info_copc }}</p>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon">
+                  <span class="material-symbols-rounded" style="font-size: 18px"
+                    >calendar_today</span
+                  >
+                </div>
+                <div>
+                  <p class="info-label">Current Effective Academic Year</p>
+                  <p class="info-val">{{ cms.about_info_ay }}</p>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon">
+                  <span class="material-symbols-rounded" style="font-size: 18px"
+                    >verified</span
+                  >
+                </div>
+                <div>
+                  <p class="info-label">Accrediting Body</p>
+                  <p class="info-val">{{ cms.about_info_accred }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="flex items-start gap-3 rounded-xl px-5 py-4"
+              style="background: #fffbeb; border: 1px solid #f5d97c"
+            >
+              <span
+                class="material-symbols-rounded flex-shrink-0 mt-0.5"
+                style="font-size: 22px; color: #d4970a"
+                >workspace_premium</span
+              >
+              <div>
+                <p class="text-sm font-semibold mb-0.5" style="color: #92600a">
+                  {{ cms.about_ched_heading }}
+                </p>
+                <p class="text-xs leading-relaxed" style="color: #a8751a">
+                  {{ cms.about_ched_desc }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-7">
+              <div class="stat-card">
+                <p class="stat-n">{{ cms.about_stat1_val }}</p>
+                <p class="stat-lbl">{{ cms.about_stat1_lbl }}</p>
+              </div>
+              <div class="stat-card">
+                <p class="stat-n">{{ cms.about_stat2_val }}</p>
+                <p class="stat-lbl">{{ cms.about_stat2_lbl }}</p>
+              </div>
+              <div class="stat-card">
+                <p class="stat-n">{{ cms.about_stat3_val }}</p>
+                <p class="stat-lbl">{{ cms.about_stat3_lbl }}</p>
+              </div>
+              <div class="stat-card">
+                <p class="stat-n">{{ cms.about_stat4_val }}</p>
+                <p class="stat-lbl">{{ cms.about_stat4_lbl }}</p>
+              </div>
+            </div>
+
+            <div>
+              <p
+                class="eyebrow mb-2"
+                style="display: flex; align-items: center; gap: 6px"
+              >
+                <span class="material-symbols-rounded" style="font-size: 14px"
+                  >swap_horiz</span
+                >
+                Curriculum Structure
+              </p>
+
+              <div class="cs-wrap">
+                <div class="cs-panel active" id="cs-cms" style="display: block">
+                  {% for curriculum_group in curriculum_groups %}
+                  <div class="cs-yr-label">{{ curriculum_group.title }}</div>
+                  <div class="cs-sem-grid">
+                    <div class="cs-sem" style="grid-column: 1/-1">
+                      <div class="cs-sem-head">
+                        Subject List
+                        <span class="total-pill"
+                          >{{ curriculum_group.total_units }} Units</span
+                        >
+                      </div>
+                      <table class="cs-tbl">
+                        {% for course in curriculum_group.courses %}
+                        <tr>
+                          <td class="c-code">{{ course.code }}</td>
+                          <td>{{ course.name }}</td>
+                          <td class="c-units">{{ course.units }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                          <td
+                            colspan="3"
+                            class="text-center text-gray-400 py-3 text-xs"
+                          >
+                            No subjects in this group.
+                          </td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="c-foot">
+                          <td colspan="2">Total</td>
+                          <td class="c-units">
+                            {{ curriculum_group.total_units }}
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+                  {% empty %}
+                  <div class="cs-note" style="margin: 16px">
+                    <span
+                      class="material-symbols-rounded flex-shrink-0"
+                      style="font-size: 16px; color: #9a7010; margin-top: 1px"
+                      >info</span
+                    >
+                    <span
+                      >No curriculum data available yet. Please add subjects in
+                      CMS Settings.</span
+                    >
+                  </div>
+                  {% endfor %} {% if curriculum_groups %}
+                  <div class="cs-summary">
+                    <div class="cs-summary-head">Summary of Units</div>
+                    <table class="cs-sum-tbl">
+                      <tr>
+                        <th>Course Type</th>
+                        <th style="text-align: center">Units</th>
+                      </tr>
+                      {% for curriculum_group in curriculum_groups %}
+                      <tr>
+                        <td>{{ curriculum_group.title }}</td>
+                        <td class="s-total">
+                          {{ curriculum_group.total_units }}
+                        </td>
+                      </tr>
+                      {% endfor %}
+                      <tr>
+                        <td>TOTAL</td>
+                        <td class="s-total">
+                          {{ curriculum_grand_total_units }}
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ COURSES PANEL ════════════════ -->
+    <div id="tab-courses" class="panel">
+      <div class="hero-bg">
+        <div
+          class="relative max-w-4xl mx-auto px-6 py-20 sm:py-24 text-center"
+          style="z-index: 1; position: relative"
+        >
+          <p class="a1 eyebrow mb-3" style="color: rgba(201, 168, 76, 0.85)">
+            MIT Program · WMSU
+          </p>
+          <h1
+            class="a2 font-serif font-black text-white leading-tight mb-4"
+            style="font-size: clamp(2rem, 5vw, 3rem)"
+          >
+            Course
+            <em class="italic" style="color: var(--gold-light)">Catalog</em>
+          </h1>
+          <p
+            class="a3 text-base sm:text-lg"
+            style="color: rgba(255, 255, 255, 0.65)"
+          >
+            Browse subjects by curriculum year. Click any course to read its
+            full description and key topics.
+          </p>
+        </div>
+      </div>
+
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <!-- Curriculum Year Switcher -->
+        <div class="mb-8">
+          <p
+            class="eyebrow mb-3"
+            style="display: flex; align-items: center; gap: 6px"
+          >
+            <span class="material-symbols-rounded" style="font-size: 14px"
+              >swap_horiz</span
+            >
+            Select Curriculum Year
+          </p>
+          <div class="curr-switcher-bar">
+            <button
+              class="curr-tab-btn active"
+              id="curr-btn-1"
+              onclick="switchCourseCurriculum('1')"
+            >
+              <span class="ct-year">2023</span>
+              <span class="ct-label">– 2024 Curriculum</span>
+              <span class="ct-badge" style="background: #fff4e0; color: #8a5800"
+                >Current</span
+              >
+            </button>
+          </div>
+        </div>
+
+        <!-- ═══ CURRICULUM PANEL ═══ -->
+        <div class="curr-panel active" id="curr-1">
+          {% for curriculum_group in curriculum_groups %}
+          <div class="course-block">
+            <div class="section-header">
+              <div
+                class="section-icon"
+                style="background:{% if curriculum_group.title|lower == 'foundation' or curriculum_group.title|lower == 'core' %}var(--crimson){% elif curriculum_group.title|lower == 'specialization' %}var(--crimson){% elif curriculum_group.title|lower == 'cognate' %}#9a6020{% else %}var(--crimson){% endif %}"
+              >
+                <span
+                  class="material-symbols-rounded text-white"
+                  style="font-size: 19px"
+                >
+                  {% if curriculum_group.title|lower == 'foundation' or
+                  curriculum_group.title|lower == 'core' %}settings{% elif
+                  curriculum_group.title|lower == 'specialization' %}star{% elif
+                  curriculum_group.title|lower == 'cognate' %}brightness_5{%
+                  else %}emoji_events{% endif %}
+                </span>
+              </div>
+              <div class="section-meta">
+                <p class="section-title">{{ curriculum_group.title }}</p>
+                <p class="section-subtitle">Program Courses</p>
+              </div>
+              <span
+                class="unit-badge-lg"
+                {%
+                if
+                curriculum_group.title|lower=""
+                ="cognate"
+                %}
+                style="background: rgba(154, 96, 32, 0.08); color: #9a6020"
+                {%
+                endif
+                %}
+              >
+                {{ curriculum_group.total_units }} Units
+              </span>
+            </div>
+            {% if curriculum_group.title|lower == 'cognate' %}
+            <div class="cognate-note">
+              <span
+                class="material-symbols-rounded flex-shrink-0"
+                style="font-size: 18px; color: #d4970a"
+                >info</span
+              >
+              <p>
+                <strong>Note:</strong> Choose only one from the following MIT
+                Cognates. The selected cognate course counts as 3 units toward
+                your total degree requirement.
+              </p>
+            </div>
+            {% endif %}
+            <div class="course-grid">
+              {% for course in curriculum_group.courses %}
+              <div
+                class="course-card"
+                onclick="openModal('{{ course.code|escapejs }}', '{{ course.name|escapejs }}', '{{ course.units }}', 'None', '{{ course.description|escapejs }}', '')"
+              >
+                <div class="course-code">{{ course.code }}</div>
+                <div class="course-name">{{ course.name }}</div>
+                <div class="course-meta">
+                  <span class="course-units">{{ course.units }} Units</span>
+                  <span class="course-prereq">Pre: None</span>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+
+          <!-- Summary -->
+          <div class="curr-summary-card">
+            <div class="curr-summary-head">
+              <span
+                class="material-symbols-rounded"
+                style="font-size: 16px; color: #7a6a55"
+                >summarize</span
+              >
+              <span class="curr-summary-head-txt"
+                >Summary of Units · Program Curriculum</span
+              >
+            </div>
+            <div class="curr-sum-grid">
+              {% for group in curriculum_groups %}
+              <div class="curr-sum-cell">
+                <p class="curr-sum-num">{{ group.total_units }}</p>
+                <p class="curr-sum-lbl">{{ group.title }} Units</p>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="curr-sum-total">
+              <span class="curr-sum-total-lbl">Grand Total</span>
+              <span class="curr-sum-total-num">
+                {{ curriculum_grand_total_units }} Units
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ OUTCOMES PANEL ════════════════ -->
+    <div id="tab-outcomes" class="panel">
+      <div class="hero-bg">
+        <div
+          class="relative max-w-4xl mx-auto px-6 py-20 sm:py-24 text-center"
+          style="z-index: 1; position: relative"
+        >
+          <p class="a1 eyebrow mb-3" style="color: rgba(201, 168, 76, 0.85)">
+            MIT Program · WMSU
+          </p>
+          <h1
+            class="a2 font-serif font-black text-white leading-tight mb-4"
+            style="font-size: clamp(2rem, 5vw, 3rem)"
+          >
+            Program
+            <em class="italic" style="color: var(--gold-light)">Outcomes</em>
+          </h1>
+          <p
+            class="a3 text-base sm:text-lg"
+            style="color: rgba(255, 255, 255, 0.65)"
+          >
+            What graduates are expected to know and be able to do upon
+            completion.
+          </p>
+        </div>
+      </div>
+
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <p class="eyebrow mb-1">Graduate Competencies</p>
+        <h2 class="sh mb-3">Program Outcomes</h2>
+        <div class="gold-divider mb-10"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {% for outcome in cms.about_outcomes %}
+          <div
+            class="hov bg-white rounded-2xl p-6"
+            style="
+              border: 1px solid #ede8e0;
+              border-top: 4px solid var(--crimson);
+              box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+            "
+          >
+            <div class="flex items-center justify-between mb-3">
+              <div
+                class="w-10 h-10 rounded-xl flex items-center justify-center"
+                style="background: rgba(123, 17, 19, 0.07)"
+              >
+                <span
+                  class="material-symbols-rounded"
+                  style="font-size: 20px; color: var(--crimson)"
+                >
+                  {% if outcome.number == 1 %}dns{% elif outcome.number == 2
+                  %}science{% elif outcome.number == 3 %}hub{% elif
+                  outcome.number == 4 %}layers{% elif outcome.number == 5
+                  %}manage_accounts{% elif outcome.number == 6 %}lightbulb{%
+                  elif outcome.number == 7 %}smart_toy{% else %}storage{% endif
+                  %}
+                </span>
+              </div>
+              <span
+                class="font-serif text-4xl font-bold text-gray-100 leading-none"
+                >{{ outcome.number|stringformat:"02d" }}</span
+              >
+            </div>
+            <p class="font-semibold text-gray-900 text-sm mb-2">
+              {{ outcome.title }}
+            </p>
+            <p class="text-xs text-gray-500 leading-relaxed">
+              {{ outcome.description }}
+            </p>
+          </div>
+          {% empty %}
+          <!-- Default outcomes if none configured -->
+          <div
+            class="hov bg-white rounded-2xl p-6"
+            style="
+              border: 1px solid #ede8e0;
+              border-top: 4px solid var(--crimson);
+              box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+            "
+          >
+            <div class="flex items-center justify-between mb-3">
+              <div
+                class="w-10 h-10 rounded-xl flex items-center justify-center"
+                style="background: rgba(123, 17, 19, 0.07)"
+              >
+                <span
+                  class="material-symbols-rounded"
+                  style="font-size: 20px; color: var(--crimson)"
+                  >dns</span
+                >
+              </div>
+              <span
+                class="font-serif text-4xl font-bold text-gray-100 leading-none"
+                >01</span
+              >
+            </div>
+            <p class="font-semibold text-gray-900 text-sm mb-2">
+              Advanced Systems Knowledge
+            </p>
+            <p class="text-xs text-gray-500 leading-relaxed">
+              Demonstrate advanced understanding of operating systems,
+              networking, database systems, and systems design applicable to
+              complex IT environments.
+            </p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ OBJECTIVES PANEL ════════════════ -->
+    <div id="tab-objectives" class="panel">
+      <div class="hero-bg">
+        <div
+          class="relative max-w-4xl mx-auto px-6 py-20 sm:py-24 text-center"
+          style="z-index: 1; position: relative"
+        >
+          <p class="a1 eyebrow mb-3" style="color: rgba(201, 168, 76, 0.85)">
+            MIT Program · WMSU
+          </p>
+          <h1
+            class="a2 font-serif font-black text-white leading-tight mb-4"
+            style="font-size: clamp(2rem, 5vw, 3rem)"
+          >
+            Program
+            <em class="italic" style="color: var(--gold-light)">Objectives</em>
+          </h1>
+          <p
+            class="a3 text-base sm:text-lg"
+            style="color: rgba(255, 255, 255, 0.65)"
+          >
+            The goals and aims that guide the MIT program's design and delivery.
+          </p>
+        </div>
+      </div>
+
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <p class="eyebrow mb-1">Program Goals</p>
+        <h2 class="sh mb-3">Program Objectives</h2>
+        <div class="gold-divider mb-10"></div>
+        <ul class="space-y-3">
+          {% for objective in cms.about_objectives %}
+          <li
+            class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start"
+            style="
+              border-left-color: #ede8e0;
+              box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+            "
+          >
+            <div
+              class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+              style="background: var(--crimson)"
+            >
+              <span class="text-white text-xs font-bold font-mono"
+                >{{ objective.number }}</span
+              >
+            </div>
+            <p class="text-gray-600 leading-relaxed text-sm">
+              {{ objective.description|safe }}
+            </p>
+          </li>
+          {% empty %}
+          <!-- Default objectives if none configured -->
+          <li
+            class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start"
+            style="
+              border-left-color: #ede8e0;
+              box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+            "
+          >
+            <div
+              class="w-8 h-8 min-w-[2rem] rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+              style="background: var(--crimson)"
+            >
+              <span class="text-white text-xs font-bold font-mono">1</span>
+            </div>
+            <p class="text-gray-600 leading-relaxed text-sm">
+              Provide graduate-level education in Information Technology
+              emphasizing the acquisition of advanced concepts, tools, and
+              technologies necessary for professional practice.
+            </p>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- ════════════════ FACULTY PANEL ════════════════ -->
+    <div id="tab-faculty" class="panel">
+      <div class="hero-bg">
+        <div
+          class="relative max-w-4xl mx-auto px-6 py-20 sm:py-24 text-center"
+          style="z-index: 1; position: relative"
+        >
+          <p class="a1 eyebrow mb-3" style="color: rgba(201, 168, 76, 0.85)">
+            MIT Program · WMSU
+          </p>
+          <h1
+            class="a2 font-serif font-black text-white leading-tight mb-4"
+            style="font-size: clamp(2rem, 5vw, 3rem)"
+          >
+            Meet the
+            <em class="italic" style="color: var(--gold-light)">Faculty</em>
+          </h1>
+          <p
+            class="a3 text-base sm:text-lg"
+            style="color: rgba(255, 255, 255, 0.65)"
+          >
+            Our dedicated educators and researchers guiding the next generation
+            of IT professionals.
+          </p>
+        </div>
+      </div>
+
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <p class="eyebrow mb-1">Our Educators</p>
+        <h2 class="sh mb-3">Meet the Faculty</h2>
+        <div class="gold-divider mb-10"></div>
+
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
+        >
+          {% for member in faculty %}
+          <div
+            class="hov bg-white rounded-2xl overflow-hidden"
+            style="
+              border: 1px solid #ede8e0;
+              box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+            "
+          >
+            <div class="fav h-44 w-full">
+              <span>{{ member.name|slice:":1"|upper|default:"F" }}</span>
+            </div>
+            <div class="p-5">
+              <p
+                class="font-serif text-lg font-bold text-gray-900 leading-snug"
+              >
+                {{ member.name }}
+              </p>
+              <p class="eyebrow mt-0.5 mb-2.5">{{ member.title }}</p>
+              <p class="text-xs text-gray-500 leading-relaxed mb-3">
+                {{ member.bio }}
+              </p>
+              <div class="flex flex-wrap gap-1.5">
+                {% if member.tags %} {% for tag in member.tags %}
+                <span class="tag bg-gray-100 text-gray-600">{{ tag }}</span>
+                {% endfor %} {% endif %}
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <!-- Default faculty if none configured -->
+          <div
+            class="hov bg-white rounded-2xl overflow-hidden"
+            style="
+              border: 1px solid #ede8e0;
+              box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+            "
+          >
+            <div class="fav h-44 w-full"><span>FM</span></div>
+            <div class="p-5">
+              <p
+                class="font-serif text-lg font-bold text-gray-900 leading-snug"
+              >
+                Faculty Member
+              </p>
+              <p class="eyebrow mt-0.5 mb-2.5">Position</p>
+              <p class="text-xs text-gray-500 leading-relaxed mb-3">
+                Specialization and expertise
+              </p>
+              <div class="flex flex-wrap gap-1.5">
+                <span class="tag bg-gray-100 text-gray-600">Subject</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <footer class="text-center py-5 px-4" style="background: #2a0406">
+      <p
+        class="font-mono text-[10px] tracking-widest uppercase"
+        style="color: rgba(201, 168, 76, 0.35)"
+      >
+        © Western Mindanao State University · College of Computing Studies · MIT
+        Program · CMO 15, S.2019 · BOR No. 70, S.2023
+      </p>
+    </footer>
+
+    <!-- ════════════════ COURSE MODAL ════════════════ -->
+    <div class="modal-bg" id="courseDetailModal">
+      <div class="modal-box">
+        <div class="hero-bg px-6 sm:px-7 py-6 rounded-t-[18px]">
+          <div
+            class="flex items-start justify-between gap-4"
+            style="position: relative; z-index: 1"
+          >
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+                <span
+                  class="eyebrow"
+                  style="color: rgba(201, 168, 76, 0.9)"
+                  id="modal-code"
+                  >MIT 201</span
+                >
+                <span
+                  class="tag text-[10px]"
+                  style="
+                    background: rgba(255, 255, 255, 0.15);
+                    color: rgba(255, 255, 255, 0.8);
+                  "
+                  id="modal-type"
+                  >Core Course</span
+                >
+              </div>
+              <h3
+                class="font-serif text-xl sm:text-2xl font-bold text-white leading-tight"
+                id="modal-title"
+              >
+                Course Title
+              </h3>
+            </div>
+            <button
+              onclick="closeModal()"
+              class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors"
+              style="background: rgba(255, 255, 255, 0.12)"
+              onmouseover="this.style.background = 'rgba(255,255,255,.22)'"
+              onmouseout="this.style.background = 'rgba(255,255,255,.12)'"
+            >
+              <span
+                class="material-symbols-rounded text-white"
+                style="font-size: 18px"
+                >close</span
+              >
+            </button>
+          </div>
+          <div
+            class="flex items-center gap-2 mt-4"
+            style="position: relative; z-index: 1"
+          >
+            <div
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+              style="background: rgba(255, 255, 255, 0.12)"
+            >
+              <span
+                class="material-symbols-rounded"
+                style="color: var(--gold-light); font-size: 13px"
+                >schedule</span
+              >
+              <span
+                class="text-[11px] font-medium"
+                style="color: rgba(255, 255, 255, 0.85)"
+                id="modal-units"
+                >3 Units</span
+              >
+            </div>
+            <div
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+              style="background: rgba(255, 255, 255, 0.12)"
+            >
+              <span
+                class="material-symbols-rounded"
+                style="color: var(--gold-light); font-size: 13px"
+                >block</span
+              >
+              <span
+                class="text-[11px] font-medium"
+                style="color: rgba(255, 255, 255, 0.85)"
+                id="modal-prereq"
+                >Prerequisite: None</span
+              >
+            </div>
+          </div>
+        </div>
+        <div class="px-6 sm:px-7 py-6">
+          <div class="flex items-center gap-2 mb-3">
+            <span
+              class="material-symbols-rounded"
+              style="font-size: 17px; color: var(--crimson)"
+              >description</span
+            >
+            <p class="eyebrow">Course Description</p>
+          </div>
+          <p
+            class="text-gray-600 leading-relaxed text-sm mb-6"
+            id="modal-desc"
+          ></p>
+          <div id="topics-wrap" class="hidden">
+            <div class="flex items-center gap-2 mb-3">
+              <span
+                class="material-symbols-rounded"
+                style="font-size: 17px; color: var(--crimson)"
+                >topic</span
+              >
+              <p class="eyebrow">Key Topics</p>
+            </div>
+            <div class="flex flex-wrap gap-2 mb-6" id="modal-topics"></div>
+          </div>
+          <div
+            class="flex items-center gap-3 rounded-xl px-4 py-3.5"
+            style="background: #f6f5f3; border: 1px solid #ede8e0"
+          >
+            <span
+              class="material-symbols-rounded"
+              style="font-size: 18px; color: var(--crimson)"
+              >school</span
+            >
+            <div>
+              <p class="eyebrow">Program</p>
+              <p class="text-xs text-gray-700 font-medium mt-0.5">
+                Master in Information Technology · WMSU-CCS
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              cr: {
+                50: "#fdf2f2",
+                100: "#fce0e0",
+                200: "#facaca",
+                300: "#f5a0a2",
+                400: "#ee6669",
+                500: "#e03b3e",
+                600: "#c01e21",
+                700: "#9b1416",
+                800: "#7b1113",
+                900: "#5a0c0e",
+                950: "#380508",
+              },
+              gold: {
+                50: "#fdfaf0",
+                100: "#faf0cc",
+                200: "#f5df99",
+                300: "#e6c97a",
+                400: "#d4aa52",
+                500: "#c9a84c",
+                600: "#a8892e",
+                700: "#7d6420",
+                800: "#5c4815",
+                900: "#3d300d",
+              },
+            },
+            fontFamily: {
+              serif: ["Playfair Display", "Georgia", "serif"],
+              sans: ["DM Sans", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <script>
+      /* ─── Course Data ─── */
+      const COURSES_2023 = {
+        core: [
+          {
+            code: "MIT 201",
+            icon: "dns",
+            units: "3 Units",
+            prereq: "None",
+            type: "Foundation Course",
+            title: "Advanced Operating Systems and Networking",
+            desc: "This course provides operating system concepts, process scheduling, CPU scheduling, deadlock, memory management, and file systems. Students will study widely used operating systems such as Windows and UNIX. Topics include kernel design, the I/O system, scheduling algorithms, process control, inter-process communication, system calls, memory management, and protection and security issues. This course also covers the different network protocols, setting and managing network connectivity, and network topologies.",
+            topics: [
+              "Process Scheduling",
+              "CPU Scheduling",
+              "Memory Management",
+              "Deadlock",
+              "File Systems",
+              "Kernel Design",
+              "Network Protocols",
+              "Network Topologies",
+              "Security & Protection",
+            ],
+          },
+          {
+            code: "MIT 202",
+            icon: "architecture",
+            units: "3 Units",
+            prereq: "None",
+            type: "Foundation Course",
+            title: "Advanced System Design and Implementation",
+            desc: "This course focuses on the analysis, logical design, and implementation of computer-based information systems. Emphasis is placed upon the development of requirements specifications that serve the business needs of the organization. The course provides advanced topics on design using an object-oriented approach bridging from analysis to implementation.",
+            topics: [
+              "Requirements Analysis",
+              "Logical Design",
+              "OOP Approach",
+              "Systems Implementation",
+              "Software Architecture",
+              "Scalability",
+              "UML Modeling",
+            ],
+          },
+          {
+            code: "MIT 203",
+            icon: "storage",
+            units: "3 Units",
+            prereq: "None",
+            type: "Foundation Course",
+            title: "Advance Database Systems",
+            desc: "This course provides a solid foundation and advances in database technology and its implementation. Topics include different approaches to database application development, conceptual and logical data models, physical database design, relational algebra, functional dependencies, constraints and triggers, NoSQL, Parallel and Distributed Databases, Transactions, and SQL Query Optimization.",
+            topics: [
+              "Relational Algebra",
+              "Data Modeling",
+              "Physical Database Design",
+              "NoSQL",
+              "Distributed Databases",
+              "Query Optimization",
+              "Transactions",
+              "Constraints & Triggers",
+            ],
+          },
+          {
+            code: "MIT 204",
+            icon: "manage_accounts",
+            units: "3 Units",
+            prereq: "None",
+            type: "Foundation Course",
+            title: "Technology and Project Management",
+            desc: "The course covers fundamental project management principles and methodologies for managing the software development life cycle and process models. Topics include process metrics, software project planning, monitoring, control, scheduling mechanisms, budget estimates, risk assessment, leadership, motivation, and team building.",
+            topics: [
+              "SDLC",
+              "Agile Methodologies",
+              "Risk Assessment",
+              "Project Scheduling",
+              "Budget Estimation",
+              "Team Leadership",
+              "Process Metrics",
+              "Quality Control",
+            ],
+          },
+        ],
+        spec: [
+          {
+            code: "MIT 205",
+            icon: "code",
+            units: "3 Units",
+            prereq: "None",
+            type: "Specialization Course",
+            title: "Systems Development",
+            desc: "This course deals with the advanced study of methods and best practices in system development. It involves in-depth analysis of organizational, business, and socio-technical issues in the implementation of IT. Tracks include E-Commerce Solutions and E-Learning Solutions.",
+            topics: [
+              "System Development Methods",
+              "E-Commerce Solutions",
+              "E-Learning Solutions",
+              "Socio-Technical Issues",
+              "IT Implementation",
+              "Design Patterns",
+              "API Development",
+            ],
+          },
+          {
+            code: "MIT 206",
+            icon: "inventory_2",
+            units: "3 Units",
+            prereq: "None",
+            type: "Specialization Course",
+            title: "Information Management",
+            desc: "This course focuses on the advancement of information management processes and their design and analysis using relevant data management technologies. Covers advances in data and process modeling techniques, database design, and query optimization. Tracks include IM Modelling & Design and IM Implementation, Configuration, and Administration.",
+            topics: [
+              "IM Modelling & Design",
+              "IM Implementation",
+              "Data Governance",
+              "Process Modeling",
+              "Query Optimization",
+              "Business Intelligence",
+              "Data Visualization",
+            ],
+          },
+          {
+            code: "MIT 207",
+            icon: "touch_app",
+            units: "3 Units",
+            prereq: "None",
+            type: "Specialization Course",
+            title: "Interactive Systems",
+            desc: "Interactive systems are computer systems characterized by significant amounts of interaction between humans and computers. This course concentrates on theories, principles, and methodologies of interactive system design and evaluation — including user-centered design, experience design, usability analysis, and task analysis. Tracks include Multimedia Solutions and Human-Computer Interaction.",
+            topics: [
+              "HCI Principles",
+              "User-Centered Design",
+              "Usability Testing",
+              "Experience Design",
+              "Task Analysis",
+              "Multimedia Solutions",
+              "Accessibility",
+              "Prototyping",
+            ],
+          },
+          {
+            code: "MIT 208",
+            icon: "smart_toy",
+            units: "3 Units",
+            prereq: "None",
+            type: "Specialization Course",
+            title: "Intelligent Systems",
+            desc: "This course focuses on AI-driven technologies for information management. Topics include machine learning, expert systems, neural networks, knowledge representation, and intelligent decision-making. Tracks include Expert Systems and Artificial Intelligence.",
+            topics: [
+              "Machine Learning",
+              "Expert Systems",
+              "Neural Networks",
+              "Artificial Intelligence",
+              "Knowledge Representation",
+              "Intelligent Decision Systems",
+              "AI Ethics",
+            ],
+          },
+          {
+            code: "MIT 209",
+            icon: "bar_chart",
+            units: "3 Units",
+            prereq: "None",
+            type: "Specialization Course",
+            title: "Data Analytics",
+            desc: "This course introduces modern data analytics tools and methodologies. Topics include statistical analysis, data mining, visualization, and the application of analytical methods to real-world IT problems. Students learn to derive insights from large datasets to support organizational decision-making.",
+            topics: [
+              "Data Mining",
+              "Statistical Analysis",
+              "Data Visualization",
+              "Predictive Analytics",
+              "Big Data",
+              "Python/R Analytics",
+              "Business Intelligence",
+              "Decision Support",
+            ],
+          },
+        ],
+        cogn: [
+          {
+            code: "MITCC1",
+            icon: "rocket_launch",
+            units: "3 Units",
+            prereq: "None",
+            type: "Cognate Course",
+            title: "Emerging Trends of Computing",
+            desc: "This course introduces modern technologies used in the industry to solve complex and challenging problems. It involves discussions of modern algorithms based on Machine Learning and Artificial Intelligence. Students will apply these concepts to real-world problems to provide meaningful solutions.",
+            topics: [
+              "Cloud Computing",
+              "IoT",
+              "Blockchain",
+              "Quantum Computing",
+              "Edge Computing",
+              "Cybersecurity Trends",
+              "AI & ML Algorithms",
+              "Technology Assessment",
+            ],
+          },
+          {
+            code: "MITCC2",
+            icon: "cloud",
+            units: "3 Units",
+            prereq: "None",
+            type: "Cognate Course",
+            title: "Cloud Computing",
+            desc: "This course provides an in-depth study of cloud computing paradigms, architectures, and services. Topics include cloud service models (IaaS, PaaS, SaaS), deployment models, virtualization, containerization, and cloud security. Students gain hands-on experience with major cloud platforms.",
+            topics: [
+              "IaaS / PaaS / SaaS",
+              "Cloud Architecture",
+              "Virtualization",
+              "Containerization",
+              "Docker / Kubernetes",
+              "Cloud Security",
+              "Serverless Computing",
+              "AWS / Azure / GCP",
+            ],
+          },
+          {
+            code: "MITCC3",
+            icon: "model_training",
+            units: "3 Units",
+            prereq: "None",
+            type: "Cognate Course",
+            title: "Machine Learning",
+            desc: "This course provides a comprehensive introduction to machine learning theory and practice. Topics include supervised and unsupervised learning, deep learning foundations, model evaluation, and practical deployment. Students implement ML pipelines for real-world applications.",
+            topics: [
+              "Supervised Learning",
+              "Unsupervised Learning",
+              "Deep Learning",
+              "Neural Networks",
+              "Model Evaluation",
+              "Feature Engineering",
+              "scikit-learn / TensorFlow",
+              "ML Deployment",
+            ],
+          },
+        ],
+        cap: [
+          {
+            code: "Capstone 1",
+            icon: "science",
+            units: "3 Units",
+            prereq: "None",
+            type: "Capstone Project",
+            title: "Capstone Project 1 – Directed Research",
+            desc: "Capstone Project 1 focuses on the infrastructure, application, or processes involved in implementing a computing solution to a problem. Students propose a capstone project that introduces either a new application, technology, or process that can be used as a tool to solve an organizational or societal problem.",
+            topics: [
+              "Problem Identification",
+              "Research Design",
+              "Proposal Writing",
+              "System Design",
+              "Prototype Development",
+              "Faculty Mentorship",
+              "Feasibility Study",
+            ],
+          },
+          {
+            code: "Capstone 2",
+            icon: "emoji_events",
+            units: "3 Units",
+            prereq: "Capstone Project 1",
+            type: "Capstone Project",
+            title: "Capstone Project 2 – National/International Forum",
+            desc: "Students present the final capstone project including the system and complete documentation. The project should produce innovative results, generate new knowledge or theories, or explore new frontiers of knowledge. The final output must be presented in a national or international public forum.",
+            topics: [
+              "Full Implementation",
+              "System Testing",
+              "Evaluation",
+              "Public Presentation",
+              "Oral Defense",
+              "Technical Documentation",
+              "Publication-Ready Output",
+            ],
+          },
+        ],
+      };
+
+      const COURSES_2019 = {
+        core: [
+          {
+            code: "MIT 201",
+            icon: "dns",
+            units: "3 Units",
+            prereq: "None",
+            type: "IT Core Course",
+            title: "Advanced Operating System and Networking",
+            desc: "This course provides operating system concepts, process scheduling, CPU scheduling, deadlock, memory management, and file systems. Students will study widely used operating systems such as Windows and UNIX. Topics include kernel design, the I/O system, scheduling algorithms, process control, inter-process communication, system calls, memory management, and protection and security issues. This course also covers the different network protocols, setting and managing network connectivity, and network topologies.",
+            topics: [
+              "Process Scheduling",
+              "CPU Scheduling",
+              "Memory Management",
+              "Deadlock",
+              "File Systems",
+              "Kernel Design",
+              "Network Protocols",
+              "Network Topologies",
+            ],
+          },
+          {
+            code: "MIT 202",
+            icon: "architecture",
+            units: "3 Units",
+            prereq: "None",
+            type: "IT Core Course",
+            title: "Advanced Systems Design and Implementation",
+            desc: "This course focuses on the analysis, logical design, and implementation of computer-based information systems. Emphasis is placed upon the development of requirements specifications that serve the business needs of the organization. The course provides advanced topics on design using an object-oriented approach bridging from analysis to implementation.",
+            topics: [
+              "Requirements Analysis",
+              "Logical Design",
+              "OOP Approach",
+              "Systems Implementation",
+              "Software Architecture",
+              "UML Modeling",
+            ],
+          },
+          {
+            code: "MIT 203",
+            icon: "storage",
+            units: "3 Units",
+            prereq: "None",
+            type: "IT Core Course",
+            title: "Advanced Database Systems",
+            desc: "This course provides a solid foundation and advances in database technology and its implementation. Topics include different approaches to database application development, conceptual and logical data models, physical database design, relational algebra, functional dependencies, constraints and triggers, NoSQL, Parallel and Distributed Databases, Transactions, and SQL Query Optimization.",
+            topics: [
+              "Relational Algebra",
+              "Data Modeling",
+              "Physical Database Design",
+              "NoSQL",
+              "Distributed Databases",
+              "Query Optimization",
+              "Transactions",
+            ],
+          },
+          {
+            code: "MIT 204",
+            icon: "manage_accounts",
+            units: "3 Units",
+            prereq: "None",
+            type: "IT Core Course",
+            title: "Technology and Project Management",
+            desc: "The course covers fundamental project management principles and methodologies for managing the software development life cycle and process models. Topics include process metrics, software project planning, monitoring, control, scheduling mechanisms, budget estimates, risk assessment, leadership, motivation, and team building.",
+            topics: [
+              "SDLC",
+              "Project Planning",
+              "Risk Assessment",
+              "Scheduling",
+              "Budget Estimation",
+              "Team Leadership",
+              "Quality Control",
+            ],
+          },
+        ],
+        research: [
+          {
+            code: "MIT 205",
+            icon: "science",
+            units: "3 Units",
+            prereq: "None",
+            type: "Research Course",
+            title: "Technical Research",
+            desc: "This course develops student competencies in conducting technical research within the IT discipline. Topics include research design, methodology selection, data collection methods, technical writing, and presentation of findings. Students produce a substantial research proposal addressing a real-world IT problem.",
+            topics: [
+              "Research Design",
+              "Methodology Selection",
+              "Data Collection",
+              "Technical Writing",
+              "Literature Review",
+              "Research Ethics",
+              "Proposal Writing",
+            ],
+          },
+          {
+            code: "MIT 206",
+            icon: "query_stats",
+            units: "3 Units",
+            prereq: "None",
+            type: "Research Course",
+            title: "Statistical Research",
+            desc: "This course covers statistical methods and tools applied to research in information technology. Topics include descriptive and inferential statistics, hypothesis testing, regression analysis, data sampling, and statistical software tools. Students learn to interpret and present statistical findings effectively.",
+            topics: [
+              "Descriptive Statistics",
+              "Inferential Statistics",
+              "Hypothesis Testing",
+              "Regression Analysis",
+              "SPSS / R",
+              "Data Sampling",
+              "Statistical Reporting",
+            ],
+          },
+        ],
+        spec: [
+          {
+            code: "MIT 207",
+            icon: "code",
+            units: "3 Units",
+            prereq: "None",
+            type: "Specialization Course",
+            title: "Specialization Course 1",
+            desc: "This specialization course provides an in-depth study of selected IT topics relevant to current industry needs. Students explore advanced methodologies and frameworks within a chosen area of specialization, developing both theoretical understanding and practical application skills.",
+            topics: [
+              "Advanced IT Topics",
+              "Industry Frameworks",
+              "Applied Research",
+              "Practical Implementation",
+            ],
+          },
+          {
+            code: "MIT 208",
+            icon: "hub",
+            units: "3 Units",
+            prereq: "None",
+            type: "Specialization Course",
+            title: "Specialization Course 2",
+            desc: "Continuing the specialization track, this course deepens knowledge in the selected domain, covering advanced tools, technologies, and emerging practices. Students engage in project-based learning and case study analysis.",
+            topics: [
+              "Domain-Specific Tools",
+              "Emerging Practices",
+              "Case Studies",
+              "Project-Based Learning",
+            ],
+          },
+          {
+            code: "MIT 209",
+            icon: "layers",
+            units: "3 Units",
+            prereq: "None",
+            type: "Specialization Course",
+            title: "Specialization Course 3",
+            desc: "The third specialization course extends the student's expertise in the chosen IT domain, introducing complex problems and cutting-edge solutions. Students develop a mini-project as part of this course.",
+            topics: [
+              "Complex Problem Solving",
+              "Cutting-Edge Solutions",
+              "Mini-Project",
+              "Domain Mastery",
+            ],
+          },
+          {
+            code: "MIT 210",
+            icon: "star",
+            units: "3 Units",
+            prereq: "None",
+            type: "Specialization Course",
+            title: "Specialization Course 4",
+            desc: "Building upon previous specialization courses, students engage with advanced research and implementation challenges in their chosen domain. Collaboration and peer review are emphasized.",
+            topics: [
+              "Advanced Research",
+              "Implementation Challenges",
+              "Collaboration",
+              "Peer Review",
+            ],
+          },
+          {
+            code: "MIT 211",
+            icon: "lightbulb",
+            units: "3 Units",
+            prereq: "None",
+            type: "Specialization Course",
+            title: "Specialization Course 5",
+            desc: "The final specialization course prepares students for the capstone project by consolidating their domain expertise. Students synthesize knowledge from all previous specialization courses and demonstrate mastery through comprehensive assessment.",
+            topics: [
+              "Knowledge Synthesis",
+              "Capstone Preparation",
+              "Comprehensive Assessment",
+              "Domain Expertise",
+            ],
+          },
+        ],
+        cap: [
+          {
+            code: "MIT 212A",
+            icon: "science",
+            units: "3 Units",
+            prereq: "None",
+            type: "Capstone Project",
+            title: "Capstone Project 1",
+            desc: "Capstone Project 1 focuses on the infrastructure, application, or processes involved in implementing a computing solution to a problem. Students propose a capstone project that introduces either a new application, technology, or process that can be used as a tool to solve an organizational or societal problem.",
+            topics: [
+              "Problem Identification",
+              "Research Design",
+              "Proposal Writing",
+              "System Design",
+              "Prototype Development",
+            ],
+          },
+          {
+            code: "MIT 212B",
+            icon: "emoji_events",
+            units: "3 Units",
+            prereq: "MIT 212A",
+            type: "Capstone Project",
+            title: "Capstone Project 2",
+            desc: "Students present the final capstone project including the system and complete documentation. The project should produce innovative results, generate new knowledge or theories, or explore new frontiers of knowledge. The final output must be presented in a national or international public forum.",
+            topics: [
+              "Full Implementation",
+              "System Testing",
+              "Evaluation",
+              "Public Presentation",
+              "Oral Defense",
+              "Technical Documentation",
+            ],
+          },
+        ],
+      };
+
+      /* ─── Build course cards ─── */
+      function buildCourseCards(list, containerId, isLegacy) {
+        const c = document.getElementById(containerId);
+        if (!c) return;
+        c.innerHTML = "";
+        list.forEach((course) => {
+          const el = document.createElement("div");
+          el.className = "cpill-v2" + (isLegacy ? " legacy" : "");
+          el.onclick = () => openModal(course);
+          el.innerHTML = `
       <div class="cpill-icon-v2 flex-shrink-0">
         <span class="material-symbols-rounded" style="font-size:18px">${course.icon}</span>
       </div>
@@ -1199,101 +2635,136 @@ function buildCourseCards(list, containerId, isLegacy) {
       <div class="cpill-arrow flex-shrink-0">
         <span class="material-symbols-rounded" style="font-size:20px;color:#d0c8bc">chevron_right</span>
       </div>`;
-    c.appendChild(el);
-  });
-}
+          c.appendChild(el);
+        });
+      }
 
-/* Build 2023 courses */
-buildCourseCards(COURSES_2023.core, 'core-courses-2023', false);
-buildCourseCards(COURSES_2023.spec, 'spec-courses-2023', false);
-buildCourseCards(COURSES_2023.cogn, 'cogn-courses-2023', false);
-buildCourseCards(COURSES_2023.cap,  'cap-courses-2023',  false);
+      /* Build 2023 courses */
+      buildCourseCards(COURSES_2023.core, "core-courses-2023", false);
+      buildCourseCards(COURSES_2023.spec, "spec-courses-2023", false);
+      buildCourseCards(COURSES_2023.cogn, "cogn-courses-2023", false);
+      buildCourseCards(COURSES_2023.cap, "cap-courses-2023", false);
 
-/* Build 2019 courses */
-buildCourseCards(COURSES_2019.core,     'core-courses-2019',     true);
-buildCourseCards(COURSES_2019.research, 'research-courses-2019', true);
-buildCourseCards(COURSES_2019.spec,     'spec-courses-2019',     true);
-buildCourseCards(COURSES_2019.cap,      'cap-courses-2019',      true);
+      /* Build 2019 courses */
+      buildCourseCards(COURSES_2019.core, "core-courses-2019", true);
+      buildCourseCards(COURSES_2019.research, "research-courses-2019", true);
+      buildCourseCards(COURSES_2019.spec, "spec-courses-2019", true);
+      buildCourseCards(COURSES_2019.cap, "cap-courses-2019", true);
 
-/* ─── Course Curriculum Switcher ─── */
-function switchCourseCurriculum(yr) {
-  ['2019','2023'].forEach(y => {
-    document.getElementById('curr-' + y).classList.toggle('active', y === yr);
-    document.getElementById('curr-btn-' + y).classList.toggle('active', y === yr);
-  });
-}
+      /* ─── Course Curriculum Switcher ─── */
+      function switchCourseCurriculum(yr) {
+        ["2019", "2023"].forEach((y) => {
+          document
+            .getElementById("curr-" + y)
+            .classList.toggle("active", y === yr);
+          document
+            .getElementById("curr-btn-" + y)
+            .classList.toggle("active", y === yr);
+        });
+      }
 
-/* ─── Modal ─── */
-function openModal(c, title, unitsRaw, prereq, descFromServer, topicsStr) {
-  if (typeof c === 'string' && arguments.length >= 6) {
-    const u = unitsRaw != null ? String(unitsRaw).trim() : '';
-    openModal({
-      code: c,
-      title: title || '',
-      units: /\bunits\b/i.test(u) ? u : (u ? `${u} Units` : ''),
-      prereq: prereq || 'None',
-      type: 'Course',
-      desc: descFromServer || '',
-      topics: [],
-    });
-    return;
-  }
-  document.getElementById('modal-code').textContent   = c.code;
-  document.getElementById('modal-title').textContent  = c.title;
-  document.getElementById('modal-units').textContent  = c.units;
-  document.getElementById('modal-type').textContent   = c.type;
-  document.getElementById('modal-desc').textContent   = c.desc;
-  document.getElementById('modal-prereq').textContent = 'Prerequisite: ' + (c.prereq || 'None');
-  const tw = document.getElementById('topics-wrap');
-  const tc = document.getElementById('modal-topics');
-  tc.innerHTML = '';
-  if (c.topics && c.topics.length) {
-    c.topics.forEach(t => {
-      const s = document.createElement('span');
-      s.className = 'tag';
-      s.style.cssText = 'background:rgba(123,17,19,.07);color:var(--crimson);border:1px solid rgba(123,17,19,.15);border-radius:999px;padding:.25rem .75rem';
-      s.textContent = t;
-      tc.appendChild(s);
-    });
-    tw.classList.remove('hidden');
-  } else {
-    tw.classList.add('hidden');
-  }
-  document.getElementById('courseDetailModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
+      /* ─── Modal ─── */
+      function openModal(
+        c,
+        title,
+        unitsRaw,
+        prereq,
+        descFromServer,
+        topicsStr,
+      ) {
+        if (typeof c === "string" && arguments.length >= 6) {
+          const u = unitsRaw != null ? String(unitsRaw).trim() : "";
+          openModal({
+            code: c,
+            title: title || "",
+            units: /\bunits\b/i.test(u) ? u : u ? `${u} Units` : "",
+            prereq: prereq || "None",
+            type: "Course",
+            desc: descFromServer || "",
+            topics: [],
+          });
+          return;
+        }
+        document.getElementById("modal-code").textContent = c.code;
+        document.getElementById("modal-title").textContent = c.title;
+        document.getElementById("modal-units").textContent = c.units;
+        document.getElementById("modal-type").textContent = c.type;
+        document.getElementById("modal-desc").textContent = c.desc;
+        document.getElementById("modal-prereq").textContent =
+          "Prerequisite: " + (c.prereq || "None");
+        const tw = document.getElementById("topics-wrap");
+        const tc = document.getElementById("modal-topics");
+        tc.innerHTML = "";
+        if (c.topics && c.topics.length) {
+          c.topics.forEach((t) => {
+            const s = document.createElement("span");
+            s.className = "tag";
+            s.style.cssText =
+              "background:rgba(123,17,19,.07);color:var(--crimson);border:1px solid rgba(123,17,19,.15);border-radius:999px;padding:.25rem .75rem";
+            s.textContent = t;
+            tc.appendChild(s);
+          });
+          tw.classList.remove("hidden");
+        } else {
+          tw.classList.add("hidden");
+        }
+        document.getElementById("courseDetailModal").classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
 
-function closeModal() {
-  document.getElementById('courseDetailModal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.getElementById('courseDetailModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+      function closeModal() {
+        document.getElementById("courseDetailModal").classList.remove("open");
+        document.body.style.overflow = "";
+      }
+      document
+        .getElementById("courseDetailModal")
+        .addEventListener("click", (e) => {
+          if (e.target === e.currentTarget) closeModal();
+        });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeModal();
+      });
 
-/* ─── Main Tab Switcher ─── */
-function switchTab(target) {
-  document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === target));
-  document.querySelectorAll('.mob-tab').forEach(b => {
-    const isActive = b.dataset.tab === target;
-    b.classList.toggle('active-mob', isActive);
-    b.style.color      = isActive ? 'var(--crimson)' : '';
-    b.style.background = isActive ? 'rgba(123,17,19,.06)' : '';
-  });
-  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + target));
-  document.getElementById('mobile-menu').classList.remove('open');
-  document.getElementById('ham-icon').textContent = 'menu';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+      /* ─── Main Tab Switcher ─── */
+      function switchTab(target) {
+        document
+          .querySelectorAll(".tab-btn[data-tab]")
+          .forEach((b) =>
+            b.classList.toggle("active", b.dataset.tab === target),
+          );
+        document.querySelectorAll(".mob-tab").forEach((b) => {
+          const isActive = b.dataset.tab === target;
+          b.classList.toggle("active-mob", isActive);
+          b.style.color = isActive ? "var(--crimson)" : "";
+          b.style.background = isActive ? "rgba(123,17,19,.06)" : "";
+        });
+        document
+          .querySelectorAll(".panel")
+          .forEach((p) =>
+            p.classList.toggle("active", p.id === "tab-" + target),
+          );
+        document.getElementById("mobile-menu").classList.remove("open");
+        document.getElementById("ham-icon").textContent = "menu";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
 
-document.querySelectorAll('.tab-btn[data-tab]').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
-document.querySelectorAll('.mob-tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+      document
+        .querySelectorAll(".tab-btn[data-tab]")
+        .forEach((btn) =>
+          btn.addEventListener("click", () => switchTab(btn.dataset.tab)),
+        );
+      document
+        .querySelectorAll(".mob-tab")
+        .forEach((btn) =>
+          btn.addEventListener("click", () => switchTab(btn.dataset.tab)),
+        );
 
-document.getElementById('hamburger').addEventListener('click', () => {
-  const menu = document.getElementById('mobile-menu');
-  const icon = document.getElementById('ham-icon');
-  const isOpen = menu.classList.toggle('open');
-  icon.textContent = isOpen ? 'close' : 'menu';
-});
-</script>
-</body>
+      document.getElementById("hamburger").addEventListener("click", () => {
+        const menu = document.getElementById("mobile-menu");
+        const icon = document.getElementById("ham-icon");
+        const isOpen = menu.classList.toggle("open");
+        icon.textContent = isOpen ? "close" : "menu";
+      });
+    </script>
+  </body>
 </html>

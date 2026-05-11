@@ -2638,7 +2638,12 @@ Certified true copy from your institution</textarea
 
               <div id="downloadsList" class="space-y-2 mt-2">
                 {% for download in cms.downloads %}
-                <div class="download-row flex items-center gap-3 row-card">
+                <div
+                  class="download-row flex items-center gap-3 row-card"
+                  data-name="{{ download.name }}"
+                  data-url="{{ download.url }}"
+                  data-file-type="{{ download.file_type }}"
+                >
                   <div
                     class="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0 text-xs font-bold text-red-700 uppercase"
                   >
