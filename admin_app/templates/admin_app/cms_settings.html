@@ -4504,6 +4504,12 @@ Develop students' capacity to conduct both technical and statistical research, c
             >
               <i data-lucide="calendar-check"></i> Document Requirements
             </button>
+            <button
+              class="cms-tab"
+              onclick="switchOthersTab('curriculumStruct', this)"
+            >
+              <i data-lucide="calendar-check"></i> Curriculum Structure
+            </button>
           </div>
 
           <!-- Document Requirements -->
@@ -4563,6 +4569,41 @@ Develop students' capacity to conduct both technical and statistical research, c
                       class="text-center text-gray-400 py-8 text-sm"
                     >
                       No requirements found.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Curriculum Structure -->
+          <div id="others-curriculumStruct" class="others-panel hidden">
+            <div class="cms-card">
+              <div class="flex items-center justify-between mb-4">
+                <p class="cms-card-title">
+                  <i
+                    data-lucide="calendar-check"
+                    class="w-4 h-4 text-red-700"
+                  ></i>
+                  Curriculum Structure
+                </p>
+              </div>
+              <table class="cms-table">
+                <thead>
+                  <tr>
+                    <th>Subject Code</th>
+                    <th>Subject Description</th>
+                    <th>Units</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="curriculumStructTableBody">
+                  <tr>
+                    <td
+                      colspan="3"
+                      class="text-center text-gray-400 py-8 text-sm"
+                    >
+                      No curriculum groups found.
                     </td>
                   </tr>
                 </tbody>

@@ -1734,10 +1734,10 @@
     <div style="padding:20px 24px;">
       <!-- Current user chip -->
       <div style="background:var(--surface-2);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:20px;border:1px solid var(--border);">
-        <div class="sb-avatar">JS</div>
+        <div class="sb-avatar"> {{ student.initials }} </div>
         <div>
-          <p style="font-size:0.8rem;font-weight:600;color:var(--ink);margin:0;">Juan dela Cruz</p>
-          <p style="font-size:0.65rem;color:var(--ink-4);margin:0;font-family:var(--font-mono);">juan.delacruz@mit.edu.ph</p>
+          <p style="font-size:0.8rem;font-weight:600;color:var(--ink);margin:0;"> {{ student.full_name }} </p>
+          <p style="font-size:0.65rem;color:var(--ink-4);margin:0;font-family:var(--font-mono);"> {{ student.email }} </p>
         </div>
       </div>
 
