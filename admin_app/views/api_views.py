@@ -5,6 +5,8 @@ Handles document verification, rejection, and application status updates.
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
+from django.db import models
 from django.utils import timezone
 from django.core.files.storage import default_storage
 from django.views.decorators.csrf import csrf_exempt
@@ -435,6 +437,166 @@ def upload_admin_photo(request):
 
 @login_required(login_url='login')
 @user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def list_user_accounts(request):
+    """List user accounts for Account Management tab."""
+    search = request.GET.get('q', '').strip()
+
+    qs = User.objects.all().order_by('-date_joined')
+    if search:
+        qs = qs.filter(
+            models.Q(username__icontains=search) |
+            models.Q(email__icontains=search) |
+            models.Q(first_name__icontains=search) |
+            models.Q(last_name__icontains=search)
+        )
+
+    users = [{
+        'id': user.id,
+        'username': user.username,
+        'email': user.email,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'access': 'admin' if user.is_superuser else 'student',
+        'is_active': user.is_active,
+        'last_login': user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never',
+        'date_joined': user.date_joined.strftime('%Y-%m-%d %H:%M'),
+    } for user in qs]
+
+    return JsonResponse({'success': True, 'data': users})
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def create_user_account(request):
+    """Create a new user account from Account Management tab."""
+    try:
+        data = json.loads(request.body)
+        username = str(data.get('username', '')).strip()
+        email = str(data.get('email', '')).strip()
+        first_name = str(data.get('first_name', '')).strip()
+        last_name = str(data.get('last_name', '')).strip()
+        password = str(data.get('password', '')).strip()
+        access = str(data.get('access', 'student')).strip().lower()
+        is_active = bool(data.get('is_active', True))
+
+        if not username or not email or not password:
+            return JsonResponse({'success': False, 'message': 'Username, email, and password are required.'}, status=400)
+        if access not in ['admin', 'student']:
+            return JsonResponse({'success': False, 'message': 'Invalid access level.'}, status=400)
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({'success': False, 'message': 'Username already exists.'}, status=400)
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({'success': False, 'message': 'Email already exists.'}, status=400)
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            is_staff=(access == 'admin'),
+            is_superuser=(access == 'admin'),
+            is_active=is_active,
+        )
+
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='profile_updated',
+            notes=f'Created user account: {user.username} ({access})'
+        )
+        return JsonResponse({'success': True, 'message': 'User account created successfully.'})
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON data.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def update_user_account(request):
+    """Update an existing user account from Account Management tab."""
+    try:
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        if not user_id:
+            return JsonResponse({'success': False, 'message': 'user_id is required.'}, status=400)
+
+        user = User.objects.get(id=user_id)
+        email = str(data.get('email', user.email)).strip()
+        first_name = str(data.get('first_name', user.first_name)).strip()
+        last_name = str(data.get('last_name', user.last_name)).strip()
+        access = str(data.get('access', 'admin' if user.is_superuser else 'student')).strip().lower()
+        is_active = bool(data.get('is_active', user.is_active))
+        password = str(data.get('password', '')).strip()
+
+        if access not in ['admin', 'student']:
+            return JsonResponse({'success': False, 'message': 'Invalid access level.'}, status=400)
+        if User.objects.filter(email=email).exclude(id=user.id).exists():
+            return JsonResponse({'success': False, 'message': 'Email already exists.'}, status=400)
+        if user.id == request.user.id and access != 'admin':
+            return JsonResponse({'success': False, 'message': 'You cannot remove your own admin access.'}, status=400)
+
+        user.email = email
+        user.first_name = first_name
+        user.last_name = last_name
+        user.is_staff = access == 'admin'
+        user.is_superuser = access == 'admin'
+        user.is_active = is_active
+        if password:
+            user.set_password(password)
+        user.save()
+
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='profile_updated',
+            notes=f'Updated user account: {user.username} ({access})'
+        )
+        return JsonResponse({'success': True, 'message': 'User account updated successfully.'})
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'User not found.'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON data.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def delete_user_account(request):
+    """Delete a user account from Account Management tab."""
+    try:
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        if not user_id:
+            return JsonResponse({'success': False, 'message': 'user_id is required.'}, status=400)
+
+        user = User.objects.get(id=user_id)
+        if user.id == request.user.id:
+            return JsonResponse({'success': False, 'message': 'You cannot delete your own account.'}, status=400)
+
+        username = user.username
+        user.delete()
+
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='profile_updated',
+            notes=f'Deleted user account: {username}'
+        )
+        return JsonResponse({'success': True, 'message': 'User account deleted successfully.'})
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'User not found.'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON data.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
 @require_http_methods(["POST"])
 def update_cms_settings(request):
     """Update public homepage CMS settings."""
@@ -495,6 +657,7 @@ def update_cms_settings(request):
             'about_stat3_lbl': data.get('about_stat3_lbl', cms.about_stat3_lbl).strip(),
             'about_stat4_val': data.get('about_stat4_val', cms.about_stat4_val).strip(),
             'about_stat4_lbl': data.get('about_stat4_lbl', cms.about_stat4_lbl).strip(),
+            
         }
 
         # Validate and save announcements list [{text, duration}]
@@ -676,6 +839,30 @@ def update_cms_settings(request):
                         'description': description
                     })
             update_data['about_objectives'] = cleaned_objectives
+
+        # Validate and save about faculty list [{name: str, title: str, bio: str, tags: [str]}]
+        raw_about_faculty = data.get('about_faculty', None)
+        if raw_about_faculty is not None:
+            cleaned_faculty = []
+            for fac in raw_about_faculty:
+                name = str(fac.get('name', '')).strip()
+                title = str(fac.get('title', '')).strip()
+                bio = str(fac.get('bio', '')).strip()
+                tags = fac.get('tags', [])
+                if isinstance(tags, str):
+                    tags = [tag.strip() for tag in tags.split(',') if tag.strip()]
+                elif isinstance(tags, list):
+                    tags = [str(tag).strip() for tag in tags if str(tag).strip()]
+                else:
+                    tags = []
+                if name:
+                    cleaned_faculty.append({
+                        'name': name,
+                        'title': title,
+                        'bio': bio,
+                        'tags': tags
+                    })
+            update_data['about_faculty'] = cleaned_faculty
 
         # Use bulk update for better performance
         CMSSettings.objects.filter(pk=1).update(**update_data)
@@ -1551,10 +1738,16 @@ def update_program_cms(request):
         if curriculum is not None:
             cleaned_curriculum = []
             for group in curriculum:
+                if not isinstance(group, dict):
+                    continue
                 group_title = str(group.get('title', '')).strip()
-                courses_raw = group.get('courses', [])
+                courses_raw = group.get('courses', []) or []
+                if not isinstance(courses_raw, list):
+                    courses_raw = []
                 cleaned_courses = []
                 for course in courses_raw:
+                    if not isinstance(course, dict):
+                        continue
                     code = str(course.get('code', '')).strip()
                     name = str(course.get('name', '')).strip()
                     try:
@@ -1567,7 +1760,10 @@ def update_program_cms(request):
                             'name': name,
                             'units': units
                         })
-                if group_title and cleaned_courses:
+                # Keep titled groups even when empty so the About CMS structure
+                # is not dropped on save (previously only groups with courses
+                # were persisted, which could wipe the catalog).
+                if group_title:
                     cleaned_curriculum.append({
                         'title': group_title,
                         'courses': cleaned_courses
