@@ -57,6 +57,8 @@ function switchTopTab(name, btn) {
   if (panel) panel.classList.remove('hidden');
   btn.classList.remove('border-transparent', 'text-gray-500');
   btn.classList.add('border-red-800', 'text-red-800');
+  if (name === 'account') initAccountManagement();
+  if (name === 'others') initOthersManagement();
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -111,6 +113,8 @@ function switchOthersTab(name, btn) {
   const panel = document.getElementById('others-' + name);
   if (panel) panel.classList.remove('hidden');
   btn.classList.add('active');
+  if (name === 'schoolyear') loadSchoolYears();
+  if (name === 'requirements') loadOtherRequirementTypes();
   lucide.createIcons();
 }
 
@@ -825,10 +829,432 @@ async function deleteFaculty(id) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   ACCOUNT MANAGEMENT  (placeholder — extend as needed)
+   ACCOUNT MANAGEMENT
 ══════════════════════════════════════════════════════════════ */
-function initAccountManagement() {
-  // Future: fetch /admin/api/users/ and populate #usersTableBody
+let _accountUsers = [];
+
+async function initAccountManagement() {
+  const search = document.getElementById('accountUsersSearch');
+  const addBtn = document.getElementById('addUserBtn');
+  if (search && !search.dataset.bound) {
+    search.dataset.bound = '1';
+    search.addEventListener('input', () => renderAccountUsersTable(search.value));
+  }
+  if (addBtn && !addBtn.dataset.bound) {
+    addBtn.dataset.bound = '1';
+    addBtn.addEventListener('click', openCreateUserPrompt);
+  }
+  await loadUserAccounts();
+}
+
+async function loadUserAccounts() {
+  try {
+    const res = await fetch('/admin-panel/api/users/');
+    const json = await res.json();
+    _accountUsers = (json && json.success && Array.isArray(json.data)) ? json.data : [];
+    renderAccountUsersTable(document.getElementById('accountUsersSearch')?.value || '');
+  } catch {
+    showCmsToast('Failed to load user accounts.', 'error');
+  }
+}
+
+function renderAccountUsersTable(keyword = '') {
+  const tbody = document.getElementById('usersTableBody');
+  if (!tbody) return;
+  const q = String(keyword || '').toLowerCase().trim();
+  const rows = _accountUsers.filter(user => {
+    if (!q) return true;
+    return [user.username, user.email, user.first_name, user.last_name]
+      .map(v => String(v || '').toLowerCase())
+      .some(v => v.includes(q));
+  });
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-400 py-8 text-sm">No users found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(user => `
+    <tr>
+      <td class="font-semibold">${_esc(user.first_name || user.last_name ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : user.username)}<div class="text-xs text-gray-500 mt-0.5">${_esc(user.email || user.username)}</div></td>
+      <td><span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${user.access === 'admin' ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-600'}">${user.access === 'admin' ? 'Admin' : 'Student'}</span></td>
+      <td class="text-gray-500 text-xs">${_esc(user.last_login || 'Never')}</td>
+      <td class="text-gray-500 text-xs">${_esc(user.date_joined || '')}</td>
+      <td class="flex gap-2">
+        <button class="btn-del text-blue-500" type="button" onclick="openEditUserPrompt(${user.id})"><i data-lucide="pencil"></i></button>
+        <button class="btn-del" type="button" onclick="deleteUserAccount(${user.id})"><i data-lucide="trash-2"></i></button>
+      </td>
+    </tr>
+  `).join('');
+  lucide.createIcons();
+}
+
+async function openCreateUserPrompt() {
+  openAccountUserModal();
+}
+
+async function openEditUserPrompt(userId) {
+  const user = _accountUsers.find(u => Number(u.id) === Number(userId));
+  if (!user) return;
+  openAccountUserModal(user);
+}
+
+async function saveUserAccount(payload, isCreate) {
+  try {
+    const res = await fetch(isCreate ? '/admin-panel/api/users/create/' : '/admin-panel/api/users/update/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message || 'Save failed.');
+    showCmsToast(json.message || 'User account saved.', 'success');
+    await loadUserAccounts();
+  } catch (err) {
+    showCmsToast(err.message || 'Failed to save user account.', 'error');
+  }
+}
+
+async function deleteUserAccount(userId) {
+  if (!confirm('Delete this user account?')) return;
+  try {
+    const res = await fetch('/admin-panel/api/users/delete/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+      body: JSON.stringify({ user_id: userId }),
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message || 'Delete failed.');
+    showCmsToast(json.message || 'User account deleted.', 'success');
+    await loadUserAccounts();
+  } catch (err) {
+    showCmsToast(err.message || 'Failed to delete user.', 'error');
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   OTHERS MANAGEMENT (School Year + Requirement Types)
+══════════════════════════════════════════════════════════════ */
+let _schoolYears = [];
+let _otherRequirementTypes = [];
+
+async function initOthersManagement() {
+  const sySearch = document.getElementById('othersSchoolYearSearch');
+  const syAddBtn = document.getElementById('addSchoolYearBtn');
+  const reqSearch = document.getElementById('othersRequirementsSearch');
+  const reqYear = document.getElementById('othersRequirementYearFilter');
+  const reqAddBtn = document.getElementById('addRequirementTypeBtn');
+
+  if (sySearch && !sySearch.dataset.bound) {
+    sySearch.dataset.bound = '1';
+    sySearch.addEventListener('input', () => renderSchoolYearsTable(sySearch.value));
+  }
+  if (syAddBtn && !syAddBtn.dataset.bound) {
+    syAddBtn.dataset.bound = '1';
+    syAddBtn.addEventListener('click', openCreateSchoolYearPrompt);
+  }
+  if (reqSearch && !reqSearch.dataset.bound) {
+    reqSearch.dataset.bound = '1';
+    reqSearch.addEventListener('input', () => renderOtherRequirementTypes(reqSearch.value));
+  }
+  if (reqYear && !reqYear.dataset.bound) {
+    reqYear.dataset.bound = '1';
+    reqYear.addEventListener('change', () => loadOtherRequirementTypes());
+  }
+  if (reqAddBtn && !reqAddBtn.dataset.bound) {
+    reqAddBtn.dataset.bound = '1';
+    reqAddBtn.addEventListener('click', openCreateRequirementTypePrompt);
+  }
+
+  await loadSchoolYears();
+}
+
+async function loadSchoolYears() {
+  try {
+    const res = await fetch('/admin-panel/admin/school-years/');
+    const json = await res.json();
+    _schoolYears = Array.isArray(json.school_years) ? json.school_years : [];
+    renderSchoolYearsTable(document.getElementById('othersSchoolYearSearch')?.value || '');
+  } catch {
+    showCmsToast('Failed to load school years.', 'error');
+  }
+}
+
+function renderSchoolYearsTable(keyword = '') {
+  const tbody = document.getElementById('schoolYearsTableBody');
+  if (!tbody) return;
+  const q = String(keyword || '').toLowerCase().trim();
+  const rows = _schoolYears.filter(sy => !q || String(sy.name || '').toLowerCase().includes(q));
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-400 py-8 text-sm">No school years found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(sy => `
+    <tr>
+      <td class="font-semibold">${_esc(sy.name)}</td>
+      <td class="text-gray-500 text-xs">${_esc(sy.start_date || '—')}</td>
+      <td class="text-gray-500 text-xs">${_esc(sy.end_date || '—')}</td>
+      <td><span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${sy.is_active ? 'bg-green-50 text-green-700' : sy.is_archived ? 'bg-gray-100 text-gray-500' : 'bg-amber-50 text-amber-700'}">${_esc(sy.status_display || sy.status || 'draft')}</span></td>
+      <td class="flex gap-2">
+        <button class="btn-del text-blue-500" type="button" onclick="openEditSchoolYearPrompt(${sy.id})"><i data-lucide="pencil"></i></button>
+        ${sy.is_active ? '' : `<button class="btn-del text-green-600" type="button" onclick="activateSchoolYear(${sy.id})"><i data-lucide="check-circle"></i></button>`}
+        ${sy.is_archived ? '' : `<button class="btn-del text-amber-600" type="button" onclick="archiveSchoolYear(${sy.id})"><i data-lucide="archive"></i></button>`}
+        ${sy.is_active ? '' : `<button class="btn-del" type="button" onclick="deleteSchoolYear(${sy.id})"><i data-lucide="trash-2"></i></button>`}
+      </td>
+    </tr>
+  `).join('');
+  lucide.createIcons();
+}
+
+async function openCreateSchoolYearPrompt() {
+  openSchoolYearModal();
+}
+
+async function openEditSchoolYearPrompt(id) {
+  const sy = _schoolYears.find(item => Number(item.id) === Number(id));
+  if (!sy) return;
+  openSchoolYearModal(sy);
+}
+
+async function saveSchoolYear(payload, id) {
+  const url = id ? `/admin-panel/admin/school-years/${id}/edit/` : '/admin-panel/admin/school-years/create/';
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || json.message || 'Save failed.');
+    showCmsToast(json.message || 'School year saved.', 'success');
+    await loadSchoolYears();
+  } catch (err) {
+    showCmsToast(err.message || 'Failed to save school year.', 'error');
+  }
+}
+
+async function activateSchoolYear(id) {
+  await _postSchoolYearAction(`/admin-panel/admin/school-years/${id}/activate/`);
+}
+
+async function archiveSchoolYear(id) {
+  if (!confirm('Archive this school year?')) return;
+  await _postSchoolYearAction(`/admin-panel/admin/school-years/${id}/archive/`);
+}
+
+async function deleteSchoolYear(id) {
+  if (!confirm('Delete this school year?')) return;
+  await _postSchoolYearAction(`/admin-panel/admin/school-years/${id}/delete/`);
+}
+
+async function _postSchoolYearAction(url) {
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCSRFToken() },
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || json.message || 'Action failed.');
+    showCmsToast(json.message || 'School year updated.', 'success');
+    await loadSchoolYears();
+  } catch (err) {
+    showCmsToast(err.message || 'School year action failed.', 'error');
+  }
+}
+
+async function loadOtherRequirementTypes() {
+  try {
+    const res = await fetch('/admin-panel/api/requirements/types/');
+    const json = await res.json();
+    _otherRequirementTypes = (json && json.success && Array.isArray(json.data)) ? json.data : [];
+    renderOtherRequirementTypes(document.getElementById('othersRequirementsSearch')?.value || '');
+  } catch {
+    showCmsToast('Failed to load requirement types.', 'error');
+  }
+}
+
+function renderOtherRequirementTypes(keyword = '') {
+  const tbody = document.getElementById('otherRequirementsTableBody');
+  if (!tbody) return;
+  const q = String(keyword || '').toLowerCase().trim();
+  const rows = _otherRequirementTypes.filter(req => {
+    if (!q) return true;
+    return String(req.name || '').toLowerCase().includes(q) ||
+      String(req.description || '').toLowerCase().includes(q);
+  });
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-400 py-8 text-sm">No requirements found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map((req, idx) => `
+    <tr>
+      <td class="font-semibold">${_esc(req.name || '')}</td>
+      <td><span class="badge-mandatory">required</span></td>
+      <td class="text-gray-500">pdf, jpg, jpeg, png</td>
+      <td>10.00</td>
+      <td><span class="badge-active">Active</span></td>
+      <td class="text-gray-500">${idx + 1}</td>
+      <td class="flex gap-2">
+        <button class="btn-del text-blue-500" type="button" onclick="openEditRequirementTypePrompt(${req.id})"><i data-lucide="pencil"></i></button>
+        <button class="btn-del" type="button" onclick="deleteRequirementTypeFromOthers(${req.id})"><i data-lucide="trash-2"></i></button>
+      </td>
+    </tr>
+  `).join('');
+  lucide.createIcons();
+}
+
+async function openCreateRequirementTypePrompt() {
+  openRequirementTypeModal();
+}
+
+async function openEditRequirementTypePrompt(id) {
+  const req = _otherRequirementTypes.find(item => Number(item.id) === Number(id));
+  if (!req) return;
+  openRequirementTypeModal(req);
+}
+
+function openAccountUserModal(user = null) {
+  const modal = document.getElementById('accountUserModal');
+  if (!modal) return;
+  document.getElementById('accountUserModalTitle').textContent = user ? 'Edit User Account' : 'Add User Account';
+  document.getElementById('accountUserId').value = user ? String(user.id) : '';
+  document.getElementById('accountUsername').value = user ? (user.username || '') : '';
+  document.getElementById('accountUsername').disabled = !!user;
+  document.getElementById('accountEmail').value = user ? (user.email || '') : '';
+  document.getElementById('accountFirstName').value = user ? (user.first_name || '') : '';
+  document.getElementById('accountLastName').value = user ? (user.last_name || '') : '';
+  document.getElementById('accountAccess').value = user ? (user.access || 'student') : 'student';
+  document.getElementById('accountStatus').value = user && user.is_active === false ? 'inactive' : 'active';
+  document.getElementById('accountPassword').value = '';
+  modal.style.display = 'flex';
+  lucide.createIcons();
+}
+
+function closeAccountUserModal() {
+  const modal = document.getElementById('accountUserModal');
+  if (modal) modal.style.display = 'none';
+}
+
+async function saveUserAccountFromModal() {
+  const userId = document.getElementById('accountUserId').value.trim();
+  const username = document.getElementById('accountUsername').value.trim();
+  const email = document.getElementById('accountEmail').value.trim();
+  const first_name = document.getElementById('accountFirstName').value.trim();
+  const last_name = document.getElementById('accountLastName').value.trim();
+  const access = document.getElementById('accountAccess').value;
+  const is_active = document.getElementById('accountStatus').value === 'active';
+  const password = document.getElementById('accountPassword').value.trim();
+
+  if (!email) {
+    showCmsToast('Email is required.', 'error');
+    return;
+  }
+  if (!userId && (!username || !password)) {
+    showCmsToast('Username and password are required for new users.', 'error');
+    return;
+  }
+
+  const payload = userId
+    ? { user_id: Number(userId), email, first_name, last_name, access, is_active, password }
+    : { username, email, first_name, last_name, access, is_active, password };
+  await saveUserAccount(payload, !userId);
+  closeAccountUserModal();
+}
+
+function openSchoolYearModal(sy = null) {
+  const modal = document.getElementById('schoolYearModal');
+  if (!modal) return;
+  document.getElementById('schoolYearModalTitle').textContent = sy ? 'Edit School Year' : 'Add School Year';
+  document.getElementById('schoolYearId').value = sy ? String(sy.id) : '';
+  document.getElementById('schoolYearName').value = sy ? (sy.name || '') : '';
+  document.getElementById('schoolYearStartDate').value = sy ? (sy.start_date || '') : '';
+  document.getElementById('schoolYearEndDate').value = sy ? (sy.end_date || '') : '';
+  document.getElementById('schoolYearStatus').value = sy ? (sy.status || 'draft') : 'draft';
+  modal.style.display = 'flex';
+  lucide.createIcons();
+}
+
+function closeSchoolYearModal() {
+  const modal = document.getElementById('schoolYearModal');
+  if (modal) modal.style.display = 'none';
+}
+
+async function saveSchoolYearFromModal() {
+  const id = document.getElementById('schoolYearId').value.trim();
+  const name = document.getElementById('schoolYearName').value.trim();
+  const start_date = document.getElementById('schoolYearStartDate').value;
+  const end_date = document.getElementById('schoolYearEndDate').value;
+  const status = document.getElementById('schoolYearStatus').value;
+  if (!name) {
+    showCmsToast('School year name is required.', 'error');
+    return;
+  }
+  const payload = { name, start_date, end_date, status };
+  if (!id) payload.is_active = status === 'active';
+  await saveSchoolYear(payload, id || null);
+  closeSchoolYearModal();
+}
+
+function openRequirementTypeModal(req = null) {
+  const modal = document.getElementById('requirementTypeModal');
+  if (!modal) return;
+  document.getElementById('requirementTypeModalTitle').textContent = req ? 'Edit Requirement Type' : 'Add Requirement Type';
+  document.getElementById('requirementTypeId').value = req ? String(req.id) : '';
+  document.getElementById('requirementTypeName').value = req ? (req.name || '') : '';
+  document.getElementById('requirementTypeDescription').value = req ? (req.description || '') : '';
+  modal.style.display = 'flex';
+  lucide.createIcons();
+}
+
+function closeRequirementTypeModal() {
+  const modal = document.getElementById('requirementTypeModal');
+  if (modal) modal.style.display = 'none';
+}
+
+async function saveRequirementTypeFromModal() {
+  const id = document.getElementById('requirementTypeId').value.trim();
+  const name = document.getElementById('requirementTypeName').value.trim();
+  const description = document.getElementById('requirementTypeDescription').value.trim();
+  if (!name) {
+    showCmsToast('Requirement name is required.', 'error');
+    return;
+  }
+  if (id) {
+    await deleteRequirementTypeFromOthers(Number(id), false);
+  }
+  await saveRequirementType({ name, description });
+  closeRequirementTypeModal();
+}
+
+async function saveRequirementType(payload) {
+  try {
+    const res = await fetch('/admin-panel/api/requirements/types/create/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message || 'Save failed.');
+    showCmsToast(json.message || 'Requirement type saved.', 'success');
+    await loadOtherRequirementTypes();
+  } catch (err) {
+    showCmsToast(err.message || 'Failed to save requirement type.', 'error');
+  }
+}
+
+async function deleteRequirementTypeFromOthers(requirementTypeId, askConfirm = true) {
+  if (askConfirm && !confirm('Delete this requirement type?')) return;
+  try {
+    const res = await fetch('/admin-panel/api/requirements/types/delete/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+      body: JSON.stringify({ requirement_type_id: requirementTypeId }),
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message || 'Delete failed.');
+    if (askConfirm) showCmsToast(json.message || 'Requirement type deleted.', 'success');
+    await loadOtherRequirementTypes();
+  } catch (err) {
+    showCmsToast(err.message || 'Failed to delete requirement type.', 'error');
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -856,6 +1282,24 @@ function _initModalBackdrops() {
   if (facultyModal) {
     facultyModal.addEventListener('click', e => {
       if (e.target === facultyModal) closeFacultyModal();
+    });
+  }
+  const accountUserModal = document.getElementById('accountUserModal');
+  if (accountUserModal) {
+    accountUserModal.addEventListener('click', e => {
+      if (e.target === accountUserModal) closeAccountUserModal();
+    });
+  }
+  const schoolYearModal = document.getElementById('schoolYearModal');
+  if (schoolYearModal) {
+    schoolYearModal.addEventListener('click', e => {
+      if (e.target === schoolYearModal) closeSchoolYearModal();
+    });
+  }
+  const requirementTypeModal = document.getElementById('requirementTypeModal');
+  if (requirementTypeModal) {
+    requirementTypeModal.addEventListener('click', e => {
+      if (e.target === requirementTypeModal) closeRequirementTypeModal();
     });
   }
 }
@@ -903,6 +1347,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Load program CMS data for the About Page tab ──
   loadProgramCMS();
+  initAccountManagement();
+  initOthersManagement();
 
   // ── The HTML already has active classes set correctly on default tabs ──
   // No JS tab-switching needed on init — CSS classes in the HTML handle it.
