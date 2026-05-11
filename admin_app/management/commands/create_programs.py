@@ -9,7 +9,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         created = []
         name = 'MIT'
-        p, ok = Program.objects.get_or_create(name=name, defaults={'code': 'MIT', 'description': 'Master of Information Technology'})
+        p, ok = Program.objects.get_or_create(name=name, defaults={'program_label': "Master's Degree", 'description': 'Master of Information Technology'})
         if ok:
             created.append(p.name)
             self.stdout.write(self.style.SUCCESS(f'Created program: {p.name}'))

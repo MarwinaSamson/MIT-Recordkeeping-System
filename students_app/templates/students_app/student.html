@@ -1070,12 +1070,12 @@
         <div class="sy-divider"></div>
         <div>
           <div class="sy-label">Program</div>
-          <div style="font-size:0.78rem;font-weight:600;color:var(--ink);font-family:var(--font-mono)">M.I.T.</div>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--ink);font-family:var(--font-mono)">{{ program_display }}</div>
         </div>
         <div class="sy-divider"></div>
         <div>
           <div class="sy-label">Student ID</div>
-          <div style="font-size:0.78rem;font-weight:600;color:var(--ink);font-family:var(--font-mono)">MIT-{{ student.id|stringformat:"06d" }}</div>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--ink);font-family:var(--font-mono)">{{ student_id_display }}</div>
         </div>
         <div class="sy-status">
           <span class="ms">verified</span> Enrolled & Active
@@ -1090,7 +1090,7 @@
           <p>Track your document submissions, monitor review statuses, and keep your academic records current throughout your program.</p>
           <div class="banner-chips">
             <span class="banner-chip gold"><span class="ms" style="font-size:11px">school</span> {{ academic_year_display }}</span>
-            <span class="banner-chip"><span class="ms" style="font-size:11px">badge</span> MIT-{{ student.id|stringformat:"06d" }}</span>
+            <span class="banner-chip"><span class="ms" style="font-size:11px">badge</span> {{ student_id_display }}</span>
             <span class="banner-chip"><span class="ms" style="font-size:11px;color:#4ade80">circle</span> Active</span>
           </div>
         </div>

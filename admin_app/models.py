@@ -797,7 +797,7 @@ class Prospectus(models.Model):
 class Program(models.Model):
     """Simple Program model to reference prospectuses."""
     name = models.CharField(max_length=255, unique=True)
-    code = models.CharField(max_length=64, blank=True)
+    program_label = models.CharField(max_length=64, blank=True)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

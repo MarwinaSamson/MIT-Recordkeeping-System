@@ -52,10 +52,14 @@ def _enrich_requirements(raw_list: list) -> list:
 def documents(request):
     cms = _get_cms()
 
+    from admin_app.models import Prospectus
+
     # Pull the CMS-driven requirements list and enrich with field_key.
     admission_requirements = []
     if cms and cms.admission_requirements:
         admission_requirements = _enrich_requirements(cms.admission_requirements)
+
+    prospectuses = Prospectus.objects.filter(is_active=True).order_by('name')
 
     if request.method == "POST":
         validation_errors = []
@@ -92,6 +96,7 @@ def documents(request):
                 messages.error(request, error)
             return render(request, "students_app/documents.html", {
                 "admission_requirements": admission_requirements,
+                "prospectuses": prospectuses,
             })
 
         # ── Pass 2: all required fields present — delete old docs & save ──
@@ -133,4 +138,5 @@ def documents(request):
     # ── GET ───────────────────────────────────────────────────────────────
     return render(request, "students_app/documents.html", {
         "admission_requirements": admission_requirements,
+        "prospectuses": prospectuses,
     })

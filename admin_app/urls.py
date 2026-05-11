@@ -44,6 +44,8 @@ from .views.api_views import (
      get_admission_semesters,
      get_admission_school_years,
      get_admission_curricula,
+     get_active_school_year_with_semester,
+     get_student_curriculum,
 )
 
 from .views.document_verification import (
@@ -119,6 +121,8 @@ urlpatterns = [
      path('api/admission/semesters/', get_admission_semesters, name='api_admission_semesters'),
      path('api/admission/school-years/', get_admission_school_years, name='api_admission_school_years'),
      path('api/admission/curricula/', get_admission_curricula, name='api_admission_curricula'),
+     path('api/admission/active-school-year/', get_active_school_year_with_semester, name='api_admission_active_school_year'),
+     path('api/admission/student-curriculum/<int:user_id>/', get_student_curriculum, name='api_admission_student_curriculum'),
 
 
     path('settings/', cms_settings, name='cms_settings'),

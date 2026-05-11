@@ -52,23 +52,43 @@ def student(request):
     privacy   = PrivacyConsent.objects.filter(
                     user=request.user).order_by("-updated_at").first()
 
-    from admin_app.models import Application, DocumentVerification, SchoolYear, CMSSettings
+    from admin_app.models import Application, DocumentVerification, SchoolYear, Semester, CMSSettings, Program
 
     application        = Application.objects.filter(user=request.user).first()
     active_school_year = SchoolYear.objects.filter(is_active=True).first()
+    active_semester    = None
+    if active_school_year:
+        active_semester = Semester.objects.filter(
+            school_year=active_school_year,
+            is_active=True,
+        ).first()
+    if not active_semester:
+        active_semester = Semester.objects.filter(is_active=True).select_related('school_year').first()
     cms_settings       = CMSSettings.objects.get_or_create(pk=1)[0]
     calendar_events        = cms_settings.calendar_events or []
     admission_requirements = cms_settings.admission_requirements or []
 
-    current_month = datetime.now().month
-    semester = '1st Semester' if 6 <= current_month <= 11 else '2nd Semester'
+    semester = active_semester.name if active_semester else '—'
 
-    sy_display = "2025 – 2026"
-    ay_display = "A.Y. 2025–2026"
+    program_display = Program.objects.order_by('name').values_list('name', flat=True).first() or '—'
+    if application and application.program:
+        program_key = application.program.strip()
+        program_row = (
+            Program.objects.filter(name__iexact=program_key).first()
+            or Program.objects.filter(program_label__iexact=program_key).first()
+            or Program.objects.filter(name__icontains=program_key).first()
+            or Program.objects.filter(program_label__icontains=program_key).first()
+        )
+        if program_row:
+            program_display = program_row.name
+
+    student_id_display = application.application_id if application and application.application_id else '—'
+
+    sy_display = active_school_year.name if active_school_year else '—'
+    ay_display = active_school_year.name if active_school_year else '—'
     if active_school_year:
-        years = active_school_year.name.split('-')
-        sy_display = f"{years[0]} – {years[1]}" if len(years) == 2 else active_school_year.name
-        ay_display = f"A.Y. {years[0]}–{years[1]}" if len(years) == 2 else f"A.Y. {active_school_year.name}"
+        sy_display = active_school_year.name
+        ay_display = active_school_year.name
 
     # ----------------------------------------------------------------
     # Build document lookup: slug_key -> Document
@@ -202,6 +222,8 @@ def student(request):
         "school_year_display":         sy_display,
         "academic_year_display":       ay_display,
         "current_semester":            semester,
+        "program_display":            program_display,
+        "student_id_display":         student_id_display,
         "calendar_events":             calendar_events,
         "calendar_events_json":        json.dumps(calendar_events),
         "admission_requirements":      admission_requirements,

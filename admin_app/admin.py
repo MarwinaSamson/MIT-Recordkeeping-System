@@ -112,6 +112,6 @@ class ProspectusAssignmentAdmin(admin.ModelAdmin):
 
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'created_at')
-    search_fields = ('name', 'code')
+    list_display = ('name', 'program_label', 'created_at')
+    search_fields = ('name', 'program_label')
 

@@ -54,6 +54,14 @@ def _build_application_list():
         }
         submitted_docs = Document.objects.filter(user=app.user)
 
+        student_curriculum = ''
+        college_bg = education_levels.get('college')
+        graduate_bg = education_levels.get('graduate')
+        if college_bg and college_bg.mit_curriculum:
+            student_curriculum = college_bg.mit_curriculum
+        elif graduate_bg and graduate_bg.mit_curriculum:
+            student_curriculum = graduate_bg.mit_curriculum
+
         # Key submitted docs by document_type (which equals the requirement title)
         submitted_by_title = {doc.document_type: doc for doc in submitted_docs}
 
@@ -143,12 +151,29 @@ def _build_application_list():
                     'issues':      [],
                 })
 
+        # Try to resolve a longer program description from the Program table
+        program_description = ''
+        try:
+            from ..models import Program as _Program
+            prog = _Program.objects.filter(name__iexact=app.program).first()
+            if not prog:
+                prog = _Program.objects.filter(program_label__iexact=app.program).first()
+            if not prog:
+                prog = _Program.objects.filter(program_label__icontains=app.program).first()
+            if not prog:
+                prog = _Program.objects.filter(name__icontains=app.program).first()
+            program_description = prog.description if prog else ''
+        except Exception:
+            program_description = ''
+
         apps.append({
             'id':              app.application_id,
+            'user_id':         app.user.id,
             'name':            app.get_full_name(),
             'email':           app.user.email,
             'mobile':          app.get_contact_number(),
-            'course':          app.program,
+            'course':          program_description or app.program,
+            'program_description': program_description,
             'status':          app.status,
             'submission_date': app.submission_date.strftime('%Y-%m-%d'),
             'submissionDate':  app.submission_date.strftime('%Y-%m-%d'),
@@ -157,6 +182,8 @@ def _build_application_list():
             'documents':       submitted_docs.count(),
             'docs':            docs_list,
             'remarks':         app.remarks,
+            'student_curriculum': student_curriculum,
+            'curriculum':      app.curriculum or student_curriculum,
             'personal': {
                 'first_name': personal.first_name if personal else '',
                 'middle_name': personal.middle_name if personal else '',

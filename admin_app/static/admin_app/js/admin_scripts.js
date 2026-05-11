@@ -202,7 +202,7 @@ function openProspectusModal(){
     sel.innerHTML = '<option value="">Select program</option>';
     if(res && res.success && Array.isArray(res.data)){
       res.data.forEach(p=>{
-        const opt = document.createElement('option'); opt.value = p.name; opt.textContent = p.name; sel.appendChild(opt);
+        const opt = document.createElement('option'); opt.value = p.name; opt.textContent = p.program_label || p.name; sel.appendChild(opt);
       });
     }
   }).catch(err=>{ console.warn('Failed to load programs',err); });
@@ -220,47 +220,171 @@ document.getElementById('prospectusModal')?.addEventListener('click', function(e
 // Initialize on page load
 // Populate Admission Details (School Year, Semester, Curriculum)
 function populateAdmissionDetails(){
-  // Semesters
-  fetch('/admin-panel/api/admission/semesters/', { method: 'GET', credentials: 'same-origin', headers: {'Accept':'application/json'} })
-    .then(r=>r.json())
-    .then(res=>{
-      const semEl = document.getElementById('admSemester');
-      if(!semEl) return;
-      semEl.innerHTML = '';
-      if(res && res.success && Array.isArray(res.semesters) && res.semesters.length){
-        res.semesters.forEach(s=>{ const opt=document.createElement('option'); opt.value=s; opt.textContent=s; semEl.appendChild(opt); });
-      } else {
-        ['1st Semester','2nd Semester','Summer'].forEach(s=>{ const opt=document.createElement('option'); opt.value=s; opt.textContent=s; semEl.appendChild(opt); });
-      }
-      // set previously selected value if present
-      try{ if(window.selectedApp && window.selectedApp.semester){ semEl.value = window.selectedApp.semester || ''; } }catch(e){}
-    }).catch(err=>{ console.warn('Failed to load semesters', err); });
-
-  // School years
-  fetch('/admin-panel/api/admission/school-years/', { method: 'GET', credentials: 'same-origin', headers: {'Accept':'application/json'} })
-    .then(r=>r.json())
-    .then(res=>{
-      const yearEl = document.getElementById('admYear');
-      if(!yearEl) return;
-      yearEl.innerHTML = '';
-      if(res && res.success && Array.isArray(res.school_years) && res.school_years.length){
-        res.school_years.forEach(y=>{ const opt=document.createElement('option'); opt.value=y.name; opt.textContent=y.name + (y.is_active ? ' (active)' : ''); yearEl.appendChild(opt); });
-      }
-      try{ if(window.selectedApp && window.selectedApp.year_admitted){ yearEl.value = window.selectedApp.year_admitted || ''; } }catch(e){}
-    }).catch(err=>{ console.warn('Failed to load school years', err); });
-
-  // Curricula (prospectuses)
-  fetch('/admin-panel/api/admission/curricula/', { method: 'GET', credentials: 'same-origin', headers: {'Accept':'application/json'} })
-    .then(r=>r.json())
-    .then(res=>{
-      const currEl = document.getElementById('admCurriculum');
-      if(!currEl) return;
-      currEl.innerHTML = '';
-      if(res && res.success && Array.isArray(res.curricula) && res.curricula.length){
-        res.curricula.forEach(c=>{ const opt=document.createElement('option'); opt.value=c.name; opt.textContent=c.name + (c.program_name ? ' — '+c.program_name : ''); currEl.appendChild(opt); });
-      }
-      try{ if(window.selectedApp && window.selectedApp.curriculum){ currEl.value = window.selectedApp.curriculum || ''; } }catch(e){}
-    }).catch(err=>{ console.warn('Failed to load curricula', err); });
+  const semEl = document.getElementById('admSemester');
+  const yearEl = document.getElementById('admYear');
+  const levelEl = document.getElementById('admProgramLevel');
+  const currEl = document.getElementById('admCurriculum');
+  let activeSchoolYearName = '';
+  let activeSemesterName = '';
+  
+  // Determine which values to try to set (from selectedApp or empty)
+  const targetCurriculum = window.selectedApp?.student_curriculum || window.selectedApp?.curriculum || '';
+  const targetSemester = window.selectedApp?.semester || '';
+  const targetYear = window.selectedApp?.year_admitted || '';
+  const targetProgramLevel = window.selectedApp?.program_level || '';
+  const userId = window.selectedApp?.user_id || null;
+  
+  // Load all options in parallel
+  Promise.all([
+    // Load semesters
+    fetch('/admin-panel/api/admission/semesters/', { 
+      method: 'GET', 
+      credentials: 'same-origin', 
+      headers: {'Accept':'application/json'} 
+    })
+      .then(r=>r.json())
+      .then(res=>{
+        if(!semEl) return;
+        semEl.innerHTML = '<option value="">— Select —</option>';
+        if(res && res.success && Array.isArray(res.semesters) && res.semesters.length){
+          res.semesters.forEach(s=>{ 
+            const opt=document.createElement('option'); 
+            opt.value=s.name || ''; 
+            opt.textContent=s.name || ''; 
+            semEl.appendChild(opt); 
+          });
+        } else {
+          ['1st Semester','2nd Semester','Summer'].forEach(s=>{ 
+            const opt=document.createElement('option'); 
+            opt.value=s; 
+            opt.textContent=s; 
+            semEl.appendChild(opt); 
+          });
+        }
+        return 'semesters';
+      })
+      .catch(err=>{ console.warn('Failed to load semesters', err); }),
+      
+    // Load school years and get active one (with active semester)
+    fetch('/admin-panel/api/admission/active-school-year/', { 
+      method: 'GET', 
+      credentials: 'same-origin', 
+      headers: {'Accept':'application/json'} 
+    })
+      .then(r=>r.json())
+      .then(res=>{
+        if(res && res.success && res.data){
+          activeSchoolYearName = res.data.school_year?.name || '';
+          activeSemesterName = res.data.active_semester?.name || '';
+        }
+        return 'active_schoolyear';
+      })
+      .catch(err=>{ console.warn('Failed to load active school year', err); }),
+      
+    // Load all school years
+    fetch('/admin-panel/api/admission/school-years/', { 
+      method: 'GET', 
+      credentials: 'same-origin', 
+      headers: {'Accept':'application/json'} 
+    })
+      .then(r=>r.json())
+      .then(res=>{
+        if(!yearEl) return;
+        yearEl.innerHTML = '<option value="">— Select —</option>';
+        if(res && res.success && Array.isArray(res.school_years) && res.school_years.length){
+          res.school_years.forEach(y=>{ 
+            const opt=document.createElement('option'); 
+            opt.value=y.name; 
+            opt.textContent=y.name; 
+            yearEl.appendChild(opt); 
+          });
+        }
+        return 'schoolyears';
+      })
+      .catch(err=>{ console.warn('Failed to load school years', err); }),
+      
+    // Load program levels from Program table
+    fetch('/admin-panel/api/programs/', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: {'Accept':'application/json'}
+    })
+      .then(r=>r.json())
+      .then(res=>{
+        if(!levelEl) return;
+        levelEl.innerHTML = '<option value="">— Select Level —</option>';
+        if(res && res.success && Array.isArray(res.data) && res.data.length){
+          res.data.forEach(program=>{
+            const opt=document.createElement('option');
+            opt.value=program.name;
+            opt.textContent=program.program_label || program.name;
+            levelEl.appendChild(opt);
+          });
+        }
+      })
+      .catch(err=>{ console.warn('Failed to load programs', err); }),
+      
+    // Load curricula
+    fetch('/admin-panel/api/admission/curricula/', { 
+      method: 'GET', 
+      credentials: 'same-origin', 
+      headers: {'Accept':'application/json'} 
+    })
+      .then(r=>r.json())
+      .then(res=>{
+        if(!currEl) return;
+        currEl.innerHTML = '<option value="">— Select Curriculum —</option>';
+        if(res && res.success && Array.isArray(res.curricula) && res.curricula.length){
+          res.curricula.forEach(c=>{ 
+            const opt=document.createElement('option'); 
+            opt.value=c.name; 
+            opt.textContent=c.name + (c.program_name ? ' — '+c.program_name : ''); 
+            currEl.appendChild(opt); 
+          });
+        }
+        return 'curricula';
+      })
+      .catch(err=>{ console.warn('Failed to load curricula', err); })
+  ]).then(() => {
+    // After all options are loaded, set the values
+    
+    // Set semester from app data if present, otherwise use the active semester from DB
+    if(semEl){
+      semEl.value = targetSemester || activeSemesterName || '';
+    }
+    
+    // Set school year from app data if present, otherwise use the active school year from DB
+    if(yearEl){
+      yearEl.value = targetYear || activeSchoolYearName || '';
+    }
+    
+    // Set curriculum - fetch from student's EducationalBackground (graduate level)
+    if(currEl && userId){
+      fetch(`/admin-panel/api/admission/student-curriculum/${userId}/`, { 
+        method: 'GET', 
+        credentials: 'same-origin', 
+        headers: {'Accept':'application/json'} 
+      })
+        .then(r=>r.json())
+        .then(res=>{
+          // Use student's curriculum if found and no app override
+          if(res.success && res.curriculum && !targetCurriculum){
+            currEl.value = res.curriculum;
+          } else if(targetCurriculum){
+            // Use app stored curriculum as fallback
+            currEl.value = targetCurriculum;
+          }
+        })
+        .catch(err=>{ 
+          // Fallback to application's stored curriculum
+          if(targetCurriculum && currEl){
+            currEl.value = targetCurriculum;
+          }
+        });
+    } else if(currEl && targetCurriculum){
+      currEl.value = targetCurriculum;
+    }
+  }).catch(err=>{ console.warn('Error in populateAdmissionDetails', err); });
 }
 
 if(document.readyState === 'loading') {
@@ -611,10 +735,12 @@ function openModal(id){
   // Populate admission details
   const semEl = document.getElementById("admSemester");
   const yearEl = document.getElementById("admYear");
+  const levelEl = document.getElementById('admProgramLevel');
   const currEl = document.getElementById("admCurriculum");
   if(semEl) semEl.value   = selectedApp.semester   || "";
   if(yearEl) yearEl.value = selectedApp.year_admitted || "";
-  if(currEl) currEl.value = selectedApp.curriculum  || "";
+  if(levelEl) levelEl.value = selectedApp.program_level || "";
+  if(currEl) currEl.value = selectedApp.student_curriculum || selectedApp.curriculum  || "";
   renderDocCards();
   const modal = document.getElementById("modal");
   if(modal) {
@@ -766,6 +892,10 @@ function _renderDocPreviewModal(){
       </button>`;
   } else {
     actionsEl.innerHTML=`
+
+        if(levelEl && targetProgramLevel){
+          levelEl.value = targetProgramLevel;
+        }
       <button onclick="unsetDoc(${docPreviewCurrentIdx}); _renderDocPreviewModal();" class="flex items-center gap-1.5 border border-gray-300 text-gray-600 text-xs font-semibold px-4 py-2 rounded-xl hover:bg-gray-50 transition">
         <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> ${isV ? 'Undo Verify' : 'Undo Reject'}
       </button>`;
@@ -1134,6 +1264,73 @@ function markIncomplete(){
 function requestResubmission(){
   activityLog.unshift({time:new Date().toLocaleString(),admin:"Marwina Admin",appId:selectedApp?.id||"",doc:"Application",action:"Resubmission",notes:"Resubmission request sent."});
   showToast("Resubmission request sent to student","warn");
+}
+
+function acceptEnrollApplication(){
+  if(!selectedApp) return showToast('No application selected','error');
+  if(!confirm('Accept application '+selectedApp.id+' and mark as Enrolled?')) return;
+  const remarks    = document.getElementById("remarks")?.value || '';
+  const semester   = document.getElementById("admSemester")?.value  || "";
+  const yearAdmitted = document.getElementById("admYear")?.value    || "";
+  const programLevel = document.getElementById("admProgramLevel")?.value || "";
+
+  fetch('/admin-panel/api/application/status/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify({
+      application_id: selectedApp.id,
+      status: 'enrolled',
+      remarks,
+      semester,
+      year_admitted: yearAdmitted,
+      program_level: programLevel
+    })
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.success){
+      selectedApp.remarks = remarks;
+      selectedApp.status = 'Enrolled';
+      selectedApp.semester = semester;
+      selectedApp.year_admitted = yearAdmitted;
+      selectedApp.program_level = programLevel;
+      showToast(selectedApp.id+" accepted — status set to Enrolled ✓");
+      closeModal();
+      initializeData(); renderTable(); renderDashboard();
+    } else {
+      showToast('Error: '+data.message,'error');
+    }
+  })
+  .catch(e=>{showToast('Error: '+e.message,'error');});
+}
+
+function rejectEnrollApplication(){
+  if(!selectedApp) return showToast('No application selected','error');
+  if(!confirm('Reject application '+selectedApp.id+'?')) return;
+  const remarks=document.getElementById("remarks")?.value || '';
+
+  fetch('/admin-panel/api/application/status/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify({
+      application_id: selectedApp.id,
+      status: 'rejected',
+      remarks: remarks
+    })
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.success){
+      selectedApp.remarks=remarks;
+      selectedApp.status="Rejected";
+      showToast(selectedApp.id+" rejected","warn");
+      closeModal();
+      initializeData(); renderTable(); renderDashboard();
+    } else {
+      showToast('Error: '+data.message,'error');
+    }
+  })
+  .catch(e=>{showToast('Error: '+e.message,'error');});
 }
 function deleteApp(id){
   if(!confirm("Delete application "+id+"?")) return;
@@ -2737,7 +2934,7 @@ function openAppDetailsModal() {
   // Populate modal with application data
   document.getElementById('appModalID').textContent = selectedApp.id || '—';
   document.getElementById('appModalSummaryID').textContent = selectedApp.id || '—';
-  document.getElementById('appModalSummaryCourse').textContent = selectedApp.course || '—';
+  document.getElementById('appModalSummaryCourse').textContent = selectedApp.program_description || selectedApp.course || '—';
   document.getElementById('appModalSummaryDate').textContent = selectedApp.submission_date || '—';
   document.getElementById('appModalSummaryActivity').textContent = selectedApp.last_activity || '—';
   document.getElementById('appModalSummaryStatus').innerHTML = statusBadge(selectedApp.status || '');
@@ -2888,6 +3085,9 @@ function openAppDetailsModal() {
       batchYearInput.value = selectedApp.curriculum_data.batch_year;
     }
   }
+  
+  // Populate admission details fields (load dropdown options and set values)
+  populateAdmissionDetails();
   
   modal.style.display = 'flex';
   modal.classList.add('fade-in');
