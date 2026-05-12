@@ -3132,18 +3132,24 @@ function verifyCORForApp(id) {
   selectedApp = applications.find(a => a.id === id);
   if (!selectedApp) return;
   _switchAndOpen('cor', () => {
-    // TODO: wire COR modal data fetch; for now only open the modal container
-    // so UI flow is smooth.
-    const m = document.getElementById('corModal');
-    if (m) {
-      m.classList.add('open');
-      m.style.display = 'flex';
-      // lightweight placeholder values
-      document.getElementById('corModalStudentName')?.replaceChildren(document.createTextNode(selectedApp.name || '—'));
-      lucide.createIcons();
-    } else {
-      showToast('COR modal not found', 'error');
-    }
+    // Load COR table and find the matching submission for this student
+    fetch('/admin-panel/api/cor-submissions/')
+      .then(r => r.json())
+      .then(data => {
+        if (!data.success) { showToast('Error loading COR submissions', 'error'); return; }
+        corData = data.submissions || [];
+        _renderCORRows();
+        
+        // Find and open the COR submission for this student
+        const submission = corData.find(c => c.student_id === selectedApp.id);
+        if (submission) {
+          requestAnimationFrame(() => setTimeout(() => openCORModal(submission.id), 80));
+        } else {
+          showToast(`No COR submission found for ${selectedApp.name}`, 'warn');
+        }
+        lucide.createIcons();
+      })
+      .catch(e => showToast('Error: ' + e.message, 'error'));
   });
 }
 function verifyGradesForApp(id) {
@@ -3299,15 +3305,13 @@ function _renderGradesRows() {
 
   const search       = (document.getElementById('gradesSearchInput')?.value || '').toLowerCase();
   const statusFilter = document.getElementById('gradesStatusFilter')?.value || 'all';
-  const courseFilter = document.getElementById('gradesCourseFilter')?.value || 'all';
 
   const filtered = gradesData.filter(g => {
     const matchSearch = !search ||
       (g.student_name || '').toLowerCase().includes(search) ||
       (g.student_id   || '').toLowerCase().includes(search);
     const matchStatus = statusFilter === 'all' || g.status === statusFilter;
-    const matchCourse = courseFilter === 'all' || (g.program || '').includes(courseFilter);
-    return matchSearch && matchStatus && matchCourse;
+    return matchSearch && matchStatus;
   });
 
   tbody.innerHTML = '';
@@ -3332,7 +3336,6 @@ function _renderGradesRows() {
           <p class="font-semibold text-gray-800 text-sm">${escapeHtml(g.student_name || '—')}</p>
           <p class="text-xs text-gray-400 font-mono">${escapeHtml(g.student_id || '—')}</p>
         </td>
-        <td class="px-4 py-4 text-sm text-gray-700">${escapeHtml(g.program || '—')}</td>
         <td class="px-4 py-4 text-sm">
           <span class="font-medium text-gray-700">${escapeHtml(g.semester || '—')}</span>
           <span class="text-gray-400 text-xs block font-mono">${escapeHtml(g.school_year || '')}</span>
@@ -3371,7 +3374,6 @@ function openGradesModal(id) {
   document.getElementById('gradesModalStudentName').textContent = selectedGrade.student_name || '—';
   document.getElementById('gradesMName').textContent      = selectedGrade.student_name  || '—';
   document.getElementById('gradesMStudentID').textContent = selectedGrade.student_id    || '—';
-  document.getElementById('gradesMProgram').textContent   = selectedGrade.program       || '—';
   document.getElementById('gradesMMSemester').textContent = selectedGrade.semester      || '—';
   document.getElementById('gradesMYear').textContent      = selectedGrade.school_year   || '—';
 
@@ -3385,10 +3387,13 @@ function openGradesModal(id) {
   // Grade entries table
   const tbody = document.getElementById('gradesMTableBody');
   if (tbody) {
-    if (!selectedGrade.grades?.length) {
+    const entriesRaw = Array.isArray(selectedGrade.grades) ? selectedGrade.grades : [];
+    const entries = entriesRaw.filter(e => String(e.semester_label || '').trim() === String(selectedGrade.semester || '').trim());
+    const showEntries = entries.length ? entries : entriesRaw;
+    if (!showEntries.length) {
       tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-gray-400 text-sm">No grade entries available.</td></tr>`;
     } else {
-      tbody.innerHTML = selectedGrade.grades.map(entry => {
+      tbody.innerHTML = showEntries.map(entry => {
         const g   = entry.grade !== null ? parseFloat(entry.grade) : null;
         const cls = g !== null ? (g <= 2.0 ? 'text-green-600 font-bold' : 'text-red-500 font-bold') : 'text-gray-400';
         return `<tr>
@@ -3480,9 +3485,9 @@ function _updateGradeStatus(status, remarks) {
 }
 
 function exportGradesCSV() {
-  const rows = [['Student Name', 'Student ID', 'Program', 'Semester', 'School Year', 'Subjects', 'GPA', 'Status']];
+  const rows = [['Student Name', 'Student ID', 'Semester', 'School Year', 'Subjects', 'GPA', 'Status']];
   gradesData.forEach(g => rows.push([
-    g.student_name, g.student_id, g.program,
+    g.student_name, g.student_id,
     g.semester, g.school_year, g.subject_count,
     g.gpa !== null ? parseFloat(g.gpa).toFixed(2) : '—',
     g.status,
@@ -3495,12 +3500,208 @@ function exportGradesCSV() {
   showToast('Grades CSV exported');
 }
 
+function exportCORCSV() {
+  const rows = [['Student Name', 'Student ID', 'Semester', 'School Year', 'Status', 'Uploaded']];
+  corData.forEach(c => rows.push([
+    c.student_name, c.student_id,
+    c.semester, c.school_year, c.status,
+    new Date(c.uploaded_at).toLocaleDateString(),
+  ]));
+  const csv = rows.map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  const a   = document.createElement('a');
+  a.href    = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'cor_submissions.csv';
+  a.click();
+  showToast('COR CSV exported');
+}
+
 // Live filters
 document.getElementById('gradesSearchInput')?.addEventListener('input',  _renderGradesRows);
 document.getElementById('gradesStatusFilter')?.addEventListener('change', _renderGradesRows);
-document.getElementById('gradesCourseFilter')?.addEventListener('change', _renderGradesRows);
 
 // Close on backdrop click
 document.getElementById('gradesModal')?.addEventListener('click', function(e) {
   if (e.target === this) closeGradesModal();
 });
+
+// ============================================================================
+// COR SUBMISSION FUNCTIONS
+// ============================================================================
+
+let corData = [];
+let selectedCOR = null;
+
+function renderCORTable() {
+  const search = document.getElementById('corSearchInput')?.value.toLowerCase() || '';
+  const statusFilter = document.getElementById('corStatusFilter')?.value || 'all';
+  const semesterFilter = document.getElementById('corSemesterFilter')?.value || 'all';
+
+  fetch('/admin-panel/api/cor-submissions/')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) { showToast('Error loading COR submissions', 'error'); return; }
+      corData = data.submissions || [];
+      _renderCORRows();
+      lucide.createIcons();
+    })
+    .catch(e => showToast('Error: ' + e.message, 'error'));
+}
+
+function _renderCORRows() {
+  const search = document.getElementById('corSearchInput')?.value.toLowerCase() || '';
+  const statusFilter = document.getElementById('corStatusFilter')?.value || 'all';
+  const semesterFilter = document.getElementById('corSemesterFilter')?.value || 'all';
+
+  const filtered = corData.filter(cor => {
+    const matchSearch = !search || 
+      cor.student_name.toLowerCase().includes(search) || 
+      cor.student_id.toString().includes(search);
+    const matchStatus = statusFilter === 'all' || cor.status === statusFilter;
+    const matchSemester = semesterFilter === 'all' || cor.semester === semesterFilter;
+    return matchSearch && matchStatus && matchSemester;
+  });
+
+  const tbody = document.getElementById('corTableBody');
+  if (!tbody) return;
+  
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    const emptyState = document.getElementById('corEmptyState');
+    if (emptyState) emptyState.classList.remove('hidden');
+    return;
+  }
+
+  const emptyState = document.getElementById('corEmptyState');
+  if (emptyState) emptyState.classList.add('hidden');
+
+  tbody.innerHTML = filtered.map(cor => `
+    <tr class="hover:bg-gray-50 transition">
+      <td class="px-5 py-4 font-medium text-gray-900">
+        <div>
+          <div class="font-semibold">${escapeHtml(cor.student_name)}</div>
+          <div class="text-xs text-gray-500">ID: ${escapeHtml(cor.student_id)}</div>
+        </div>
+      </td>
+      <td class="px-4 py-4 text-gray-700">${escapeHtml(cor.semester)} / ${escapeHtml(cor.school_year)}</td>
+      <td class="px-4 py-4 text-gray-600 text-sm">${new Date(cor.uploaded_at).toLocaleDateString()}</td>
+      <td class="px-4 py-4">
+        ${cor.file_url ? `<a href="${cor.file_url}" target="_blank" class="text-blue-600 hover:underline flex items-center gap-1">
+          <i data-lucide="file-pdf" class="w-4 h-4"></i> View
+        </a>` : '<span class="text-gray-400">No file</span>'}
+      </td>
+      <td class="px-4 py-4">${_corStatusBadge(cor.status)}</td>
+      <td class="px-4 py-4">
+        <button
+          onclick="openCORModal(${cor.id})"
+          class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100 transition"
+        >
+          Review
+        </button>
+      </td>
+    </tr>
+  `).join('');
+
+  lucide.createIcons();
+}
+
+function _corStatusBadge(status) {
+  const badges = {
+    'Pending': '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">Pending</span>',
+    'Verified': '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">Verified</span>',
+    'Rejected': '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">Rejected</span>'
+  };
+  return badges[status] || badges['Pending'];
+}
+
+function openCORModal(corId) {
+  selectedCOR = corData.find(c => c.id === corId);
+  if (!selectedCOR) { showToast('COR submission not found', 'error'); return; }
+
+  // Populate modal fields
+  document.getElementById('corModalStudentName').textContent = selectedCOR.student_name;
+  document.getElementById('corMName').textContent = selectedCOR.student_name;
+  document.getElementById('corMStudentID').textContent = selectedCOR.student_id;
+  document.getElementById('corMSemester').textContent = selectedCOR.semester;
+  document.getElementById('corMYear').textContent = selectedCOR.school_year;
+  document.getElementById('corMUploaded').textContent = new Date(selectedCOR.uploaded_at).toLocaleDateString();
+
+  // Populate remarks
+  document.getElementById('corRemarks').value = selectedCOR.admin_remarks || '';
+
+  // Populate status badge
+  document.getElementById('corCurrentStatusBadge').innerHTML = _corStatusBadge(selectedCOR.status).replace(/^<span/, '<span');
+
+  // Handle file preview
+  const filePreview = document.getElementById('corFilePreview');
+  if (selectedCOR.file_url) {
+    filePreview.innerHTML = `
+      <a href="${selectedCOR.file_url}" target="_blank" class="flex flex-col items-center gap-3 text-center">
+        <i data-lucide="file-pdf" class="w-16 h-16 text-blue-500"></i>
+        <div>
+          <p class="text-sm font-semibold text-blue-600">Click to view COR file</p>
+          <p class="text-xs text-gray-500">Uploaded: ${new Date(selectedCOR.uploaded_at).toLocaleDateString()}</p>
+        </div>
+      </a>
+    `;
+  } else {
+    filePreview.innerHTML = `
+      <i data-lucide="file-text" class="w-12 h-12 text-gray-300 mb-3"></i>
+      <p class="text-sm text-gray-400">No COR file available to preview.</p>
+    `;
+  }
+
+  // Show modal
+  const modal = document.getElementById('corModal');
+  if (modal) {
+    modal.classList.add('open');
+    modal.style.display = 'flex';
+    lucide.createIcons();
+  }
+}
+
+function closeCORModal() {
+  const modal = document.getElementById('corModal');
+  if (modal) {
+    modal.classList.remove('open');
+    modal.style.display = 'none';
+  }
+  selectedCOR = null;
+}
+
+function updateCORStatus(status) {
+  if (!selectedCOR) { showToast('No COR selected', 'error'); return; }
+
+  const remarks = document.getElementById('corRemarks').value;
+  
+  fetch(`/admin-panel/api/cor-submissions/${selectedCOR.id}/update/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+    body: JSON.stringify({ status, admin_remarks: remarks })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.success) { showToast(data.message || 'Error updating COR status', 'error'); return; }
+    showToast(`COR marked as ${status}`, 'success');
+    closeCORModal();
+    renderCORTable();
+  })
+  .catch(e => showToast('Error: ' + e.message, 'error'));
+}
+
+function verifyCOR() {
+  updateCORStatus('Verified');
+}
+
+function rejectCOR() {
+  updateCORStatus('Rejected');
+}
+
+// COR modal event listeners
+document.getElementById('corModal')?.addEventListener('click', function(e) {
+  if (e.target === this) closeCORModal();
+});
+
+// COR filter listeners
+document.getElementById('corSearchInput')?.addEventListener('input', _renderCORRows);
+document.getElementById('corStatusFilter')?.addEventListener('change', _renderCORRows);
+document.getElementById('corSemesterFilter')?.addEventListener('change', _renderCORRows);

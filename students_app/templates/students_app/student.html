@@ -1277,10 +1277,14 @@
 
           <div class="cor-module fu">
             <div class="cor-module-header">
-              <h3>Semester COR Records</h3>
-              <button class="btn-add-year" onclick="openAddCorModal()">
-                <span class="ms">add_circle</span> Add Year / Semester
-              </button>
+              <div>
+                <h3>Semester COR Records</h3>
+                <p style="margin-top:4px;font-size:0.72rem;color:var(--ink-4);font-family:var(--font-mono)">
+                  Active School Year: <strong id="corActiveSchoolYearLabel">{{ current_school_year_name|default:'—' }}</strong>
+                  &nbsp;·&nbsp;
+                  <span id="corRequiredCountLabel">0 required upload(s)</span>
+                </p>
+              </div>
             </div>
 
             <div class="cor-sem-tabs" id="corSemTabs"></div>
@@ -1624,40 +1628,6 @@
     </div>
   </div>
 
-  <!-- ── Add COR Year/Semester Modal ── -->
-  <div class="modal-overlay" id="addCorModal">
-    <div class="modal-panel">
-      <div class="modal-header">
-        <div class="modal-title">Add COR — Year &amp; Semester</div>
-        <button class="modal-close" onclick="closeAddCorModal()"><span class="ms">close</span></button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-field">
-          <label>Academic Year</label>
-          <select id="corYearSelect">
-            <option value="1">1st Year</option>
-            <option value="2">2nd Year</option>
-            <option value="3">3rd Year</option>
-            <option value="4">4th Year</option>
-          </select>
-          <label>Semester</label>
-          <select id="corSemSelect">
-            <option value="1">1st Semester</option>
-            <option value="2">2nd Semester</option>
-            <option value="summer">Summer</option>
-          </select>
-          <label>Academic Year (e.g. 2025–2026)</label>
-          <input type="text" id="corAcadYear" placeholder="e.g. 2025–2026" value="2025–2026">
-        </div>
-        <p style="font-size:0.72rem;color:var(--ink-4);font-family:var(--font-mono)">A new upload tab will be created for this semester.</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline btn-xs" onclick="closeAddCorModal()">Cancel</button>
-        <button class="btn btn-primary btn-xs" onclick="confirmAddCor()"><span class="ms" style="font-size:14px">add</span>Add Semester</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ── Add Prospectus Year/Semester Modal ── -->
   <div class="modal-overlay" id="addProspModal">
     <div class="modal-panel">
@@ -1764,6 +1734,7 @@
       documentFiles:     {{ document_files_json|safe }},
       documentUrls:      {{ document_urls_json|safe }},
       personalDetails:   {{ personal_json|safe }},
+      prospectusTree:    {{ prospectus_tree_json|safe }},
       schoolYearDisplay: "{{ school_year_display|escapejs }}", // display-only e.g. "2025 – 2026"
       currentSemester:   "{{ current_semester|escapejs }}",
       education: {
@@ -1771,7 +1742,20 @@
         graduate: "{{ graduate_school|escapejs }}",
       },
     };
-    
+
+    // Debug: verify prospectus/current school year presence for COR slot generator
+    (function(){
+      try {
+        const hasProspectus = !!window.mitStudentData?.prospectusTree;
+        const hasSchoolYear = !!window.mitStudentData?.currentSchoolYear || !!window.mitStudentData?.schoolYearDisplay;
+        console.debug('mitStudentData loaded', { hasProspectus, hasSchoolYear, currentSchoolYear: window.mitStudentData?.currentSchoolYear || window.mitStudentData?.schoolYearDisplay });
+        if(!hasProspectus) {
+          fetch('/admin-panel/api/admission/active-school-year/', {credentials:'same-origin'})
+            .then(r=>r.json()).then(d=>console.debug('active-school-year fallback', d)).catch(e=>console.warn('active-school-year fetch failed', e));
+        }
+      } catch(e) { console.warn('mitStudentData check failed', e); }
+    })();
+
     // Admission requirements from CMS (for dynamic document list)
     let ADMISSION_REQUIREMENTS_RAW = {{ admission_requirements_json|safe }};
     
@@ -2608,12 +2592,6 @@
           </div>`;
         panelsEl.appendChild(panel);
       });
-
-      const addBanner=document.createElement('div');
-      addBanner.className='cor-new-sem-banner';
-      addBanner.onclick=openAddCorModal;
-      addBanner.innerHTML=`<span class="ms">add_circle</span><div><h4>Add Another Year / Semester</h4><p>Click to create a new COR upload slot</p></div>`;
-      panelsEl.appendChild(addBanner);
     }
 
     function switchCorSem(semId, tab) {
@@ -2760,27 +2738,6 @@
       } catch (e) {
         console.error('loadSavedCORs failed', e);
       }
-    }
-
-    /* ── Add COR Modal ── */
-    function openAddCorModal()  { $('addCorModal').classList.add('open'); }
-    function closeAddCorModal() { $('addCorModal').classList.remove('open'); }
-    function confirmAddCor() {
-      const yr  = $('corYearSelect').value;
-      const sem = $('corSemSelect').value;
-      const ay  = $('corAcadYear').value.trim() || '—';
-      const yearOrdinals = {'1':'1st','2':'2nd','3':'3rd','4':'4th'};
-      const semLabels    = {'1':'1st Sem','2':'2nd Sem','summer':'Summer'};
-      const yearLabel    = (yearOrdinals[yr]||yr+'-th')+' Year';
-      const semLabel     = semLabels[sem]||sem;
-      const id = `${yr}-${sem}-${Date.now()}`;
-      const dup=corSemesters.find(s=>s.yearLabel===yearLabel&&s.semLabel===semLabel);
-      if(dup){showToast('This semester already exists.','error');return;}
-      corSemesters.push({id,yearLabel,semLabel,acadYear:ay});
-      corStates[id]=null;
-      renderCorTabs(); renderCorStatusSummary(); updateCorNavBadge();
-      showToast(`${yearLabel} — ${semLabel} added!`,'success');
-      closeAddCorModal();
     }
 
     /* ============================================================
@@ -3225,7 +3182,6 @@ function closeLogoutModal() {
     // Close modals on Escape
     document.addEventListener('keydown', e => {
       if(e.key==='Escape'){
-        closeAddCorModal();
         closeAddProspModal();
         closeDocPreview();
         closeMsgView();

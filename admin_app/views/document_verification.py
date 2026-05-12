@@ -339,16 +339,23 @@ def get_cor_submissions(request):
         submissions = []
         for s in CORSubmission.objects.select_related('user').order_by('-uploaded_at'):
             app = Application.objects.filter(user=s.user).first()
+            
+            # Get program display name from Application's PROGRAM_CHOICES
+            program_name = ''
+            if app and app.program:
+                program_choices = dict(Application.PROGRAM_CHOICES)
+                program_name = program_choices.get(app.program, app.program)
+            
             submissions.append({
                 'id':            s.id,
                 'student_name':  s.user.get_full_name(),
                 'student_id':    app.application_id if app else '',
-                'course':        app.program if app else '',
+                'program':       program_name,
                 'semester':      s.semester,
                 'school_year':   s.school_year,
                 'status':        s.status,
                 'admin_remarks': s.admin_remarks or '',
-                'cor_file_url':  s.cor_file.url if s.cor_file else '',
+                'file_url':      s.cor_file.url if s.cor_file else '',
                 'uploaded_at':   s.uploaded_at.isoformat(),
             })
  
@@ -448,7 +455,6 @@ def _year_key(label):
 def get_grade_submissions(request):
     try:
         from students_app.models import GradeSubmission
-        from admin_app.models import Program as ProgramModel
 
         def _calc_year_level(admitted, current):
             try:
@@ -462,14 +468,11 @@ def get_grade_submissions(request):
         for s in GradeSubmission.objects.select_related('user').order_by('-uploaded_at'):
             app = Application.objects.filter(user=s.user).first()
 
-            program_name = '—'
+            # Get program display name from Application's PROGRAM_CHOICES
+            program_name = ''
             if app and app.program:
-                prog = (
-                    ProgramModel.objects.filter(name__iexact=app.program).first()
-                    or ProgramModel.objects.filter(program_label__iexact=app.program).first()
-                    or ProgramModel.objects.filter(name__icontains=app.program).first()
-                )
-                program_name = prog.name if prog else app.program
+                program_choices = dict(Application.PROGRAM_CHOICES)
+                program_name = program_choices.get(app.program, app.program)
 
             # Determine which prospectus year level the active school year maps to
             active_sem_key      = _sem_key(s.semester)
