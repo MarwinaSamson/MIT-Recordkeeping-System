@@ -138,6 +138,50 @@ class Document(models.Model):
         super().save(*args, **kwargs)
 
 
+class GradeSubmission(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Acknowledged', 'Acknowledged'),
+        ('Flagged', 'Flagged'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='grade_submissions')
+    curriculum_name = models.CharField(max_length=255, blank=True)
+    school_year = models.CharField(max_length=32, blank=True)
+    semester = models.CharField(max_length=64, blank=True)
+    gpa = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    screenshot = models.FileField(upload_to='grade_submissions/', null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    admin_remarks = models.TextField(blank=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return f"Grade submission for {self.user.username if self.user else 'Unknown'}"
+
+
+class GradeEntry(models.Model):
+    submission = models.ForeignKey(GradeSubmission, on_delete=models.CASCADE)
+    year_label = models.CharField(max_length=120, blank=True)
+    semester_label = models.CharField(max_length=120, blank=True)
+    code = models.CharField(max_length=64)
+    title = models.CharField(max_length=512)
+    units = models.PositiveSmallIntegerField(default=0)
+    grade = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
+    remarks = models.CharField(max_length=255, blank=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+        unique_together = [('submission', 'year_label', 'semester_label', 'code')]
+
+    def __str__(self):
+        return f"{self.code} - {self.title}"
+
+
 class Notification(models.Model):
     """
     Stores notifications for students about document verification status changes.
@@ -223,42 +267,3 @@ class CORSubmission(models.Model):
 
     def __str__(self):
         return f"COR {self.user_id} {self.year_level} {self.semester} {self.school_year}"
-
-
-class GradeSubmission(models.Model):
-    STATUS_CHOICES = [
-        ('Pending', 'Pending'),
-        ('Acknowledged', 'Acknowledged'),
-        ('Flagged', 'Flagged'),
-    ]
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='grade_submissions')
-    semester = models.CharField(max_length=64)
-    school_year = models.CharField(max_length=64)
-    gpa = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    screenshot = models.FileField(upload_to='grades/', null=True, blank=True)
-    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='Pending')
-    admin_remarks = models.TextField(blank=True)
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ['-uploaded_at']
-
-    def __str__(self):
-        return f"Grades {self.user_id} {self.semester} {self.school_year}"
-
-
-class GradeEntry(models.Model):
-    submission = models.ForeignKey(GradeSubmission, on_delete=models.CASCADE)
-    code = models.CharField(max_length=64)
-    title = models.CharField(max_length=512, blank=True)
-    units = models.PositiveSmallIntegerField(default=0)
-    grade = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
-    remarks = models.CharField(max_length=255, blank=True)
-
-    class Meta:
-        ordering = ['id']
-
-    def __str__(self):
-        return f"{self.submission_id} {self.code}"

@@ -54,6 +54,14 @@ def _build_application_list():
         }
         submitted_docs = Document.objects.filter(user=app.user)
 
+        student_curriculum = ''
+        college_bg = education_levels.get('college')
+        graduate_bg = education_levels.get('graduate')
+        if college_bg and college_bg.mit_curriculum:
+            student_curriculum = college_bg.mit_curriculum
+        elif graduate_bg and graduate_bg.mit_curriculum:
+            student_curriculum = graduate_bg.mit_curriculum
+
         # Key submitted docs by document_type (which equals the requirement title)
         submitted_by_title = {doc.document_type: doc for doc in submitted_docs}
 
@@ -143,12 +151,29 @@ def _build_application_list():
                     'issues':      [],
                 })
 
+        # Try to resolve a longer program description from the Program table
+        program_description = ''
+        try:
+            from ..models import Program as _Program
+            prog = _Program.objects.filter(name__iexact=app.program).first()
+            if not prog:
+                prog = _Program.objects.filter(program_label__iexact=app.program).first()
+            if not prog:
+                prog = _Program.objects.filter(program_label__icontains=app.program).first()
+            if not prog:
+                prog = _Program.objects.filter(name__icontains=app.program).first()
+            program_description = prog.description if prog else ''
+        except Exception:
+            program_description = ''
+
         apps.append({
             'id':              app.application_id,
+            'user_id':         app.user.id,
             'name':            app.get_full_name(),
             'email':           app.user.email,
             'mobile':          app.get_contact_number(),
-            'course':          app.program,
+            'course':          program_description or app.program,
+            'program_description': program_description,
             'status':          app.status,
             'submission_date': app.submission_date.strftime('%Y-%m-%d'),
             'submissionDate':  app.submission_date.strftime('%Y-%m-%d'),
@@ -157,6 +182,8 @@ def _build_application_list():
             'documents':       submitted_docs.count(),
             'docs':            docs_list,
             'remarks':         app.remarks,
+            'student_curriculum': student_curriculum,
+            'curriculum':      app.curriculum or student_curriculum,
             'personal': {
                 'first_name': personal.first_name if personal else '',
                 'middle_name': personal.middle_name if personal else '',
@@ -312,16 +339,23 @@ def get_cor_submissions(request):
         submissions = []
         for s in CORSubmission.objects.select_related('user').order_by('-uploaded_at'):
             app = Application.objects.filter(user=s.user).first()
+            
+            # Get program display name from Application's PROGRAM_CHOICES
+            program_name = ''
+            if app and app.program:
+                program_choices = dict(Application.PROGRAM_CHOICES)
+                program_name = program_choices.get(app.program, app.program)
+            
             submissions.append({
                 'id':            s.id,
                 'student_name':  s.user.get_full_name(),
                 'student_id':    app.application_id if app else '',
-                'course':        app.program if app else '',
+                'program':       program_name,
                 'semester':      s.semester,
                 'school_year':   s.school_year,
                 'status':        s.status,
                 'admin_remarks': s.admin_remarks or '',
-                'cor_file_url':  s.cor_file.url if s.cor_file else '',
+                'file_url':      s.cor_file.url if s.cor_file else '',
                 'uploaded_at':   s.uploaded_at.isoformat(),
             })
  
@@ -385,87 +419,182 @@ def update_cor_submission(request, submission_id):
 # Grades API views
 # ---------------------------------------------------------------------------
  
-@login_required(login_url='login')
+def _sem_key(label):
+    s = (label or '').lower().strip()
+    if '1st' in s or 'first' in s:  return '1st'
+    if '2nd' in s or 'second' in s: return '2nd'
+    if 'summer' in s:               return 'summer'
+    return s
+
+def _year_key(label):
+    """
+    Extract year number from labels like:
+      'First Year', 'Second Year', 'Year 1', 'Year 2', '1st Year', '2nd Year'
+    Returns a string digit: '1', '2', '3', etc.
+    """
+    import re
+    s = (label or '').lower().strip()
+
+    # Written-out ordinals / cardinals
+    word_map = {
+        'first':  '1', 'second': '2', 'third': '3',
+        'fourth': '4', 'fifth':  '5', 'sixth': '6',
+    }
+    for word, num in word_map.items():
+        if word in s:
+            return num
+
+    # Numeric: '1st', '2nd', 'Year 1', etc.
+    m = re.search(r'\d+', s)
+    return m.group() if m else ''
+
+
+@login_required
 @user_passes_test(is_superuser, login_url='login')
 @require_http_methods(['GET'])
 def get_grade_submissions(request):
-    """
-    GET /admin-panel/api/grade-submissions/
- 
-    Returns all grade submissions as JSON.
-    Adjust the import to match your actual model.
-    """
     try:
-        # ------------------------------------------------------------------
-        # Replace with your real model.  Example structure:
-        #
-        #   class GradeSubmission(models.Model):
-        #       user          = ForeignKey(User, ...)
-        #       semester      = CharField(...)
-        #       school_year   = CharField(...)
-        #       gpa           = DecimalField(null=True, blank=True)
-        #       screenshot    = FileField(null=True, blank=True)
-        #       status        = CharField(choices=[...], default='Pending')
-        #       admin_remarks = TextField(blank=True)
-        #       uploaded_at   = DateTimeField(auto_now_add=True)
-        #
-        #   class GradeEntry(models.Model):
-        #       submission    = ForeignKey(GradeSubmission, ...)
-        #       code          = CharField(...)
-        #       title         = CharField(...)
-        #       units         = PositiveIntegerField()
-        #       grade         = DecimalField(null=True, blank=True)
-        #       remarks       = CharField(blank=True)
-        # ------------------------------------------------------------------
-        from students_app.models import GradeSubmission  # adjust import path
- 
+        from students_app.models import GradeSubmission
+
+        def _calc_year_level(admitted, current):
+            try:
+                admitted_start = int(admitted.split('-')[0])
+                current_start  = int(current.split('-')[0])
+                return str(current_start - admitted_start + 1)
+            except Exception:
+                return ''
+
         submissions = []
         for s in GradeSubmission.objects.select_related('user').order_by('-uploaded_at'):
             app = Application.objects.filter(user=s.user).first()
- 
-            # Build per-subject grade list if a related model exists
+
+            # Get program display name from Application's PROGRAM_CHOICES
+            program_name = ''
+            if app and app.program:
+                program_choices = dict(Application.PROGRAM_CHOICES)
+                program_name = program_choices.get(app.program, app.program)
+
+            # Determine which prospectus year level the active school year maps to
+            active_sem_key      = _sem_key(s.semester)
+            active_sy           = (s.school_year or '').strip()
+            admitted_sy         = (app.year_admitted or '').strip() if app else ''
+            expected_year_level = _calc_year_level(admitted_sy, active_sy)
+
+            # DEBUG — remove once confirmed working
+            logger.debug(
+                'GRADE FILTER | user=%s admitted_sy=%r active_sy=%r '
+                'expected_year=%r active_sem=%r',
+                s.user.email, admitted_sy, active_sy,
+                expected_year_level, active_sem_key,
+            )
+
             grades = []
-            if hasattr(s, 'gradeentry_set'):
-                for entry in s.gradeentry_set.all():
-                    grades.append({
-                        'code':    entry.code,
-                        'title':   entry.title,
-                        'units':   entry.units,
-                        'grade':   float(entry.grade) if entry.grade is not None else None,
-                        'remarks': entry.remarks or '',
-                    })
- 
+            for entry in s.gradeentry_set.all().order_by('order'):
+                entry_year_key = _year_key(entry.year_label)
+                entry_sem_key  = _sem_key(entry.semester_label)
+
+                # DEBUG — remove once confirmed working
+                logger.debug(
+                    '  entry year_label=%r → %r | sem_label=%r → %r',
+                    entry.year_label, entry_year_key,
+                    entry.semester_label, entry_sem_key,
+                )
+
+                if active_sem_key and entry_sem_key != active_sem_key:
+                    continue
+                if expected_year_level and entry_year_key != expected_year_level:
+                    continue
+
+                grades.append({
+                    'id':             entry.id,
+                    'year_label':     entry.year_label,
+                    'semester_label': entry.semester_label,
+                    'code':           entry.code,
+                    'title':          entry.title,
+                    'units':          entry.units,
+                    'grade':          float(entry.grade) if entry.grade is not None else None,
+                    'remarks':        entry.remarks or '',
+                })
+
             submissions.append({
                 'id':             s.id,
-                'student_name':   s.user.get_full_name(),
+                'student_name':   s.user.get_full_name() or s.user.email,
                 'student_id':     app.application_id if app else '',
-                'course':         app.program if app else '',
+                'program':        program_name,
                 'semester':       s.semester,
                 'school_year':    s.school_year,
                 'gpa':            float(s.gpa) if s.gpa is not None else None,
                 'status':         s.status,
                 'admin_remarks':  s.admin_remarks or '',
                 'screenshot_url': s.screenshot.url if s.screenshot else '',
-                'uploaded_at':    s.uploaded_at.isoformat(),
+                'uploaded_at':    s.uploaded_at.strftime('%Y-%m-%d'),
                 'grades':         grades,
                 'subject_count':  len(grades),
             })
- 
+
         return JsonResponse({'success': True, 'submissions': submissions})
- 
+
     except ImportError:
-        logger.warning('GradeSubmission model not found. Returning empty list.')
         return JsonResponse({'success': True, 'submissions': []})
- 
     except Exception as exc:
         logger.exception('Error fetching grade submissions: %s', exc)
         return JsonResponse({'success': False, 'message': str(exc)}, status=500)
- 
- 
-@login_required(login_url='login')
+@login_required
 @user_passes_test(is_superuser, login_url='login')
 @require_http_methods(['POST'])
 def update_grade_submission(request, submission_id):
+    try:
+        from students_app.models import GradeSubmission, Notification
+
+        data    = json.loads(request.body)
+        status  = data.get('status', '').strip()
+        remarks = data.get('admin_remarks', '').strip()
+
+        if status not in ('Acknowledged', 'Flagged', 'Pending'):
+            return JsonResponse(
+                {'success': False, 'message': 'Invalid status value.'}, status=400
+            )
+
+        submission = GradeSubmission.objects.get(pk=submission_id)
+        submission.status        = status
+        submission.admin_remarks = remarks
+        submission.save(update_fields=['status', 'admin_remarks'])
+
+        period = f"{submission.semester} {submission.school_year}".strip()
+
+        if status == 'Flagged':
+            Notification.objects.create(
+                user=submission.user,
+                notification_type='application_status',
+                title='Grade Submission Flagged',
+                message=(
+                    f'Your grade submission for {period} has been flagged by the administrator. '
+                    + (f'Remarks: {remarks}' if remarks else '')
+                    + ' Please review and resubmit if necessary.'
+                ),
+            )
+        elif status == 'Acknowledged':
+            Notification.objects.create(
+                user=submission.user,
+                notification_type='document_verified',
+                title='Grades Acknowledged',
+                message=f'Your grade submission for {period} has been acknowledged by the administrator.',
+            )
+
+        return JsonResponse({
+            'success': True,
+            'message': f'Grades {status.lower()} successfully.',
+        })
+
+    except ImportError:
+        return JsonResponse(
+            {'success': False, 'message': 'GradeSubmission model not found.'}, status=500
+        )
+    except GradeSubmission.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Submission not found.'}, status=404)
+    except Exception as exc:
+        logger.exception('Error updating grade submission: %s', exc)
+        return JsonResponse({'success': False, 'message': str(exc)}, status=500)
     """
     POST /admin-panel/api/grade-submissions/<id>/update/
  

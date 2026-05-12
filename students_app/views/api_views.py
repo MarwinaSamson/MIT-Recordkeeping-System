@@ -1,11 +1,13 @@
 import json
 import re
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
+from django.db import transaction
 
 from admin_app.models import DocumentVerification, Application
 from students_app.models import (
@@ -580,10 +582,11 @@ def submit_application(request):
         mit_curriculum = data.get('mitCurriculum', '')
         if mit_curriculum:
             from students_app.models import EducationalBackground
+            from students_app.utils import resolve_canonical_curriculum_name
             eb, _ = EducationalBackground.objects.get_or_create(
                 user=user, level='college'
             )
-            eb.mit_curriculum = mit_curriculum
+            eb.mit_curriculum = resolve_canonical_curriculum_name(mit_curriculum) or mit_curriculum
             eb.save()
 
         privacy_data = data.get('privacyConsent', {})

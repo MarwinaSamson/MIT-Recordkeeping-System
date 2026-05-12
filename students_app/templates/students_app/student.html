@@ -1070,12 +1070,12 @@
         <div class="sy-divider"></div>
         <div>
           <div class="sy-label">Program</div>
-          <div style="font-size:0.78rem;font-weight:600;color:var(--ink);font-family:var(--font-mono)">M.I.T.</div>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--ink);font-family:var(--font-mono)">{{ program_display }}</div>
         </div>
         <div class="sy-divider"></div>
         <div>
           <div class="sy-label">Student ID</div>
-          <div style="font-size:0.78rem;font-weight:600;color:var(--ink);font-family:var(--font-mono)">MIT-{{ student.id|stringformat:"06d" }}</div>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--ink);font-family:var(--font-mono)">{{ student_id_display }}</div>
         </div>
         <div class="sy-status">
           <span class="ms">verified</span> Enrolled & Active
@@ -1090,7 +1090,7 @@
           <p>Track your document submissions, monitor review statuses, and keep your academic records current throughout your program.</p>
           <div class="banner-chips">
             <span class="banner-chip gold"><span class="ms" style="font-size:11px">school</span> {{ academic_year_display }}</span>
-            <span class="banner-chip"><span class="ms" style="font-size:11px">badge</span> MIT-{{ student.id|stringformat:"06d" }}</span>
+            <span class="banner-chip"><span class="ms" style="font-size:11px">badge</span> {{ student_id_display }}</span>
             <span class="banner-chip"><span class="ms" style="font-size:11px;color:#4ade80">circle</span> Active</span>
           </div>
         </div>
@@ -1277,10 +1277,14 @@
 
           <div class="cor-module fu">
             <div class="cor-module-header">
-              <h3>Semester COR Records</h3>
-              <button class="btn-add-year" onclick="openAddCorModal()">
-                <span class="ms">add_circle</span> Add Year / Semester
-              </button>
+              <div>
+                <h3>Semester COR Records</h3>
+                <p style="margin-top:4px;font-size:0.72rem;color:var(--ink-4);font-family:var(--font-mono)">
+                  Active School Year: <strong id="corActiveSchoolYearLabel">{{ current_school_year_name|default:'—' }}</strong>
+                  &nbsp;·&nbsp;
+                  <span id="corRequiredCountLabel">0 required upload(s)</span>
+                </p>
+              </div>
             </div>
 
             <div class="cor-sem-tabs" id="corSemTabs"></div>
@@ -1336,7 +1340,7 @@
       display:inline-block;
       font-weight:500;
       ">
-        Curriculum: <strong>MIT Curriculum Effective 2023–2024</strong>
+        Curriculum: <strong>{{ prospectus_title }}</strong>
       </span> <br>
     </div>
     <div style="margin-top:6px"></div>
@@ -1624,40 +1628,6 @@
     </div>
   </div>
 
-  <!-- ── Add COR Year/Semester Modal ── -->
-  <div class="modal-overlay" id="addCorModal">
-    <div class="modal-panel">
-      <div class="modal-header">
-        <div class="modal-title">Add COR — Year &amp; Semester</div>
-        <button class="modal-close" onclick="closeAddCorModal()"><span class="ms">close</span></button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-field">
-          <label>Academic Year</label>
-          <select id="corYearSelect">
-            <option value="1">1st Year</option>
-            <option value="2">2nd Year</option>
-            <option value="3">3rd Year</option>
-            <option value="4">4th Year</option>
-          </select>
-          <label>Semester</label>
-          <select id="corSemSelect">
-            <option value="1">1st Semester</option>
-            <option value="2">2nd Semester</option>
-            <option value="summer">Summer</option>
-          </select>
-          <label>Academic Year (e.g. 2025–2026)</label>
-          <input type="text" id="corAcadYear" placeholder="e.g. 2025–2026" value="2025–2026">
-        </div>
-        <p style="font-size:0.72rem;color:var(--ink-4);font-family:var(--font-mono)">A new upload tab will be created for this semester.</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline btn-xs" onclick="closeAddCorModal()">Cancel</button>
-        <button class="btn btn-primary btn-xs" onclick="confirmAddCor()"><span class="ms" style="font-size:14px">add</span>Add Semester</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ── Add Prospectus Year/Semester Modal ── -->
   <div class="modal-overlay" id="addProspModal">
     <div class="modal-panel">
@@ -1684,7 +1654,6 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline btn-xs" onclick="closeAddProspModal()">Cancel</button>
-        <button class="btn btn-primary btn-xs" onclick="confirmAddProspYear()"><span class="ms" style="font-size:14px">add</span>Add Year</button>
       </div>
     </div>
   </div>
@@ -1757,11 +1726,15 @@
       fullName:          "{{ full_name|escapejs }}",
       initials:          "{{ initials|escapejs }}",
       email:             "{{ student.email|escapejs }}",
+      currentSchoolYear: "{{ current_school_year_name|escapejs }}",
+      currentSemester:   "{{ current_semester_name|escapejs }}",
+      curriculumName:    "{{ selected_curriculum_name|escapejs }}",
       uploadedDocuments: {{ uploaded_documents }},
       requiredDocuments: {{ required_documents }},
       documentFiles:     {{ document_files_json|safe }},
       documentUrls:      {{ document_urls_json|safe }},
       personalDetails:   {{ personal_json|safe }},
+      prospectusTree:    {{ prospectus_tree_json|safe }},
       schoolYearDisplay: "{{ school_year_display|escapejs }}", // display-only e.g. "2025 – 2026"
       currentSemester:   "{{ current_semester|escapejs }}",
       education: {
@@ -1769,7 +1742,20 @@
         graduate: "{{ graduate_school|escapejs }}",
       },
     };
-    
+
+    // Debug: verify prospectus/current school year presence for COR slot generator
+    (function(){
+      try {
+        const hasProspectus = !!window.mitStudentData?.prospectusTree;
+        const hasSchoolYear = !!window.mitStudentData?.currentSchoolYear || !!window.mitStudentData?.schoolYearDisplay;
+        console.debug('mitStudentData loaded', { hasProspectus, hasSchoolYear, currentSchoolYear: window.mitStudentData?.currentSchoolYear || window.mitStudentData?.schoolYearDisplay });
+        if(!hasProspectus) {
+          fetch('/admin-panel/api/admission/active-school-year/', {credentials:'same-origin'})
+            .then(r=>r.json()).then(d=>console.debug('active-school-year fallback', d)).catch(e=>console.warn('active-school-year fetch failed', e));
+        }
+      } catch(e) { console.warn('mitStudentData check failed', e); }
+    })();
+
     // Admission requirements from CMS (for dynamic document list)
     let ADMISSION_REQUIREMENTS_RAW = {{ admission_requirements_json|safe }};
     
@@ -1781,6 +1767,8 @@
     /* ── Helpers ── */
     const D = window.mitStudentData;
     const $ = id => document.getElementById(id);
+    let gradeScreenshotFile = null;
+    let gradeSubmissionLoaded = false;
 
     /* ============================================================
        FILE SECURITY
@@ -1828,6 +1816,16 @@
       setTimeout(()=>el.classList.add('hidden'),6000);
     }
     function hideFileError(errorElId='fileError') { const el=$(errorElId); if(el)el.classList.add('hidden'); }
+
+    function setGradeScreenshotPreview(url) {
+      const preview = $('prospectusPreview');
+      const panel = $('ocrPanel');
+      if (panel) panel.style.display = 'block';
+      if (preview && url) {
+        preview.src = url;
+        preview.style.display = 'block';
+      }
+    }
 
     function getCookie(name) {
       const value = `; ${document.cookie}`;
@@ -2559,12 +2557,6 @@
           </div>`;
         panelsEl.appendChild(panel);
       });
-
-      const addBanner=document.createElement('div');
-      addBanner.className='cor-new-sem-banner';
-      addBanner.onclick=openAddCorModal;
-      addBanner.innerHTML=`<span class="ms">add_circle</span><div><h4>Add Another Year / Semester</h4><p>Click to create a new COR upload slot</p></div>`;
-      panelsEl.appendChild(addBanner);
     }
 
     function switchCorSem(semId, tab) {
@@ -2713,62 +2705,69 @@
       }
     }
 
-    /* ── Add COR Modal ── */
-    function openAddCorModal()  { $('addCorModal').classList.add('open'); }
-    function closeAddCorModal() { $('addCorModal').classList.remove('open'); }
-    function confirmAddCor() {
-      const yr  = $('corYearSelect').value;
-      const sem = $('corSemSelect').value;
-      const ay  = $('corAcadYear').value.trim() || '—';
-      const yearOrdinals = {'1':'1st','2':'2nd','3':'3rd','4':'4th'};
-      const semLabels    = {'1':'1st Sem','2':'2nd Sem','summer':'Summer'};
-      const yearLabel    = (yearOrdinals[yr]||yr+'-th')+' Year';
-      const semLabel     = semLabels[sem]||sem;
-      const id = `${yr}-${sem}-${Date.now()}`;
-      const dup=corSemesters.find(s=>s.yearLabel===yearLabel&&s.semLabel===semLabel);
-      if(dup){showToast('This semester already exists.','error');return;}
-      corSemesters.push({id,yearLabel,semLabel,acadYear:ay});
-      corStates[id]=null;
-      renderCorTabs(); renderCorStatusSummary(); updateCorNavBadge();
-      showToast(`${yearLabel} — ${semLabel} added!`,'success');
-      closeAddCorModal();
-    }
-
     /* ============================================================
        PROSPECTUS — Dynamic Year System
        ============================================================ */
-    let prospYears = [
-      { id:1, label:'First Year',  ordinal:'1st', semesters:[
-          { sem:'First',  courses:[
-            {code:'MIT 201',title:'Advanced Operating Systems and Networking',lec:3,lab:0},
-            {code:'MIT 202',title:'Advanced System Design and Implementation', lec:3,lab:0},
-            {code:'MIT 203',title:'Advance Database Systems',                  lec:3,lab:0},
-            {code:'MIT 204',title:'Technology and Project Management',          lec:3,lab:0},
-          ]},
-          { sem:'Second', courses:[
-            {code:'MIT 205',title:'Technical Research',    lec:3,lab:0},
-            {code:'MIT 206',title:'Statistical Research',  lec:3,lab:0},
-            {code:'MIT 207',title:'Specialization Course 1',lec:3,lab:0},
-            {code:'MIT 208',title:'Specialization Course 2',lec:3,lab:0},
-          ]},
-        ]
-      },
-      { id:2, label:'Second Year', ordinal:'2nd', semesters:[
-          { sem:'First',  courses:[
-            {code:'MIT 209',title:'Specialization Course 3',lec:3,lab:0},
-            {code:'MIT 210',title:'Specialization Course 4',lec:3,lab:0},
-            {code:'MIT 211',title:'Specialization Course 5',lec:3,lab:0},
-            {code:'MIT 222A',title:'Capstone Project 1',    lec:3,lab:0},
-          ]},
-          { sem:'Second', courses:[
-            {code:'MIT 212B',title:'Capstone Project 2',lec:3,lab:0},
-          ]},
-        ]
-      },
-    ];
+    let prospYears = Array.isArray(D.prospectusTree) ? D.prospectusTree : [];
 
     const grades = {};
     let activeProspYear = 1;
+
+    function buildGradeEntriesPayload() {
+      const entries = [];
+      (prospYears || []).forEach(year => {
+        (year.semesters || []).forEach(semester => {
+          (semester.courses || []).forEach((course, index) => {
+            const courseKey = `${year.label || ''}-${semester.label || ''}-${(course.code || '').replace(/\s/g, '')}`;
+            const rawGrade = grades[courseKey];
+            const parsedGrade = rawGrade === undefined || rawGrade === null || rawGrade === '' ? null : Number(rawGrade);
+            entries.push({
+              year_label: year.label || '',
+              semester_label: semester.label || '',
+              code: course.code || '',
+              title: course.title || '',
+              units: Number(course.lec || 0) + Number(course.lab || 0),
+              grade: Number.isFinite(parsedGrade) ? parsedGrade : null,
+              remarks: '',
+              order: index,
+              course_key: courseKey,
+            });
+          });
+        });
+      });
+      return entries;
+    }
+
+    function applyGradeSubmission(submission) {
+      if (!submission) return;
+      gradeSubmissionLoaded = true;
+      Object.keys(grades).forEach(key => delete grades[key]);
+      (submission.grades || []).forEach(item => {
+        const key = `${item.year_label || ''}-${item.semester_label || ''}-${(item.code || '').replace(/\s/g, '')}`;
+        if (item.grade !== null && item.grade !== undefined && item.grade !== '') {
+          grades[key] = Number(item.grade);
+        }
+      });
+      if (submission.screenshot_url) {
+        setGradeScreenshotPreview(submission.screenshot_url);
+      }
+      renderProspectus();
+      recalcGWA();
+    }
+
+    async function loadGradeSubmission() {
+      try {
+        const response = await fetch('/api/grade-submission/', {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        });
+        const data = await response.json().catch(() => ({}));
+        if (response.ok && data.success && data.submission) {
+          applyGradeSubmission(data.submission);
+        }
+      } catch (error) {
+        console.error('Failed to load grade submission:', error);
+      }
+    }
 
     function renderProspectus() {
       const tabsEl=$('prospYearTabs');
@@ -2777,6 +2776,11 @@
       tabsEl.innerHTML='';
       contentEl.innerHTML='';
 
+      if(!Array.isArray(prospYears) || prospYears.length===0){
+        contentEl.innerHTML = '<div style="padding:18px;border:1px dashed var(--border-2);border-radius:var(--radius-sm);color:var(--ink-4);font-size:0.78rem;font-family:var(--font-mono)">No prospectus found for the assigned curriculum.</div>';
+        return;
+      }
+
       prospYears.forEach(yr=>{
         const tab=document.createElement('div');
         tab.className='year-tab'+(yr.id===activeProspYear?' active':'');
@@ -2784,12 +2788,6 @@
         tab.onclick=()=>switchProspYear(yr.id, tab);
         tabsEl.appendChild(tab);
       });
-
-      const addBtn=document.createElement('button');
-      addBtn.className='btn-add-year';
-      addBtn.innerHTML='<span class="ms">add_circle</span>Add Year';
-      addBtn.onclick=openAddProspModal;
-      tabsEl.appendChild(addBtn);
 
       prospYears.forEach(yr=>{
         const block=document.createElement('div');
@@ -2800,23 +2798,21 @@
         let html=`<div class="year-block-header">
           <div>
             <div class="year-block-title">${yr.label}</div>
-            <div class="year-block-meta" style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-4);margin-top:2px">${yr.semesters.length} semester(s) · ${yr.semesters.reduce((a,s)=>a+s.courses.length,0)} courses</div>
-          </div>
-          <div class="year-block-actions">
-            <button class="btn-add-sem" onclick="addSemesterToYear(${yr.id})"><span class="ms">add</span>Add Semester</button>
+            <div class="year-block-meta" style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-4);margin-top:2px">${yr.semesters.length} semester(s) · ${yr.semesters.reduce((a,s)=>a+(s.courses||[]).length,0)} courses</div>
           </div>
         </div>`;
 
         yr.semesters.forEach(sem=>{
-          const semKey=`${yr.id}-${sem.sem}`;
-          const totalUnits=sem.courses.reduce((a,c)=>a+c.lec+c.lab,0);
-          html+=`<div class="prosp-semester-label"><span class="ms" style="font-size:14px">calendar_today</span>${sem.sem} Semester</div>
+          const semKey=`${yr.label}-${sem.label}`;
+          const courses=Array.isArray(sem.courses) ? sem.courses : [];
+          const totalUnits=courses.reduce((a,c)=>a+(c.lec||0)+(c.lab||0),0);
+          html+=`<div class="prosp-semester-label"><span class="ms" style="font-size:14px">calendar_today</span>${sem.label}</div>
           <div style="overflow-x:auto;margin-bottom:16px">
           <table class="prosp-table">
             <thead><tr><th>Code</th><th>Descriptive Title</th><th>Prereq</th><th>Lec</th><th>Lab</th><th>Total</th><th>Grade</th></tr></thead>
             <tbody>`;
-          sem.courses.forEach(c=>{
-            const cKey=`${semKey}-${c.code.replace(/\s/g,'')}`;
+          courses.forEach(c=>{
+            const cKey=`${semKey}-${(c.code||'').replace(/\s/g,'')}`;
             const gradeVal = grades[cKey];
             const gradeClass = gradeVal !== undefined ? (gradeVal <= 2.0 ? 'has-grade' : 'failing') : '';
             html+=`<tr>
@@ -2851,45 +2847,7 @@
       if(tab)tab.classList.add('active');
     }
 
-    function addSemesterToYear(yrId) {
-      const yr=prospYears.find(y=>y.id===yrId); if(!yr)return;
-      const semLabels=['First','Second','Summer','Third'];
-      const existing=yr.semesters.map(s=>s.sem);
-      const next=semLabels.find(l=>!existing.includes(l));
-      if(!next){showToast('All semester slots are used for this year.','info');return;}
-      yr.semesters.push({
-        sem:next,
-        courses:[
-          {code:`NEW-${yr.id}${yr.semesters.length+1}01`,title:'New Course 1',lec:3,lab:0},
-          {code:`NEW-${yr.id}${yr.semesters.length+1}02`,title:'New Course 2',lec:3,lab:0},
-        ]
-      });
-      renderProspectus();
-      switchProspYear(yrId, null);
-      showToast(`${next} Semester added to ${yr.label}!`,'success');
-    }
-
-    /* ── Add Prospectus Year Modal ── */
-    function openAddProspModal()  { $('addProspModal').classList.add('open'); }
-    function closeAddProspModal() { $('addProspModal').classList.remove('open'); }
-    function confirmAddProspYear() {
-      const yrNum=parseInt($('prospYearSelect').value);
-      const semCount=parseInt($('prospSemCount').value);
-      const ordinals={1:'1st',2:'2nd',3:'3rd',4:'4th',5:'5th'};
-      const yrLabel=(ordinals[yrNum]||yrNum+'-th')+' Year';
-      const dup=prospYears.find(y=>y.label===yrLabel);
-      if(dup){showToast('This year level already exists.','error');return;}
-      const sems=[];
-      if(semCount>=1) sems.push({sem:'First', courses:[{code:`MIT-${yrNum}01`,title:'New Course 1',lec:3,lab:0},{code:`MIT-${yrNum}02`,title:'New Course 2',lec:3,lab:0}]});
-      if(semCount>=2) sems.push({sem:'Second',courses:[{code:`MIT-${yrNum}03`,title:'New Course 3',lec:3,lab:0}]});
-      if(semCount>=3) sems.push({sem:'Summer',courses:[{code:`MIT-${yrNum}04`,title:'New Course 4',lec:3,lab:0}]});
-      prospYears.push({id:yrNum,label:yrLabel,ordinal:ordinals[yrNum]||yrNum+'th',semesters:sems});
-      prospYears.sort((a,b)=>a.id-b.id);
-      renderProspectus();
-      switchProspYear(yrNum, null);
-      showToast(`${yrLabel} added to Prospectus!`,'success');
-      closeAddProspModal();
-    }
+    /* Student view is read-only; year/semester editing controls removed. */
 
     /* UPDATED: Passing is grade <= 2.0 */
     function updateGrade(input) {
@@ -3171,6 +3129,7 @@ function closeLogoutModal() {
       renderCorStatusSummary();
       updateCorNavBadge();
       renderProspectus();
+      loadGradeSubmission();
       renderSbCalToday();
       
       // Render dynamic dates from database
@@ -3188,7 +3147,6 @@ function closeLogoutModal() {
     // Close modals on Escape
     document.addEventListener('keydown', e => {
       if(e.key==='Escape'){
-        closeAddCorModal();
         closeAddProspModal();
         closeDocPreview();
         closeMsgView();

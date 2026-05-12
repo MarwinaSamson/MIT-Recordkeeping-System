@@ -51,6 +51,7 @@ urlpatterns = [
     path("api/document-details/", get_document_details,
          name="document_details_api"),
     path("api/document-upload/", upload_document, name="document_upload_api"),
+     path("api/grade-submission/", submit_grade_submission, name="grade_submission_api"),
     path("api/student-notifications/", get_notifications,
          name="student_notifications_api"),
     path("api/notifications/read/", mark_notification_read,

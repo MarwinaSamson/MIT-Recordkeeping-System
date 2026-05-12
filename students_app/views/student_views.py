@@ -42,6 +42,72 @@ def _initials(name):
     return "".join([p[0] for p in parts])[:2].upper()
 
 
+def _normalize_curriculum_name(value):
+    """Normalize curriculum names so legacy tokens can match canonical prospectus rows."""
+    text = (value or "").strip()
+    if not text:
+        return ""
+    text = re.sub(r'^\s*(mit\s+)?curriculum\s*[:\-]?\s*', '', text, flags=re.I).strip()
+    text = text.replace('–', '-').replace('—', '-')
+    text = re.sub(r'\s+', ' ', text)
+    return text
+
+
+def _resolve_student_prospectus(curriculum_name):
+    """Resolve a student's curriculum token to a canonical Prospectus row."""
+    from admin_app.models import Prospectus, ProspectusAssignment
+
+    raw = (curriculum_name or '').strip()
+    if not raw:
+        return None
+
+    normalized = _normalize_curriculum_name(raw)
+    year_only = normalized
+
+    search_terms = [raw, normalized]
+    if normalized:
+        search_terms.extend([
+            f'Curriculum {normalized}',
+            f'MIT Curriculum {normalized}',
+        ])
+
+    exact_filters = []
+    for term in search_terms:
+        if term:
+            exact_filters.append({'name__iexact': term})
+            exact_filters.append({'program_name__iexact': term})
+            exact_filters.append({'description__iexact': term})
+
+    # Try direct matches first.
+    for filter_kwargs in exact_filters:
+        prospectus = Prospectus.objects.filter(**filter_kwargs).prefetch_related('years__semesters__subjects').first()
+        if prospectus:
+            return prospectus
+
+    # Check prospectus assignments using intake year mappings.
+    if year_only:
+        assignment = ProspectusAssignment.objects.select_related('prospectus').filter(intake_year__iexact=year_only).first()
+        if assignment and assignment.prospectus:
+            return assignment.prospectus
+
+    # Fallback to substring matches so legacy records still resolve.
+    for term in search_terms:
+        if not term:
+            continue
+        prospectus = (
+            Prospectus.objects.filter(name__icontains=term)
+            .prefetch_related('years__semesters__subjects')
+            .first()
+            or Prospectus.objects.filter(program_name__icontains=term)
+            .prefetch_related('years__semesters__subjects')
+            .first()
+        )
+        if prospectus:
+            return prospectus
+
+    return None
+
+
 @login_required
 @ensure_csrf_cookie
 def student(request):
@@ -52,23 +118,84 @@ def student(request):
     privacy   = PrivacyConsent.objects.filter(
                     user=request.user).order_by("-updated_at").first()
 
-    from admin_app.models import Application, DocumentVerification, SchoolYear, CMSSettings
+    from admin_app.models import Application, DocumentVerification, SchoolYear, Semester, CMSSettings, Program, Prospectus
 
     application        = Application.objects.filter(user=request.user).first()
     active_school_year = SchoolYear.objects.filter(is_active=True).first()
+    active_semester    = None
+    if active_school_year:
+        active_semester = Semester.objects.filter(
+            school_year=active_school_year,
+            is_active=True,
+        ).first()
+    if not active_semester:
+        active_semester = Semester.objects.filter(is_active=True).select_related('school_year').first()
     cms_settings       = CMSSettings.objects.get_or_create(pk=1)[0]
     calendar_events        = cms_settings.calendar_events or []
     admission_requirements = cms_settings.admission_requirements or []
 
-    current_month = datetime.now().month
-    semester = '1st Semester' if 6 <= current_month <= 11 else '2nd Semester'
+    semester = active_semester.name if active_semester else '—'
 
-    sy_display = "2025 – 2026"
-    ay_display = "A.Y. 2025–2026"
+    program_display = Program.objects.order_by('name').values_list('name', flat=True).first() or '—'
+    if application and application.program:
+        program_key = application.program.strip()
+        program_row = (
+            Program.objects.filter(name__iexact=program_key).first()
+            or Program.objects.filter(program_label__iexact=program_key).first()
+            or Program.objects.filter(name__icontains=program_key).first()
+            or Program.objects.filter(program_label__icontains=program_key).first()
+        )
+        if program_row:
+            program_display = program_row.name
+
+    student_id_display = application.application_id if application and application.application_id else '—'
+
+    selected_curriculum_name = ''
+    if application and application.curriculum:
+        selected_curriculum_name = application.curriculum.strip()
+    else:
+        for entry in education:
+            if entry.mit_curriculum:
+                selected_curriculum_name = entry.mit_curriculum.strip()
+                break
+
+    prospectus_tree = []
+    prospectus_title = selected_curriculum_name or '—'
+    selected_prospectus = _resolve_student_prospectus(selected_curriculum_name)
+
+    if selected_prospectus:
+        prospectus_title = selected_prospectus.name
+        selected_curriculum_name = selected_prospectus.name
+        for year in selected_prospectus.years.all().order_by('order'):
+            semesters_payload = []
+            for semester_row in year.semesters.all().order_by('order'):
+                courses_payload = []
+                for subject in semester_row.subjects.all().order_by('order'):
+                    courses_payload.append({
+                        'code': subject.code,
+                        'title': subject.title,
+                        'lec': subject.lec,
+                        'lab': subject.lab,
+                        'prereq': subject.prereq,
+                        'total': subject.total,
+                        'grade': subject.grade,
+                    })
+                semesters_payload.append({
+                    'id': semester_row.id,
+                    'label': semester_row.label,
+                    'courses': courses_payload,
+                })
+            prospectus_tree.append({
+                'id': year.id,
+                'label': year.label,
+                'semesters': semesters_payload,
+            })
+
+    sy_display = active_school_year.name if active_school_year else '—'
+    ay_display = active_school_year.name if active_school_year else '—'
     if active_school_year:
-        years = active_school_year.name.split('-')
-        sy_display = f"{years[0]} – {years[1]}" if len(years) == 2 else active_school_year.name
-        ay_display = f"A.Y. {years[0]}–{years[1]}" if len(years) == 2 else f"A.Y. {active_school_year.name}"
+        sy_display = active_school_year.name
+        ay_display = active_school_year.name
 
     # ----------------------------------------------------------------
     # Build document lookup: slug_key -> Document
@@ -201,7 +328,14 @@ def student(request):
         "active_school_year":          active_school_year,
         "school_year_display":         sy_display,
         "academic_year_display":       ay_display,
+        "current_school_year_name":    active_school_year.name if active_school_year else "",
         "current_semester":            semester,
+        "current_semester_name":       active_semester.name if active_semester else "",
+        "program_display":            program_display,
+        "student_id_display":         student_id_display,
+        "selected_curriculum_name":    selected_curriculum_name,
+        "prospectus_title":            prospectus_title,
+        "prospectus_tree_json":        json.dumps(prospectus_tree),
         "calendar_events":             calendar_events,
         "calendar_events_json":        json.dumps(calendar_events),
         "admission_requirements":      admission_requirements,

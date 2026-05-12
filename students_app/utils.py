@@ -3,6 +3,8 @@ Utility functions for application status checks.
 Used by login views, adapters, and middleware to determine user flow.
 """
 
+import re
+
 from students_app.models import (
     PersonalDetails,
     EducationalBackground,
@@ -53,3 +55,59 @@ def get_user_redirect_url(user):
 
     # Whether they have partial data or not, go to forms
     return "/personalDetails/"
+
+
+def normalize_curriculum_name(value):
+    """Normalize legacy curriculum strings for matching."""
+    text = (value or '').strip()
+    if not text:
+        return ''
+    text = re.sub(r'^\s*(mit\s+)?curriculum\s*[:\-]?\s*', '', text, flags=re.I).strip()
+    text = text.replace('–', '-').replace('—', '-')
+    text = re.sub(r'\s+', ' ', text)
+    return text
+
+
+def resolve_canonical_curriculum_name(value):
+    """Resolve a legacy curriculum string to a canonical Prospectus.name."""
+    from admin_app.models import Prospectus, ProspectusAssignment
+
+    raw = (value or '').strip()
+    if not raw:
+        return ''
+
+    normalized = normalize_curriculum_name(raw)
+    search_terms = [raw, normalized]
+    if normalized:
+        search_terms.extend([
+            f'Curriculum {normalized}',
+            f'MIT Curriculum {normalized}',
+        ])
+
+    for term in search_terms:
+        if not term:
+            continue
+        prospectus = (
+            Prospectus.objects.filter(name__iexact=term).first()
+            or Prospectus.objects.filter(program_name__iexact=term).first()
+            or Prospectus.objects.filter(description__iexact=term).first()
+        )
+        if prospectus:
+            return prospectus.name
+
+    if normalized:
+        assignment = ProspectusAssignment.objects.select_related('prospectus').filter(intake_year__iexact=normalized).first()
+        if assignment and assignment.prospectus:
+            return assignment.prospectus.name
+
+    for term in search_terms:
+        if not term:
+            continue
+        prospectus = (
+            Prospectus.objects.filter(name__icontains=term).first()
+            or Prospectus.objects.filter(program_name__icontains=term).first()
+        )
+        if prospectus:
+            return prospectus.name
+
+    return ''

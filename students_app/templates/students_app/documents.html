@@ -1,168 +1,193 @@
 {% load static %}
 <!doctype html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Documents Upload - Graduate School Admission</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: { brand: "#A02724", beige: "#F5F0EB" },
-          fontFamily: {
-            heading: ["Merriweather", "serif"],
-            body: ['"Source Sans 3"', "sans-serif"],
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Documents Upload - Graduate School Admission</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { brand: "#A02724", beige: "#F5F0EB" },
+            fontFamily: {
+              heading: ["Merriweather", "serif"],
+              body: ['"Source Sans 3"', "sans-serif"],
+            },
           },
         },
-      },
-    };
-  </script>
-  <style>
-    body {
-      font-family: "Source Sans 3", sans-serif;
-    }
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Source Sans 3", sans-serif;
+      }
 
-    h1,
-    h2,
-    h3 {
-      font-family: "Merriweather", serif;
-    }
+      h1,
+      h2,
+      h3 {
+        font-family: "Merriweather", serif;
+      }
 
-    .preview-image {
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-    }
+      .preview-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+      }
 
-    .file-item {
-      transition: all 0.2s;
-    }
+      .file-item {
+        transition: all 0.2s;
+      }
 
-    .file-item:hover {
-      background-color: #f9fafb;
-    }
+      .file-item:hover {
+        background-color: #f9fafb;
+      }
 
-    .pdf-badge {
-      background-color: #fee2e2;
-      color: #b91c1c;
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
+      .pdf-badge {
+        background-color: #fee2e2;
+        color: #b91c1c;
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
 
-    .or-divider {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      color: #6b7280;
-      font-size: 0.8rem;
-      margin: 8px 0;
-    }
+      .or-divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: #6b7280;
+        font-size: 0.8rem;
+        margin: 8px 0;
+      }
 
-    .or-divider::before,
-    .or-divider::after {
-      content: "";
-      flex: 1;
-      border-bottom: 1px solid #e5e7eb;
-    }
+      .or-divider::before,
+      .or-divider::after {
+        content: "";
+        flex: 1;
+        border-bottom: 1px solid #e5e7eb;
+      }
 
-    .or-divider span {
-      padding: 0 10px;
-    }
+      .or-divider span {
+        padding: 0 10px;
+      }
 
-    .curriculum-select {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.75rem center;
-      padding-right: 2.5rem;
-    }
+      .curriculum-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        padding-right: 2.5rem;
+      }
 
-    .curriculum-select:focus {
-      outline: none;
-      border-color: #A02724;
-      box-shadow: 0 0 0 3px rgba(160, 39, 36, 0.1);
-    }
-  </style>
-</head>
+      .curriculum-select:focus {
+        outline: none;
+        border-color: #a02724;
+        box-shadow: 0 0 0 3px rgba(160, 39, 36, 0.1);
+      }
+    </style>
+  </head>
 
-<body class="bg-beige min-h-screen">
-  <header class="text-center py-8">
-    <h1 class="text-3xl md:text-4xl font-bold text-brand">Graduate School</h1>
-    <p class="text-lg text-gray-500 mt-1">Admission Form</p>
-  </header>
-  <div class="max-w-4xl mx-auto px-4 mb-8">
-    <div class="flex items-center justify-between" id="progressBar"></div>
-  </div>
-  <div class="max-w-3xl mx-auto px-4 pb-12">
-    <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
-      <h2 class="text-2xl font-bold text-brand mb-2">Documents Upload</h2>
+  <body class="bg-beige min-h-screen">
+    <header class="text-center py-8">
+      <h1 class="text-3xl md:text-4xl font-bold text-brand">Graduate School</h1>
+      <p class="text-lg text-gray-500 mt-1">Admission Form</p>
+    </header>
+    <div class="max-w-4xl mx-auto px-4 mb-8">
+      <div class="flex items-center justify-between" id="progressBar"></div>
+    </div>
+    <div class="max-w-3xl mx-auto px-4 pb-12">
+      <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
+        <h2 class="text-2xl font-bold text-brand mb-2">Documents Upload</h2>
 
-      {% if admission_requirements %}
+        {% if admission_requirements %}
         <p class="text-sm text-gray-600 mb-6">
           Please upload the required documents for your admission application.
-          Documents marked <span class="text-red-500 font-semibold">*Required</span>
+          Documents marked
+          <span class="text-red-500 font-semibold">*Required</span>
           must be submitted before proceeding.
         </p>
-      {% else %}
+        {% else %}
         <p class="text-sm text-gray-600 mb-6">
-          Please upload your admission documents. You can submit optional documents later.
+          Please upload your admission documents. You can submit optional
+          documents later.
         </p>
-      {% endif %}
-
-      <form id="documentsForm" method="post" enctype="multipart/form-data" class="space-y-6" novalidate>
-        {% csrf_token %}
-
-        {% if messages %}
-        <div class="space-y-2">
-          {% for message in messages %}
-          <div class="rounded-lg px-4 py-3 text-sm {{ message.tags }}">
-            {{ message }}
-          </div>
-          {% endfor %}
-        </div>
         {% endif %}
 
-        <!-- MIT Curriculum Dropdown — left as-is per spec -->
-        <div class="border border-gray-200 rounded-xl p-5 bg-amber-50/40">
-          <div class="flex items-center gap-2 mb-3">
-            <i class="fas fa-graduation-cap text-brand text-sm"></i>
-            <label for="mitCurriculum" class="block text-sm font-semibold text-gray-700">
-              MIT Curriculum
-            </label>
-            <span class="text-xs font-medium text-gray-400 ml-1">Optional</span>
+        <form
+          id="documentsForm"
+          method="post"
+          enctype="multipart/form-data"
+          class="space-y-6"
+          novalidate
+        >
+          {% csrf_token %} {% if messages %}
+          <div class="space-y-2">
+            {% for message in messages %}
+            <div class="rounded-lg px-4 py-3 text-sm {{ message.tags }}">
+              {{ message }}
+            </div>
+            {% endfor %}
           </div>
-          <p class="text-xs text-gray-500 mb-3">Select the MIT Curriculum year you are currently enrolled in.</p>
-          <select
-            name="mitCurriculum"
-            id="mitCurriculum"
-            class="curriculum-select w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 bg-white transition hover:border-gray-400 focus:border-brand">
-            <option value="" disabled selected>— Select Curriculum —</option>
-            <option value="2019-2020">MIT Curriculum effective 2019 – 2020</option>
-            <option value="2023-2024">MIT Curriculum effective 2023 – 2024</option>
-          </select>
-          <p class="text-xs text-red-500 mt-1.5 hidden" id="mitCurriculumError">Please select a curriculum.</p>
-        </div>
+          {% endif %}
 
-        <!-- ══ CMS-DRIVEN DOCUMENT FIELDS ══
+          <!-- MIT Curriculum Dropdown — sourced from the Prospectus table -->
+          <div class="border border-gray-200 rounded-xl p-5 bg-amber-50/40">
+            <div class="flex items-center gap-2 mb-3">
+              <i class="fas fa-graduation-cap text-brand text-sm"></i>
+              <label
+                for="mitCurriculum"
+                class="block text-sm font-semibold text-gray-700"
+              >
+                MIT Curriculum
+              </label>
+              <span class="text-xs font-medium text-gray-400 ml-1"
+                >Optional</span
+              >
+            </div>
+            <p class="text-xs text-gray-500 mb-3">
+              Select the MIT Curriculum year you are currently enrolled in.
+            </p>
+            <select
+              name="mitCurriculum"
+              id="mitCurriculum"
+              class="curriculum-select w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 bg-white transition hover:border-gray-400 focus:border-brand"
+            >
+              <option value="" disabled selected>— Select Curriculum —</option>
+              {% for prospectus in prospectuses %}
+              <option value="{{ prospectus.name }}">
+                {{ prospectus.name }}
+              </option>
+              {% empty %}
+              <option value="" disabled>No curriculum records found</option>
+              {% endfor %}
+            </select>
+            <p
+              class="text-xs text-red-500 mt-1.5 hidden"
+              id="mitCurriculumError"
+            >
+              Please select a curriculum.
+            </p>
+          </div>
+
+          <!-- ══ CMS-DRIVEN DOCUMENT FIELDS ══
              field_key is pre-computed by the view (_title_to_key) and passed
              in via req.field_key — the template never recomputes it.
         -->
-        {% for req in admission_requirements %}
-
-          {% if req.multi_page %}
+          {% for req in admission_requirements %} {% if req.multi_page %}
           <!-- ── MULTI-PAGE / HYBRID BLOCK ── -->
           <div class="border border-gray-200 rounded-xl p-5 bg-blue-50/30">
             <div class="flex items-center justify-between mb-3">
@@ -174,7 +199,7 @@
                   <i class="fas fa-file-pdf text-xs"></i> PDF preferred
                 </span>
                 {% if req.required %}
-                  <span class="text-xs font-medium text-red-500">*Required</span>
+                <span class="text-xs font-medium text-red-500">*Required</span>
                 {% endif %}
               </div>
             </div>
@@ -185,22 +210,30 @@
 
             <!-- Option 1: Single PDF -->
             <div class="mb-4 p-3 bg-white rounded-lg border border-gray-200">
-              <div class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+              <div
+                class="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2"
+              >
                 <i class="fas fa-star text-yellow-500 text-xs"></i>
                 <span>Recommended: Upload as one PDF file</span>
               </div>
               <div class="flex items-start gap-4">
                 <div class="flex-grow">
-                  <input type="file"
+                  <input
+                    type="file"
                     name="{{ req.field_key }}_pdf"
                     accept=".pdf"
-                    class="w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 transition cms-pdf-input" />
+                    class="w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 transition cms-pdf-input"
+                  />
                 </div>
-                <div class="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden cms-pdf-preview">
+                <div
+                  class="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden cms-pdf-preview"
+                >
                   <i class="fas fa-file-pdf text-2xl text-red-500"></i>
                 </div>
               </div>
-              <p class="text-xs text-gray-500 mt-1">Upload all pages as a single PDF file</p>
+              <p class="text-xs text-gray-500 mt-1">
+                Upload all pages as a single PDF file
+              </p>
             </div>
 
             <div class="or-divider"><span>OR</span></div>
@@ -211,34 +244,52 @@
                 <i class="fas fa-image text-gray-400"></i>
                 <span>Upload as multiple images (if you don't have PDF)</span>
               </div>
-              <div class="cms-images-container space-y-3 mb-3"
-                   data-field-key="{{ req.field_key }}">
-                <div class="cms-image-item flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-200">
+              <div
+                class="cms-images-container space-y-3 mb-3"
+                data-field-key="{{ req.field_key }}"
+              >
+                <div
+                  class="cms-image-item flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-200"
+                >
                   <div class="flex-grow">
-                    <input type="file"
+                    <input
+                      type="file"
                       name="{{ req.field_key }}_images[]"
                       accept=".jpg,.jpeg,.png"
-                      class="cms-image-input w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition" />
+                      class="cms-image-input w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition"
+                    />
                   </div>
-                  <div class="cms-image-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
+                  <div
+                    class="cms-image-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden"
+                  >
                     <i class="fas fa-image text-2xl"></i>
                   </div>
-                  <button type="button" class="remove-cms-image text-red-500 hover:text-red-700 p-1" style="display: none">
+                  <button
+                    type="button"
+                    class="remove-cms-image text-red-500 hover:text-red-700 p-1"
+                    style="display: none"
+                  >
                     <i class="fas fa-times"></i>
                   </button>
                 </div>
               </div>
-              <button type="button"
+              <button
+                type="button"
                 class="add-cms-image mt-2 text-sm text-brand hover:text-brand/80 font-medium flex items-center gap-2"
                 data-container="{{ req.field_key }}"
-                data-field="{{ req.field_key }}_images[]">
+                data-field="{{ req.field_key }}_images[]"
+              >
                 <i class="fas fa-plus-circle"></i> Add another page image
               </button>
             </div>
 
             <div class="mt-3 flex items-center gap-2 text-xs text-gray-500">
               <i class="fas fa-info-circle"></i>
-              <span>Choose EITHER one PDF file OR multiple images. {% if req.required %}At least one page required.{% else %}Optional — can be submitted later.{% endif %}</span>
+              <span
+                >Choose EITHER one PDF file OR multiple images. {% if
+                req.required %}At least one page required.{% else %}Optional —
+                can be submitted later.{% endif %}</span
+              >
             </div>
           </div>
 
@@ -250,7 +301,7 @@
                 {{ req.title }}
               </label>
               {% if req.required %}
-                <span class="text-xs font-medium text-red-500">*Required</span>
+              <span class="text-xs font-medium text-red-500">*Required</span>
               {% endif %}
             </div>
 
@@ -260,163 +311,182 @@
 
             <div class="flex items-start gap-4">
               <div class="flex-grow">
-                <input type="file"
+                <input
+                  type="file"
                   name="{{ req.field_key }}_file"
                   accept=".pdf,.jpg,.jpeg,.png"
-                  class="cms-single-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition" />
+                  class="cms-single-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition"
+                />
               </div>
-              <div class="cms-single-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden">
+              <div
+                class="cms-single-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden"
+              >
                 <i class="fas fa-image text-2xl"></i>
               </div>
             </div>
             <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
               <i class="fas fa-info-circle"></i>
-              <span>PDF or image, max 10MB. {% if not req.required %}Optional — can be submitted later.{% endif %}</span>
+              <span
+                >PDF or image, max 10MB. {% if not req.required %}Optional — can
+                be submitted later.{% endif %}</span
+              >
             </div>
           </div>
-          {% endif %}
-
-        {% empty %}
+          {% endif %} {% empty %}
           <!-- Fallback if CMS has no requirements configured -->
-          <div class="border border-amber-200 bg-amber-50 rounded-xl p-5 text-sm text-amber-800">
+          <div
+            class="border border-amber-200 bg-amber-50 rounded-xl p-5 text-sm text-amber-800"
+          >
             <i class="fas fa-info-circle mr-2"></i>
-            No document requirements have been configured yet. Please check back later or contact the Graduate School office.
+            No document requirements have been configured yet. Please check back
+            later or contact the Graduate School office.
           </div>
-        {% endfor %}
+          {% endfor %}
 
-        <!-- Navigation -->
-        <div class="flex justify-between pt-6">
-          <a href="{% url 'workingStudent' %}"
-            class="inline-flex items-center gap-2 px-8 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand/5 active:scale-[0.98] transition">←
-            Back</a>
-          <button type="submit"
-            class="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md">
-            Next →
-          </button>
-        </div>
-      </form>
+          <!-- Navigation -->
+          <div class="flex justify-between pt-6">
+            <a
+              href="{% url 'workingStudent' %}"
+              class="inline-flex items-center gap-2 px-8 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand/5 active:scale-[0.98] transition"
+              >← Back</a
+            >
+            <button
+              type="submit"
+              class="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md"
+            >
+              Next →
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
 
-  <script src="{% static 'students_app/js/documents.js' %}"></script>
+    <script src="{% static 'students_app/js/documents.js' %}"></script>
 
-  <script>
-    // ── Add-another-image for CMS multi-page fields ───────────────────────
-    document.querySelectorAll('.add-cms-image').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var containerKey = btn.dataset.container;
-        var fieldName = btn.dataset.field;
-        var container = document.querySelector(
-          '.cms-images-container[data-field-key="' + containerKey + '"]'
-        );
-        if (!container) return;
+    <script>
+      // ── Add-another-image for CMS multi-page fields ───────────────────────
+      document.querySelectorAll(".add-cms-image").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var containerKey = btn.dataset.container;
+          var fieldName = btn.dataset.field;
+          var container = document.querySelector(
+            '.cms-images-container[data-field-key="' + containerKey + '"]',
+          );
+          if (!container) return;
 
-        var first = container.querySelector('.cms-image-item');
-        var clone = first.cloneNode(true);
+          var first = container.querySelector(".cms-image-item");
+          var clone = first.cloneNode(true);
 
-        var input = clone.querySelector('input[type="file"]');
-        if (input) input.value = '';
+          var input = clone.querySelector('input[type="file"]');
+          if (input) input.value = "";
 
-        var preview = clone.querySelector('.cms-image-preview');
-        if (preview) {
-          preview.innerHTML = '<i class="fas fa-image text-2xl"></i>';
-        }
-
-        var removeBtn = clone.querySelector('.remove-cms-image');
-        if (removeBtn) removeBtn.style.display = '';
-
-        var firstRemove = first.querySelector('.remove-cms-image');
-        if (firstRemove) firstRemove.style.display = '';
-
-        container.appendChild(clone);
-
-        wireRemoveButtons(container);
-        wireImagePreview(input);
-      });
-    });
-
-    function wireRemoveButtons(container) {
-      container.querySelectorAll('.remove-cms-image').forEach(function (btn) {
-        btn.onclick = function () {
-          var items = container.querySelectorAll('.cms-image-item');
-          if (items.length > 1) {
-            btn.closest('.cms-image-item').remove();
-            var remaining = container.querySelectorAll('.cms-image-item');
-            if (remaining.length === 1) {
-              var lastRemove = remaining[0].querySelector('.remove-cms-image');
-              if (lastRemove) lastRemove.style.display = 'none';
-            }
+          var preview = clone.querySelector(".cms-image-preview");
+          if (preview) {
+            preview.innerHTML = '<i class="fas fa-image text-2xl"></i>';
           }
-        };
-      });
-    }
 
-    function wireImagePreview(input) {
-      if (!input) return;
-      input.addEventListener('change', function () {
-        var preview = input.closest('.cms-image-item')
-          ? input.closest('.cms-image-item').querySelector('.cms-image-preview')
-          : null;
-        if (!preview || !input.files || !input.files[0]) return;
-        var file = input.files[0];
-        if (file.type.startsWith('image/')) {
-          var reader = new FileReader();
-          reader.onload = function (e) {
-            preview.innerHTML =
-              '<img src="' + e.target.result +
-              '" class="w-full h-full object-cover" />';
+          var removeBtn = clone.querySelector(".remove-cms-image");
+          if (removeBtn) removeBtn.style.display = "";
+
+          var firstRemove = first.querySelector(".remove-cms-image");
+          if (firstRemove) firstRemove.style.display = "";
+
+          container.appendChild(clone);
+
+          wireRemoveButtons(container);
+          wireImagePreview(input);
+        });
+      });
+
+      function wireRemoveButtons(container) {
+        container.querySelectorAll(".remove-cms-image").forEach(function (btn) {
+          btn.onclick = function () {
+            var items = container.querySelectorAll(".cms-image-item");
+            if (items.length > 1) {
+              btn.closest(".cms-image-item").remove();
+              var remaining = container.querySelectorAll(".cms-image-item");
+              if (remaining.length === 1) {
+                var lastRemove =
+                  remaining[0].querySelector(".remove-cms-image");
+                if (lastRemove) lastRemove.style.display = "none";
+              }
+            }
           };
-          reader.readAsDataURL(file);
-        }
-      });
-    }
+        });
+      }
 
-    function wirePdfPreview(input) {
-      if (!input) return;
-      input.addEventListener('change', function () {
-        var preview = input.closest('.mb-4')
-          ? input.closest('.mb-4').querySelector('.cms-pdf-preview')
-          : null;
-        if (!preview || !input.files || !input.files[0]) return;
-        var file = input.files[0];
-        if (file.type === 'application/pdf') {
-          preview.innerHTML =
-            '<div class="flex flex-col items-center justify-center h-full">' +
-            '<i class="fas fa-file-pdf text-2xl text-red-500"></i>' +
-            '<p class="text-xs text-gray-500 mt-1 text-center px-1 truncate w-full">' +
-            file.name + '</p></div>';
-        }
-      });
-    }
+      function wireImagePreview(input) {
+        if (!input) return;
+        input.addEventListener("change", function () {
+          var preview = input.closest(".cms-image-item")
+            ? input
+                .closest(".cms-image-item")
+                .querySelector(".cms-image-preview")
+            : null;
+          if (!preview || !input.files || !input.files[0]) return;
+          var file = input.files[0];
+          if (file.type.startsWith("image/")) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+              preview.innerHTML =
+                '<img src="' +
+                e.target.result +
+                '" class="w-full h-full object-cover" />';
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
 
-    function wireSinglePreview(input) {
-      if (!input) return;
-      input.addEventListener('change', function () {
-        var preview = input.closest('.border')
-          ? input.closest('.border').querySelector('.cms-single-preview')
-          : null;
-        if (!preview || !input.files || !input.files[0]) return;
-        var file = input.files[0];
-        if (file.type.startsWith('image/')) {
-          var reader = new FileReader();
-          reader.onload = function (e) {
+      function wirePdfPreview(input) {
+        if (!input) return;
+        input.addEventListener("change", function () {
+          var preview = input.closest(".mb-4")
+            ? input.closest(".mb-4").querySelector(".cms-pdf-preview")
+            : null;
+          if (!preview || !input.files || !input.files[0]) return;
+          var file = input.files[0];
+          if (file.type === "application/pdf") {
             preview.innerHTML =
-              '<img src="' + e.target.result +
-              '" class="w-full h-full object-cover" />';
-          };
-          reader.readAsDataURL(file);
-        } else if (file.type === 'application/pdf') {
-          preview.innerHTML =
-            '<i class="fas fa-file-pdf text-2xl text-red-500"></i>';
-        }
-      });
-    }
+              '<div class="flex flex-col items-center justify-center h-full">' +
+              '<i class="fas fa-file-pdf text-2xl text-red-500"></i>' +
+              '<p class="text-xs text-gray-500 mt-1 text-center px-1 truncate w-full">' +
+              file.name +
+              "</p></div>";
+          }
+        });
+      }
 
-    document.querySelectorAll('.cms-image-input').forEach(wireImagePreview);
-    document.querySelectorAll('.cms-pdf-input').forEach(wirePdfPreview);
-    document.querySelectorAll('.cms-single-file').forEach(wireSinglePreview);
-    document.querySelectorAll('.cms-images-container').forEach(wireRemoveButtons);
-  </script>
-</body>
+      function wireSinglePreview(input) {
+        if (!input) return;
+        input.addEventListener("change", function () {
+          var preview = input.closest(".border")
+            ? input.closest(".border").querySelector(".cms-single-preview")
+            : null;
+          if (!preview || !input.files || !input.files[0]) return;
+          var file = input.files[0];
+          if (file.type.startsWith("image/")) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+              preview.innerHTML =
+                '<img src="' +
+                e.target.result +
+                '" class="w-full h-full object-cover" />';
+            };
+            reader.readAsDataURL(file);
+          } else if (file.type === "application/pdf") {
+            preview.innerHTML =
+              '<i class="fas fa-file-pdf text-2xl text-red-500"></i>';
+          }
+        });
+      }
 
+      document.querySelectorAll(".cms-image-input").forEach(wireImagePreview);
+      document.querySelectorAll(".cms-pdf-input").forEach(wirePdfPreview);
+      document.querySelectorAll(".cms-single-file").forEach(wireSinglePreview);
+      document
+        .querySelectorAll(".cms-images-container")
+        .forEach(wireRemoveButtons);
+    </script>
+  </body>
 </html>
