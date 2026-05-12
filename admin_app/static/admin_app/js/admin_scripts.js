@@ -202,7 +202,7 @@ function openProspectusModal(){
     sel.innerHTML = '<option value="">Select program</option>';
     if(res && res.success && Array.isArray(res.data)){
       res.data.forEach(p=>{
-        const opt = document.createElement('option'); opt.value = p.name; opt.textContent = p.name; sel.appendChild(opt);
+        const opt = document.createElement('option'); opt.value = p.name; opt.textContent = p.program_label || p.name; sel.appendChild(opt);
       });
     }
   }).catch(err=>{ console.warn('Failed to load programs',err); });
@@ -220,47 +220,171 @@ document.getElementById('prospectusModal')?.addEventListener('click', function(e
 // Initialize on page load
 // Populate Admission Details (School Year, Semester, Curriculum)
 function populateAdmissionDetails(){
-  // Semesters
-  fetch('/admin-panel/api/admission/semesters/', { method: 'GET', credentials: 'same-origin', headers: {'Accept':'application/json'} })
-    .then(r=>r.json())
-    .then(res=>{
-      const semEl = document.getElementById('admSemester');
-      if(!semEl) return;
-      semEl.innerHTML = '';
-      if(res && res.success && Array.isArray(res.semesters) && res.semesters.length){
-        res.semesters.forEach(s=>{ const opt=document.createElement('option'); opt.value=s; opt.textContent=s; semEl.appendChild(opt); });
-      } else {
-        ['1st Semester','2nd Semester','Summer'].forEach(s=>{ const opt=document.createElement('option'); opt.value=s; opt.textContent=s; semEl.appendChild(opt); });
-      }
-      // set previously selected value if present
-      try{ if(window.selectedApp && window.selectedApp.semester){ semEl.value = window.selectedApp.semester || ''; } }catch(e){}
-    }).catch(err=>{ console.warn('Failed to load semesters', err); });
-
-  // School years
-  fetch('/admin-panel/api/admission/school-years/', { method: 'GET', credentials: 'same-origin', headers: {'Accept':'application/json'} })
-    .then(r=>r.json())
-    .then(res=>{
-      const yearEl = document.getElementById('admYear');
-      if(!yearEl) return;
-      yearEl.innerHTML = '';
-      if(res && res.success && Array.isArray(res.school_years) && res.school_years.length){
-        res.school_years.forEach(y=>{ const opt=document.createElement('option'); opt.value=y.name; opt.textContent=y.name + (y.is_active ? ' (active)' : ''); yearEl.appendChild(opt); });
-      }
-      try{ if(window.selectedApp && window.selectedApp.year_admitted){ yearEl.value = window.selectedApp.year_admitted || ''; } }catch(e){}
-    }).catch(err=>{ console.warn('Failed to load school years', err); });
-
-  // Curricula (prospectuses)
-  fetch('/admin-panel/api/admission/curricula/', { method: 'GET', credentials: 'same-origin', headers: {'Accept':'application/json'} })
-    .then(r=>r.json())
-    .then(res=>{
-      const currEl = document.getElementById('admCurriculum');
-      if(!currEl) return;
-      currEl.innerHTML = '';
-      if(res && res.success && Array.isArray(res.curricula) && res.curricula.length){
-        res.curricula.forEach(c=>{ const opt=document.createElement('option'); opt.value=c.name; opt.textContent=c.name + (c.program_name ? ' — '+c.program_name : ''); currEl.appendChild(opt); });
-      }
-      try{ if(window.selectedApp && window.selectedApp.curriculum){ currEl.value = window.selectedApp.curriculum || ''; } }catch(e){}
-    }).catch(err=>{ console.warn('Failed to load curricula', err); });
+  const semEl = document.getElementById('admSemester');
+  const yearEl = document.getElementById('admYear');
+  const levelEl = document.getElementById('admProgramLevel');
+  const currEl = document.getElementById('admCurriculum');
+  let activeSchoolYearName = '';
+  let activeSemesterName = '';
+  
+  // Determine which values to try to set (from selectedApp or empty)
+  const targetCurriculum = window.selectedApp?.student_curriculum || window.selectedApp?.curriculum || '';
+  const targetSemester = window.selectedApp?.semester || '';
+  const targetYear = window.selectedApp?.year_admitted || '';
+  const targetProgramLevel = window.selectedApp?.program_level || '';
+  const userId = window.selectedApp?.user_id || null;
+  
+  // Load all options in parallel
+  Promise.all([
+    // Load semesters
+    fetch('/admin-panel/api/admission/semesters/', { 
+      method: 'GET', 
+      credentials: 'same-origin', 
+      headers: {'Accept':'application/json'} 
+    })
+      .then(r=>r.json())
+      .then(res=>{
+        if(!semEl) return;
+        semEl.innerHTML = '<option value="">— Select —</option>';
+        if(res && res.success && Array.isArray(res.semesters) && res.semesters.length){
+          res.semesters.forEach(s=>{ 
+            const opt=document.createElement('option'); 
+            opt.value=s.name || ''; 
+            opt.textContent=s.name || ''; 
+            semEl.appendChild(opt); 
+          });
+        } else {
+          ['1st Semester','2nd Semester','Summer'].forEach(s=>{ 
+            const opt=document.createElement('option'); 
+            opt.value=s; 
+            opt.textContent=s; 
+            semEl.appendChild(opt); 
+          });
+        }
+        return 'semesters';
+      })
+      .catch(err=>{ console.warn('Failed to load semesters', err); }),
+      
+    // Load school years and get active one (with active semester)
+    fetch('/admin-panel/api/admission/active-school-year/', { 
+      method: 'GET', 
+      credentials: 'same-origin', 
+      headers: {'Accept':'application/json'} 
+    })
+      .then(r=>r.json())
+      .then(res=>{
+        if(res && res.success && res.data){
+          activeSchoolYearName = res.data.school_year?.name || '';
+          activeSemesterName = res.data.active_semester?.name || '';
+        }
+        return 'active_schoolyear';
+      })
+      .catch(err=>{ console.warn('Failed to load active school year', err); }),
+      
+    // Load all school years
+    fetch('/admin-panel/api/admission/school-years/', { 
+      method: 'GET', 
+      credentials: 'same-origin', 
+      headers: {'Accept':'application/json'} 
+    })
+      .then(r=>r.json())
+      .then(res=>{
+        if(!yearEl) return;
+        yearEl.innerHTML = '<option value="">— Select —</option>';
+        if(res && res.success && Array.isArray(res.school_years) && res.school_years.length){
+          res.school_years.forEach(y=>{ 
+            const opt=document.createElement('option'); 
+            opt.value=y.name; 
+            opt.textContent=y.name; 
+            yearEl.appendChild(opt); 
+          });
+        }
+        return 'schoolyears';
+      })
+      .catch(err=>{ console.warn('Failed to load school years', err); }),
+      
+    // Load program levels from Program table
+    fetch('/admin-panel/api/programs/', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: {'Accept':'application/json'}
+    })
+      .then(r=>r.json())
+      .then(res=>{
+        if(!levelEl) return;
+        levelEl.innerHTML = '<option value="">— Select Level —</option>';
+        if(res && res.success && Array.isArray(res.data) && res.data.length){
+          res.data.forEach(program=>{
+            const opt=document.createElement('option');
+            opt.value=program.name;
+            opt.textContent=program.program_label || program.name;
+            levelEl.appendChild(opt);
+          });
+        }
+      })
+      .catch(err=>{ console.warn('Failed to load programs', err); }),
+      
+    // Load curricula
+    fetch('/admin-panel/api/admission/curricula/', { 
+      method: 'GET', 
+      credentials: 'same-origin', 
+      headers: {'Accept':'application/json'} 
+    })
+      .then(r=>r.json())
+      .then(res=>{
+        if(!currEl) return;
+        currEl.innerHTML = '<option value="">— Select Curriculum —</option>';
+        if(res && res.success && Array.isArray(res.curricula) && res.curricula.length){
+          res.curricula.forEach(c=>{ 
+            const opt=document.createElement('option'); 
+            opt.value=c.name; 
+            opt.textContent=c.name + (c.program_name ? ' — '+c.program_name : ''); 
+            currEl.appendChild(opt); 
+          });
+        }
+        return 'curricula';
+      })
+      .catch(err=>{ console.warn('Failed to load curricula', err); })
+  ]).then(() => {
+    // After all options are loaded, set the values
+    
+    // Set semester from app data if present, otherwise use the active semester from DB
+    if(semEl){
+      semEl.value = targetSemester || activeSemesterName || '';
+    }
+    
+    // Set school year from app data if present, otherwise use the active school year from DB
+    if(yearEl){
+      yearEl.value = targetYear || activeSchoolYearName || '';
+    }
+    
+    // Set curriculum - fetch from student's EducationalBackground (graduate level)
+    if(currEl && userId){
+      fetch(`/admin-panel/api/admission/student-curriculum/${userId}/`, { 
+        method: 'GET', 
+        credentials: 'same-origin', 
+        headers: {'Accept':'application/json'} 
+      })
+        .then(r=>r.json())
+        .then(res=>{
+          // Use student's curriculum if found and no app override
+          if(res.success && res.curriculum && !targetCurriculum){
+            currEl.value = res.curriculum;
+          } else if(targetCurriculum){
+            // Use app stored curriculum as fallback
+            currEl.value = targetCurriculum;
+          }
+        })
+        .catch(err=>{ 
+          // Fallback to application's stored curriculum
+          if(targetCurriculum && currEl){
+            currEl.value = targetCurriculum;
+          }
+        });
+    } else if(currEl && targetCurriculum){
+      currEl.value = targetCurriculum;
+    }
+  }).catch(err=>{ console.warn('Error in populateAdmissionDetails', err); });
 }
 
 if(document.readyState === 'loading') {
@@ -433,9 +557,6 @@ function renderTable(){
       
       tbody.innerHTML+=`
         <tr class="border-t border-gray-50 hover:bg-gray-50/70 transition-colors" data-app-id="${app.id}">
-          <td class="px-5 py-4">
-            <input type="checkbox" class="app-select-checkbox w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" data-app-id="${app.id}"/>
-          </td>
           <td class="px-4 py-4 text-red-700 font-semibold text-sm">${app.id}</td>
           <td class="px-4 py-4"><p class="font-semibold text-gray-800 text-sm">${app.name}</p><p class="text-xs text-gray-400">${app.email}</p><p class="text-xs text-gray-400">${app.mobile}</p></td>
           <td class="px-4 py-4 text-sm text-gray-700">${app.course}</td>
@@ -618,10 +739,12 @@ function openModal(id){
   // Populate admission details
   const semEl = document.getElementById("admSemester");
   const yearEl = document.getElementById("admYear");
+  const levelEl = document.getElementById('admProgramLevel');
   const currEl = document.getElementById("admCurriculum");
   if(semEl) semEl.value   = selectedApp.semester   || "";
   if(yearEl) yearEl.value = selectedApp.year_admitted || "";
-  if(currEl) currEl.value = selectedApp.curriculum  || "";
+  if(levelEl) levelEl.value = selectedApp.program_level || "";
+  if(currEl) currEl.value = selectedApp.student_curriculum || selectedApp.curriculum  || "";
   renderDocCards();
   const modal = document.getElementById("modal");
   if(modal) {
@@ -773,6 +896,10 @@ function _renderDocPreviewModal(){
       </button>`;
   } else {
     actionsEl.innerHTML=`
+
+        if(levelEl && targetProgramLevel){
+          levelEl.value = targetProgramLevel;
+        }
       <button onclick="unsetDoc(${docPreviewCurrentIdx}); _renderDocPreviewModal();" class="flex items-center gap-1.5 border border-gray-300 text-gray-600 text-xs font-semibold px-4 py-2 rounded-xl hover:bg-gray-50 transition">
         <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> ${isV ? 'Undo Verify' : 'Undo Reject'}
       </button>`;
@@ -1141,6 +1268,73 @@ function markIncomplete(){
 function requestResubmission(){
   activityLog.unshift({time:new Date().toLocaleString(),admin:"Marwina Admin",appId:selectedApp?.id||"",doc:"Application",action:"Resubmission",notes:"Resubmission request sent."});
   showToast("Resubmission request sent to student","warn");
+}
+
+function acceptEnrollApplication(){
+  if(!selectedApp) return showToast('No application selected','error');
+  if(!confirm('Accept application '+selectedApp.id+' and mark as Enrolled?')) return;
+  const remarks    = document.getElementById("remarks")?.value || '';
+  const semester   = document.getElementById("admSemester")?.value  || "";
+  const yearAdmitted = document.getElementById("admYear")?.value    || "";
+  const programLevel = document.getElementById("admProgramLevel")?.value || "";
+
+  fetch('/admin-panel/api/application/status/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify({
+      application_id: selectedApp.id,
+      status: 'enrolled',
+      remarks,
+      semester,
+      year_admitted: yearAdmitted,
+      program_level: programLevel
+    })
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.success){
+      selectedApp.remarks = remarks;
+      selectedApp.status = 'Enrolled';
+      selectedApp.semester = semester;
+      selectedApp.year_admitted = yearAdmitted;
+      selectedApp.program_level = programLevel;
+      showToast(selectedApp.id+" accepted — status set to Enrolled ✓");
+      closeModal();
+      initializeData(); renderTable(); renderDashboard();
+    } else {
+      showToast('Error: '+data.message,'error');
+    }
+  })
+  .catch(e=>{showToast('Error: '+e.message,'error');});
+}
+
+function rejectEnrollApplication(){
+  if(!selectedApp) return showToast('No application selected','error');
+  if(!confirm('Reject application '+selectedApp.id+'?')) return;
+  const remarks=document.getElementById("remarks")?.value || '';
+
+  fetch('/admin-panel/api/application/status/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    body: JSON.stringify({
+      application_id: selectedApp.id,
+      status: 'rejected',
+      remarks: remarks
+    })
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.success){
+      selectedApp.remarks=remarks;
+      selectedApp.status="Rejected";
+      showToast(selectedApp.id+" rejected","warn");
+      closeModal();
+      initializeData(); renderTable(); renderDashboard();
+    } else {
+      showToast('Error: '+data.message,'error');
+    }
+  })
+  .catch(e=>{showToast('Error: '+e.message,'error');});
 }
 function deleteApp(id){
   if(!confirm("Delete application "+id+"?")) return;
@@ -2744,7 +2938,7 @@ function openAppDetailsModal() {
   // Populate modal with application data
   document.getElementById('appModalID').textContent = selectedApp.id || '—';
   document.getElementById('appModalSummaryID').textContent = selectedApp.id || '—';
-  document.getElementById('appModalSummaryCourse').textContent = selectedApp.course || '—';
+  document.getElementById('appModalSummaryCourse').textContent = selectedApp.program_description || selectedApp.course || '—';
   document.getElementById('appModalSummaryDate').textContent = selectedApp.submission_date || '—';
   document.getElementById('appModalSummaryActivity').textContent = selectedApp.last_activity || '—';
   document.getElementById('appModalSummaryStatus').innerHTML = statusBadge(selectedApp.status || '');
@@ -2896,6 +3090,9 @@ function openAppDetailsModal() {
     }
   }
   
+  // Populate admission details fields (load dropdown options and set values)
+  populateAdmissionDetails();
+  
   modal.style.display = 'flex';
   modal.classList.add('fade-in');
   lucide.createIcons();
@@ -2952,17 +3149,29 @@ function verifyCORForApp(id) {
 function verifyGradesForApp(id) {
   selectedApp = applications.find(a => a.id === id);
   if (!selectedApp) return;
-  _switchAndOpen('grades', () => {
-    const m = document.getElementById('gradesModal');
-    if (m) {
-      m.classList.add('open');
-      m.style.display = 'flex';
-      document.getElementById('gradesModalStudentName')?.replaceChildren(document.createTextNode(selectedApp.name || '—'));
+
+  // Switch to Grades tab first
+  switchDocVerTab('grades');
+
+  // Fetch all grade submissions, then find and open this student's
+  fetch('/admin-panel/api/grade-submissions/', { credentials: 'same-origin' })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) { showToast('Error loading grades', 'error'); return; }
+      gradesData = data.submissions || [];
+      _updateGradeStats();
+      _renderGradesRows();
+
+      // Match by application ID (student_id field in submission)
+      const submission = gradesData.find(g => g.student_id === selectedApp.id);
+      if (submission) {
+        requestAnimationFrame(() => setTimeout(() => openGradesModal(submission.id), 80));
+      } else {
+        showToast(`No grade submission found for ${selectedApp.name}`, 'warn');
+      }
       lucide.createIcons();
-    } else {
-      showToast('Grades modal not found', 'error');
-    }
-  });
+    })
+    .catch(e => showToast('Error: ' + e.message, 'error'));
 }
 
 
@@ -3054,3 +3263,244 @@ function _postDecision(decision){
 function acceptApplication(){ _postDecision('Accepted'); }
 function waitlistApplication(){ _postDecision('Waitlisted'); }
 function rejectApplication(){ _postDecision('Rejected'); }
+
+
+/* ═══ GRADES VERIFICATION ═══ */
+let gradesData = [];
+let selectedGrade = null;
+
+function renderGradesTable() {
+  const tbody = document.getElementById('gradesTableBody');
+  if (!tbody) return;
+
+  fetch('/admin-panel/api/grade-submissions/', { credentials: 'same-origin' })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) { showToast('Error loading grades', 'error'); return; }
+      gradesData = data.submissions || [];
+      _updateGradeStats();
+      _renderGradesRows();
+      lucide.createIcons();
+    })
+    .catch(e => showToast('Error: ' + e.message, 'error'));
+}
+
+function _updateGradeStats() {
+  document.getElementById('gradesTotalCount').innerText       = gradesData.length;
+  document.getElementById('gradesPendingCount').innerText     = gradesData.filter(g => g.status === 'Pending').length;
+  document.getElementById('gradesAcknowledgedCount').innerText= gradesData.filter(g => g.status === 'Acknowledged').length;
+  document.getElementById('gradesFlaggedCount').innerText     = gradesData.filter(g => g.status === 'Flagged').length;
+}
+
+function _renderGradesRows() {
+  const tbody  = document.getElementById('gradesTableBody');
+  const empty  = document.getElementById('gradesEmptyState');
+  if (!tbody) return;
+
+  const search       = (document.getElementById('gradesSearchInput')?.value || '').toLowerCase();
+  const statusFilter = document.getElementById('gradesStatusFilter')?.value || 'all';
+  const courseFilter = document.getElementById('gradesCourseFilter')?.value || 'all';
+
+  const filtered = gradesData.filter(g => {
+    const matchSearch = !search ||
+      (g.student_name || '').toLowerCase().includes(search) ||
+      (g.student_id   || '').toLowerCase().includes(search);
+    const matchStatus = statusFilter === 'all' || g.status === statusFilter;
+    const matchCourse = courseFilter === 'all' || (g.program || '').includes(courseFilter);
+    return matchSearch && matchStatus && matchCourse;
+  });
+
+  tbody.innerHTML = '';
+
+  if (!filtered.length) { empty?.classList.remove('hidden'); return; }
+  empty?.classList.add('hidden');
+
+  filtered.forEach(g => {
+    const gpaNum     = g.gpa !== null ? parseFloat(g.gpa) : null;
+    const gpaDisplay = gpaNum !== null ? gpaNum.toFixed(2) : '—';
+    const gpaColor   = gpaNum !== null ? (gpaNum <= 2.0 ? 'text-green-600' : 'text-red-500') : 'text-gray-400';
+    const screenshot = g.screenshot_url
+      ? `<a href="${g.screenshot_url}" target="_blank"
+           class="flex items-center gap-1 text-xs text-blue-600 hover:underline">
+           <i data-lucide="image" class="w-3 h-3"></i> View
+         </a>`
+      : '<span class="text-xs text-gray-400">None</span>';
+
+    tbody.innerHTML += `
+      <tr class="hover:bg-gray-50/70 transition-colors">
+        <td class="px-5 py-4">
+          <p class="font-semibold text-gray-800 text-sm">${escapeHtml(g.student_name || '—')}</p>
+          <p class="text-xs text-gray-400 font-mono">${escapeHtml(g.student_id || '—')}</p>
+        </td>
+        <td class="px-4 py-4 text-sm text-gray-700">${escapeHtml(g.program || '—')}</td>
+        <td class="px-4 py-4 text-sm">
+          <span class="font-medium text-gray-700">${escapeHtml(g.semester || '—')}</span>
+          <span class="text-gray-400 text-xs block font-mono">${escapeHtml(g.school_year || '')}</span>
+        </td>
+        <td class="px-4 py-4 text-sm text-gray-600 font-mono">${g.subject_count} subject(s)</td>
+        <td class="px-4 py-4">
+          <span class="font-bold text-sm font-mono ${gpaColor}">${gpaDisplay}</span>
+        </td>
+        <td class="px-4 py-4">${screenshot}</td>
+        <td class="px-4 py-4">${_gradeStatusBadge(g.status)}</td>
+        <td class="px-4 py-4">
+          <button onclick="openGradesModal(${g.id})"
+            class="flex items-center gap-1.5 bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-green-100 transition">
+            <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> Review
+          </button>
+        </td>
+      </tr>`;
+  });
+
+  lucide.createIcons();
+}
+
+function _gradeStatusBadge(status) {
+  const cls = {
+    'Pending':      'bg-orange-100 text-orange-700',
+    'Acknowledged': 'bg-green-100  text-green-700',
+    'Flagged':      'bg-red-100    text-red-700',
+  }[status] || 'bg-gray-100 text-gray-600';
+  return `<span class="px-2 py-1 rounded-full text-xs font-semibold ${cls}">${escapeHtml(status || '—')}</span>`;
+}
+
+function openGradesModal(id) {
+  selectedGrade = gradesData.find(g => g.id === id);
+  if (!selectedGrade) return;
+
+  document.getElementById('gradesModalStudentName').textContent = selectedGrade.student_name || '—';
+  document.getElementById('gradesMName').textContent      = selectedGrade.student_name  || '—';
+  document.getElementById('gradesMStudentID').textContent = selectedGrade.student_id    || '—';
+  document.getElementById('gradesMProgram').textContent   = selectedGrade.program       || '—';
+  document.getElementById('gradesMMSemester').textContent = selectedGrade.semester      || '—';
+  document.getElementById('gradesMYear').textContent      = selectedGrade.school_year   || '—';
+
+  const gpaNum = selectedGrade.gpa !== null ? parseFloat(selectedGrade.gpa) : null;
+  const gpaEl  = document.getElementById('gradesMGPA');
+  if (gpaEl) {
+    gpaEl.textContent  = gpaNum !== null ? gpaNum.toFixed(2) : '—';
+    gpaEl.className    = 'text-gray-800 font-bold ' + (gpaNum !== null ? (gpaNum <= 2.0 ? 'text-green-600' : 'text-red-500') : 'text-gray-400');
+  }
+
+  // Grade entries table
+  const tbody = document.getElementById('gradesMTableBody');
+  if (tbody) {
+    if (!selectedGrade.grades?.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-gray-400 text-sm">No grade entries available.</td></tr>`;
+    } else {
+      tbody.innerHTML = selectedGrade.grades.map(entry => {
+        const g   = entry.grade !== null ? parseFloat(entry.grade) : null;
+        const cls = g !== null ? (g <= 2.0 ? 'text-green-600 font-bold' : 'text-red-500 font-bold') : 'text-gray-400';
+        return `<tr>
+          <td class="px-4 py-3 text-xs font-mono font-semibold text-red-700">${escapeHtml(entry.code  || '—')}</td>
+          <td class="px-4 py-3 text-xs text-gray-700">${escapeHtml(entry.title || '—')}</td>
+          <td class="px-4 py-3 text-xs text-center font-mono text-gray-600">${entry.units ?? 0}</td>
+          <td class="px-4 py-3 text-xs text-center font-mono ${cls}">${g !== null ? g.toFixed(2) : '—'}</td>
+          <td class="px-4 py-3 text-xs text-center ${cls}">${g !== null ? (g <= 2.0 ? 'Passed' : 'Failed') : '—'}</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  // Screenshot preview
+  const preview = document.getElementById('gradesScreenshotPreview');
+  if (preview) {
+    preview.innerHTML = selectedGrade.screenshot_url
+      ? `<img src="${selectedGrade.screenshot_url}" alt="Grade screenshot"
+           class="max-w-full max-h-72 object-contain rounded-lg cursor-pointer shadow-sm"
+           onclick="window.open('${selectedGrade.screenshot_url}','_blank')" />
+         <p class="text-xs text-gray-400 mt-2 text-center">Click to open full size</p>`
+      : `<i data-lucide="image" class="w-12 h-12 text-gray-300 mb-3"></i>
+         <p class="text-sm text-gray-400">No screenshot uploaded yet.</p>`;
+  }
+
+  // Admin remarks
+  document.getElementById('gradesRemarks').value = selectedGrade.admin_remarks || '';
+
+  // Status badge
+  const badge = document.getElementById('gradesCurrentStatusBadge');
+  if (badge) {
+    const cls = {
+      'Pending':      'bg-orange-100 text-orange-700',
+      'Acknowledged': 'bg-green-100  text-green-700',
+      'Flagged':      'bg-red-100    text-red-700',
+    }[selectedGrade.status] || 'bg-gray-100 text-gray-600';
+    badge.className   = `px-3 py-1 rounded-full text-xs font-semibold ${cls}`;
+    badge.textContent = selectedGrade.status || 'Pending';
+  }
+
+  const modal = document.getElementById('gradesModal');
+  if (modal) { modal.classList.add('open'); modal.style.display = 'flex'; }
+  lucide.createIcons();
+}
+
+function closeGradesModal() {
+  const modal = document.getElementById('gradesModal');
+  if (modal) { modal.classList.remove('open'); modal.style.display = 'none'; }
+  selectedGrade = null;
+}
+
+function acknowledgeGrades() {
+  if (!selectedGrade) return;
+  _updateGradeStatus('Acknowledged', document.getElementById('gradesRemarks').value);
+}
+
+function flagGrades() {
+  if (!selectedGrade) return;
+  const remarks = document.getElementById('gradesRemarks').value.trim();
+  if (!remarks) {
+    showToast('Please add remarks before flagging.', 'warn');
+    document.getElementById('gradesRemarks').focus();
+    return;
+  }
+  _updateGradeStatus('Flagged', remarks);
+}
+
+function _updateGradeStatus(status, remarks) {
+  fetch(`/admin-panel/api/grade-submissions/${selectedGrade.id}/update/`, {
+    method:      'POST',
+    credentials: 'same-origin',
+    headers:     { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+    body:        JSON.stringify({ status, admin_remarks: remarks }),
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.success) { showToast('Error: ' + data.message, 'error'); return; }
+    showToast(data.message, status === 'Flagged' ? 'warn' : 'success');
+    const idx = gradesData.findIndex(g => g.id === selectedGrade.id);
+    if (idx !== -1) {
+      gradesData[idx].status        = status;
+      gradesData[idx].admin_remarks = remarks;
+    }
+    closeGradesModal();
+    _updateGradeStats();
+    _renderGradesRows();
+  })
+  .catch(e => showToast('Error: ' + e.message, 'error'));
+}
+
+function exportGradesCSV() {
+  const rows = [['Student Name', 'Student ID', 'Program', 'Semester', 'School Year', 'Subjects', 'GPA', 'Status']];
+  gradesData.forEach(g => rows.push([
+    g.student_name, g.student_id, g.program,
+    g.semester, g.school_year, g.subject_count,
+    g.gpa !== null ? parseFloat(g.gpa).toFixed(2) : '—',
+    g.status,
+  ]));
+  const csv = rows.map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  const a   = document.createElement('a');
+  a.href    = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'grade_submissions.csv';
+  a.click();
+  showToast('Grades CSV exported');
+}
+
+// Live filters
+document.getElementById('gradesSearchInput')?.addEventListener('input',  _renderGradesRows);
+document.getElementById('gradesStatusFilter')?.addEventListener('change', _renderGradesRows);
+document.getElementById('gradesCourseFilter')?.addEventListener('change', _renderGradesRows);
+
+// Close on backdrop click
+document.getElementById('gradesModal')?.addEventListener('click', function(e) {
+  if (e.target === this) closeGradesModal();
+});

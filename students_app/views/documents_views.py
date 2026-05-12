@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from ..models import Document
+from students_app.utils import resolve_canonical_curriculum_name
 
 
 def _get_cms():
@@ -52,10 +53,14 @@ def _enrich_requirements(raw_list: list) -> list:
 def documents(request):
     cms = _get_cms()
 
+    from admin_app.models import Prospectus
+
     # Pull the CMS-driven requirements list and enrich with field_key.
     admission_requirements = []
     if cms and cms.admission_requirements:
         admission_requirements = _enrich_requirements(cms.admission_requirements)
+
+    prospectuses = Prospectus.objects.filter(is_active=True).order_by('name')
 
     if request.method == "POST":
         validation_errors = []
@@ -92,6 +97,7 @@ def documents(request):
                 messages.error(request, error)
             return render(request, "students_app/documents.html", {
                 "admission_requirements": admission_requirements,
+                "prospectuses": prospectuses,
             })
 
         # ── Pass 2: all required fields present — delete old docs & save ──
@@ -121,7 +127,7 @@ def documents(request):
         if mit_curriculum:
             from students_app.models import EducationalBackground
             eb, _ = EducationalBackground.objects.get_or_create(user=request.user, level="college")
-            eb.mit_curriculum = mit_curriculum
+            eb.mit_curriculum = resolve_canonical_curriculum_name(mit_curriculum) or mit_curriculum
             eb.save()
 
         messages.success(
@@ -133,4 +139,5 @@ def documents(request):
     # ── GET ───────────────────────────────────────────────────────────────
     return render(request, "students_app/documents.html", {
         "admission_requirements": admission_requirements,
+        "prospectuses": prospectuses,
     })

@@ -45,6 +45,8 @@ from .views.api_views import (
      get_admission_semesters,
      get_admission_school_years,
      get_admission_curricula,
+     get_active_school_year_with_semester,
+     get_student_curriculum,
 )
 
 from .views.document_verification import (
@@ -120,6 +122,8 @@ urlpatterns = [
      path('api/admission/semesters/', get_admission_semesters, name='api_admission_semesters'),
      path('api/admission/school-years/', get_admission_school_years, name='api_admission_school_years'),
      path('api/admission/curricula/', get_admission_curricula, name='api_admission_curricula'),
+     path('api/admission/active-school-year/', get_active_school_year_with_semester, name='api_admission_active_school_year'),
+     path('api/admission/student-curriculum/<int:user_id>/', get_student_curriculum, name='api_admission_student_curriculum'),
 
 
     path('settings/', cms_settings, name='cms_settings'),
@@ -127,6 +131,9 @@ urlpatterns = [
     # schoolyear endpoints
     path('admin/school-years/summary/', schoolyear_views.school_year_summary, name='school_year_summary'),
     path('admin/school-years/', schoolyear_views.list_school_years, name='list_school_years'),
+     path('admin/school-years/<int:school_year_id>/semesters/', schoolyear_views.list_school_year_semesters, name='list_school_year_semesters'),
+     path('admin/school-years/<int:school_year_id>/semesters/<int:semester_number>/configure/', schoolyear_views.configure_school_year_semester, name='configure_school_year_semester'),
+     path('admin/school-years/<int:school_year_id>/semesters/<int:semester_number>/activate/', schoolyear_views.activate_school_year_semester, name='activate_school_year_semester'),
     path('admin/school-years/archived/', schoolyear_views.list_archived_school_years, name='list_archived_school_years'),
     path('admin/school-years/create/', schoolyear_views.create_school_year, name='create_school_year'),
     path('admin/school-years/<int:school_year_id>/edit/', schoolyear_views.edit_school_year, name='edit_school_year'),

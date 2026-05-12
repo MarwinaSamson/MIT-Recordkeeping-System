@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import time
 
-from ..models import Application, DocumentVerification, AdminActivityLog, AdminProfile, SchoolYear
+from ..models import Application, DocumentVerification, AdminActivityLog, AdminProfile, SchoolYear, Semester
 from students_app.models import Document
 from ..models import Prospectus, ProspectusYear, ProspectusSemester, ProspectusSubject, ProspectusAssignment, Program
 
@@ -25,10 +25,20 @@ def is_superuser(user):
 @login_required(login_url='login')
 @user_passes_test(is_superuser, login_url='login')
 def get_admission_semesters(request):
-    """Return distinct semester labels derived from ProspectusSemester labels."""
+    """Return semesters from the Semester table, including the active row."""
     try:
-        labels = ProspectusSemester.objects.values_list('label', flat=True).distinct()
-        return JsonResponse({'success': True, 'semesters': list(labels)})
+        qs = Semester.objects.select_related('school_year').order_by('school_year__name', 'semester_number')
+        data = [
+            {
+                'id': semester.pk,
+                'name': semester.name,
+                'semester_number': semester.semester_number,
+                'school_year': semester.school_year.name,
+                'is_active': semester.is_active,
+            }
+            for semester in qs
+        ]
+        return JsonResponse({'success': True, 'semesters': data})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
@@ -56,6 +66,70 @@ def get_admission_curricula(request):
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+def get_active_school_year_with_semester(request):
+    """Return active school year with its active semester."""
+    try:
+        active_sy = SchoolYear.objects.filter(is_active=True).first()
+        if not active_sy:
+            return JsonResponse({
+                'success': False, 
+                'message': 'No active school year set.'
+            }, status=400)
+        
+        active_semester = Semester.objects.filter(school_year=active_sy, is_active=True).first()
+        
+        data = {
+            'school_year': {
+                'id': active_sy.id,
+                'name': active_sy.name,
+                'is_active': active_sy.is_active
+            },
+            'active_semester': {
+                'name': active_semester.name if active_semester else None,
+                'semester_number': active_semester.semester_number if active_semester else None
+            } if active_semester else None
+        }
+        return JsonResponse({'success': True, 'data': data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+def get_student_curriculum(request, user_id):
+    """Fetch student's MIT curriculum from EducationalBackground (graduate level)."""
+    try:
+        from students_app.models import EducationalBackground
+        
+        # Try to get from graduate level first, then fall back to any level
+        edu = EducationalBackground.objects.filter(
+            user_id=user_id, 
+            level='graduate',
+            mit_curriculum__isnull=False
+        ).first()
+        
+        if not edu:
+            # Fallback: get from any education level with mit_curriculum
+            edu = EducationalBackground.objects.filter(
+                user_id=user_id,
+                mit_curriculum__isnull=False
+            ).first()
+        
+        curriculum = edu.mit_curriculum if edu else ''
+        
+        return JsonResponse({
+            'success': True,
+            'curriculum': curriculum
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'curriculum': '',
+            'message': str(e)
+        })
 
 
 @login_required(login_url='login')
@@ -262,6 +336,46 @@ def update_application_status(request):
             application=app,
             notes=f"Application status changed to {status}. {remarks}"
         )
+
+        # Notify the applicant by email for important status changes
+        try:
+            from django.core.mail import send_mail
+            from django.conf import settings
+
+            notify_statuses = ['enrolled', 'rejected', 'accepted']
+            if status in notify_statuses and app.user and app.user.email:
+                full_name = getattr(app.user, 'get_full_name', None)
+                full_name = full_name() if callable(full_name) else (app.user.email or '')
+                if not full_name:
+                    full_name = app.user.email
+
+                if status == 'enrolled' or status == 'accepted':
+                    subject = 'Application Accepted — Enrollment Confirmed'
+                    message = f"Dear {full_name},\n\nCongratulations! Your application (ID: {app.application_id}) has been accepted and marked as enrolled.\n\nPlease check your admission portal for next steps and enrollment details.\n\nBest regards,\nAdmissions Office"
+                else:
+                    subject = 'Application Update — Decision Notice'
+                    message = f"Dear {full_name},\n\nWe regret to inform you that your application (ID: {app.application_id}) has been rejected.\n\nIf you have questions, please contact the Admissions Office.\n\nBest regards,\nAdmissions Office"
+
+                try:
+                    send_mail(
+                        subject=subject,
+                        message=message,
+                        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
+                        recipient_list=[app.user.email],
+                        fail_silently=False,
+                    )
+                    AdminActivityLog.objects.create(
+                        admin=request.user,
+                        action='note',
+                        application=app,
+                        notes=f"Sent {status} notification email to {app.user.email}."
+                    )
+                except Exception as e:
+                    # Log failure but do not prevent API response
+                    print(f"Failed to send status email to {app.user.email}: {e}")
+        except Exception:
+            # Keep silent on notification import issues
+            pass
 
         return JsonResponse({
             'success': True,
@@ -1264,7 +1378,15 @@ def list_programs(request):
     """Return list of Program records."""
     try:
         qs = Program.objects.all().order_by('name')
-        data = [{'id': p.id, 'name': p.name, 'code': p.code} for p in qs]
+        data = [
+            {
+                'id': p.id,
+                'name': p.name,
+                'program_label': p.program_label,
+                'description': p.description,
+            }
+            for p in qs
+        ]
         return JsonResponse({'success': True, 'data': data})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=400)
@@ -1288,7 +1410,7 @@ def create_prospectus(request):
             try:
                 prog = Program.objects.filter(name__iexact=program_name).first()
                 if prog:
-                    program_code = prog.code or program_code
+                    program_code = prog.program_label or program_code
             except Exception:
                 pass
 

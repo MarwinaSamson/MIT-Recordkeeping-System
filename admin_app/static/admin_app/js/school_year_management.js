@@ -81,6 +81,11 @@ document.addEventListener('DOMContentLoaded', function () {
   loadSummary();
   renderSchoolYears('active');
   filterArchivedYears();
+  // Load semester data if semester tab is visible
+  const semesterTab = document.getElementById('sy-tab-semester');
+  if (semesterTab && !semesterTab.classList.contains('hidden')) {
+    loadSemesterData();
+  }
 });
 
 // ─── Summary + Active Banner ──────────────────────────────────────────────────
@@ -523,11 +528,9 @@ async function loadSemesterData() {
       updateSemesterUI(sem);
     });
 
-    // Update active semester banner
+    // Update active semester banner (always call, even if no active semester)
     const activeSemester = semesters.find(s => s.is_active);
-    if (activeSemester) {
-      updateActiveSemesterBanner(activeSemester);
-    }
+    updateActiveSemesterBanner(activeSemester);
 
     updateSemesterOverviewTable(semesters);
   } catch (err) {
@@ -573,6 +576,13 @@ function updateSemesterUI(semester) {
 
 function updateActiveSemesterBanner(semester) {
   const nameMap = { 1: '1st Semester', 2: '2nd Semester', 3: 'Summer' };
+  
+  if (!semester || !semester.is_active) {
+    document.getElementById('activeSemesterName').textContent = 'None Selected';
+    document.getElementById('activeSemesterDetails').textContent = 'No active semester set for the current school year.';
+    return;
+  }
+  
   document.getElementById('activeSemesterName').textContent = nameMap[semester.semester_number] || 'Unknown';
   
   let details = '';
@@ -582,7 +592,7 @@ function updateActiveSemesterBanner(semester) {
   if (semester.enrollment_count) {
     details += ` • ${semester.enrollment_count} students enrolled`;
   }
-  document.getElementById('activeSemesterDetails').textContent = details || 'No active semester set for the current school year.';
+  document.getElementById('activeSemesterDetails').textContent = details || 'Active semester configured without dates';
 }
 
 function updateSemesterOverviewTable(semesters) {
