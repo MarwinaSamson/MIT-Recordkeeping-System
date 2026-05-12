@@ -10,6 +10,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     verification_token = models.CharField(max_length=64, unique=True, null=True, blank=True)
     token_created_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=False)
     is_email_verified = models.BooleanField(default=False)
     current_session_key = models.CharField(max_length=40, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -168,6 +169,35 @@ class Notification(models.Model):
     def mark_as_read(self):
         self.is_read = True
         self.save()
+
+
+class StudentInboxMessage(models.Model):
+    """
+    Formal messages from administrators shown in the student portal Inbox
+    (separate from short bell notifications).
+    """
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='inbox_messages'
+    )
+    subject = models.CharField(max_length=255)
+    body = models.TextField()
+    is_read = models.BooleanField(default=False)
+    sent_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='sent_inbox_messages',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Student Inbox Message'
+        verbose_name_plural = 'Student Inbox Messages'
+
+    def __str__(self):
+        return f'{self.subject} → {self.user_id}'
 
 
 class CORSubmission(models.Model):

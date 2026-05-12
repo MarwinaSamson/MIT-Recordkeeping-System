@@ -11,7 +11,6 @@ from django.utils import timezone
 from django.core.files.storage import default_storage
 from django.views.decorators.csrf import csrf_exempt
 import json
-import time
 
 from ..models import Application, DocumentVerification, AdminActivityLog, AdminProfile, SchoolYear
 from students_app.models import Document
@@ -247,6 +246,8 @@ def update_application_status(request):
             app.program_level = data.get('program_level', '').strip()
         if 'curriculum_data' in data:
             app.curriculum_data = data.get('curriculum_data', {})
+        if 'curriculum' in data:
+            app.curriculum = (data.get('curriculum') or '').strip()
 
         app.save()
 
@@ -1517,8 +1518,8 @@ def update_student_requirement_status(request):
 def send_requirement_notification(request):
     """Send a notification to a student about missing requirements."""
     from ..models import StudentRequirement, RequirementNotification
+    from django.core.mail import send_mail
     from django.conf import settings
-    from recordkeeping_proj.emailjs import send_email_via_emailjs
 
     try:
         data = json.loads(request.body)
@@ -1570,25 +1571,31 @@ def send_requirement_notification(request):
                     message=f"{message}\n\nMissing requirements: {req_names}"
                 )
 
-            # Send email notification (EmailJS; ~1 request/second limit)
+            # Send email notification
             try:
                 full_name = user.get_full_name() or user.email
-                template_id = getattr(settings, "EMAILJS_TEMPLATE_REQUIREMENT", "")
-                ok, err_msg = send_email_via_emailjs(
-                    template_id,
-                    {
-                        "to_email": user.email,
-                        "student_name": full_name,
-                        "message": message,
-                        "missing_requirements": req_names,
-                    },
+                email_message = f"""Dear {full_name},
+
+{message}
+
+Missing Requirements:
+- {req_names}
+
+Please submit the required documents as soon as possible.
+
+Best regards,
+Admissions Office
+"""
+                send_mail(
+                    subject='Action Required: Missing Admission Requirements',
+                    message=email_message,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user.email],
+                    fail_silently=False,
                 )
-                if ok:
-                    notifications_sent += 1
-                    time.sleep(1.05)
-                else:
-                    print(f"Failed to send email to {user.email}: {err_msg}")
+                notifications_sent += 1
             except Exception as e:
+                # Log but continue with other students
                 print(f"Failed to send email to {user.email}: {e}")
 
         AdminActivityLog.objects.create(
@@ -1636,6 +1643,206 @@ def get_all_students(request):
         })
 
     return JsonResponse({'success': True, 'data': data})
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def students_with_status(request):
+    """
+    Students with application + fields used by the admin Student Messaging UI
+    (document progress, COR, grades) for filtering and counts.
+    """
+    from collections import defaultdict
+    from decimal import Decimal
+    from students_app.models import (
+        CORSubmission,
+        Document,
+        GradeEntry,
+        GradeSubmission,
+        PersonalDetails,
+    )
+
+    required_types = {c[0] for c in Document.DOCUMENT_TYPE_CHOICES}
+    required_n = len(required_types)
+
+    users = (
+        User.objects.filter(application__isnull=False)
+        .select_related('application')
+        .order_by('username')
+    )
+    user_ids = [u.id for u in users]
+
+    verified_types = defaultdict(set)
+    for ver in (
+        DocumentVerification.objects.filter(document__user_id__in=user_ids)
+        .select_related('document')
+    ):
+        if ver.status == 'verified' and ver.document_id:
+            verified_types[ver.document.user_id].add(ver.document.document_type)
+
+    cor_latest = {}
+    for row in (
+        CORSubmission.objects.filter(user_id__in=user_ids)
+        .order_by('user_id', '-uploaded_at')
+    ):
+        if row.user_id not in cor_latest:
+            cor_latest[row.user_id] = row
+
+    grade_latest = {}
+    for row in (
+        GradeSubmission.objects.filter(user_id__in=user_ids)
+        .order_by('user_id', '-uploaded_at')
+    ):
+        if row.user_id not in grade_latest:
+            grade_latest[row.user_id] = row
+
+    submission_ids = [s.id for s in grade_latest.values()]
+    failing_by_sub = defaultdict(int)
+    if submission_ids:
+        for entry in GradeEntry.objects.filter(submission_id__in=submission_ids):
+            g = entry.grade
+            if g is not None and g > Decimal('2.00'):
+                failing_by_sub[entry.submission_id] += 1
+
+    students = []
+    for user in users:
+        personal = PersonalDetails.objects.filter(user=user).first()
+        if personal:
+            full_name = f'{personal.first_name} {personal.last_name}'.strip()
+        else:
+            full_name = user.get_full_name() or user.email
+
+        app = user.application
+        vt = verified_types[user.id] & required_types
+        documents_uploaded = len(vt)
+        pending_documents = len(required_types - vt)
+
+        cor = cor_latest.get(user.id)
+        cor_uploaded = bool(cor and cor.status == 'Verified')
+
+        gs = grade_latest.get(user.id)
+        failing_grades = failing_by_sub.get(gs.id, 0) if gs else 0
+        gwa = None
+        if gs and gs.gpa is not None:
+            gwa = float(gs.gpa)
+
+        students.append({
+            'id': user.id,
+            'full_name': full_name,
+            'student_id': app.application_id if app else user.username,
+            'documents_uploaded': documents_uploaded,
+            'documents_required': required_n,
+            'pending_documents': pending_documents,
+            'cor_uploaded': cor_uploaded,
+            'failing_grades': failing_grades,
+            'gwa': gwa,
+        })
+
+    return JsonResponse({'success': True, 'students': students})
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def send_admin_messaging(request):
+    """
+    Deliver admin outreach by channel:
+    - notification: short bell items (students_app.Notification).
+    - inbox: formal messages in the student portal Inbox (StudentInboxMessage).
+    """
+    from django.db import transaction
+    from students_app.models import Notification, StudentInboxMessage
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON.'}, status=400)
+
+    raw_ids = data.get('recipients') or data.get('user_ids') or []
+    if not isinstance(raw_ids, list) or not raw_ids:
+        return JsonResponse(
+            {'success': False, 'message': 'recipients must be a non-empty list of user ids.'},
+            status=400,
+        )
+
+    subject = (data.get('subject') or '').strip()
+    body = (data.get('body') or '').strip()
+    if not subject or not body:
+        return JsonResponse(
+            {'success': False, 'message': 'subject and body are required.'},
+            status=400,
+        )
+
+    channel = (data.get('channel') or 'notification').strip().lower()
+    if channel not in ('notification', 'inbox'):
+        channel = 'notification'
+
+    try:
+        user_ids = [int(x) for x in raw_ids]
+    except (TypeError, ValueError):
+        return JsonResponse({'success': False, 'message': 'Invalid user id in recipients.'}, status=400)
+
+    user_ids = list(dict.fromkeys(user_ids))
+    if len(user_ids) > 2000:
+        return JsonResponse(
+            {'success': False, 'message': 'Too many recipients in one request (max 2000).'},
+            status=400,
+        )
+
+    existing = set(
+        User.objects.filter(id__in=user_ids, application__isnull=False).values_list(
+            'id', flat=True
+        )
+    )
+    target_ids = [uid for uid in user_ids if uid in existing]
+    if not target_ids:
+        return JsonResponse(
+            {'success': False, 'message': 'No matching student accounts for the given ids.'},
+            status=400,
+        )
+
+    title = subject[:255]
+    message = body
+
+    with transaction.atomic():
+        if channel == 'inbox':
+            StudentInboxMessage.objects.bulk_create(
+                [
+                    StudentInboxMessage(
+                        user_id=uid,
+                        subject=title[:255],
+                        body=message,
+                        sent_by=request.user,
+                    )
+                    for uid in target_ids
+                ]
+            )
+        else:
+            Notification.objects.bulk_create(
+                [
+                    Notification(
+                        user_id=uid,
+                        notification_type='general',
+                        title=title[:255],
+                        message=message,
+                    )
+                    for uid in target_ids
+                ]
+            )
+
+    template_type = (data.get('type') or '').strip()
+    AdminActivityLog.objects.create(
+        admin=request.user,
+        action='note',
+        application=None,
+        notes=(
+            f"Messaging ({channel}): {len(target_ids)} student(s). "
+            f"Subject: {subject[:120]!r}. Template: {template_type or 'custom'}."
+        ),
+    )
+
+    return JsonResponse({'success': True, 'sent_count': len(target_ids)})
 
 
 # ============== Program CMS APIs ==============

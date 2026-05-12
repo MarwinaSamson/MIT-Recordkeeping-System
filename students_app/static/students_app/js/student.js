@@ -625,7 +625,12 @@ function switchPage(pageId, el) {
     buildDocGrid();
     buildStatusSummary();
   }
-  if (pageId === "notifications") fetchNotifications();
+  if (pageId === "notifications") {
+    fetchNotifications();
+    if (typeof window.fetchInboxMessages === "function") {
+      window.fetchInboxMessages();
+    }
+  }
   if (pageId === "profile") loadProfileFields();
   closeSidebar();
   window.scrollTo(0, 0);

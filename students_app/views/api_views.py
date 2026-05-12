@@ -16,6 +16,7 @@ from students_app.models import (
     CORSubmission,
     GradeSubmission,
     GradeEntry,
+    StudentInboxMessage,
 )
 
 
@@ -65,6 +66,31 @@ def _time_ago(dt):
     if diff < 86400:  return f'{int(diff // 3600)}h ago'
     if diff < 172800: return 'Yesterday'
     return f'{int(diff // 86400)}d ago'
+
+
+def _inbox_sender_meta(sent_by):
+    """Display labels for inbox list / detail (admin vs system default)."""
+    if not sent_by:
+        return {
+            'from': 'Office of the Registrar',
+            'role': 'Registrar',
+            'avatarInitials': 'OR',
+            'avatarClass': 'registrar',
+            'tag': 'registrar',
+        }
+    full = (sent_by.get_full_name() or '').strip()
+    if not full:
+        full = sent_by.email or sent_by.username
+    parts = full.split()
+    initials = ''.join(p[0] for p in parts[:2]).upper() if parts else 'AD'
+    initials = initials[:2]
+    return {
+        'from': full,
+        'role': 'Administration',
+        'avatarInitials': initials,
+        'avatarClass': 'admin',
+        'tag': 'admin',
+    }
 
 
 @login_required
@@ -440,6 +466,74 @@ def mark_notification_read(request):
 @require_http_methods(["POST"])
 def mark_all_notifications_read(request):
     Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    return JsonResponse({'status': 'success', 'unread_count': 0})
+
+
+@login_required
+@require_http_methods(["GET"])
+def get_inbox_messages(request):
+    """Inbox messages from administrators (separate from bell notifications)."""
+    from django.utils.html import linebreaksbr
+
+    qs = (
+        StudentInboxMessage.objects.filter(user=request.user)
+        .select_related('sent_by')
+        .order_by('-created_at')[:100]
+    )
+    data = []
+    for m in qs:
+        meta = _inbox_sender_meta(m.sent_by)
+        preview = (m.body or '').strip().replace('\n', ' ')
+        if len(preview) > 160:
+            preview = preview[:157] + '...'
+        data.append({
+            'id': m.id,
+            'from': meta['from'],
+            'role': meta['role'],
+            'avatarClass': meta['avatarClass'],
+            'avatarInitials': meta['avatarInitials'],
+            'tag': meta['tag'],
+            'subject': m.subject,
+            'preview': preview,
+            'body': linebreaksbr(m.body),
+            'time': _time_ago(m.created_at),
+            'fullTime': m.created_at.strftime('%b %d, %Y · %I:%M %p'),
+            'read': m.is_read,
+        })
+
+    return JsonResponse({
+        'messages': data,
+        'unread_count': StudentInboxMessage.objects.filter(
+            user=request.user, is_read=False
+        ).count(),
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+def mark_inbox_message_read(request):
+    try:
+        data = json.loads(request.body)
+        mid = data.get('message_id')
+        if mid is None:
+            return JsonResponse({'status': 'error', 'message': 'message_id required'}, status=400)
+        StudentInboxMessage.objects.filter(id=int(mid), user=request.user).update(is_read=True)
+        return JsonResponse({
+            'status': 'success',
+            'unread_count': StudentInboxMessage.objects.filter(
+                user=request.user, is_read=False
+            ).count(),
+        })
+    except (ValueError, TypeError):
+        return JsonResponse({'status': 'error', 'message': 'Invalid message_id'}, status=400)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@login_required
+@require_http_methods(["POST"])
+def mark_all_inbox_messages_read(request):
+    StudentInboxMessage.objects.filter(user=request.user, is_read=False).update(is_read=True)
     return JsonResponse({'status': 'success', 'unread_count': 0})
 
 

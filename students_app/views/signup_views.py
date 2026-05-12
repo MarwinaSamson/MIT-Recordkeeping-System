@@ -2,12 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.core.mail import send_mail
 from django.utils import timezone
 from django.conf import settings
 import secrets
 import hashlib
 
-from recordkeeping_proj.emailjs import send_email_via_emailjs
 from students_app.models import UserProfile
 
 
@@ -22,19 +22,38 @@ def generate_verification_token(email):
 
 
 def send_verification_email(request, user, token):
-    """Send email verification link to user via EmailJS."""
+    """Send email verification link to user."""
     verification_url = request.build_absolute_uri(f'/verify/{token}/')
-    template_id = getattr(settings, "EMAILJS_TEMPLATE_VERIFICATION", "")
-    student_name = f"{user.first_name} {user.last_name}".strip() or user.email
-    template_params = {
-        "to_email": user.email,
-        "student_name": student_name,
-        "verification_link": verification_url,
-    }
-    ok, err = send_email_via_emailjs(template_id, template_params)
-    if not ok:
-        print(f"Error sending verification email: {err}")
-    return ok
+
+    subject = "WMSU Graduate School - Email Verification"
+    message = f"""
+    Dear {user.first_name} {user.last_name},
+
+    Thank you for registering with WMSU Graduate School.
+
+    Please verify your email address by clicking the link below:
+    {verification_url}
+
+    This link will expire in 24 hours.
+
+    If you did not create this account, please ignore this email.
+
+    Best regards,
+    WMSU Graduate School
+    """
+
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return False
 
 
 def signup_view(request):
@@ -105,7 +124,8 @@ def signup_view(request):
                 user=user,
                 verification_token=verification_token,
                 token_created_at=timezone.now(),
-                is_email_verified=False
+                is_email_verified=False,
+                is_active=user.is_active,
             )
 
             # Send verification email

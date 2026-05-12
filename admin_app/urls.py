@@ -42,9 +42,11 @@ from .views.api_views import (
      create_prospectus,
      delete_prospectus,
      assign_prospectus,
-     get_admission_semesters,
-     get_admission_school_years,
-     get_admission_curricula,
+    get_admission_semesters,
+    get_admission_school_years,
+    get_admission_curricula,
+    students_with_status,
+    send_admin_messaging,
 )
 
 from .views.document_verification import (
@@ -120,7 +122,9 @@ urlpatterns = [
      path('api/admission/semesters/', get_admission_semesters, name='api_admission_semesters'),
      path('api/admission/school-years/', get_admission_school_years, name='api_admission_school_years'),
      path('api/admission/curricula/', get_admission_curricula, name='api_admission_curricula'),
-
+    path('api/messaging/students-with-status/', students_with_status,
+         name='api_students_with_status'),
+    path('api/messaging/send/', send_admin_messaging, name='api_send_admin_messaging'),
 
     path('settings/', cms_settings, name='cms_settings'),
     

@@ -78,6 +78,7 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
             user=user,
             defaults={
                 'is_email_verified': True,  # Google already verified the email
+                'is_active': user.is_active,
             }
         )
         

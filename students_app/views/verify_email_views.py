@@ -34,6 +34,7 @@ def verify_email_view(request, token):
         
         # Update profile
         user_profile.is_email_verified = True
+        user_profile.is_active = True
         user_profile.verification_token = None
         user_profile.token_created_at = None
         user_profile.save()

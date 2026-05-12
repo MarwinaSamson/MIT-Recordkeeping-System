@@ -203,27 +203,15 @@ SESSION_COOKIE_AGE = 60 * 60  # keep session cookie valid if active; idle timeou
 # Session inactivity timeout in minutes (used by SessionSecurityMiddleware)
 SESSION_TIMEOUT_MINUTES = 60
 
-# Email — transactional mail uses EmailJS REST API (see recordkeeping_proj/emailjs.py).
-# Create two templates in EmailJS; map "To Email" to {{to_email}} in each template.
-# https://www.emailjs.com/docs/rest-api/send/
+# Email Configuration (Django send_mail + django-allauth)
+# https://docs.djangoproject.com/en/5.2/topics/email/
+# Set EMAIL_HOST_USER and EMAIL_HOST_PASSWORD (e.g. Gmail app password) in the environment.
 
-EMAILJS_SERVICE_ID = os.environ.get("EMAILJS_SERVICE_ID", "service_lcq0xja")
-EMAILJS_PUBLIC_KEY = os.environ.get("EMAILJS_PUBLIC_KEY", "imn3fLXXcggCjZ4ay")
-EMAILJS_PRIVATE_KEY = os.environ.get("EMAILJS_PRIVATE_KEY", "4hDzo3mIThUOtmFpuQKMO")
-EMAILJS_TEMPLATE_VERIFICATION = os.environ.get("EMAILJS_TEMPLATE_VERIFICATION", "")
-EMAILJS_TEMPLATE_REQUIREMENT = os.environ.get("EMAILJS_TEMPLATE_REQUIREMENT", "")
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "aniwrham@gmail.com"
+EMAIL_HOST_PASSWORD = "cssn mlwz gqyt bdab"
+DEFAULT_FROM_EMAIL = "WMSU Graduate School <aniwrham@gmail.com>"
 
-# Django's send_mail (allauth, etc.) — use console in dev or set SMTP via environment.
-EMAIL_BACKEND = os.environ.get(
-    "DJANGO_EMAIL_BACKEND",
-    "django.core.mail.backends.console.EmailBackend",
-)
-EMAIL_HOST = os.environ.get("EMAIL_HOST", "localhost")
-EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "25"))
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "false").lower() in ("1", "true", "yes")
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
-DEFAULT_FROM_EMAIL = os.environ.get(
-    "DEFAULT_FROM_EMAIL",
-    "WMSU Graduate School <noreply@example.com>",
-)

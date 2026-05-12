@@ -1454,7 +1454,7 @@
           </div>
           <div class="notif-tab" id="tab-inbox" onclick="switchNotifTab('inbox')">
             <span class="ms">inbox</span>Inbox
-            <span class="tab-badge" id="tabBadgeInbox">2</span>
+            <span class="tab-badge" id="tabBadgeInbox">0</span>
           </div>
         </div>
 
@@ -1836,6 +1836,13 @@
       return '';
     }
 
+    function escapeHtml(str) {
+      if (str == null || str === '') return '';
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
     /* ============================================================
        PAGE SWITCHING
        ============================================================ */
@@ -2065,84 +2072,8 @@
     /* ============================================================
        INBOX MESSAGES
        ============================================================ */
-    const inboxMessages = [
-      {
-        id: 1,
-        from: 'Office of the Registrar',
-        role: 'Registrar',
-        avatarClass: 'registrar',
-        avatarInitials: 'OR',
-        tag: 'registrar',
-        subject: 'Document Review Update — TOR',
-        preview: 'Your Transcript of Records has been reviewed and approved. No further action is required.',
-        body: `<p>Dear Student,</p>
-               <p>We are pleased to inform you that your <strong>Official Transcript of Records (TOR)</strong> has been successfully reviewed and approved by the Registrar's Office.</p>
-               <p>No further action is required on your part regarding this document. Please ensure the remaining required documents are submitted before the deadline on March 15, 2026.</p>
-               <p>Should you have any questions or concerns, please do not hesitate to visit the Registrar's Office or contact us through the portal.</p>
-               <p>Best regards,<br><strong>Office of the Registrar</strong><br>Mindanao Institute of Technology</p>`,
-        time: '2 hours ago',
-        fullTime: 'May 3, 2026 · 10:14 AM',
-        unread: true,
-      },
-      {
-        id: 2,
-        from: 'Admissions Committee',
-        role: 'Administration',
-        avatarClass: 'admin',
-        avatarInitials: 'AC',
-        tag: 'admin',
-        subject: 'GSAT Schedule Confirmation',
-        preview: 'Your slot for the Graduate School Admission Test has been confirmed for March 22, 2026.',
-        body: `<p>Dear Applicant,</p>
-               <p>This is to confirm that your examination slot for the <strong>Graduate School Admission Test (GSAT)</strong> has been successfully reserved.</p>
-               <p><strong>Date:</strong> March 22, 2026<br><strong>Time:</strong> 8:00 AM – 12:00 PM<br><strong>Venue:</strong> Main Building, Room 201</p>
-               <p>Please bring the following on examination day:</p>
-               <p>• Valid government-issued ID<br>• Printed examination permit (to be issued separately)<br>• Pencils and ballpens</p>
-               <p>Failure to appear on the scheduled date without prior notice will forfeit your slot. For rescheduling, contact the Admissions Office at least five (5) working days before the exam.</p>
-               <p>Good luck!<br><strong>Admissions Committee</strong></p>`,
-        time: '2 days ago',
-        fullTime: 'May 1, 2026 · 3:45 PM',
-        unread: true,
-      },
-      {
-        id: 3,
-        from: 'Graduate Program Coordinator',
-        role: 'Faculty',
-        avatarClass: 'faculty',
-        avatarInitials: 'GP',
-        tag: 'faculty',
-        subject: 'Title Proposal Defense — Feedback & Next Steps',
-        preview: 'Congratulations on completing your Title Proposal Defense. Please review the panel feedback attached.',
-        body: `<p>Dear Student,</p>
-               <p>Congratulations on completing your <strong>Title Proposal Defense</strong> on May 10, 2026! The panel was impressed with your proposed research direction.</p>
-               <p>The following revisions have been noted and must be addressed in your final proposal:</p>
-               <p>1. Clarify the scope of the proposed system in Chapter 1.<br>2. Strengthen the theoretical framework section in Chapter 2.<br>3. Include a more detailed timeline in the Research Methodology.</p>
-               <p>Please submit your revised proposal to my office no later than <strong>May 24, 2026</strong>. After review, your proposal will be forwarded to the committee for final approval.</p>
-               <p>Do not hesitate to schedule a consultation session if you need guidance. You may book an appointment through the Graduate School Office.</p>
-               <p>Warm regards,<br><strong>Graduate Program Coordinator</strong></p>`,
-        time: '5 days ago',
-        fullTime: 'Apr 28, 2026 · 9:00 AM',
-        unread: false,
-      },
-      {
-        id: 4,
-        from: 'MIT Portal System',
-        role: 'System',
-        avatarClass: '',
-        avatarInitials: 'SY',
-        tag: 'system',
-        subject: 'Security Notice — New Login Detected',
-        preview: 'A new login was detected on your account from Manila, Philippines on May 2, 2026.',
-        body: `<p>Hello,</p>
-               <p>We detected a new login to your MIT Student Portal account.</p>
-               <p><strong>Date & Time:</strong> May 2, 2026 · 7:32 PM<br><strong>Location:</strong> Manila, Philippines<br><strong>Device:</strong> Chrome on Windows</p>
-               <p>If this was you, no action is needed. If you do not recognize this activity, please contact the IT helpdesk immediately at <strong>ithelp@mit.edu.ph</strong> and change your password.</p>
-               <p>— MIT Portal Security Team</p>`,
-        time: '1 day ago',
-        fullTime: 'May 2, 2026 · 7:32 PM',
-        unread: false,
-      },
-    ];
+    let inboxMessages = [];  // populated from API via bridge
+
 
     let currentMsgId = null;
 
@@ -2169,27 +2100,40 @@
       }
       el.innerHTML = inboxMessages.map(m=>`
         <div class="inbox-msg ${m.unread?'unread':''}" onclick="openMsg(${m.id})">
-          <div class="inbox-msg-avatar ${m.avatarClass}">${m.avatarInitials}</div>
+          <div class="inbox-msg-avatar ${m.avatarClass}">${escapeHtml(m.avatarInitials)}</div>
           <div class="inbox-msg-content">
             <div class="inbox-msg-from">
-              ${m.from}
-              <span class="inbox-tag ${m.tag}">${m.tag}</span>
+              ${escapeHtml(m.from)}
+              <span class="inbox-tag ${escapeHtml(m.tag)}">${escapeHtml(m.tag)}</span>
             </div>
-            <div class="inbox-msg-subject">${m.subject}</div>
-            <div class="inbox-msg-preview">${m.preview}</div>
+            <div class="inbox-msg-subject">${escapeHtml(m.subject)}</div>
+            <div class="inbox-msg-preview">${escapeHtml(m.preview)}</div>
           </div>
           <div class="inbox-msg-meta">
-            <div class="inbox-msg-time">${m.time}</div>
+            <div class="inbox-msg-time">${escapeHtml(m.time)}</div>
             ${m.unread?'<div class="inbox-unread-dot"></div>':''}
           </div>
         </div>`).join('');
     }
 
-    function openMsg(id) {
+    async function openMsg(id) {
       const m = inboxMessages.find(x=>x.id===id);
       if(!m)return;
       currentMsgId = id;
-      m.unread = false;
+      try {
+        const res = await fetch('/api/student-inbox/mark-read/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken') || ''
+          },
+          body: JSON.stringify({ message_id: id })
+        });
+        if (res.ok) m.unread = false;
+      } catch (e) {
+        console.error('mark inbox read:', e);
+      }
       renderInbox();
       updateInboxBadge();
 
@@ -2265,7 +2209,28 @@
         console.error('markAllRead error:', err);
       }
     }
-    function markAllInboxRead() { inboxMessages.forEach(m=>m.unread=false); updateInboxBadge(); renderInbox(); showToast('All messages marked as read.','success'); }
+    async function markAllInboxRead() {
+      try {
+        const res = await fetch('/api/student-inbox/read-all/', {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken') || ''
+          }
+        });
+        if (res.ok) {
+          inboxMessages.forEach(m => { m.unread = false; });
+          updateInboxBadge();
+          renderInbox();
+          showToast('All messages marked as read.', 'success');
+        } else {
+          showToast('Could not update inbox.', 'error');
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('Could not update inbox.', 'error');
+      }
+    }
 
     function updateBadge() {
       const count=notifications.filter(n=>n.unread).length;
@@ -3290,6 +3255,49 @@ function closeLogoutModal() {
       /* ── Override student.js fetchNotifications to use our system ── */
       window.fetchNotifications = fetchAndRenderNotifications;
 
+      /* ── Fetch and render inbox (admin-sent messages, separate from bell) ── */
+      async function fetchAndRenderInbox() {
+        try {
+          const res = await fetch('/api/student-inbox/', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          });
+          if (!res.ok) return;
+          const data = await res.json();
+
+          inboxMessages.length = 0;
+          (data.messages || []).forEach(row => {
+            inboxMessages.push({
+              id: row.id,
+              from: row.from,
+              role: row.role,
+              avatarClass: row.avatarClass,
+              avatarInitials: row.avatarInitials,
+              tag: row.tag,
+              subject: row.subject,
+              preview: row.preview,
+              body: row.body,
+              time: row.time,
+              fullTime: row.fullTime,
+              unread: !row.read,
+            });
+          });
+
+          renderInbox();
+          if (typeof data.unread_count === 'number') {
+            const badge = $('tabBadgeInbox');
+            if (badge) {
+              badge.textContent = data.unread_count;
+              badge.style.display = data.unread_count ? 'inline-flex' : 'none';
+            }
+          } else {
+            updateInboxBadge();
+          }
+        } catch (err) {
+          console.error('[Bridge] fetchInbox error:', err);
+        }
+      }
+      window.fetchInboxMessages = fetchAndRenderInbox;
+
       /* ── Fetch docs ── */
       window.fetchDocumentDetails = async function () {
         try {
@@ -3335,12 +3343,14 @@ function closeLogoutModal() {
       /* ── Run both on load ── */
       window.fetchDocumentDetails();
       fetchAndRenderNotifications();
+      fetchAndRenderInbox();
 
       /* ── Unified polling every 15s ── */
       if (window.statusPollInterval) clearInterval(window.statusPollInterval);
       window.statusPollInterval = setInterval(() => {
         window.fetchDocumentDetails();
         fetchAndRenderNotifications();
+        fetchAndRenderInbox();
       }, 15000);
     });
   </script>

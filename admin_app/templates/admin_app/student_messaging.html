@@ -178,6 +178,8 @@
                     <option value="eligible">✅ Students Eligible for Enrollment</option>
                     <option value="ineligible">❌ Students Not Eligible for Enrollment</option>
                     <option value="affected">📋 Affected Students Only</option>
+                    <option value="no_cor">📄 No COR on File</option>
+                    <option value="failing_grades">⚠️ With Failing Grades</option>
                     <option value="all">👥 All Students</option>
                     <option value="specific">🎯 Specific Student</option>
                 </select>
@@ -252,6 +254,7 @@
     let studentListData = [];
     let messageHistory = JSON.parse(localStorage.getItem('adminMessageHistory') || '[]');
     let currentActionType = null;
+    const MESSAGING_API = '/admin-panel/api/messaging';
 
     // ── Action Button Templates ──
     const ACTION_TEMPLATES = {
@@ -640,18 +643,20 @@ WMSU Graduate School`;
         }
 
         try {
-            const res = await fetch('/api/admin/send-message/', {
+            const res = await fetch(`${MESSAGING_API}/send/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRFToken ? getCSRFToken() : document.querySelector('[name=csrfmiddlewaretoken]')?.value,
+                    'X-CSRFToken': (typeof getCSRFToken === 'function' ? getCSRFToken() : document.querySelector('[name=csrfmiddlewaretoken]')?.value),
                     'X-Requested-With': 'XMLHttpRequest'
                 },
+                credentials: 'same-origin',
                 body: JSON.stringify({
                     recipients: recipients.map(r => r.id),
                     subject: subject,
                     body: body,
-                    type: currentActionType
+                    type: currentActionType,
+                    channel: 'inbox'
                 })
             });
 
@@ -666,9 +671,7 @@ WMSU Graduate School`;
             }
         } catch (err) {
             console.error('Send error:', err);
-            showCmsToast(`✅ (Demo) Message would be sent to ${recipients.length} student(s)!`, 'success');
-            addToMessageHistory(subject, recipients.length);
-            closeActionModal();
+            showCmsToast('Failed to send messages. Please try again.', 'error');
         } finally {
             if (sendBtn) {
                 sendBtn.innerHTML = originalHTML;
@@ -686,20 +689,29 @@ WMSU Graduate School`;
             const hasAllDocs = (student.documents_uploaded || 0) === (student.documents_required || 5);
             const hasNoFailingGrades = (student.failing_grades || 0) === 0;
             const hasCOR = student.cor_uploaded || false;
-            const gwaPass = (student.gwa || 5) <= 2.0;
+            const gwaPass = student.gwa == null || (student.gwa <= 2.0);
             const isEligible = hasAllDocs && hasNoFailingGrades && hasCOR && gwaPass;
 
             switch (filter) {
-                case 'eligible': return isEligible;
-                case 'ineligible': return !isEligible;
+                case 'all':
+                    return true;
+                case 'eligible':
+                    return isEligible;
+                case 'ineligible':
+                    return !isEligible;
+                case 'pending':
+                    return (student.pending_documents || 0) > 0;
                 case 'affected':
                     if (actionType === 'missing_requirements') return (student.pending_documents || 0) > 0;
                     if (actionType === 'cor_reminder') return !hasCOR;
                     if (actionType === 'grade_concern') return (student.failing_grades || 0) > 0;
                     return true;
-                case 'no_cor': return !hasCOR;
-                case 'failing_grades': return (student.failing_grades || 0) > 0;
-                default: return true;
+                case 'no_cor':
+                    return !hasCOR;
+                case 'failing_grades':
+                    return (student.failing_grades || 0) > 0;
+                default:
+                    return true;
             }
         });
     }
@@ -717,30 +729,14 @@ WMSU Graduate School`;
     }
 
     function sendCustomMessage() {
-        const recipientGroup = document.getElementById('msgRecipientGroup').value;
-        const specificId = document.getElementById('specificStudentSelect')?.value;
-        const subject = document.getElementById('msgSubject').value.trim();
-        const body = document.getElementById('msgBody').value.trim();
-
-        if (!subject || !body) {
-            showCmsToast('Please enter subject and message body.', 'error');
-            return;
-        }
-
-        let recipients = getRecipientsByFilter(recipientGroup, specificId, null);
-
-        if (recipients.length === 0) {
-            showCmsToast('No students match the selected criteria.', 'error');
-            return;
-        }
-
-        showCmsToast(`✅ Message would be sent to ${recipients.length} student(s)`, 'success');
-        addToMessageHistory(subject, recipients.length);
-        document.getElementById('msgSubject').value = '';
-        document.getElementById('msgBody').value = '';
+        void postCustomMessaging('inbox');
     }
 
     function sendCustomNotification() {
+        void postCustomMessaging('notification');
+    }
+
+    async function postCustomMessaging(channel) {
         const recipientGroup = document.getElementById('msgRecipientGroup').value;
         const specificId = document.getElementById('specificStudentSelect')?.value;
         const subject = document.getElementById('msgSubject').value.trim();
@@ -751,20 +747,51 @@ WMSU Graduate School`;
             return;
         }
 
-        let recipients = getRecipientsByFilter(recipientGroup, specificId, null);
+        const recipients = getRecipientsByFilter(recipientGroup, specificId, null);
 
         if (recipients.length === 0) {
             showCmsToast('No students match the selected criteria.', 'error');
             return;
         }
 
-        showCmsToast(`🔔 Notification would be sent to ${recipients.length} student(s)`, 'success');
+        try {
+            const res = await fetch(`${MESSAGING_API}/send/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': (typeof getCSRFToken === 'function' ? getCSRFToken() : document.querySelector('[name=csrfmiddlewaretoken]')?.value),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    recipients: recipients.map(r => r.id),
+                    subject,
+                    body,
+                    type: 'custom',
+                    channel
+                })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                const label = channel === 'notification' ? 'Notification' : 'Message';
+                showCmsToast(`✅ ${label} sent to ${data.sent_count} student(s)`, 'success');
+                addToMessageHistory(subject, data.sent_count);
+                document.getElementById('msgSubject').value = '';
+                document.getElementById('msgBody').value = '';
+            } else {
+                showCmsToast(data.message || 'Failed to send.', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            showCmsToast('Failed to send. Please try again.', 'error');
+        }
     }
 
     // Load student data
     async function loadStudentMessagingData() {
         try {
-            const res = await fetch('/api/admin/students-with-status/', {
+            const res = await fetch(`${MESSAGING_API}/students-with-status/`, {
+                credentials: 'same-origin',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
             const data = await res.json();
@@ -797,7 +824,7 @@ WMSU Graduate School`;
             const hasAllDocs = (s.documents_uploaded || 0) === (s.documents_required || 5);
             const hasNoFailingGrades = (s.failing_grades || 0) === 0;
             const hasCOR = s.cor_uploaded || false;
-            const gwaPass = (s.gwa || 5) <= 2.0;
+            const gwaPass = s.gwa == null || (s.gwa <= 2.0);
             if (hasAllDocs && hasNoFailingGrades && hasCOR && gwaPass) eligible++;
             else ineligible++;
             if ((s.pending_documents || 0) > 0) pendingReq++;
@@ -821,25 +848,27 @@ WMSU Graduate School`;
         });
     }
 
-    function addToMessageHistory(subject, count) {
+    function renderMessageHistory() {
         const historyList = document.getElementById('recentMessagesList');
-        const time = new Date().toLocaleString();
-        messageHistory.unshift({ subject, count, time });
-        if (messageHistory.length > 10) messageHistory.pop();
-        localStorage.setItem('adminMessageHistory', JSON.stringify(messageHistory));
-
-        if (historyList) {
-            if (messageHistory.length === 0) {
-                historyList.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">No messages sent yet.</p>';
-            } else {
-                historyList.innerHTML = messageHistory.map(msg => `
+        if (!historyList) return;
+        if (!messageHistory.length) {
+            historyList.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">No messages sent yet.</p>';
+            return;
+        }
+        historyList.innerHTML = messageHistory.map(msg => `
           <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
             <p class="text-xs font-semibold text-gray-700">${escapeHtml(msg.subject)}</p>
             <p class="text-xs text-gray-400 mt-1">To ${msg.count} student(s) · ${msg.time}</p>
           </div>
         `).join('');
-            }
-        }
+    }
+
+    function addToMessageHistory(subject, count) {
+        const time = new Date().toLocaleString();
+        messageHistory.unshift({ subject, count, time });
+        if (messageHistory.length > 10) messageHistory.pop();
+        localStorage.setItem('adminMessageHistory', JSON.stringify(messageHistory));
+        renderMessageHistory();
     }
 
     function showCmsToast(message, type = 'success') {
@@ -874,7 +903,7 @@ WMSU Graduate School`;
 
         loadStudentMessagingData();
         messageHistory = JSON.parse(localStorage.getItem('adminMessageHistory') || '[]');
-        addToMessageHistory(null, null);
+        renderMessageHistory();
     });
 
     // Expose functions globally
@@ -885,4 +914,5 @@ WMSU Graduate School`;
     window.toggleComposer = toggleComposer;
     window.sendCustomMessage = sendCustomMessage;
     window.sendCustomNotification = sendCustomNotification;
+    window.initMessagingPage = loadStudentMessagingData;
 </script>

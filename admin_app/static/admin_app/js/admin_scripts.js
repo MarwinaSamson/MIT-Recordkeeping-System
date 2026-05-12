@@ -596,42 +596,6 @@ async function bulkVerifyApplications() {
 }
 
 /* ═══ REVIEW MODAL ═══ */
-function openModal(id){
-  console.log('openModal called with id:', id);
-  console.log('Current applications array:', applications);
-  selectedApp=applications.find(a=>a.id===id);
-  console.log('Selected app:', selectedApp);
-  if(!selectedApp) {
-    console.error('Application not found with id:', id);
-    alert('Error: Could not find application with ID ' + id);
-    return;
-  }
-  document.getElementById("modalID").innerText =selectedApp.id;
-  document.getElementById("mName").innerText   =selectedApp.name;
-  document.getElementById("mEmail").innerText  =selectedApp.email;
-  document.getElementById("mCourse").innerText =selectedApp.course;
-  document.getElementById("mMobile").innerText =selectedApp.mobile;
-  document.getElementById("mAppID").innerText  =selectedApp.id;
-  document.getElementById("mDate").innerText   =selectedApp.submission_date;
-  document.getElementById("lastUpdated").innerText="Last updated: "+new Date().toISOString().split("T")[0];
-  document.getElementById("remarks").value     =selectedApp.remarks||"";
-  // Populate admission details
-  const semEl = document.getElementById("admSemester");
-  const yearEl = document.getElementById("admYear");
-  const currEl = document.getElementById("admCurriculum");
-  if(semEl) semEl.value   = selectedApp.semester   || "";
-  if(yearEl) yearEl.value = selectedApp.year_admitted || "";
-  if(currEl) currEl.value = selectedApp.curriculum  || "";
-  renderDocCards();
-  const modal = document.getElementById("modal");
-  if(modal) {
-    modal.classList.add("open");
-    modal.style.display = "flex";
-    console.log('Modal opened successfully');
-  } else {
-    console.error('Modal element not found');
-  }
-}
 function closeModal(){
   const modal = document.getElementById("modal");
   if(modal) {
@@ -1073,43 +1037,6 @@ function confirmReject(){
 }
 
 /* ═══ MODAL ACTIONS ═══ */
-function markVerified(){
-  const remarks    = document.getElementById("remarks").value;
-  const semester   = document.getElementById("admSemester")?.value  || "";
-  const yearAdmitted = document.getElementById("admYear")?.value    || "";
-  const curriculum = document.getElementById("admCurriculum")?.value || "";
-
-  fetch('/admin-panel/api/application/status/', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
-    body: JSON.stringify({
-      application_id: selectedApp.id,
-      status: 'verified',
-      remarks,
-      semester,
-      year_admitted: yearAdmitted,
-      curriculum,
-    })
-  })
-  .then(r=>r.json())
-  .then(data=>{
-    if(data.success){
-      selectedApp.remarks       = remarks;
-      selectedApp.status        = "Verified";
-      selectedApp.semester      = semester;
-      selectedApp.year_admitted = yearAdmitted;
-      selectedApp.curriculum    = curriculum;
-      showToast(selectedApp.id+" marked as Verified ✓");
-      closeModal();
-      initializeData();
-      renderTable();
-      renderDashboard();
-    } else {
-      showToast('Error: '+data.message,'error');
-    }
-  })
-  .catch(e=>{showToast('Error: '+e.message,'error');});
-}
 function markIncomplete(){
   const remarks=document.getElementById("remarks").value;
   
@@ -2350,6 +2277,7 @@ function loadCurriculumData(savedData) {
  function openModal(id) {
   console.log('openModal called with id:', id);
   selectedApp = applications.find(a => a.id === id);
+  window.selectedApp = selectedApp;
   if (!selectedApp) {
     console.error('Application not found with id:', id);
     alert('Error: Could not find application with ID ' + id);
@@ -2393,6 +2321,7 @@ function markVerified() {
   const semester = document.getElementById("admSemester")?.value || "";
   const yearAdmitted = document.getElementById("admYear")?.value || "";
   const programLevel = document.getElementById("admProgramLevel")?.value || "";
+  const curriculum = document.getElementById("admCurriculum")?.value || "";
 
   fetch('/admin-panel/api/application/status/', {
     method: 'POST',
@@ -2404,6 +2333,7 @@ function markVerified() {
       semester: semester,
       year_admitted: yearAdmitted,
       program_level: programLevel,
+      curriculum: curriculum,
       curriculum_data: curriculumData
     })
   })
@@ -2415,6 +2345,7 @@ function markVerified() {
       selectedApp.semester = semester;
       selectedApp.year_admitted = yearAdmitted;
       selectedApp.program_level = programLevel;
+      selectedApp.curriculum = curriculum;
       selectedApp.curriculum_data = curriculumData;
       showToast(selectedApp.id + " marked as Verified ✓");
       closeModal();
