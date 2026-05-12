@@ -68,11 +68,17 @@
         <div class="nav-item" onclick="switchPage('history', this)">
           <i data-lucide="clock"></i><span>Activity History</span>
         </div>
+        <div class="nav-item" onclick="switchPage('student-messaging', this)">
+          <i data-lucide="inbox"></i><span>Student Messaging</span>
+        </div>
         <p
           class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-4 pb-1"
         >
           System
         </p>
+        <a href="{% url 'admin_app:program_management' %}" class="nav-item">
+          <i data-lucide="layout-grid"></i><span>Program Management</span>
+        </a>
         <div class="nav-item" onclick="switchPage('school-year', this)">
           <i data-lucide="calendar"></i><span>School Year Management</span>
         </div>
@@ -565,6 +571,9 @@
           </table>
         </div>
       </div>
+
+      <!-- Include Student Messaging page -->
+      {% include 'admin_app/student_messaging.html' %}
 
       <!-- ══ PAGE: SETTINGS ══ -->
       <div id="page-settings" class="page p-8 w-full">
@@ -1863,6 +1872,21 @@
         return cookieValue;
       }
 
+      function showCmsToast(message, type = 'success') {
+          const toast = document.getElementById('cmsToast');
+          if (!toast) {
+            console.log(message);
+            return;
+          }
+          const icon = toast.querySelector('#cmsToastIcon');
+          const text = toast.querySelector('#cmsToastText');
+          if (text) text.textContent = message;
+          toast.classList.add('show');
+          if (type === 'error') toast.style.borderLeftColor = '#ef4444';
+          else toast.style.borderLeftColor = '#4ade80';
+          setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
       // Pass Django context data to JavaScript
       const contextData = {
         recentApplications: {{ recent_applications | safe }},
@@ -1874,5 +1898,14 @@
     </script>
 
     <script src="{% static 'admin_app/js/admin_scripts.js' %}"></script>
+
+    <!-- Toast for CMS messages -->
+    <div id="cmsToast" class="fixed bottom-6 right-6 z-[999] hidden">
+      <div class="bg-gray-900 text-white text-sm px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 fade-in"
+        style="border-left: 3px solid #4ade80;">
+        <i id="cmsToastIcon" data-lucide="check-circle" class="w-4 h-4 text-green-400"></i>
+        <span id="cmsToastText"></span>
+      </div>
+    </div>
   </body>
 </html>

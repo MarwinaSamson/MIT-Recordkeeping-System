@@ -53,19 +53,57 @@ def about(request):
                 'tags': member.specializations_list
             })
 
-    # Curriculum groups with per-group unit totals from CMS course rows (grand total for summary).
+    # Curriculum on About: structured list managed under CMS "Others → Curriculum Structure"
+    # (`about_courses`). When present, it replaces grouped `program_curriculum` so one place controls the Course Catalog.
     curriculum_groups = []
-    for group in cms.program_curriculum or []:
-        if not isinstance(group, dict):
-            continue
-        courses = group.get('courses')
-        courses = courses if isinstance(courses, list) else []
-        total_units = sum(_course_units_from_dict(c) for c in courses)
+    flat_courses = []
+    raw_about_courses = cms.about_courses or []
+    if isinstance(raw_about_courses, list):
+        for item in raw_about_courses:
+            if not isinstance(item, dict):
+                continue
+            code = str(item.get('code', '')).strip()
+            name = str(item.get('name', '')).strip()
+            description = str(item.get('description', '') or '').strip()
+            try:
+                units = int(item.get('units', 0))
+            except (TypeError, ValueError):
+                units = 0
+            if code and name and units > 0:
+                flat_courses.append({
+                    'code': code,
+                    'name': name,
+                    'units': units,
+                    'description': description,
+                })
+
+    if flat_courses:
+        total_units = sum(_course_units_from_dict(c) for c in flat_courses)
         curriculum_groups.append({
-            'title': group.get('title', ''),
-            'courses': courses,
+            'title': 'Curriculum',
+            'courses': flat_courses,
             'total_units': total_units,
         })
+    else:
+        for group in cms.program_curriculum or []:
+            if not isinstance(group, dict):
+                continue
+            courses = group.get('courses')
+            courses = courses if isinstance(courses, list) else []
+            patched = []
+            for c in courses:
+                if not isinstance(c, dict):
+                    continue
+                patched.append({
+                    **c,
+                    'description': str(c.get('description', '') or '').strip(),
+                })
+            total_units = sum(_course_units_from_dict(c) for c in patched)
+            curriculum_groups.append({
+                'title': group.get('title', ''),
+                'courses': patched,
+                'total_units': total_units,
+            })
     curriculum_grand_total_units = sum(g['total_units'] for g in curriculum_groups)
 
     return render(

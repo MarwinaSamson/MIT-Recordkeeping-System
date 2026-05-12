@@ -559,11 +559,17 @@
         <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
           <i data-lucide="clock"></i><span>Activity History</span>
         </a>
+        <div class="nav-item" onclick="switchPage('student-messaging', this)">
+          <i data-lucide="inbox"></i><span>Student Messaging</span>
+        </div>
         <p
           class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-4 pb-1"
         >
           System
         </p>
+        <a href="{% url 'admin_app:program_management' %}" class="nav-item">
+          <i data-lucide="layout-grid"></i><span>Program Management</span>
+        </a>
         <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
           <i data-lucide="calendar"></i><span>School Year Management</span>
         </a>
@@ -2638,7 +2644,12 @@ Certified true copy from your institution</textarea
 
               <div id="downloadsList" class="space-y-2 mt-2">
                 {% for download in cms.downloads %}
-                <div class="download-row flex items-center gap-3 row-card">
+                <div
+                  class="download-row flex items-center gap-3 row-card"
+                  data-name="{{ download.name }}"
+                  data-url="{{ download.url }}"
+                  data-file-type="{{ download.file_type }}"
+                >
                   <div
                     class="w-9 h-9 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0 text-xs font-bold text-red-700 uppercase"
                   >
@@ -4507,6 +4518,12 @@ Develop students' capacity to conduct both technical and statistical research, c
             >
               <i data-lucide="calendar-check"></i> Document Requirements
             </button>
+            <button
+              class="cms-tab"
+              onclick="switchOthersTab('curriculumStruct', this)"
+            >
+              <i data-lucide="calendar-check"></i> Curriculum Structure
+            </button>
           </div>
 
           <!-- Document Requirements -->
@@ -4570,6 +4587,171 @@ Develop students' capacity to conduct both technical and statistical research, c
                   </tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          <!-- Curriculum Structure -->
+          <div id="others-curriculumStruct" class="others-panel hidden">
+            <div class="cms-card">
+              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                <div>
+                  <p class="cms-card-title">
+                    <i
+                      data-lucide="calendar-check"
+                      class="w-4 h-4 text-red-700"
+                    ></i>
+                    Curriculum Structure
+                  </p>
+                  <p class="text-xs text-gray-500 mt-1 max-w-xl">
+                    These subjects appear on the public About page Course Catalog.
+                    While this list has at least one subject, it replaces grouped
+                    courses saved under Program CMS.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  id="curriculumStructAddBtn"
+                  class="btn-primary flex-shrink-0"
+                  onclick="openCurriculumStructModal(-1)"
+                >
+                  <i data-lucide="plus"></i> Add subject
+                </button>
+              </div>
+              <table class="cms-table">
+                <thead>
+                  <tr>
+                    <th>Subject Code</th>
+                    <th>Subject Description</th>
+                    <th>Units</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="curriculumStructTableBody">
+                  <tr>
+                    <td
+                      colspan="4"
+                      class="text-center text-gray-400 py-8 text-sm"
+                    >
+                      No subjects yet. Add a subject code to publish it on About.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div
+            id="curriculumStructModal"
+            style="
+              display: none;
+              position: fixed;
+              inset: 0;
+              z-index: 1005;
+              background: rgba(15, 10, 12, 0.55);
+              backdrop-filter: blur(5px);
+              align-items: center;
+              justify-content: center;
+              padding: 1rem;
+            "
+          >
+            <div
+              style="
+                background: #fff;
+                border-radius: 18px;
+                max-width: 520px;
+                width: 100%;
+                box-shadow: 0 32px 80px rgba(0, 0, 0, 0.22);
+              "
+            >
+              <div
+                class="hero-bg"
+                style="
+                  background: linear-gradient(135deg, #3d0709, #7b1113);
+                  padding: 18px 22px;
+                  border-radius: 18px 18px 0 0;
+                "
+              >
+                <div class="flex items-center justify-between">
+                  <p
+                    class="font-bold text-white text-base"
+                    id="curriculumStructModalTitle"
+                  >
+                    Add subject
+                  </p>
+                  <button
+                    type="button"
+                    onclick="closeCurriculumStructModal()"
+                    style="
+                      background: rgba(255, 255, 255, 0.12);
+                      border: none;
+                      border-radius: 10px;
+                      width: 34px;
+                      height: 34px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      cursor: pointer;
+                    "
+                  >
+                    <i
+                      data-lucide="x"
+                      style="width: 16px; height: 16px; color: #fff"
+                    ></i>
+                  </button>
+                </div>
+              </div>
+              <div class="p-6 space-y-3">
+                <input type="hidden" id="curriculumStructEditIndex" value="-1" />
+                <div>
+                  <label class="lbl">Subject Code</label>
+                  <input
+                    id="curriculumStructCode"
+                    type="text"
+                    class="field font-mono"
+                    placeholder="e.g. MIT 201"
+                  />
+                </div>
+                <div>
+                  <label class="lbl">Subject Description</label>
+                  <input
+                    id="curriculumStructName"
+                    type="text"
+                    class="field"
+                    placeholder="Course title as shown publicly"
+                  />
+                </div>
+                <div>
+                  <label class="lbl">Units</label>
+                  <input
+                    id="curriculumStructUnits"
+                    type="number"
+                    min="1"
+                    class="field"
+                    placeholder="3"
+                  />
+                </div>
+                <div>
+                  <label class="lbl">Description <span class="lbl-hint">(optional)</span></label>
+                  <textarea
+                    id="curriculumStructDesc"
+                    rows="3"
+                    class="field resize-none"
+                    placeholder="Shown in the course detail modal on About…"
+                  ></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    class="border border-gray-200 rounded-xl px-4 py-2 text-sm"
+                    onclick="closeCurriculumStructModal()"
+                  >
+                    Cancel
+                  </button>
+                  <button type="button" class="btn-primary" onclick="saveCurriculumStructModal()">
+                    <i data-lucide="save"></i> Save
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -5406,6 +5588,135 @@ Develop students' capacity to conduct both technical and statistical research, c
         },
         {% endfor %}
       ];
+
+      let aboutCurriculumStructState = [
+        {% if cms.about_courses %}
+        {% for c in cms.about_courses %}
+        {
+          code: "{{ c.code|default:''|escapejs }}",
+          name: "{{ c.name|default:''|escapejs }}",
+          units: {% if c.units %}{{ c.units }}{% else %}0{% endif %},
+          description: "{{ c.description|default:''|escapejs }}",
+        },
+        {% endfor %}
+        {% endif %}
+      ];
+
+      function escapeHtmlCs(s) {
+        if (s === null || s === undefined) return "";
+        const d = document.createElement("div");
+        d.textContent = String(s);
+        return d.innerHTML;
+      }
+
+      function renderCurriculumStructTable() {
+        const tbody = document.getElementById("curriculumStructTableBody");
+        if (!tbody) return;
+        if (!aboutCurriculumStructState.length) {
+          tbody.innerHTML =
+            `<tr><td colspan="4" class="text-center text-gray-400 py-8 text-sm">No subjects yet. Click &quot;Add subject&quot; to publish courses on About.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = aboutCurriculumStructState
+          .map(
+            (row, idx) => `
+          <tr data-cs-index="${idx}">
+            <td class="font-mono text-sm">${escapeHtmlCs(row.code)}</td>
+            <td>${escapeHtmlCs(row.name)}</td>
+            <td>${escapeHtmlCs(row.units)}</td>
+            <td class="flex gap-1">
+              <button type="button" class="btn-del text-blue-500" onclick="openCurriculumStructModal(${idx})" title="Edit"><i data-lucide="pencil"></i></button>
+              <button type="button" class="btn-del" onclick="deleteCurriculumStructRow(${idx})" title="Delete"><i data-lucide="trash-2"></i></button>
+            </td>
+          </tr>`,
+          )
+          .join("");
+        lucide.createIcons();
+      }
+
+      function openCurriculumStructModal(editIndex) {
+        const modal = document.getElementById("curriculumStructModal");
+        if (!modal) return;
+        document.getElementById("curriculumStructEditIndex").value = String(editIndex);
+        const titleEl = document.getElementById("curriculumStructModalTitle");
+        if (editIndex < 0) {
+          titleEl.textContent = "Add subject";
+          document.getElementById("curriculumStructCode").value = "";
+          document.getElementById("curriculumStructName").value = "";
+          document.getElementById("curriculumStructUnits").value = "";
+          document.getElementById("curriculumStructDesc").value = "";
+        } else {
+          const row = aboutCurriculumStructState[editIndex];
+          if (!row) return;
+          titleEl.textContent = "Edit subject";
+          document.getElementById("curriculumStructCode").value = row.code || "";
+          document.getElementById("curriculumStructName").value = row.name || "";
+          document.getElementById("curriculumStructUnits").value = row.units != null ? String(row.units) : "";
+          document.getElementById("curriculumStructDesc").value = row.description || "";
+        }
+        modal.style.display = "flex";
+        lucide.createIcons();
+      }
+
+      function closeCurriculumStructModal() {
+        const modal = document.getElementById("curriculumStructModal");
+        if (modal) modal.style.display = "none";
+      }
+
+      function saveCurriculumStructModal() {
+        const idx = parseInt(document.getElementById("curriculumStructEditIndex").value, 10);
+        const code = document.getElementById("curriculumStructCode").value.trim();
+        const name = document.getElementById("curriculumStructName").value.trim();
+        const unitsRaw = parseInt(document.getElementById("curriculumStructUnits").value, 10);
+        const description = document.getElementById("curriculumStructDesc").value.trim();
+        if (!code || !name || !Number.isFinite(unitsRaw) || unitsRaw <= 0) {
+          alert("Enter subject code, description (title), and a positive unit count.");
+          return;
+        }
+        const entry = { code, name, units: unitsRaw, description };
+        if (Number.isFinite(idx) && idx >= 0 && idx < aboutCurriculumStructState.length) {
+          aboutCurriculumStructState[idx] = entry;
+        } else {
+          aboutCurriculumStructState.push(entry);
+        }
+        closeCurriculumStructModal();
+        renderCurriculumStructTable();
+        persistAboutCurriculumStruct();
+      }
+
+      function deleteCurriculumStructRow(idx) {
+        if (!confirm("Remove this subject from the About page catalog?")) return;
+        if (idx < 0 || idx >= aboutCurriculumStructState.length) return;
+        aboutCurriculumStructState.splice(idx, 1);
+        renderCurriculumStructTable();
+        persistAboutCurriculumStruct();
+      }
+
+      function persistAboutCurriculumStruct() {
+        fetch("/admin-panel/api/cms/update/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken(),
+          },
+          body: JSON.stringify({ about_courses: aboutCurriculumStructState }),
+        })
+          .then((r) => r.json())
+          .then((d) => {
+            if (typeof showCmsToast === "function") {
+              if (d.success) showCmsToast(d.message || "Curriculum saved.", "success");
+              else showCmsToast(d.message || "Save failed.", "error");
+            } else if (!d.success) {
+              alert(d.message || "Save failed.");
+            }
+          })
+          .catch(() => {
+            if (typeof showCmsToast === "function") showCmsToast("Save failed.", "error");
+            else alert("Save failed.");
+          });
+      }
+
+      renderCurriculumStructTable();
 
       function switchCourseType(typeId, btn) {
         document.querySelectorAll('[id^="courseType-type-"]').forEach(el => el.classList.add('hidden'));

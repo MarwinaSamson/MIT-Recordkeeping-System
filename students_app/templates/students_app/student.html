@@ -1733,10 +1733,10 @@
     <div style="padding:20px 24px;">
       <!-- Current user chip -->
       <div style="background:var(--surface-2);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:20px;border:1px solid var(--border);">
-        <div class="sb-avatar">JS</div>
+        <div class="sb-avatar"> {{ student.initials }} </div>
         <div>
-          <p style="font-size:0.8rem;font-weight:600;color:var(--ink);margin:0;">Juan dela Cruz</p>
-          <p style="font-size:0.65rem;color:var(--ink-4);margin:0;font-family:var(--font-mono);">juan.delacruz@mit.edu.ph</p>
+          <p style="font-size:0.8rem;font-weight:600;color:var(--ink);margin:0;"> {{ student.full_name }} </p>
+          <p style="font-size:0.65rem;color:var(--ink-4);margin:0;font-family:var(--font-mono);"> {{ student.email }} </p>
         </div>
       </div>
 
@@ -1764,7 +1764,8 @@
       documentFiles:     {{ document_files_json|safe }},
       documentUrls:      {{ document_urls_json|safe }},
       personalDetails:   {{ personal_json|safe }},
-      prospectusTree:    {{ prospectus_tree_json|safe }},
+      schoolYearDisplay: "{{ school_year_display|escapejs }}", // display-only e.g. "2025 – 2026"
+      currentSemester:   "{{ current_semester|escapejs }}",
       education: {
         college:  "{{ undergrad_school|escapejs }}",
         graduate: "{{ graduate_school|escapejs }}",
@@ -2579,7 +2580,7 @@
           <div class="card">
             <div class="card-header">
               <div class="card-title"><span class="ms" style="font-size:16px;color:var(--crimson);margin-right:6px">receipt_long</span>${sem.yearLabel} — ${sem.semLabel} &nbsp;<span style="font-size:0.65rem;color:var(--ink-4);font-family:var(--font-mono)">${sem.acadYear}</span></div>
-              <span id="cor-status-${sem.id}" style="${uploaded?'':'display:none'}">${uploaded?'<span class=\'doc-status status-uploaded\'>Uploaded</span>':''}</span>
+              <span id="cor-status-${sem.id}" style="${uploaded?'':'display:none'}">${uploaded ? _corStatusPill(uploaded.status) : ''}</span>
             </div>
             <div class="card-body">
               <p style="font-size:0.73rem;color:var(--ink-4);margin-bottom:14px;line-height:1.6">Upload a clear PDF scan or photo (JPG/PNG) of your COR issued by the Registrar's Office after enrollment for this semester.</p>
@@ -2597,7 +2598,7 @@
                 <span class="ms">task_alt</span>
                 <div style="flex:1;min-width:0">
                   <div class="file-name" id="cor-fn-${sem.id}">${uploaded?corStates[sem.id].filename:''}</div>
-                  <div class="file-meta">Uploaded successfully · Pending review</div>
+                  <div class="file-meta">${uploaded ? ((uploaded.status === 'Verified') ? 'Verified by admin' : (uploaded.status === 'Rejected') ? 'Rejected — check remarks' : 'Uploaded successfully · Pending review') : 'Uploaded successfully · Pending review'}</div>
                 </div>
                 <div class="cor-actions">
                   <button class="btn btn-ghost btn-xs" onclick="reUploadCor('${sem.id}')"><span class="ms" style="font-size:14px">refresh</span>Replace</button>
@@ -2645,16 +2646,55 @@
       if(!r.valid){showFileError(r.error,'corFileError');return;}
       hideFileError('corFileError'); processCorUpload(file,sem);
     }
-    function processCorUpload(file,sem) {
-      corStates[sem]={filename:file.name};
-      const dz=$('cor-dz-'+sem); if(dz)dz.style.display='none';
-      const fn=$('cor-fn-'+sem); if(fn)fn.textContent=file.name;
-      const uv=$('cor-uploaded-'+sem); if(uv)uv.classList.add('show');
-      const st=$('cor-status-'+sem);
-      if(st){st.className='doc-status status-uploaded';st.innerHTML='<span class=\'doc-status status-uploaded\'>Uploaded</span>';st.style.display='';}
-      const alert=$('corAlert'); if(alert)alert.style.display='none';
-      showToast(`COR uploaded!`,'success');
+    async function processCorUpload(file, semId) {
+      const sem = corSemesters.find(s => s.id === semId);
+      if (!sem) { showToast('Semester slot not found.','error'); return; }
+
+      // Optimistic UI
+      corStates[semId] = { filename: file.name, status: 'Pending' };
+      const dz=$('cor-dz-'+semId); if(dz)dz.style.display='none';
+      const fn=$('cor-fn-'+semId); if(fn)fn.textContent=file.name;
+      const uv=$('cor-uploaded-'+semId); if(uv)uv.classList.add('show');
+      const st=$('cor-status-'+semId);
+      if(st){st.innerHTML='<span class=\'doc-status status-review\'>Pending</span>';st.style.display='';}
       renderCorStatusSummary(); updateCorNavBadge();
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('year_level', sem.yearLabel || '');
+        formData.append('semester', sem.semLabel || '');
+        formData.append('school_year', sem.acadYear || '');
+
+        const res = await fetch('/api/cor-upload/', {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          body: formData,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) throw new Error(data.message || 'Upload failed.');
+
+        corStates[semId] = {
+          id: data.submission?.id,
+          filename: data.submission?.file_name || file.name,
+          status: data.submission?.status || 'Pending',
+          admin_remarks: data.submission?.admin_remarks || '',
+          file_url: data.submission?.file_url || '',
+        };
+
+        if(st){
+          st.innerHTML = '<span class="doc-status status-review">Pending</span>';
+          st.style.display = '';
+        }
+        showToast('COR uploaded and saved.','success');
+      } catch (err) {
+        showToast(err.message || 'Unable to upload COR.','error');
+      } finally {
+        renderCorStatusSummary(); updateCorNavBadge();
+      }
     }
     function renderCorStatusSummary() {
       const el=$('corStatusSummary'); if(!el)return;
@@ -2672,6 +2712,54 @@
       const missing=corSemesters.filter(s=>!corStates[s.id]).length;
       const badge=$('corNavBadge');
       if(badge)badge.style.display=(missing===corSemesters.length)?'flex':'none';
+    }
+
+    function _corStatusPill(status) {
+      if (status === 'Verified') return '<span class="doc-status status-uploaded">Verified</span>';
+      if (status === 'Rejected') return '<span class="doc-status status-missing">Rejected</span>';
+      return '<span class="doc-status status-review">Pending</span>';
+    }
+
+    async function loadSavedCORs() {
+      try {
+        const res = await fetch('/api/cor-submissions/me/', {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        });
+        if (!res.ok) return;
+        const data = await res.json().catch(() => ({}));
+        if (!data.success) return;
+
+        const subs = Array.isArray(data.submissions) ? data.submissions : [];
+        subs.forEach((s) => {
+          const yearLabel = (s.year_level || '').trim();
+          const semLabel = (s.semester || '').trim();
+          const acadYear = (s.school_year || '').trim();
+          if (!semLabel || !acadYear) return;
+
+          let slot = corSemesters.find(
+            (x) => x.yearLabel === yearLabel && x.semLabel === semLabel && x.acadYear === acadYear,
+          );
+          if (!slot) {
+            const id = `db-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+            slot = { id, yearLabel: yearLabel || '—', semLabel, acadYear };
+            corSemesters.push(slot);
+          }
+
+          corStates[slot.id] = {
+            id: s.id,
+            filename: s.file_name || (s.file_url ? s.file_url.split('/').pop() : ''),
+            status: s.status || 'Pending',
+            admin_remarks: s.admin_remarks || '',
+            file_url: s.file_url || '',
+          };
+        });
+
+        renderCorTabs();
+        renderCorStatusSummary();
+        updateCorNavBadge();
+      } catch (e) {
+        console.error('loadSavedCORs failed', e);
+      }
     }
 
     /* ── Add COR Modal ── */
@@ -2806,13 +2894,18 @@
             const gradeVal = grades[cKey];
             const gradeClass = gradeVal !== undefined ? (gradeVal <= 2.0 ? 'has-grade' : 'failing') : '';
             html+=`<tr>
-              <td><span class="course-code">${c.code||''}</span></td>
-              <td>${c.title||''}</td>
-              <td style="font-family:var(--font-mono);font-size:0.7rem">${c.prereq || 'None'}</td>
-              <td style="font-family:var(--font-mono)">${c.lec||0}</td>
-              <td style="font-family:var(--font-mono)">${c.lab||0}</td>
-              <td style="font-family:var(--font-mono)">${(c.lec||0)+(c.lab||0)}</td>
-              <td><input class="grade-input ${gradeClass}" type="number" min="1" max="5" step="0.25" placeholder="—" data-course="${cKey}" value="${gradeVal||''}" oninput="updateGrade(this)"></td>
+              <td><span class="course-code">${c.code}</span></td>
+              <td>${c.title}</td>
+              <td style="font-family:var(--font-mono);font-size:0.7rem">None</td>
+              <td style="font-family:var(--font-mono)">${c.lec}</td>
+              <td style="font-family:var(--font-mono)">${c.lab}</td>
+              <td style="font-family:var(--font-mono)">${c.lec+c.lab}</td>
+              <td><input class="grade-input ${gradeClass}" type="number" min="1" max="5" step="0.25" placeholder="—"
+                data-course="${cKey}"
+                data-code="${c.code}"
+                data-title="${c.title.replace(/"/g,'&quot;')}"
+                data-units="${c.lec+c.lab}"
+                value="${gradeVal||''}" oninput="updateGrade(this)"></td>
             </tr>`;
           });
           html+=`<tr class="total-row"><td colspan="5" style="text-align:right;font-family:var(--font-mono)">TOTAL</td><td style="font-family:var(--font-mono)">${totalUnits}</td><td>—</td></tr>`;
@@ -2873,20 +2966,34 @@
       if(gs)gs.innerHTML=summary+`<div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:6px"><span style="font-size:0.76rem;font-weight:700;color:var(--ink);font-family:var(--font-display)">GWA</span><span class="gwa-pill ${pass?'gwa-pass':'gwa-fail'}">${gwa.toFixed(2)}</span></div>`;
     }
 
+    let gradesScreenshotFile = null;
     async function saveGrades(){
-      const entries = buildGradeEntriesPayload();
+      const inputs = Array.from(document.querySelectorAll('.grade-input[data-course]'));
+      const entries = [];
+      inputs.forEach((inp) => {
+        const v = parseFloat(inp.value);
+        if (!Number.isFinite(v)) return;
+        entries.push({
+          code:  (inp.dataset.code || inp.dataset.course || '').trim(),
+          title: (inp.dataset.title || '').trim(),
+          units: parseInt(inp.dataset.units || '0', 10) || 0,
+          grade: v,
+        });
+      });
+
+      const gdp = $('gwaDisplay')?.textContent || '';
+      const match = gdp.match(/GWA:\s*([0-9.]+)/i);
+      const gpa = match ? match[1] : '';
+
       const formData = new FormData();
-      formData.append('curriculum_name', D.curriculumName || '');
-      formData.append('school_year', D.currentSchoolYear || '');
       formData.append('semester', D.currentSemester || '');
-      formData.append('gpa', Object.values(grades).length ? (Object.values(grades).reduce((a,b)=>a+b,0) / Object.values(grades).length).toFixed(2) : '');
-      formData.append('grades_json', JSON.stringify(entries));
-      if (gradeScreenshotFile) {
-        formData.append('screenshot', gradeScreenshotFile);
-      }
+      formData.append('school_year', D.schoolYearDisplay || '');
+      if (gpa) formData.append('gpa', gpa);
+      formData.append('entries_json', JSON.stringify(entries));
+      if (gradesScreenshotFile) formData.append('screenshot', gradesScreenshotFile);
 
       try {
-        const response = await fetch('/api/grade-submission/', {
+        const res = await fetch('/api/grades/submit/', {
           method: 'POST',
           headers: {
             'X-Requested-With': 'XMLHttpRequest',
@@ -2894,20 +3001,11 @@
           },
           body: formData,
         });
-
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok || !data.success) {
-          throw new Error(data.message || 'Unable to save grade submission.');
-        }
-
-        if (data.submission) {
-          applyGradeSubmission(data.submission);
-          gradeScreenshotFile = null;
-        }
-        showToast('Grades saved.','success');
-      } catch (error) {
-        console.error('saveGrades error:', error);
-        showToast(error.message || 'Unable to save grade submission.','error');
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.success === false) throw new Error(data.message || 'Save failed.');
+        showToast('Grades submitted for admin verification.','success');
+      } catch (e) {
+        showToast(e.message || 'Unable to submit grades.','error');
       }
     }
 
@@ -2915,7 +3013,7 @@
       const file=e.target.files[0]; if(!file)return;
       const r=await validateFile(file);
       if(!r.valid){showToast(r.error,'error');e.target.value='';return;}
-      gradeScreenshotFile = file;
+      gradesScreenshotFile = file;
       const preview=$('prospectusPreview');
       if(file.type.startsWith('image/')&&preview){
         const reader=new FileReader();
@@ -2925,6 +3023,58 @@
       const ocrPanel=$('ocrPanel'); if(ocrPanel)ocrPanel.style.display='block';
       showToast('Prospectus photo uploaded.','info');
       e.target.value='';
+    }
+
+    async function loadLatestGrades() {
+      try {
+        const res = await fetch('/api/grades/latest/', {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        });
+        if (!res.ok) return;
+        const data = await res.json().catch(() => ({}));
+        if (!data.success || !data.submission) return;
+
+        const sub = data.submission;
+        const entries = Array.isArray(sub.entries) ? sub.entries : [];
+
+        // Fill grade inputs by matching data-code (code), but also keep the per-row key map.
+        const byCode = {};
+        entries.forEach((e) => {
+          if (!e || !e.code) return;
+          const g = parseFloat(e.grade);
+          if (!Number.isFinite(g)) return;
+          byCode[String(e.code).trim()] = g;
+        });
+
+        // Ensure prospectus rows exist before we set values.
+        renderProspectus();
+
+        document.querySelectorAll('.grade-input[data-course]').forEach((inp) => {
+          const code = (inp.dataset.code || '').trim();
+          const courseKey = (inp.dataset.course || '').trim();
+          const g = byCode[code];
+          if (!Number.isFinite(g)) return;
+          inp.value = String(g);
+          grades[courseKey] = g;
+          inp.classList.toggle('has-grade', g <= 2.0);
+          inp.classList.toggle('failing', g > 2.0);
+        });
+
+        recalcGWA();
+
+        // Screenshot preview (cannot restore file input; just show image if available)
+        if (sub.screenshot_url) {
+          const preview = $('prospectusPreview');
+          if (preview) {
+            preview.src = sub.screenshot_url;
+            preview.style.display = 'block';
+          }
+          const ocrPanel = $('ocrPanel');
+          if (ocrPanel) ocrPanel.style.display = 'block';
+        }
+      } catch (e) {
+        console.error('loadLatestGrades failed', e);
+      }
     }
 
     /* ============================================================
@@ -3064,6 +3214,10 @@ function closeLogoutModal() {
       renderImportantDates();
       renderDeadline();
       console.log('init() complete');
+
+      // Load saved COR + grades from database (non-blocking)
+      loadSavedCORs();
+      loadLatestGrades();
     }
 
     document.addEventListener('DOMContentLoaded', init);

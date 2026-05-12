@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.core.files.storage import default_storage
 from django.views.decorators.csrf import csrf_exempt
 import json
+import time
 
 from ..models import Application, DocumentVerification, AdminActivityLog, AdminProfile, SchoolYear, Semester
 from students_app.models import Document
@@ -954,6 +955,30 @@ def update_cms_settings(request):
                     })
             update_data['about_objectives'] = cleaned_objectives
 
+        # Flat course catalog for About page (Others → Curriculum Structure) [{code, name, units, description}]
+        raw_about_courses = data.get('about_courses', None)
+        if raw_about_courses is not None:
+            cleaned_about_courses = []
+            if isinstance(raw_about_courses, list):
+                for item in raw_about_courses:
+                    if not isinstance(item, dict):
+                        continue
+                    code = str(item.get('code', '')).strip()
+                    name = str(item.get('name', '')).strip()
+                    description = str(item.get('description', '') or '').strip()
+                    try:
+                        units = int(item.get('units', 0))
+                    except (ValueError, TypeError):
+                        units = 0
+                    if code and name and units > 0:
+                        cleaned_about_courses.append({
+                            'code': code,
+                            'name': name,
+                            'units': units,
+                            'description': description,
+                        })
+            update_data['about_courses'] = cleaned_about_courses
+
         # Validate and save about faculty list [{name: str, title: str, bio: str, tags: [str]}]
         raw_about_faculty = data.get('about_faculty', None)
         if raw_about_faculty is not None:
@@ -1614,8 +1639,8 @@ def update_student_requirement_status(request):
 def send_requirement_notification(request):
     """Send a notification to a student about missing requirements."""
     from ..models import StudentRequirement, RequirementNotification
-    from django.core.mail import send_mail
     from django.conf import settings
+    from recordkeeping_proj.emailjs import send_email_via_emailjs
 
     try:
         data = json.loads(request.body)
@@ -1667,31 +1692,25 @@ def send_requirement_notification(request):
                     message=f"{message}\n\nMissing requirements: {req_names}"
                 )
 
-            # Send email notification
+            # Send email notification (EmailJS; ~1 request/second limit)
             try:
                 full_name = user.get_full_name() or user.email
-                email_message = f"""Dear {full_name},
-
-{message}
-
-Missing Requirements:
-- {req_names}
-
-Please submit the required documents as soon as possible.
-
-Best regards,
-Admissions Office
-"""
-                send_mail(
-                    subject='Action Required: Missing Admission Requirements',
-                    message=email_message,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[user.email],
-                    fail_silently=False,
+                template_id = getattr(settings, "EMAILJS_TEMPLATE_REQUIREMENT", "")
+                ok, err_msg = send_email_via_emailjs(
+                    template_id,
+                    {
+                        "to_email": user.email,
+                        "student_name": full_name,
+                        "message": message,
+                        "missing_requirements": req_names,
+                    },
                 )
-                notifications_sent += 1
+                if ok:
+                    notifications_sent += 1
+                    time.sleep(1.05)
+                else:
+                    print(f"Failed to send email to {user.email}: {err_msg}")
             except Exception as e:
-                # Log but continue with other students
                 print(f"Failed to send email to {user.email}: {e}")
 
         AdminActivityLog.objects.create(

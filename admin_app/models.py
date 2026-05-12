@@ -526,6 +526,7 @@ class CMSSettings(models.Model):
         blank=True,
         default="Specialization Units"
     )
+    
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

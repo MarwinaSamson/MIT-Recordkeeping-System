@@ -22,6 +22,10 @@ from .views.api_views import (
     mark_all_notifications_read,
     submit_application,
     get_calendar_events,
+    get_my_cor_submissions,
+    upload_cor_submission,
+    get_my_latest_grade_submission,
+    submit_grade_submission,
 )
 from .views.debug_views import api_check_doc_data
 
@@ -56,4 +60,8 @@ urlpatterns = [
          name="submit_application_api"),
     path("api/check-doc-data/", api_check_doc_data, name="check_doc_data_api"),
     path("api/calendar-events/", get_calendar_events, name="calendar_events_api"),
+    path("api/cor-submissions/me/", get_my_cor_submissions, name="my_cor_submissions_api"),
+    path("api/cor-upload/", upload_cor_submission, name="cor_upload_api"),
+    path("api/grades/latest/", get_my_latest_grade_submission, name="grades_latest_api"),
+    path("api/grades/submit/", submit_grade_submission, name="grades_submit_api"),
 ]

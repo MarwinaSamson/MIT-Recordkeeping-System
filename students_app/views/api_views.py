@@ -10,7 +10,15 @@ from django.utils import timezone
 from django.db import transaction
 
 from admin_app.models import DocumentVerification, Application
-from students_app.models import Document, Notification, PersonalDetails, PrivacyConsent, GradeSubmission, GradeEntry
+from students_app.models import (
+    Document,
+    Notification,
+    PersonalDetails,
+    PrivacyConsent,
+    CORSubmission,
+    GradeSubmission,
+    GradeEntry,
+)
 
 
 def _title_to_key(title):
@@ -201,118 +209,180 @@ def upload_document(request):
     })
 
 
-def _serialize_grade_submission(submission):
-    if not submission:
-        return None
-
-    grades = []
-    for entry in submission.gradeentry_set.all().order_by('order', 'year_label', 'semester_label'):
-        grades.append({
-            'id': entry.id,
-            'year_label': entry.year_label,
-            'semester_label': entry.semester_label,
-            'code': entry.code,
-            'title': entry.title,
-            'units': entry.units,
-            'grade': float(entry.grade) if entry.grade is not None else None,
-            'remarks': entry.remarks or '',
-            'order': entry.order,
+@login_required
+@require_http_methods(["GET"])
+def get_my_cor_submissions(request):
+    subs = CORSubmission.objects.filter(user=request.user).order_by('-uploaded_at')
+    data = []
+    for s in subs:
+        data.append({
+            'id': s.id,
+            'year_level': s.year_level,
+            'semester': s.semester,
+            'school_year': s.school_year,
+            'status': s.status,
+            'admin_remarks': s.admin_remarks or '',
+            'file_url': s.cor_file.url if s.cor_file else '',
+            'file_name': s.cor_file.name.split('/')[-1] if s.cor_file else '',
+            'uploaded_at': s.uploaded_at.isoformat(),
         })
-
-    return {
-        'id': submission.id,
-        'curriculum_name': submission.curriculum_name or '',
-        'school_year': submission.school_year or '',
-        'semester': submission.semester or '',
-        'gpa': float(submission.gpa) if submission.gpa is not None else None,
-        'status': submission.status,
-        'admin_remarks': submission.admin_remarks or '',
-        'screenshot_url': submission.screenshot.url if submission.screenshot else '',
-        'uploaded_at': submission.uploaded_at.isoformat() if submission.uploaded_at else '',
-        'updated_at': submission.updated_at.isoformat() if submission.updated_at else '',
-        'grades': grades,
-    }
+    return JsonResponse({'success': True, 'submissions': data})
 
 
 @login_required
-@require_http_methods(["GET", "POST"])
-def grade_submission(request):
-    if request.method == 'GET':
-        submission = (
-            GradeSubmission.objects.filter(user=request.user)
-            .prefetch_related('gradeentry_set')
-            .first()
-        )
-        return JsonResponse({'success': True, 'submission': _serialize_grade_submission(submission)})
+@require_http_methods(["POST"])
+def upload_cor_submission(request):
+    file_obj = request.FILES.get('file')
+    year_level = (request.POST.get('year_level') or '').strip()
+    semester = (request.POST.get('semester') or '').strip()
+    school_year = (request.POST.get('school_year') or '').strip()
 
-    grades_json = request.POST.get('grades_json', '[]')
-    curriculum_name = request.POST.get('curriculum_name', '').strip()
-    school_year = request.POST.get('school_year', '').strip()
-    semester = request.POST.get('semester', '').strip()
-    gpa_value = request.POST.get('gpa', '').strip()
-    screenshot = request.FILES.get('screenshot')
+    if not file_obj:
+        return JsonResponse({'success': False, 'message': 'No file uploaded.'}, status=400)
+    if not semester or not school_year:
+        return JsonResponse({'success': False, 'message': 'semester and school_year are required.'}, status=400)
 
-    try:
-        grades_payload = json.loads(grades_json) if grades_json else []
-        if not isinstance(grades_payload, list):
-            raise ValueError('grades_json must be a list.')
-    except Exception as exc:
-        return JsonResponse({'success': False, 'message': f'Invalid grades payload: {exc}'}, status=400)
+    # Replace existing slot for this term so admin always sees latest
+    CORSubmission.objects.filter(
+        user=request.user,
+        year_level=year_level,
+        semester=semester,
+        school_year=school_year,
+    ).delete()
 
-    try:
-        gpa = Decimal(gpa_value) if gpa_value else None
-    except (InvalidOperation, TypeError):
-        gpa = None
-
-    from students_app.utils import resolve_canonical_curriculum_name
-    canonical_curriculum = resolve_canonical_curriculum_name(curriculum_name) or curriculum_name
-
-    with transaction.atomic():
-        submission, _ = GradeSubmission.objects.get_or_create(user=request.user)
-        submission.curriculum_name = canonical_curriculum
-        submission.school_year = school_year
-        submission.semester = semester
-        submission.gpa = gpa
-        if screenshot:
-            submission.screenshot = screenshot
-        submission.status = 'Pending'
-        submission.admin_remarks = ''
-        submission.save()
-
-        submission.gradeentry_set.all().delete()
-        entries = []
-        for index, item in enumerate(grades_payload):
-            if not isinstance(item, dict):
-                continue
-            code = str(item.get('code', '')).strip()
-            title = str(item.get('title', '')).strip()
-            if not code and not title:
-                continue
-            grade_value = item.get('grade')
-            try:
-                grade_decimal = Decimal(str(grade_value)) if grade_value not in (None, '', 'null') else None
-            except (InvalidOperation, TypeError, ValueError):
-                grade_decimal = None
-
-            entries.append(GradeEntry(
-                submission=submission,
-                year_label=str(item.get('year_label', '')).strip(),
-                semester_label=str(item.get('semester_label', '')).strip(),
-                code=code,
-                title=title,
-                units=int(item.get('units') or 0),
-                grade=grade_decimal,
-                remarks=str(item.get('remarks', '')).strip(),
-                order=int(item.get('order', index)),
-            ))
-
-        if entries:
-            GradeEntry.objects.bulk_create(entries)
+    sub = CORSubmission.objects.create(
+        user=request.user,
+        year_level=year_level,
+        semester=semester,
+        school_year=school_year,
+        cor_file=file_obj,
+        status='Pending',
+    )
 
     return JsonResponse({
         'success': True,
-        'message': 'Grade submission saved successfully.',
-        'submission': _serialize_grade_submission(submission),
+        'message': 'COR uploaded.',
+        'submission': {
+            'id': sub.id,
+            'year_level': sub.year_level,
+            'semester': sub.semester,
+            'school_year': sub.school_year,
+            'status': sub.status,
+            'admin_remarks': sub.admin_remarks or '',
+            'file_url': sub.cor_file.url if sub.cor_file else '',
+            'file_name': sub.cor_file.name.split('/')[-1] if sub.cor_file else '',
+            'uploaded_at': sub.uploaded_at.isoformat(),
+        }
+    })
+
+
+@login_required
+@require_http_methods(["GET"])
+def get_my_latest_grade_submission(request):
+    sub = GradeSubmission.objects.filter(user=request.user).order_by('-uploaded_at').first()
+    if not sub:
+        return JsonResponse({'success': True, 'submission': None})
+    entries = []
+    for e in GradeEntry.objects.filter(submission=sub):
+        entries.append({
+            'code': e.code,
+            'title': e.title,
+            'units': e.units,
+            'grade': float(e.grade) if e.grade is not None else None,
+            'remarks': e.remarks or '',
+        })
+    return JsonResponse({
+        'success': True,
+        'submission': {
+            'id': sub.id,
+            'semester': sub.semester,
+            'school_year': sub.school_year,
+            'gpa': float(sub.gpa) if sub.gpa is not None else None,
+            'status': sub.status,
+            'admin_remarks': sub.admin_remarks or '',
+            'screenshot_url': sub.screenshot.url if sub.screenshot else '',
+            'uploaded_at': sub.uploaded_at.isoformat(),
+            'entries': entries,
+        },
+    })
+
+
+@login_required
+@require_http_methods(["POST"])
+def submit_grade_submission(request):
+    """
+    Multipart form:
+      - semester, school_year, gpa (optional)
+      - entries_json: JSON list of {code,title,units,grade}
+      - screenshot (optional file)
+    """
+    semester = (request.POST.get('semester') or '').strip()
+    school_year = (request.POST.get('school_year') or '').strip()
+    gpa_raw = (request.POST.get('gpa') or '').strip()
+    entries_json = request.POST.get('entries_json') or '[]'
+    screenshot = request.FILES.get('screenshot')
+
+    if not semester or not school_year:
+        return JsonResponse({'success': False, 'message': 'semester and school_year are required.'}, status=400)
+
+    try:
+        entries = json.loads(entries_json)
+        if not isinstance(entries, list):
+            entries = []
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid entries_json.'}, status=400)
+
+    gpa_val = None
+    if gpa_raw:
+        try:
+            gpa_val = float(gpa_raw)
+        except ValueError:
+            gpa_val = None
+
+    # Create a new submission per save (history), admin verifies latest
+    sub = GradeSubmission.objects.create(
+        user=request.user,
+        semester=semester,
+        school_year=school_year,
+        gpa=gpa_val,
+        screenshot=screenshot,
+        status='Pending',
+    )
+
+    cleaned_entries = []
+    for item in entries:
+        if not isinstance(item, dict):
+            continue
+        code = str(item.get('code', '')).strip()
+        title = str(item.get('title', '')).strip()
+        try:
+            units = int(item.get('units', 0) or 0)
+        except (TypeError, ValueError):
+            units = 0
+        grade = item.get('grade', None)
+        grade_val = None
+        if grade is not None and grade != '':
+            try:
+                grade_val = float(grade)
+            except (TypeError, ValueError):
+                grade_val = None
+        if not code:
+            continue
+        cleaned_entries.append(GradeEntry(
+            submission=sub,
+            code=code,
+            title=title,
+            units=max(0, units),
+            grade=grade_val,
+        ))
+
+    if cleaned_entries:
+        GradeEntry.objects.bulk_create(cleaned_entries)
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Grades submitted.',
+        'submission_id': sub.id,
     })
 
 

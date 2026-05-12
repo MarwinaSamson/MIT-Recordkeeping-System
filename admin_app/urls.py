@@ -3,6 +3,7 @@ from django.urls import path
 from .views.cms_views import cms_settings
 from .views import admin_dashboard, logout_admin
 from .views import schoolyear_views
+from .views.admin_dashboard_views import program_management
 from .views.api_views import (
     verify_document,
     reject_document,
@@ -142,6 +143,7 @@ urlpatterns = [
     
     # Public student API endpoint for active school year
     path('api/student/school-year/', schoolyear_views.get_active_school_year, name='api_get_active_school_year'),
+    path('programs/', program_management, name='program_management'),
     
      #     DocumentVerification
     path('documents/', document_verification_page, name='document_verification'),
