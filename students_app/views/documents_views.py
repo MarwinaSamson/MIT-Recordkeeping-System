@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from ..models import Document
+from students_app.utils import resolve_canonical_curriculum_name
 
 
 def _get_cms():
@@ -126,7 +127,7 @@ def documents(request):
         if mit_curriculum:
             from students_app.models import EducationalBackground
             eb, _ = EducationalBackground.objects.get_or_create(user=request.user, level="college")
-            eb.mit_curriculum = mit_curriculum
+            eb.mit_curriculum = resolve_canonical_curriculum_name(mit_curriculum) or mit_curriculum
             eb.save()
 
         messages.success(

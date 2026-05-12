@@ -1,14 +1,16 @@
 import json
 import re
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
+from django.db import transaction
 
 from admin_app.models import DocumentVerification, Application
-from students_app.models import Document, Notification, PersonalDetails, PrivacyConsent
+from students_app.models import Document, Notification, PersonalDetails, PrivacyConsent, GradeSubmission, GradeEntry
 
 
 def _title_to_key(title):
@@ -199,6 +201,121 @@ def upload_document(request):
     })
 
 
+def _serialize_grade_submission(submission):
+    if not submission:
+        return None
+
+    grades = []
+    for entry in submission.gradeentry_set.all().order_by('order', 'year_label', 'semester_label'):
+        grades.append({
+            'id': entry.id,
+            'year_label': entry.year_label,
+            'semester_label': entry.semester_label,
+            'code': entry.code,
+            'title': entry.title,
+            'units': entry.units,
+            'grade': float(entry.grade) if entry.grade is not None else None,
+            'remarks': entry.remarks or '',
+            'order': entry.order,
+        })
+
+    return {
+        'id': submission.id,
+        'curriculum_name': submission.curriculum_name or '',
+        'school_year': submission.school_year or '',
+        'semester': submission.semester or '',
+        'gpa': float(submission.gpa) if submission.gpa is not None else None,
+        'status': submission.status,
+        'admin_remarks': submission.admin_remarks or '',
+        'screenshot_url': submission.screenshot.url if submission.screenshot else '',
+        'uploaded_at': submission.uploaded_at.isoformat() if submission.uploaded_at else '',
+        'updated_at': submission.updated_at.isoformat() if submission.updated_at else '',
+        'grades': grades,
+    }
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def grade_submission(request):
+    if request.method == 'GET':
+        submission = (
+            GradeSubmission.objects.filter(user=request.user)
+            .prefetch_related('gradeentry_set')
+            .first()
+        )
+        return JsonResponse({'success': True, 'submission': _serialize_grade_submission(submission)})
+
+    grades_json = request.POST.get('grades_json', '[]')
+    curriculum_name = request.POST.get('curriculum_name', '').strip()
+    school_year = request.POST.get('school_year', '').strip()
+    semester = request.POST.get('semester', '').strip()
+    gpa_value = request.POST.get('gpa', '').strip()
+    screenshot = request.FILES.get('screenshot')
+
+    try:
+        grades_payload = json.loads(grades_json) if grades_json else []
+        if not isinstance(grades_payload, list):
+            raise ValueError('grades_json must be a list.')
+    except Exception as exc:
+        return JsonResponse({'success': False, 'message': f'Invalid grades payload: {exc}'}, status=400)
+
+    try:
+        gpa = Decimal(gpa_value) if gpa_value else None
+    except (InvalidOperation, TypeError):
+        gpa = None
+
+    from students_app.utils import resolve_canonical_curriculum_name
+    canonical_curriculum = resolve_canonical_curriculum_name(curriculum_name) or curriculum_name
+
+    with transaction.atomic():
+        submission, _ = GradeSubmission.objects.get_or_create(user=request.user)
+        submission.curriculum_name = canonical_curriculum
+        submission.school_year = school_year
+        submission.semester = semester
+        submission.gpa = gpa
+        if screenshot:
+            submission.screenshot = screenshot
+        submission.status = 'Pending'
+        submission.admin_remarks = ''
+        submission.save()
+
+        submission.gradeentry_set.all().delete()
+        entries = []
+        for index, item in enumerate(grades_payload):
+            if not isinstance(item, dict):
+                continue
+            code = str(item.get('code', '')).strip()
+            title = str(item.get('title', '')).strip()
+            if not code and not title:
+                continue
+            grade_value = item.get('grade')
+            try:
+                grade_decimal = Decimal(str(grade_value)) if grade_value not in (None, '', 'null') else None
+            except (InvalidOperation, TypeError, ValueError):
+                grade_decimal = None
+
+            entries.append(GradeEntry(
+                submission=submission,
+                year_label=str(item.get('year_label', '')).strip(),
+                semester_label=str(item.get('semester_label', '')).strip(),
+                code=code,
+                title=title,
+                units=int(item.get('units') or 0),
+                grade=grade_decimal,
+                remarks=str(item.get('remarks', '')).strip(),
+                order=int(item.get('order', index)),
+            ))
+
+        if entries:
+            GradeEntry.objects.bulk_create(entries)
+
+    return JsonResponse({
+        'success': True,
+        'message': 'Grade submission saved successfully.',
+        'submission': _serialize_grade_submission(submission),
+    })
+
+
 ICON_MAP = {
     'document_verified':  ('fa-check-circle',  '#15803D', '#F0FDF4'),
     'document_rejected':  ('fa-times-circle',  '#DC2626', '#FEF2F2'),
@@ -301,10 +418,11 @@ def submit_application(request):
         mit_curriculum = data.get('mitCurriculum', '')
         if mit_curriculum:
             from students_app.models import EducationalBackground
+            from students_app.utils import resolve_canonical_curriculum_name
             eb, _ = EducationalBackground.objects.get_or_create(
                 user=user, level='college'
             )
-            eb.mit_curriculum = mit_curriculum
+            eb.mit_curriculum = resolve_canonical_curriculum_name(mit_curriculum) or mit_curriculum
             eb.save()
 
         privacy_data = data.get('privacyConsent', {})
