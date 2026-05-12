@@ -559,11 +559,17 @@
         <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
           <i data-lucide="clock"></i><span>Activity History</span>
         </a>
+        <div class="nav-item" onclick="switchPage('student-messaging', this)">
+          <i data-lucide="inbox"></i><span>Student Messaging</span>
+        </div>
         <p
           class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-4 pb-1"
         >
           System
         </p>
+        <a href="{% url 'admin_app:program_management' %}" class="nav-item">
+          <i data-lucide="layout-grid"></i><span>Program Management</span>
+        </a>
         <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
           <i data-lucide="calendar"></i><span>School Year Management</span>
         </a>

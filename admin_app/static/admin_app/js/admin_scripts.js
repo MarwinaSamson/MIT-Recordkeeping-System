@@ -329,29 +329,36 @@ function showToast(msg,type="success"){
 }
 
 /* ═══ NAV ═══ */
-function switchPage(pageId,el){
+function switchPage(pageId, el) {
   // Ensure data is initialized from context
   initializeData();
   
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+pageId).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  if(el) el.classList.add('active');
-  if(pageId==='documents') {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const targetPage = document.getElementById('page-' + pageId);
+  if (targetPage) targetPage.classList.add('active');
+  
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  
+  if (pageId === 'documents') {
     if (typeof switchDocVerTab === 'function') {
       switchDocVerTab('application');
     }
     renderTable();
   }
-  if(pageId==='students')  renderStudents();
-  if(pageId==='history')   renderHistory();
-  if(pageId==='dashboard') renderDashboard();
-  if(pageId==='school-year') {
+  if (pageId === 'students') renderStudents();
+  if (pageId === 'history') renderHistory();
+  if (pageId === 'dashboard') renderDashboard();
+  if (pageId === 'school-year') {
     loadSummary();
     renderSchoolYears('active');
     filterArchivedYears();
   }
-  if(pageId==='prospectus') renderProspectusPage();
+  if (pageId === 'prospectus') renderProspectusPage();
+  if (pageId === 'student-messaging' && typeof initMessagingPage === 'function') {
+    setTimeout(initMessagingPage, 100);
+  }
+  
   lucide.createIcons();
 }
 
