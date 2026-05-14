@@ -140,6 +140,7 @@ class AdminActivityLog(models.Model):
         ('profile_updated', 'Updated Profile'),
         ('photo_updated', 'Changed Profile Photo'),
         ('cms_updated', 'Updated CMS Settings'),
+        ('messaging', 'Sent Message'),
     ]
 
     admin = models.ForeignKey(User, on_delete=models.SET_NULL,
@@ -169,6 +170,11 @@ class AdminProfile(models.Model):
         User, on_delete=models.CASCADE, related_name='admin_profile')
     profile_picture = models.ImageField(
         upload_to='admin_profiles/', null=True, blank=True)
+    preferences = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Admin UI preferences: academic_year, default_program, etc."
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -178,6 +184,38 @@ class AdminProfile(models.Model):
 
     def __str__(self):
         return f"Profile for {self.user.get_full_name() or self.user.username}"
+
+
+class AdminNotification(models.Model):
+    """
+    Stores notifications for admin users triggered by student actions
+    (e.g. uploading a COR, grade screenshot, or submitting a requirement).
+    """
+    NOTIFICATION_TYPES = [
+        ('cor_upload', 'COR Uploaded'),
+        ('grade_upload', 'Grade Screenshot Uploaded'),
+        ('requirement_submitted', 'Requirement Submitted'),
+        ('document_upload', 'Document Uploaded'),
+    ]
+
+    notification_type = models.CharField(max_length=40, choices=NOTIFICATION_TYPES)
+    student = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='triggered_admin_notifications'
+    )
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    related_object_id = models.PositiveIntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Admin Notification'
+        verbose_name_plural = 'Admin Notifications'
+
+    def __str__(self):
+        student_name = self.student.get_full_name() or self.student.username
+        return f"{self.notification_type} — {student_name}"
 
 
 class CMSSettings(models.Model):

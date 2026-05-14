@@ -1,12 +1,31 @@
-:root { --crimson:#9B1C1C; --crimson-dark:#7B0F0F; }
+:root {
+  --crimson: #9B1C1C;
+  --crimson-dark: #7B0F0F;
+  --crimson-light: #B91C1C;
+  --crimson-pale: #FEF2F2;
+  --gold: #B45309;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'DM Sans',sans-serif;background:#f3f4f6;}
 
+  /* TYPOGRAPHY */
+  .font-display { font-family: 'Playfair Display', serif !important; }
+  .page-title { font-family: 'Playfair Display', serif; font-size: 1.75rem; font-weight: 700; color: #111827; line-height: 1.2; }
+  .page-subtitle { font-size: 0.875rem; color: #9ca3af; margin-top: 4px; }
+
+  /* BRAND BUTTONS */
+  .btn-brand { background: var(--crimson); color: #fff; border: none; border-radius: 0.75rem; padding: 10px 18px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background .18s, box-shadow .18s, transform .15s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-brand:hover { background: var(--crimson-dark); box-shadow: 0 4px 14px rgba(155,28,28,0.3); transform: translateY(-1px); }
+  .btn-brand-outline { background: transparent; color: var(--crimson); border: 1.5px solid var(--crimson); border-radius: 0.75rem; padding: 9px 18px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background .18s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-brand-outline:hover { background: var(--crimson-pale); }
+
   /* SIDEBAR */
   .sidebar{width:220px;min-height:100vh;background:var(--crimson);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
-  .nav-item{display:flex;align-items:center;gap:12px;padding:10px 18px;border-radius:10px;cursor:pointer;transition:background .18s,color .18s;color:rgba(255,255,255,0.72);font-size:0.85rem;font-weight:500;margin:2px 10px;}
-  .nav-item:hover{background:rgba(255,255,255,0.13);color:#fff;}
-  .nav-item.active{background:rgba(255,255,255,0.18);color:#fff;font-weight:700;}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:10px 18px;border-radius:10px;cursor:pointer;transition:background .18s,color .18s;color:rgba(255,255,255,0.75);font-size:0.85rem;font-weight:500;margin:2px 10px;text-decoration:none;}
+  .nav-item:hover{background:rgba(255,255,255,0.14);color:#fff;}
+  .nav-item.active{background:rgba(255,255,255,0.2);color:#fff;font-weight:700;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.15);}
   .nav-item svg{width:18px;height:18px;flex-shrink:0;}
 
   /* BADGES */
@@ -46,13 +65,26 @@
   .fade-in{animation:fadeIn .22s ease both;}
 
   /* STAT ACCENT */
-  .stat-card{position:relative;overflow:hidden;}
+  .stat-card{position:relative;overflow:hidden;transition:box-shadow .2s, transform .2s;}
+  .stat-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.10);transform:translateY(-2px);}
   .stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;border-radius:0 0 1rem 1rem;}
   .stat-card.c-gray::after{background:#9ca3af;}
   .stat-card.c-orange::after{background:#f97316;}
   .stat-card.c-yellow::after{background:#eab308;}
   .stat-card.c-green::after{background:#22c55e;}
   .stat-card.c-red::after{background:#ef4444;}
+  .stat-card.c-blue::after{background:#3b82f6;}
+  .stat-card.c-crimson::after{background:var(--crimson);}
+
+  /* PAGE HEADER ACCENT */
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; }
+  .page-header-left { display: flex; flex-direction: column; }
+  .page-header-accent { width: 32px; height: 3px; background: var(--crimson); border-radius: 2px; margin-bottom: 10px; }
+
+  /* SECTION CARD */
+  .section-card { background: #fff; border-radius: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04); border: 1px solid var(--border); }
+  .section-card-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+  .section-card-title { font-size: 0.925rem; font-weight: 700; color: #111827; }
 
   /* TOGGLE */
   .toggle-track{width:42px;height:24px;border-radius:999px;background:#d1d5db;position:relative;cursor:pointer;transition:background .2s;}

@@ -49,6 +49,13 @@ from .views.api_views import (
     send_admin_messaging,
      get_active_school_year_with_semester,
      get_student_curriculum,
+     get_admin_preferences,
+     save_admin_preferences,
+     get_messaging_history,
+     get_admin_notifications,
+     mark_admin_notifications_read,
+     get_admin_notification_count,
+     get_activity_log_api,
 )
 
 from .views.document_verification import (
@@ -128,6 +135,13 @@ urlpatterns = [
          name='api_students_with_status'),
     path('api/messaging/send/', send_admin_messaging, name='api_send_admin_messaging'),     path('api/admission/active-school-year/', get_active_school_year_with_semester, name='api_admission_active_school_year'),
      path('api/admission/student-curriculum/<int:user_id>/', get_student_curriculum, name='api_admission_student_curriculum'),
+     path('api/admin/preferences/', get_admin_preferences, name='api_get_admin_preferences'),
+     path('api/admin/preferences/save/', save_admin_preferences, name='api_save_admin_preferences'),
+     path('api/messaging/history/', get_messaging_history, name='api_messaging_history'),
+     path('api/notifications/', get_admin_notifications, name='api_admin_notifications'),
+     path('api/notifications/mark-read/', mark_admin_notifications_read, name='api_admin_notifications_mark_read'),
+     path('api/notifications/count/', get_admin_notification_count, name='api_admin_notifications_count'),
+     path('api/activity-log/', get_activity_log_api, name='api_activity_log'),
 
 
     path('settings/', cms_settings, name='cms_settings'),

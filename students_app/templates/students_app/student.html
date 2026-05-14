@@ -1863,6 +1863,7 @@
       $('topBreadcrumb').textContent=m.breadcrumb||'';
       $('topTitle').textContent=m.title||'';
       if(name==='calendar') renderFullCalendar();
+      if(name==='notifications' && typeof window.fetchInboxMessages === 'function') window.fetchInboxMessages();
       closeSidebar();
       window.scrollTo(0,0);
     }

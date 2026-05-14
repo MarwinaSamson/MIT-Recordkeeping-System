@@ -7,8 +7,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WMSU Graduate School – Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              crimson: { DEFAULT: '#9B1C1C', dark: '#7B0F0F', light: '#B91C1C', pale: '#FEF2F2' },
+            },
+            fontFamily: {
+              display: ['"Playfair Display"', 'serif'],
+              body: ['"DM Sans"', 'sans-serif'],
+            },
+          },
+        },
+      };
+    </script>
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400;1,600&display=swap"
       rel="stylesheet"
     />
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
@@ -71,6 +86,11 @@
         <div class="nav-item" onclick="switchPage('student-messaging', this)">
           <i data-lucide="inbox"></i><span>Student Messaging</span>
         </div>
+        <div class="nav-item" onclick="switchPage('notifications', this)" id="nav-notifications">
+          <i data-lucide="bell"></i>
+          <span>Notifications</span>
+          <span id="admin-notif-badge" class="ml-auto hidden min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center leading-none"></span>
+        </div>
         <p
           class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-4 pb-1"
         >
@@ -96,7 +116,7 @@
       <div class="px-2 pb-5 mt-auto border-t border-white/10 pt-3">
         <div class="flex items-center gap-3 px-3 mb-3">
           <div
-            class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
+            class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0" style="background:rgba(255,255,255,0.22);"
           >
             {% if admin_name %}{{ admin_name|slice:":1"|upper }}{% endif %}
           </div>
@@ -120,15 +140,12 @@
       <!-- ══ PAGE: DASHBOARD ══ -->
       <div id="page-dashboard" class="page active p-8 w-full">
         <div class="mb-7 fade-in">
-          <h1
-            class="text-3xl font-bold text-gray-800"
-            style="font-family: &quot;Playfair Display&quot;, serif"
-          >
+          <div class="page-header-accent"></div>
+          <h1 class="text-3xl font-bold text-gray-900 font-display">
             Dashboard
           </h1>
           <p class="text-gray-400 text-sm mt-1">
-            Welcome back, {{ admin_name|default:"Admin" }}. Here's your system
-            overview.
+            Welcome back, <span class="font-semibold text-gray-600">{{ admin_name|default:"Admin" }}</span>. Here's your system overview.
           </p>
         </div>
         <!-- Stats -->
@@ -236,7 +253,7 @@
                     document.querySelectorAll('.nav-item')[1],
                   )
                 "
-                class="text-xs text-red-700 font-semibold hover:underline"
+                class="text-xs font-semibold hover:underline" style="color:var(--crimson);"
               >
                 View All →
               </button>
@@ -254,13 +271,14 @@
               <div class="space-y-3" id="dashProgress"></div>
             </div>
             <div
-              class="bg-red-800 rounded-2xl p-5 text-white fade-in"
-              style="animation-delay: 0.28s"
+              class="rounded-2xl p-5 text-white fade-in relative overflow-hidden"
+              style="animation-delay: 0.28s; background: linear-gradient(135deg, #7B0F0F 0%, #9B1C1C 60%, #B91C1C 100%);"
             >
+              <div class="absolute top-0 right-0 w-24 h-24 rounded-full bg-white/5 -translate-y-8 translate-x-8 pointer-events-none"></div>
               <div class="flex items-center gap-2 mb-2">
-                <i data-lucide="bell" class="w-4 h-4 text-red-200"></i>
+                <i data-lucide="bell" class="w-4 h-4 text-yellow-300"></i>
                 <p
-                  class="text-xs font-semibold text-red-200 uppercase tracking-wide"
+                  class="text-xs font-semibold text-white/60 uppercase tracking-widest"
                 >
                   Notice
                 </p>
@@ -269,7 +287,7 @@
                 Deadline for document submission:
                 <span class="text-yellow-300">March 15, 2026</span>
               </p>
-              <p class="text-xs text-red-200 mt-1">
+              <p class="text-xs text-white/60 mt-1">
                 Notify applicants with incomplete submissions.
               </p>
             </div>
@@ -283,10 +301,8 @@
       <!-- ══ PAGE: PROSPECTUS MANAGEMENT ══ -->
       <div id="page-prospectus" class="page p-8 w-full">
         <div class="mb-7 fade-in">
-          <h1
-            class="text-3xl font-bold text-gray-800"
-            style="font-family: &quot;Playfair Display&quot;, serif"
-          >
+          <div class="page-header-accent"></div>
+          <h1 class="text-3xl font-bold text-gray-900 font-display">
             Prospectus Management
           </h1>
           <p class="text-gray-400 text-sm mt-1">
@@ -321,7 +337,7 @@
             <div class="flex items-center gap-2 mb-4">
               <button
                 onclick="openProspectusModal()"
-                class="mt-2 px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg font-semibold transition flex items-center gap-2"
+                class="mt-2 px-4 py-2 btn-brand rounded-lg font-semibold flex items-center gap-2"
               >
                 <i data-lucide="plus" class="w-4 h-4"></i>New Prospectus
               </button>
@@ -340,10 +356,8 @@
       <!-- ══ PAGE: STUDENTS ══ -->
       <div id="page-students" class="page p-8 w-full">
         <div class="mb-7 fade-in">
-          <h1
-            class="text-3xl font-bold text-gray-800"
-            style="font-family: &quot;Playfair Display&quot;, serif"
-          >
+          <div class="page-header-accent"></div>
+          <h1 class="text-3xl font-bold text-gray-900 font-display">
             Students
           </h1>
           <p class="text-gray-400 text-sm mt-1">
@@ -397,10 +411,8 @@
       <!-- ══ PAGE: MISSING REQUIREMENTS ══ -->
       <div id="page-requirements" class="page p-8 w-full">
         <div class="mb-7 fade-in">
-          <h1
-            class="text-3xl font-bold text-gray-800"
-            style="font-family: &quot;Playfair Display&quot;, serif"
-          >
+          <div class="page-header-accent"></div>
+          <h1 class="text-3xl font-bold text-gray-900 font-display">
             Missing Requirements
           </h1>
           <p class="text-gray-400 text-sm mt-1">
@@ -411,7 +423,7 @@
         <div class="flex flex-wrap gap-3 mb-6">
           <button
             onclick="openAddRequirementModal()"
-            class="bg-red-700 hover:bg-red-800 text-white px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition"
+            class="btn-brand px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2"
           >
             <i data-lucide="plus" class="w-4 h-4"></i> Add Missing Requirement
           </button>
@@ -430,48 +442,29 @@
         </div>
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div class="bg-white rounded-2xl shadow-sm p-5 fade-in">
-            <p
-              class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
-            >
+          <div class="stat-card c-crimson bg-white rounded-2xl shadow-sm p-5 fade-in">
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
               Total Missing
             </p>
-            <h2 id="reqTotalCount" class="text-3xl font-bold text-gray-800">
-              0
-            </h2>
+            <h2 id="reqTotalCount" class="text-3xl font-bold text-gray-800">0</h2>
           </div>
-          <div class="bg-white rounded-2xl shadow-sm p-5 fade-in">
-            <p
-              class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
-            >
+          <div class="stat-card c-orange bg-white rounded-2xl shadow-sm p-5 fade-in">
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
               Pending
             </p>
-            <h2 id="reqPendingCount" class="text-3xl font-bold text-orange-500">
-              0
-            </h2>
+            <h2 id="reqPendingCount" class="text-3xl font-bold text-orange-500">0</h2>
           </div>
-          <div class="bg-white rounded-2xl shadow-sm p-5 fade-in">
-            <p
-              class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
-            >
+          <div class="stat-card c-blue bg-white rounded-2xl shadow-sm p-5 fade-in">
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
               Notified
             </p>
-            <h2 id="reqNotifiedCount" class="text-3xl font-bold text-blue-500">
-              0
-            </h2>
+            <h2 id="reqNotifiedCount" class="text-3xl font-bold text-blue-500">0</h2>
           </div>
-          <div class="bg-white rounded-2xl shadow-sm p-5 fade-in">
-            <p
-              class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1"
-            >
+          <div class="stat-card c-green bg-white rounded-2xl shadow-sm p-5 fade-in">
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-1">
               Submitted
             </p>
-            <h2
-              id="reqSubmittedCount"
-              class="text-3xl font-bold text-green-500"
-            >
-              0
-            </h2>
+            <h2 id="reqSubmittedCount" class="text-3xl font-bold text-green-500">0</h2>
           </div>
         </div>
 
@@ -488,9 +481,9 @@
       <!-- ══ PAGE: ACTIVITY HISTORY ══ -->
       <div id="page-history" class="page p-8 w-full">
         <div class="mb-7 fade-in">
+          <div class="page-header-accent"></div>
           <h1
-            class="text-3xl font-bold text-gray-800"
-            style="font-family: &quot;Playfair Display&quot;, serif"
+            class="text-3xl font-bold text-gray-900 font-display"
           >
             Activity History
           </h1>
@@ -575,12 +568,86 @@
       <!-- Include Student Messaging page -->
       {% include 'admin_app/student_messaging.html' %}
 
+      <!-- ══ PAGE: NOTIFICATIONS ══ -->
+      <div id="page-notifications" class="page p-8 w-full">
+        <div class="mb-7 fade-in">
+          <div class="page-header-accent"></div>
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900 font-display">Notifications</h1>
+              <p class="text-gray-400 text-sm mt-1">Student upload activity requiring your attention.</p>
+            </div>
+            <button onclick="markAllAdminNotifsRead()"
+              class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 shadow-sm transition">
+              <i data-lucide="check-check" class="w-4 h-4"></i> Mark all as read
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="flex gap-2 mb-5 flex-wrap" id="notifFilterTabs">
+          <button onclick="filterAdminNotifs('all', this)" data-filter="all"
+            class="notif-filter-btn active px-4 py-1.5 rounded-full text-sm font-medium border border-gray-800 bg-gray-800 text-white transition flex items-center gap-1.5">
+            All <span class="notif-filter-count text-[10px] bg-white/20 rounded-full px-1.5 py-0 font-bold hidden"></span>
+          </button>
+          <button onclick="filterAdminNotifs('cor_upload', this)" data-filter="cor_upload"
+            class="notif-filter-btn px-4 py-1.5 rounded-full text-sm font-medium border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 transition flex items-center gap-1.5">
+            COR <span class="notif-filter-count text-[10px] bg-blue-100 text-blue-600 rounded-full px-1.5 py-0 font-bold hidden"></span>
+          </button>
+          <button onclick="filterAdminNotifs('grade_upload', this)" data-filter="grade_upload"
+            class="notif-filter-btn px-4 py-1.5 rounded-full text-sm font-medium border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 transition flex items-center gap-1.5">
+            Grades <span class="notif-filter-count text-[10px] bg-purple-100 text-purple-600 rounded-full px-1.5 py-0 font-bold hidden"></span>
+          </button>
+          <button onclick="filterAdminNotifs('requirement_submitted', this)" data-filter="requirement_submitted"
+            class="notif-filter-btn px-4 py-1.5 rounded-full text-sm font-medium border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 transition flex items-center gap-1.5">
+            Requirements <span class="notif-filter-count text-[10px] bg-green-100 text-green-600 rounded-full px-1.5 py-0 font-bold hidden"></span>
+          </button>
+        </div>
+
+        <!-- New-notifications banner (shown when background poll finds new items) -->
+        <div id="adminNotifNewBanner" class="hidden max-w-3xl mb-3">
+          <button onclick="refreshAdminNotifs()"
+            class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-indigo-600 text-white text-sm font-medium shadow hover:bg-indigo-700 transition animate-pulse">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            <span id="adminNotifNewBannerText">New notifications — click to refresh</span>
+          </button>
+        </div>
+
+        <!-- Notification list -->
+        <div id="adminNotifList" class="flex flex-col gap-3 max-w-3xl">
+          <div id="adminNotifEmpty" class="hidden text-center py-16 text-gray-400">
+            <i data-lucide="bell-off" class="w-10 h-10 mx-auto mb-3 opacity-40"></i>
+            <p class="text-sm">No notifications yet.</p>
+          </div>
+          <div id="adminNotifLoading" class="hidden text-center py-10 text-gray-400 text-sm">
+            <i data-lucide="loader-2" class="w-5 h-5 mx-auto mb-2 animate-spin opacity-50"></i>
+            Loading…
+          </div>
+        </div>
+
+        <!-- Load more -->
+        <div class="mt-5 max-w-3xl text-center" id="adminNotifLoadMoreWrap" style="display:none;">
+          <button onclick="loadAdminNotifs(true)"
+            class="px-5 py-2 rounded-xl bg-white border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 shadow-sm transition">
+            Load more
+          </button>
+        </div>
+      </div>
+
+      <style>
+        @keyframes notif-slide-in {
+          from { opacity: 0; transform: translateY(-8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .notif-new { animation: notif-slide-in .25s ease both; }
+      </style>
+
       <!-- ══ PAGE: SETTINGS ══ -->
       <div id="page-settings" class="page p-8 w-full">
         <div class="mb-7 fade-in">
+          <div class="page-header-accent"></div>
           <h1
-            class="text-3xl font-bold text-gray-800"
-            style="font-family: &quot;Playfair Display&quot;, serif"
+            class="text-3xl font-bold text-gray-900 font-display"
           >
             Settings
           </h1>
@@ -593,7 +660,7 @@
             <div class="bg-white rounded-2xl shadow-sm p-6 fade-in text-center">
               <div
                 id="adminAvatar"
-                class="w-20 h-20 rounded-full bg-red-800 flex items-center justify-center mx-auto mb-4 shadow-lg"
+                class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg" style="background:linear-gradient(135deg,#7B0F0F,#9B1C1C);"
               >
                 {% if admin_profile_picture %}
                 <img
@@ -621,7 +688,7 @@
                 </button>
                 <button
                   onclick="triggerPhotoUpload()"
-                  class="w-full px-4 py-2 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700 hover:bg-red-100 transition font-medium"
+                  class="w-full px-4 py-2 rounded-xl text-sm font-medium transition" style="background:#FEF2F2;border:1px solid #FECACA;color:var(--crimson);"
                 >
                   Change Photo
                 </button>
@@ -766,7 +833,7 @@
                 </div>
                 <button
                   onclick="showToast('Password updated successfully')"
-                  class="mt-1 px-5 py-2 bg-red-800 text-white rounded-xl text-sm font-semibold hover:bg-red-900 transition"
+                  class="btn-brand mt-1 px-5 py-2 rounded-xl text-sm font-semibold"
                 >
                   Update Password
                 </button>
@@ -837,11 +904,10 @@
                     >Academic Year</label
                   >
                   <select
+                    id="settingsAcademicYear"
                     class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 appearance-none cursor-pointer"
                   >
-                    <option>2025 – 2026</option>
-                    <option>2024 – 2025</option>
-                    <option>2023 – 2024</option>
+                    <option value="">All Years</option>
                   </select>
                 </div>
                 <div>
@@ -850,13 +916,21 @@
                     >Default Program Filter</label
                   >
                   <select
+                    id="settingsDefaultProgram"
                     class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 appearance-none cursor-pointer"
                   >
-                    <option>All Programs</option>
-                    <option>MIT</option>
-                    <option>MBA</option>
-                    <option>MPA</option>
+                    <option value="">All Programs</option>
+                    <option value="MIT">MIT</option>
+                    <option value="MBA">MBA</option>
+                    <option value="MPA">MPA</option>
                   </select>
+                </div>
+                <div class="pt-2">
+                  <button
+                    type="button"
+                    onclick="saveAdminPreferences()"
+                    class="btn-brand rounded-xl px-5 py-2.5 text-sm font-semibold"
+                  >Save Preferences</button>
                 </div>
               </div>
             </div>
@@ -1127,7 +1201,7 @@
               </div>
               <div class="mt-4 flex items-center gap-3">
                 <button
-                  class="mt-2 px-6 py-2.5 bg-red-700 hover:bg-red-800 text-white rounded-lg font-semibold transition flex items-center gap-2"
+                  class="mt-2 px-6 py-2.5 btn-brand rounded-lg font-semibold flex items-center gap-2"
                   onclick="saveBuilderAsProspectus()"
                   type="button"
                 >
@@ -1557,7 +1631,7 @@
           </button>
           <button
             onclick="saveSchoolYearChanges()"
-            class="flex-1 px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg font-medium transition"
+            class="btn-brand flex-1 px-4 py-2 rounded-lg font-medium"
           >
             Save Changes
           </button>
@@ -1896,8 +1970,6 @@
       adminName: "{{ admin_name }}",
       };
     </script>
-
-    <script src="{% static 'admin_app/js/admin_scripts.js' %}"></script>
 
     <!-- Toast for CMS messages -->
     <div id="cmsToast" class="fixed bottom-6 right-6 z-[999] hidden">

@@ -475,7 +475,8 @@ def mark_all_notifications_read(request):
 @require_http_methods(["GET"])
 def get_inbox_messages(request):
     """Inbox messages from administrators (separate from bell notifications)."""
-    from django.utils.html import linebreaksbr
+    from django.utils.html import escape
+    from django.utils.safestring import mark_safe
 
     qs = (
         StudentInboxMessage.objects.filter(user=request.user)
@@ -497,7 +498,7 @@ def get_inbox_messages(request):
             'tag': meta['tag'],
             'subject': m.subject,
             'preview': preview,
-            'body': linebreaksbr(m.body),
+            'body': mark_safe(escape(m.body or '').replace('\n', '<br>')),
             'time': _time_ago(m.created_at),
             'fullTime': m.created_at.strftime('%b %d, %Y · %I:%M %p'),
             'read': m.is_read,

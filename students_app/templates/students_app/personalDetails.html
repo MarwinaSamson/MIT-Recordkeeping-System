@@ -7,7 +7,7 @@
     <title>Personal Details - Graduate School Admission</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
-      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <script>
@@ -15,38 +15,49 @@
         theme: {
           extend: {
             colors: {
-              brand: "#A02724",
-              beige: "#F5F0EB",
-              "brand-light": "#C4524F",
+              brand: "#8c1515",
+              "brand-dark": "#5e0d0d",
+              "brand-light": "#a31a1a",
+              beige: "#faf8f5",
+              ink: "#1c1010",
+              muted: "#7a6060",
+              border: "#e8d8c8",
             },
             fontFamily: {
-              heading: ["Merriweather", "serif"],
-              body: ['"Source Sans 3"', "sans-serif"],
+              display: ['"Playfair Display"', "serif"],
+              body: ['"DM Sans"', "sans-serif"],
             },
           },
         },
       };
     </script>
     <style>
-      body {
-        font-family: "Source Sans 3", sans-serif;
-      }
-
-      h1,
-      h2,
-      h3 {
-        font-family: "Merriweather", serif;
+      body { font-family: "DM Sans", sans-serif; }
+      h1, h2, h3 { font-family: "Playfair Display", serif; }
+      input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #8c1515 !important;
+        box-shadow: 0 0 0 3px rgba(140,21,21,0.08);
       }
     </style>
   </head>
 
   <body class="bg-beige min-h-screen">
     <!-- Header -->
-    <header class="text-center py-8">
-      <h1 class="text-3xl md:text-4xl font-bold text-brand">
-        WMSU Graduate School
+    <header class="text-center pt-10 pb-6">
+      <div class="flex items-center justify-center mb-4">
+        <img src="{% static 'assets/logoandcap.png' %}" alt="WMSU Logo"
+          class="h-16 w-auto object-contain drop-shadow-sm" />
+      </div>
+      <div class="flex items-center justify-center gap-3 mb-2">
+        <span class="block w-8 h-px bg-[#8c1515]/30"></span>
+        <p class="text-[0.62rem] font-semibold tracking-[0.18em] uppercase text-[#8c1515]">Enrollment Portal</p>
+        <span class="block w-8 h-px bg-[#8c1515]/30"></span>
+      </div>
+      <h1 class="text-3xl font-bold text-ink">
+        WMSU <em class="italic text-brand">Graduate School</em>
       </h1>
-      <p class="text-lg text-gray-500 mt-1">Admission Form</p>
+      <p class="text-sm text-muted mt-1">Admission Form &mdash; Complete all sections to submit your application.</p>
     </header>
     <!-- Progress Bar -->
     <div class="max-w-4xl mx-auto px-4 mb-8">

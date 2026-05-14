@@ -145,13 +145,13 @@
           Create <span class="italic text-crimson">Account</span>
         </h1>
 
-        <form method="POST" action="{% url 'signup' %}">
+        <form method="POST" action="{% url 'signup' %}" class="space-y-4">
           {% csrf_token %}
 
           <!-- Messages -->
           {% if messages %} {% for message in messages %}
           <div
-            class="p-3 rounded-lg mb-4 {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}"
+            class="p-3 rounded-lg {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-100{% else %}bg-green-50 text-green-700 border border-green-100{% endif %} text-sm"
           >
             {{ message }}
           </div>
@@ -161,87 +161,110 @@
           <input type="hidden" name="role" value="student" />
 
           <!-- NAME ROW -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <input
-              type="text"
-              name="first_name"
-              placeholder="First Name"
-              class="w-full px-4 py-3 rounded-xl border border-border bg-ivory text-sm"
-              required
-            />
-            <input
-              type="text"
-              name="last_name"
-              placeholder="Last Name"
-              class="w-full px-4 py-3 rounded-xl border border-border bg-ivory text-sm"
-              required
-            />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[0.68rem] font-semibold tracking-[0.1em] uppercase text-[#503030] mb-1.5">First Name</label>
+              <input
+                type="text"
+                name="first_name"
+                placeholder="Juan"
+                class="w-full px-4 py-3 rounded-xl border-[1.5px] border-border bg-ivory text-sm text-ink placeholder-[#c8b4b4] transition-all duration-200"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-[0.68rem] font-semibold tracking-[0.1em] uppercase text-[#503030] mb-1.5">Last Name</label>
+              <input
+                type="text"
+                name="last_name"
+                placeholder="Dela Cruz"
+                class="w-full px-4 py-3 rounded-xl border-[1.5px] border-border bg-ivory text-sm text-ink placeholder-[#c8b4b4] transition-all duration-200"
+                required
+              />
+            </div>
           </div>
 
           <!-- EMAIL -->
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            class="w-full px-4 py-3 rounded-xl border border-border bg-ivory text-sm"
-            required
-          />
+          <div>
+            <label class="block text-[0.68rem] font-semibold tracking-[0.1em] uppercase text-[#503030] mb-1.5">Email Address</label>
+            <div class="relative">
+              <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-[#bfa8a8] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/>
+              </svg>
+              <input
+                type="email"
+                name="email"
+                placeholder="yourname@wmsu.edu.ph"
+                class="w-full pl-10 pr-4 py-3 rounded-xl border-[1.5px] border-border bg-ivory text-sm text-ink placeholder-[#c8b4b4] transition-all duration-200"
+                required
+              />
+            </div>
+          </div>
 
           <!-- PASSWORD -->
-          <div class="relative">
-            <input
-              id="pass1"
-              name="password"
-              type="password"
-              placeholder="Password"
-              class="w-full px-4 py-3 rounded-xl border border-border bg-ivory text-sm pr-14"
-              required
-            />
-            <button
-              type="button"
-              onclick="togglePass('pass1')"
-              class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-crimson font-medium"
-            >
-              Show
-            </button>
+          <div>
+            <label class="block text-[0.68rem] font-semibold tracking-[0.1em] uppercase text-[#503030] mb-1.5">Password</label>
+            <div class="relative">
+              <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-[#bfa8a8] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <input
+                id="pass1"
+                name="password"
+                type="password"
+                placeholder="Create a strong password"
+                class="w-full pl-10 pr-16 py-3 rounded-xl border-[1.5px] border-border bg-ivory text-sm text-ink placeholder-[#c8b4b4] transition-all duration-200"
+                required
+              />
+              <button
+                type="button"
+                onclick="togglePass('pass1')"
+                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[0.72rem] font-semibold text-[#8c1515] hover:text-[#5e0d0d] transition-colors duration-200"
+              >
+                Show
+              </button>
+            </div>
           </div>
 
           <!-- CONFIRM PASSWORD -->
-          <div class="relative">
-            <input
-              id="pass2"
-              name="confirm_password"
-              type="password"
-              placeholder="Confirm Password"
-              class="w-full px-4 py-3 rounded-xl border border-border bg-ivory text-sm pr-14"
-              required
-            />
-            <button
-              type="button"
-              onclick="togglePass('pass2')"
-              class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-crimson font-medium"
-            >
-              Show
-            </button>
+          <div>
+            <label class="block text-[0.68rem] font-semibold tracking-[0.1em] uppercase text-[#503030] mb-1.5">Confirm Password</label>
+            <div class="relative">
+              <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-[#bfa8a8] pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <input
+                id="pass2"
+                name="confirm_password"
+                type="password"
+                placeholder="Re-enter your password"
+                class="w-full pl-10 pr-16 py-3 rounded-xl border-[1.5px] border-border bg-ivory text-sm text-ink placeholder-[#c8b4b4] transition-all duration-200"
+                required
+              />
+              <button
+                type="button"
+                onclick="togglePass('pass2')"
+                class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[0.72rem] font-semibold text-[#8c1515] hover:text-[#5e0d0d] transition-colors duration-200"
+              >
+                Show
+              </button>
+            </div>
           </div>
 
           <!-- CHECKBOX -->
-          <div class="flex items-center gap-3 text-sm text-muted">
-            <input type="checkbox" class="w-4 h-4 accent-crimson" />
-            <span
-              >I agree to the
-              <span class="text-crimson font-medium cursor-pointer"
-                >Privacy Policy</span
-              ></span
-            >
+          <div class="flex items-center gap-3">
+            <input type="checkbox" id="privacyCheck" class="w-4 h-4 accent-crimson flex-shrink-0" required />
+            <label for="privacyCheck" class="text-[0.82rem] text-muted leading-snug cursor-pointer">
+              I agree to the <span class="text-crimson font-medium hover:underline">Privacy Policy</span> and terms of use.
+            </label>
           </div>
 
           <!-- BUTTON -->
           <button
             type="submit"
-            class="btn-primary w-full py-3.5 rounded-xl text-white font-semibold tracking-wide text-sm"
+            class="btn-primary w-full py-3.5 rounded-xl text-white font-semibold tracking-[0.08em] text-[0.83rem] uppercase"
           >
-            Sign Up
+            Create Account
           </button>
         </form>
 

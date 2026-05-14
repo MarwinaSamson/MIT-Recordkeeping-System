@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python manage.py migrate admin_app 0025_adminprofile_preferences)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\solis\\\\OneDrive\\\\Desktop\\\\MIT-Recordkeeping-System\\\\students_app\" -Recurse -Name)",
+      "Bash(python manage.py check)",
+      "Bash(python manage.py makemigrations admin_app --name=\"add_adminnotification\")",
+      "Bash(python manage.py migrate admin_app)",
+      "Bash(python manage.py shell -c ' *)",
+      "Bash(python manage.py showmigrations admin_app)"
+    ]
+  }
+}

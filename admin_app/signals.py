@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from .models import DocumentVerification
-from students_app.models import Notification
+from .models import DocumentVerification, AdminNotification, StudentRequirement
+from students_app.models import Notification, CORSubmission, GradeSubmission
 
 
 NOTIFICATION_CONFIG = {
@@ -89,4 +89,71 @@ def capture_previous_document_status(sender, instance, **kwargs):
         sender.objects.filter(pk=instance.pk)
         .values_list('status', flat=True)
         .first()
+    )
+
+
+# ── Admin notifications triggered by student uploads ──────────────────────────
+
+@receiver(post_save, sender=CORSubmission)
+def notify_admin_cor_upload(sender, instance, created, **kwargs):
+    """Create an AdminNotification whenever a student uploads a new COR."""
+    if not created:
+        return
+    student = instance.user
+    full_name = student.get_full_name() or student.username
+    AdminNotification.objects.create(
+        notification_type='cor_upload',
+        student=student,
+        title='COR Uploaded',
+        message=f"{full_name} uploaded a Certificate of Registration for {instance.school_year}, Semester {instance.semester}.",
+        related_object_id=instance.pk,
+    )
+
+
+@receiver(post_save, sender=GradeSubmission)
+def notify_admin_grade_upload(sender, instance, created, **kwargs):
+    """Create an AdminNotification whenever a student uploads a grade screenshot."""
+    if not created:
+        return
+    student = instance.user
+    full_name = student.get_full_name() or student.username
+    AdminNotification.objects.create(
+        notification_type='grade_upload',
+        student=student,
+        title='Grade Screenshot Uploaded',
+        message=f"{full_name} submitted grades for {instance.curriculum_name} — {instance.school_year}, Semester {instance.semester}.",
+        related_object_id=instance.pk,
+    )
+
+
+@receiver(pre_save, sender=StudentRequirement)
+def capture_previous_requirement_status(sender, instance, **kwargs):
+    """Attach previous status so post_save can detect the submitted transition."""
+    if not instance.pk:
+        instance._prev_req_status = None
+        return
+    instance._prev_req_status = (
+        sender.objects.filter(pk=instance.pk)
+        .values_list('status', flat=True)
+        .first()
+    )
+
+
+@receiver(post_save, sender=StudentRequirement)
+def notify_admin_requirement_submitted(sender, instance, created, **kwargs):
+    """Create an AdminNotification when a student marks a requirement as submitted."""
+    if instance.status != 'submitted':
+        return
+    prev = getattr(instance, '_prev_req_status', None)
+    if prev == 'submitted':
+        return
+    student = instance.user
+    full_name = student.get_full_name() or student.username
+    req_name = instance.requirement.name if instance.requirement else 'requirement'
+    AdminNotification.objects.create(
+        notification_type='requirement_submitted',
+        student=student,
+        title='Requirement Submitted',
+        message=f"{full_name} submitted the requirement: {req_name}.",
+        related_object_id=instance.pk,
     )

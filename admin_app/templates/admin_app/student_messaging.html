@@ -2,7 +2,8 @@
 <!-- ══ PAGE: STUDENT MESSAGING ══ -->
 <div id="page-student-messaging" class="page p-8 w-full hidden">
     <div class="mb-7 fade-in">
-        <h1 class="text-3xl font-bold text-gray-800" style="font-family: 'Playfair Display', serif">
+        <div class="page-header-accent"></div>
+        <h1 class="text-3xl font-bold text-gray-900 font-display">
             Student Messaging
         </h1>
         <p class="text-gray-400 text-sm mt-1">
@@ -210,7 +211,8 @@
                 </label>
                 <textarea id="modalBody" rows="8"
                     class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm resize-none"
-                    placeholder="Write your message..."></textarea>
+                    placeholder="Message will be auto-filled from the template above. Edit here to customise."
+                    oninput="this.setAttribute('data-manual','true')"></textarea>
             </div>
 
             <!-- Preview Section -->
@@ -252,7 +254,6 @@
     // ── Student Messaging System with Action Buttons ──
 
     let studentListData = [];
-    let messageHistory = JSON.parse(localStorage.getItem('adminMessageHistory') || '[]');
     let currentActionType = null;
     const MESSAGING_API = '/admin-panel/api/messaging';
 
@@ -484,6 +485,10 @@ WMSU Graduate School`;
 
         currentFormData = {};
 
+        // Reset manual-edit flag so textarea syncs with template fields
+        const bodyEl = document.getElementById('modalBody');
+        if (bodyEl) bodyEl.removeAttribute('data-manual');
+
         // Set modal title
         document.getElementById('modalTitle').innerHTML = template.title;
         document.getElementById('modalSubject').value = template.subject;
@@ -606,8 +611,17 @@ WMSU Graduate School`;
         });
 
         currentFormData = formData;
+        const generated = template.generateBody(formData);
+
+        // Update the read-only preview block
         const preview = document.getElementById('messagePreview');
-        if (preview) preview.textContent = template.generateBody(formData);
+        if (preview) preview.textContent = generated;
+
+        // Sync the editable textarea unless the admin has manually edited it
+        const bodyEl = document.getElementById('modalBody');
+        if (bodyEl && bodyEl.getAttribute('data-manual') !== 'true') {
+            bodyEl.value = generated;
+        }
     }
 
     function closeActionModal() {
@@ -664,7 +678,7 @@ WMSU Graduate School`;
 
             if (res.ok && data.success) {
                 showCmsToast(`✅ Message sent to ${data.sent_count} student(s)!`, 'success');
-                addToMessageHistory(subject, data.sent_count);
+                addToMessageHistory();
                 closeActionModal();
             } else {
                 showCmsToast(data.message || 'Failed to send messages.', 'error');
@@ -775,7 +789,7 @@ WMSU Graduate School`;
             if (res.ok && data.success) {
                 const label = channel === 'notification' ? 'Notification' : 'Message';
                 showCmsToast(`✅ ${label} sent to ${data.sent_count} student(s)`, 'success');
-                addToMessageHistory(subject, data.sent_count);
+                addToMessageHistory();
                 document.getElementById('msgSubject').value = '';
                 document.getElementById('msgBody').value = '';
             } else {
@@ -848,27 +862,34 @@ WMSU Graduate School`;
         });
     }
 
-    function renderMessageHistory() {
+    async function loadMessageHistory() {
         const historyList = document.getElementById('recentMessagesList');
         if (!historyList) return;
-        if (!messageHistory.length) {
-            historyList.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">No messages sent yet.</p>';
-            return;
-        }
-        historyList.innerHTML = messageHistory.map(msg => `
-          <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <p class="text-xs font-semibold text-gray-700">${escapeHtml(msg.subject)}</p>
-            <p class="text-xs text-gray-400 mt-1">To ${msg.count} student(s) · ${msg.time}</p>
-          </div>
-        `).join('');
+        try {
+            const res = await fetch(`${MESSAGING_API}/history/`, {
+                credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const data = await res.json();
+            if (data.success && data.history.length) {
+                historyList.innerHTML = data.history.map(msg => `
+                  <div class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-semibold text-gray-700 flex-1 truncate">${escapeHtml(msg.subject)}</span>
+                      <span class="text-[10px] px-1.5 py-0.5 rounded-full ${msg.channel === 'inbox' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}">${msg.channel}</span>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">To ${msg.sent_count} student(s) · ${escapeHtml(msg.time)}</p>
+                  </div>
+                `).join('');
+                return;
+            }
+        } catch (e) { /* fall through */ }
+        historyList.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">No messages sent yet.</p>';
     }
 
-    function addToMessageHistory(subject, count) {
-        const time = new Date().toLocaleString();
-        messageHistory.unshift({ subject, count, time });
-        if (messageHistory.length > 10) messageHistory.pop();
-        localStorage.setItem('adminMessageHistory', JSON.stringify(messageHistory));
-        renderMessageHistory();
+    function addToMessageHistory() {
+        // Refresh from DB after a short delay so the new log entry is visible
+        setTimeout(loadMessageHistory, 500);
     }
 
     function showCmsToast(message, type = 'success') {
@@ -902,8 +923,7 @@ WMSU Graduate School`;
         }
 
         loadStudentMessagingData();
-        messageHistory = JSON.parse(localStorage.getItem('adminMessageHistory') || '[]');
-        renderMessageHistory();
+        loadMessageHistory();
     });
 
     // Expose functions globally

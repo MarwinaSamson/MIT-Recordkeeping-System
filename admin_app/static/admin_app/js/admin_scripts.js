@@ -452,6 +452,76 @@ function showToast(msg,type="success"){
   toastTimer=setTimeout(()=>t.classList.add("hidden"),3200);
 }
 
+/* ═══ ACTIVITY HISTORY ═══ */
+const ACTION_BADGE = {
+  'Verified Document':      'bg-green-100 text-green-700',
+  'Rejected Document':      'bg-red-100 text-red-700',
+  'Marked Incomplete':      'bg-yellow-100 text-yellow-700',
+  'Requested Resubmission': 'bg-blue-100 text-blue-700',
+  'Sent Message':           'bg-purple-100 text-purple-700',
+  'Added Note':             'bg-indigo-100 text-indigo-700',
+  'Updated Profile':        'bg-gray-100 text-gray-600',
+  'Changed Profile Photo':  'bg-gray-100 text-gray-600',
+  'Updated CMS Settings':   'bg-gray-100 text-gray-600',
+};
+
+function renderHistory() {
+  const tbody = document.getElementById('historyBody');
+  if (!tbody) return;
+
+  const search = (document.getElementById('historySearch')?.value || '').toLowerCase().trim();
+  const filter = document.getElementById('historyFilter')?.value || 'all';
+
+  let rows = activityLog;
+
+  if (filter !== 'all') {
+    rows = rows.filter(r => r.action && r.action.toLowerCase().includes(filter.toLowerCase()));
+  }
+
+  if (search) {
+    rows = rows.filter(r =>
+      (r.appId  || '').toLowerCase().includes(search) ||
+      (r.doc    || '').toLowerCase().includes(search) ||
+      (r.admin  || '').toLowerCase().includes(search) ||
+      (r.notes  || '').toLowerCase().includes(search)
+    );
+  }
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-400 py-10 text-sm">No activity records found.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    const badge = ACTION_BADGE[r.action] || 'bg-gray-100 text-gray-600';
+    return `<tr class="hover:bg-gray-50 transition">
+      <td class="px-5 py-3 text-xs text-gray-500 whitespace-nowrap">${escapeHtml(r.time)}</td>
+      <td class="px-4 py-3 text-sm font-medium text-gray-800">${escapeHtml(r.admin)}</td>
+      <td class="px-4 py-3 text-sm text-gray-600 font-mono text-xs">${escapeHtml(r.appId)}</td>
+      <td class="px-4 py-3 text-sm text-gray-600">${escapeHtml(r.doc)}</td>
+      <td class="px-4 py-3"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${badge}">${escapeHtml(r.action)}</span></td>
+      <td class="px-4 py-3 text-sm text-gray-500 max-w-[200px] truncate" title="${escapeHtml(r.notes || '')}">${escapeHtml(r.notes || '—')}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function refreshActivityHistory() {
+  try {
+    const res = await fetch('/admin-panel/api/activity-log/', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' },
+    });
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data)) {
+      activityLog = json.data;
+      renderHistory();
+    }
+  } catch (e) {
+    console.warn('Failed to refresh activity history', e);
+  }
+}
+
 /* ═══ NAV ═══ */
 function switchPage(pageId, el) {
   // Ensure data is initialized from context
@@ -471,7 +541,7 @@ function switchPage(pageId, el) {
     renderTable();
   }
   if (pageId === 'students') renderStudents();
-  if (pageId === 'history') renderHistory();
+  if (pageId === 'history') refreshActivityHistory();
   if (pageId === 'dashboard') renderDashboard();
   if (pageId === 'school-year') {
     loadSummary();
@@ -482,7 +552,13 @@ function switchPage(pageId, el) {
   if (pageId === 'student-messaging' && typeof initMessagingPage === 'function') {
     setTimeout(initMessagingPage, 100);
   }
-  
+  // Notify the notifications module when its tab opens or closes
+  if (pageId === 'notifications') {
+    if (typeof window.onAdminNotifTabOpen === 'function') window.onAdminNotifTabOpen();
+  } else {
+    if (typeof window.onAdminNotifTabClose === 'function') window.onAdminNotifTabClose();
+  }
+
   lucide.createIcons();
 }
 
@@ -1200,43 +1276,6 @@ function confirmReject(){
 }
 
 /* ═══ MODAL ACTIONS ═══ */
-function markVerified(){
-  const remarks    = document.getElementById("remarks").value;
-  const semester   = document.getElementById("admSemester")?.value  || "";
-  const yearAdmitted = document.getElementById("admYear")?.value    || "";
-  const curriculum = document.getElementById("admCurriculum")?.value || "";
-
-  fetch('/admin-panel/api/application/status/', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
-    body: JSON.stringify({
-      application_id: selectedApp.id,
-      status: 'verified',
-      remarks,
-      semester,
-      year_admitted: yearAdmitted,
-      curriculum,
-    })
-  })
-  .then(r=>r.json())
-  .then(data=>{
-    if(data.success){
-      selectedApp.remarks       = remarks;
-      selectedApp.status        = "Verified";
-      selectedApp.semester      = semester;
-      selectedApp.year_admitted = yearAdmitted;
-      selectedApp.curriculum    = curriculum;
-      showToast(selectedApp.id+" marked as Verified ✓");
-      closeModal();
-      initializeData();
-      renderTable();
-      renderDashboard();
-    } else {
-      showToast('Error: '+data.message,'error');
-    }
-  })
-  .catch(e=>{showToast('Error: '+e.message,'error');});
-}
 function markIncomplete(){
   const remarks=document.getElementById("remarks").value;
   
@@ -1275,6 +1314,8 @@ function acceptEnrollApplication(){
   const semester   = document.getElementById("admSemester")?.value  || "";
   const yearAdmitted = document.getElementById("admYear")?.value    || "";
   const programLevel = document.getElementById("admProgramLevel")?.value || "";
+  const curriculum = document.getElementById("admCurriculum")?.value || "";
+  const curriculumData = saveCurriculumData();
 
   fetch('/admin-panel/api/application/status/', {
     method: 'POST',
@@ -1285,7 +1326,9 @@ function acceptEnrollApplication(){
       remarks,
       semester,
       year_admitted: yearAdmitted,
-      program_level: programLevel
+      program_level: programLevel,
+      curriculum,
+      curriculum_data: curriculumData
     })
   })
   .then(r=>r.json())
@@ -1296,6 +1339,8 @@ function acceptEnrollApplication(){
       selectedApp.semester = semester;
       selectedApp.year_admitted = yearAdmitted;
       selectedApp.program_level = programLevel;
+      selectedApp.curriculum = curriculum;
+      selectedApp.curriculum_data = curriculumData;
       showToast(selectedApp.id+" accepted — status set to Enrolled ✓");
       closeModal();
       initializeData(); renderTable(); renderDashboard();
@@ -2632,6 +2677,63 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+/* ═══ ADMIN PREFERENCES ═══ */
+async function populateSettingsAcademicYear() {
+  try {
+    const resp = await fetch('/admin-panel/api/admission/school-years/');
+    const data = await resp.json();
+    const el = document.getElementById('settingsAcademicYear');
+    if (!el || !data.success) return;
+    el.innerHTML = '<option value="">All Years</option>';
+    data.school_years.forEach(sy => {
+      const opt = document.createElement('option');
+      opt.value = sy.name;
+      opt.textContent = sy.name;
+      el.appendChild(opt);
+    });
+  } catch (e) { /* non-critical */ }
+}
+
+async function loadAdminPreferences() {
+  try {
+    const resp = await fetch('/admin-panel/api/admin/preferences/');
+    const data = await resp.json();
+    if (!data.success) return;
+    const prefs = data.preferences || {};
+    const ayEl = document.getElementById('settingsAcademicYear');
+    const pgEl = document.getElementById('settingsDefaultProgram');
+    if (ayEl && prefs.academic_year) ayEl.value = prefs.academic_year;
+    if (pgEl && prefs.default_program) pgEl.value = prefs.default_program;
+  } catch (e) { /* non-critical */ }
+}
+
+async function saveAdminPreferences() {
+  const prefs = {
+    academic_year: document.getElementById('settingsAcademicYear')?.value || '',
+    default_program: document.getElementById('settingsDefaultProgram')?.value || '',
+  };
+  try {
+    const resp = await fetch('/admin-panel/api/admin/preferences/save/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+      body: JSON.stringify(prefs),
+    });
+    const data = await resp.json();
+    if (data.success) {
+      showToast('Preferences saved ✓');
+    } else {
+      showToast('Error: ' + data.message, 'error');
+    }
+  } catch (e) {
+    showToast('Error saving preferences', 'error');
+  }
+}
+
+// Populate + load on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+  populateSettingsAcademicYear().then(() => loadAdminPreferences());
+});
+
 // Add event listener for doctoral program change after DOM loads
 document.addEventListener('DOMContentLoaded', function() {
   const programSelect = document.getElementById('admDoctoralProgram');
@@ -3707,3 +3809,328 @@ document.getElementById('corModal')?.addEventListener('click', function(e) {
 document.getElementById('corSearchInput')?.addEventListener('input', _renderCORRows);
 document.getElementById('corStatusFilter')?.addEventListener('change', _renderCORRows);
 document.getElementById('corSemesterFilter')?.addEventListener('change', _renderCORRows);
+
+
+/* ═══ ADMIN NOTIFICATIONS ═══ */
+
+(function () {
+  let _notifPage = 1;
+  let _notifFilter = 'all';
+  let _notifAll = [];
+  let _hasMore = false;
+  let _knownIds = new Set();       // IDs we've already rendered
+  let _pendingNewCount = 0;        // new arrivals detected while tab is open
+  let _tabOpen = false;            // whether notifications page is visible
+  let _tabRefreshTimer = null;     // interval for auto-refresh while tab is open
+  let _tsRefreshTimer = null;      // interval for live timestamp ticking
+
+  const ICON_MAP = {
+    cor_upload: 'file-text',
+    grade_upload: 'bar-chart-2',
+    requirement_submitted: 'check-square',
+    document_upload: 'upload-cloud',
+  };
+  const COLOR_MAP = {
+    cor_upload: 'blue',
+    grade_upload: 'purple',
+    requirement_submitted: 'green',
+    document_upload: 'indigo',
+  };
+  const COLOR_CLASSES = {
+    blue:   'bg-blue-100 text-blue-600',
+    purple: 'bg-purple-100 text-purple-600',
+    green:  'bg-green-100 text-green-600',
+    indigo: 'bg-indigo-100 text-indigo-600',
+    gray:   'bg-gray-100 text-gray-500',
+  };
+
+  // ── Relative timestamps ────────────────────────────────────────────
+  function timeAgo(isoOrEpoch) {
+    const dt = typeof isoOrEpoch === 'number' ? isoOrEpoch : Date.parse(isoOrEpoch);
+    const diff = Math.floor((Date.now() - dt) / 1000);
+    if (diff < 60)   return 'Just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+    return new Date(dt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function refreshTimestamps() {
+    document.querySelectorAll('.admin-notif-card .notif-ts[data-epoch]').forEach(el => {
+      el.textContent = timeAgo(parseInt(el.dataset.epoch, 10));
+    });
+  }
+
+  // ── Filter counts ──────────────────────────────────────────────────
+  function updateFilterCounts() {
+    const counts = { all: _notifAll.length, cor_upload: 0, grade_upload: 0, requirement_submitted: 0 };
+    _notifAll.forEach(n => { if (counts[n.type] !== undefined) counts[n.type]++; });
+
+    document.querySelectorAll('.notif-filter-btn').forEach(btn => {
+      const f = btn.dataset.filter;
+      const badge = btn.querySelector('.notif-filter-count');
+      if (!badge) return;
+      const c = counts[f] ?? 0;
+      if (c > 0) {
+        badge.textContent = c;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    });
+  }
+
+  // ── Card builder ───────────────────────────────────────────────────
+  function buildCard(n, isNew = false) {
+    const iconName = ICON_MAP[n.type] || 'bell';
+    const color    = COLOR_MAP[n.type] || 'gray';
+    const colorCls = COLOR_CLASSES[color] || COLOR_CLASSES.gray;
+    const unreadDot = n.is_read ? '' : '<span class="absolute top-3 right-3 w-2 h-2 rounded-full bg-red-500"></span>';
+    const cardBg    = n.is_read ? 'bg-white' : 'bg-blue-50/40';
+    const newCls    = isNew ? ' notif-new' : '';
+    const epoch     = n.epoch || '';
+    return `
+      <div class="relative ${cardBg} border border-gray-100 rounded-2xl shadow-sm px-5 py-4 flex gap-4 cursor-pointer hover:shadow-md transition admin-notif-card${newCls}"
+           data-id="${n.id}" data-type="${n.type}" onclick="markOneAdminNotifRead(${n.id}, this)">
+        ${unreadDot}
+        <div class="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${colorCls}">
+          <i data-lucide="${iconName}" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between gap-2 mb-0.5">
+            <p class="text-sm font-semibold text-gray-800 truncate">${n.title}</p>
+            <span class="notif-ts text-xs text-gray-400 whitespace-nowrap flex-shrink-0" data-epoch="${epoch}">${n.time}</span>
+          </div>
+          <p class="text-sm text-gray-600 leading-snug">${n.message}</p>
+          <p class="text-xs text-gray-400 mt-1">${n.fullTime}</p>
+        </div>
+      </div>`;
+  }
+
+  // ── Render list ────────────────────────────────────────────────────
+  function renderNotifList(newIds = new Set()) {
+    const list  = document.getElementById('adminNotifList');
+    const empty = document.getElementById('adminNotifEmpty');
+    if (!list) return;
+
+    const filtered = _notifFilter === 'all'
+      ? _notifAll
+      : _notifAll.filter(n => n.type === _notifFilter);
+
+    list.querySelectorAll('.admin-notif-card').forEach(el => el.remove());
+
+    if (filtered.length === 0) {
+      empty.classList.remove('hidden');
+    } else {
+      empty.classList.add('hidden');
+      filtered.forEach(n => {
+        list.insertAdjacentHTML('beforeend', buildCard(n, newIds.has(n.id)));
+      });
+      lucide.createIcons();
+    }
+
+    const wrap = document.getElementById('adminNotifLoadMoreWrap');
+    if (wrap) wrap.style.display = (_hasMore && _notifFilter === 'all') ? '' : 'none';
+
+    updateFilterCounts();
+  }
+
+  // ── Load / fetch ───────────────────────────────────────────────────
+  window.loadAdminNotifs = async function (append = false) {
+    if (!append) {
+      _notifPage = 1;
+      _notifAll = [];
+    }
+    const loading = document.getElementById('adminNotifLoading');
+    if (loading) loading.classList.remove('hidden');
+
+    let newIds = new Set();
+    try {
+      const res  = await fetch(`/admin-panel/api/notifications/?page=${_notifPage}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      _hasMore = data.has_more;
+
+      const incoming = data.notifications || [];
+      if (append) {
+        incoming.forEach(n => { _notifAll.push(n); _knownIds.add(n.id); });
+        _notifPage++;
+      } else {
+        incoming.forEach(n => {
+          if (!_knownIds.has(n.id)) newIds.add(n.id);
+          _knownIds.add(n.id);
+        });
+        _notifAll = incoming;
+      }
+      updateAdminNotifBadge(data.unread_count);
+    } catch (e) {
+      console.error('Failed to load admin notifications', e);
+    } finally {
+      if (loading) loading.classList.add('hidden');
+    }
+    // Always render — even on error, shows empty state instead of stuck spinner
+    renderNotifList(newIds);
+  };
+
+  // Hard refresh — called by the new-notifications banner
+  window.refreshAdminNotifs = async function () {
+    _knownIds.clear();
+    _pendingNewCount = 0;
+    hideBanner();
+    await loadAdminNotifs(false);
+  };
+
+  // ── Background poll (runs always) ─────────────────────────────────
+  async function pollAdminNotifCount() {
+    try {
+      const res  = await fetch('/admin-panel/api/notifications/count/');
+      const data = await res.json();
+      updateAdminNotifBadge(data.unread_count);
+
+      // If tab is open, do a silent full-refresh to detect new cards
+      if (_tabOpen) {
+        await silentRefresh();
+      }
+    } catch (_) {}
+  }
+
+  // Fetches page 1 silently; prepends genuinely new cards with animation
+  async function silentRefresh() {
+    let newIds = new Set();
+    try {
+      const res  = await fetch('/admin-panel/api/notifications/?page=1');
+      if (!res.ok) return;
+      const data = await res.json();
+      updateAdminNotifBadge(data.unread_count);
+
+      const incoming = data.notifications || [];
+      incoming.forEach(n => {
+        if (!_knownIds.has(n.id)) {
+          newIds.add(n.id);
+          _knownIds.add(n.id);
+          _notifAll.unshift(n);
+          _pendingNewCount++;
+        } else {
+          const existing = _notifAll.find(x => x.id === n.id);
+          if (existing) existing.is_read = n.is_read;
+        }
+      });
+    } catch (_) {
+      return;
+    }
+
+    if (newIds.size > 0) {
+      renderNotifList(newIds);
+      showBanner(_pendingNewCount);
+    } else {
+      refreshTimestamps();
+      renderNotifList(new Set());
+    }
+  }
+
+  function showBanner(count) {
+    const banner = document.getElementById('adminNotifNewBanner');
+    const text   = document.getElementById('adminNotifNewBannerText');
+    if (!banner) return;
+    if (text) text.textContent = `${count} new notification${count !== 1 ? 's' : ''} — click to refresh`;
+    banner.classList.remove('hidden');
+    lucide.createIcons();
+  }
+
+  function hideBanner() {
+    document.getElementById('adminNotifNewBanner')?.classList.add('hidden');
+  }
+
+  // ── Tab lifecycle ──────────────────────────────────────────────────
+  window.onAdminNotifTabOpen = function () {
+    _tabOpen = true;
+    _pendingNewCount = 0;
+    hideBanner();
+    loadAdminNotifs(false);
+
+    // Auto-refresh list every 15 s while tab is visible
+    clearInterval(_tabRefreshTimer);
+    _tabRefreshTimer = setInterval(silentRefresh, 15000);
+
+    // Live-tick relative timestamps every 60 s
+    clearInterval(_tsRefreshTimer);
+    _tsRefreshTimer = setInterval(refreshTimestamps, 60000);
+  };
+
+  window.onAdminNotifTabClose = function () {
+    _tabOpen = false;
+    clearInterval(_tabRefreshTimer);
+    clearInterval(_tsRefreshTimer);
+  };
+
+  // ── Filter ─────────────────────────────────────────────────────────
+  window.filterAdminNotifs = function (type, btn) {
+    _notifFilter = type;
+    document.querySelectorAll('.notif-filter-btn').forEach(b => {
+      const isActive = b === btn;
+      b.classList.toggle('bg-gray-800',    isActive);
+      b.classList.toggle('text-white',     isActive);
+      b.classList.toggle('border-gray-800', isActive);
+      b.classList.toggle('bg-white',       !isActive);
+      b.classList.toggle('text-gray-500',  !isActive);
+      b.classList.toggle('border-gray-200', !isActive);
+    });
+    renderNotifList(new Set());
+  };
+
+  // ── Mark read ──────────────────────────────────────────────────────
+  window.markOneAdminNotifRead = async function (id, cardEl) {
+    if (cardEl.classList.contains('bg-white')) return; // already read
+    try {
+      await fetch('/admin-panel/api/notifications/mark-read/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+        body: JSON.stringify({ id }),
+      });
+      const n = _notifAll.find(x => x.id === id);
+      if (n) n.is_read = true;
+      cardEl.classList.remove('bg-blue-50/40');
+      cardEl.classList.add('bg-white');
+      cardEl.querySelector('.bg-red-500.rounded-full')?.remove();
+
+      const countRes = await fetch('/admin-panel/api/notifications/count/');
+      const cd = await countRes.json();
+      updateAdminNotifBadge(cd.unread_count);
+    } catch (e) {
+      console.error('Failed to mark notification read', e);
+    }
+  };
+
+  window.markAllAdminNotifsRead = async function () {
+    try {
+      await fetch('/admin-panel/api/notifications/mark-read/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+        body: JSON.stringify({}),
+      });
+      _notifAll.forEach(n => n.is_read = true);
+      updateAdminNotifBadge(0);
+      renderNotifList(new Set());
+    } catch (e) {
+      console.error('Failed to mark all read', e);
+    }
+  };
+
+  // ── Badge ──────────────────────────────────────────────────────────
+  function updateAdminNotifBadge(count) {
+    const badge = document.getElementById('admin-notif-badge');
+    if (!badge) return;
+    if (count > 0) {
+      badge.textContent = count > 99 ? '99+' : count;
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+  }
+
+  // ── Boot ───────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    pollAdminNotifCount();
+    setInterval(pollAdminNotifCount, 30000);
+  });
+}());

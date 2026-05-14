@@ -12,7 +12,7 @@ from django.core.files.storage import default_storage
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-from ..models import Application, DocumentVerification, AdminActivityLog, AdminProfile, SchoolYear, Semester
+from ..models import Application, DocumentVerification, AdminActivityLog, AdminProfile, SchoolYear, Semester, AdminNotification
 from students_app.models import Document
 from ..models import Prospectus, ProspectusYear, ProspectusSemester, ProspectusSubject, ProspectusAssignment, Program
 
@@ -1768,6 +1768,7 @@ def get_all_students(request):
 
 
 @login_required(login_url='login')
+@login_required(login_url='login')
 @user_passes_test(is_superuser, login_url='login')
 @require_http_methods(["GET"])
 def students_with_status(request):
@@ -1956,7 +1957,7 @@ def send_admin_messaging(request):
     template_type = (data.get('type') or '').strip()
     AdminActivityLog.objects.create(
         admin=request.user,
-        action='note',
+        action='messaging',
         application=None,
         notes=(
             f"Messaging ({channel}): {len(target_ids)} student(s). "
@@ -2419,3 +2420,217 @@ def reorder_faculty(request):
             'success': False,
             'message': str(e)
         }, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def get_messaging_history(request):
+    """Return the last 20 admin outreach messages sent by this admin."""
+    import re
+    logs = (
+        AdminActivityLog.objects.filter(
+            admin=request.user,
+            action='messaging',
+        )
+        .order_by('-timestamp')[:20]
+    )
+    history = []
+    for log in logs:
+        notes = log.notes or ''
+        sent_count = 0
+        subject = 'Message'
+        channel = 'inbox'
+        m = re.search(r'(\d+) student\(s\)', notes)
+        if m:
+            sent_count = int(m.group(1))
+        m = re.search(r"Subject: '([^']*)'", notes)
+        if m:
+            subject = m.group(1)
+        m = re.search(r'Messaging \((\w+)\)', notes)
+        if m:
+            channel = m.group(1)
+        history.append({
+            'subject': subject,
+            'sent_count': sent_count,
+            'channel': channel,
+            'time': log.timestamp.strftime('%b %d, %Y · %I:%M %p'),
+        })
+    return JsonResponse({'success': True, 'history': history})
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+def get_admin_preferences(request):
+    """Return the current admin's saved UI preferences."""
+    try:
+        profile, _ = AdminProfile.objects.get_or_create(user=request.user)
+        return JsonResponse({'success': True, 'preferences': profile.preferences or {}})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(['POST'])
+def save_admin_preferences(request):
+    """Save admin UI preferences (academic_year, default_program, etc.)."""
+    try:
+        data = json.loads(request.body)
+        profile, _ = AdminProfile.objects.get_or_create(user=request.user)
+        profile.preferences = data
+        profile.save()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+# ── Admin Notifications ────────────────────────────────────────────────────────
+
+NOTIF_ICONS = {
+    'cor_upload': 'file-text',
+    'grade_upload': 'bar-chart-2',
+    'requirement_submitted': 'check-square',
+    'document_upload': 'upload-cloud',
+}
+
+NOTIF_COLORS = {
+    'cor_upload': 'blue',
+    'grade_upload': 'purple',
+    'requirement_submitted': 'green',
+    'document_upload': 'indigo',
+}
+
+
+def _notif_time_ago(dt):
+    from django.utils import timezone as tz
+    now = tz.now()
+    diff = int((now - dt).total_seconds())
+    if diff < 60:
+        return 'Just now'
+    if diff < 3600:
+        return f"{diff // 60}m ago"
+    if diff < 86400:
+        return f"{diff // 3600}h ago"
+    if diff < 604800:
+        return f"{diff // 86400}d ago"
+    return dt.strftime('%b %d, %Y')
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def get_admin_notifications(request):
+    """Return paginated admin notifications, newest first."""
+    page = int(request.GET.get('page', 1))
+    page_size = 20
+    offset = (page - 1) * page_size
+
+    qs = AdminNotification.objects.select_related('student').order_by('-created_at')
+    total = qs.count()
+    unread_count = qs.filter(is_read=False).count()
+    notifications = qs[offset: offset + page_size]
+
+    data = []
+    for n in notifications:
+        student_name = n.student.get_full_name() or n.student.username
+        data.append({
+            'id': n.pk,
+            'type': n.notification_type,
+            'icon': NOTIF_ICONS.get(n.notification_type, 'bell'),
+            'color': NOTIF_COLORS.get(n.notification_type, 'gray'),
+            'title': n.title,
+            'message': n.message,
+            'student': student_name,
+            'time': _notif_time_ago(n.created_at),
+            'fullTime': n.created_at.strftime('%b %d, %Y · %I:%M %p'),
+            'epoch': int(n.created_at.timestamp() * 1000),
+            'is_read': n.is_read,
+        })
+
+    return JsonResponse({
+        'notifications': data,
+        'unread_count': unread_count,
+        'total': total,
+        'page': page,
+        'has_more': (offset + page_size) < total,
+    })
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def mark_admin_notifications_read(request):
+    """Mark one notification (by id) or all notifications as read."""
+    try:
+        body = json.loads(request.body) if request.body else {}
+        notif_id = body.get('id')
+        if notif_id:
+            AdminNotification.objects.filter(pk=notif_id).update(is_read=True)
+        else:
+            AdminNotification.objects.filter(is_read=False).update(is_read=True)
+        unread = AdminNotification.objects.filter(is_read=False).count()
+        return JsonResponse({'success': True, 'unread_count': unread})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def get_admin_notification_count(request):
+    """Lightweight endpoint — returns only the unread count for badge polling."""
+    count = AdminNotification.objects.filter(is_read=False).count()
+    return JsonResponse({'unread_count': count})
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def get_activity_log_api(request):
+    """
+    Return activity log entries with optional filtering and search.
+    Query params:
+      limit  (int, default 200)
+      action (str) — raw action key, e.g. 'verified', 'rejected'
+      search (str) — searches admin username, application ID, document type, notes
+    """
+    try:
+        limit = min(int(request.GET.get('limit', 200)), 500)
+        action = request.GET.get('action', '').strip()
+        search = request.GET.get('search', '').strip()
+
+        qs = AdminActivityLog.objects.select_related(
+            'admin', 'application', 'document'
+        ).order_by('-timestamp')
+
+        if action:
+            qs = qs.filter(action=action)
+
+        if search:
+            from django.db.models import Q
+            qs = qs.filter(
+                Q(admin__username__icontains=search) |
+                Q(application__application_id__icontains=search) |
+                Q(document__document_type__icontains=search) |
+                Q(notes__icontains=search)
+            )
+
+        qs = qs[:limit]
+
+        data = [
+            {
+                'time': log.timestamp.strftime('%Y-%m-%d %H:%M'),
+                'admin': log.admin.username if log.admin else 'Unknown',
+                'appId': log.application.application_id if log.application else 'N/A',
+                'doc': log.document.document_type if log.document else 'General',
+                'action': log.get_action_display(),
+                'actionKey': log.action,
+                'notes': log.notes,
+            }
+            for log in qs
+        ]
+
+        return JsonResponse({'success': True, 'data': data, 'total': len(data)})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
