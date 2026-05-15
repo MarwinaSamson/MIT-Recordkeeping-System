@@ -1195,6 +1195,33 @@
         </div>
         <div style="padding:8px" id="notifPreview"></div>
       </div>
+
+      {% if downloads %}
+      <div class="card fu" style="animation-delay:.30s">
+        <div class="card-header">
+          <div class="card-title"><span class="ms" style="font-size:16px;color:var(--crimson);vertical-align:middle;margin-right:6px">folder_open</span>Downloadable Forms &amp; Resources</div>
+        </div>
+        <div class="card-body" style="padding-top:10px">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            {% for dl in downloads %}
+            <a href="{{ dl.url }}" download target="_blank"
+               style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);text-decoration:none;transition:background 0.15s,border-color 0.15s;"
+               onmouseover="this.style.background='var(--crimson-pale)';this.style.borderColor='var(--crimson-border)'"
+               onmouseout="this.style.background='';this.style.borderColor='var(--border)'">
+              <div style="width:36px;height:36px;border-radius:8px;background:var(--crimson-pale);border:1px solid var(--crimson-border);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <span style="font-size:10px;font-weight:700;color:var(--crimson);font-family:var(--font-mono)">{{ dl.file_type }}</span>
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:0.82rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ dl.name }}</div>
+                <div style="font-size:0.67rem;color:var(--ink-4);font-family:var(--font-mono)">Click to download</div>
+              </div>
+              <span class="ms" style="font-size:18px;color:var(--crimson);flex-shrink:0">download</span>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
     </section>
 
     <!-- ─────────────────────────────────────────────────────
@@ -2743,12 +2770,38 @@
       if (!submission) return;
       gradeSubmissionLoaded = true;
       Object.keys(grades).forEach(key => delete grades[key]);
-      (submission.grades || []).forEach(item => {
-        const key = `${item.year_label || ''}-${item.semester_label || ''}-${(item.code || '').replace(/\s/g, '')}`;
-        if (item.grade !== null && item.grade !== undefined && item.grade !== '') {
-          grades[key] = Number(item.grade);
-        }
-      });
+
+      if (submission.entries) {
+        // Current API format: entries have {code, title, units, grade}
+        const byCode = {};
+        (submission.entries || []).forEach(e => {
+          const code = (e.code || '').trim();
+          if (code && e.grade !== null && e.grade !== undefined && e.grade !== '') {
+            byCode[code] = Number(e.grade);
+          }
+        });
+        (prospYears || []).forEach(yr => {
+          (yr.semesters || []).forEach(sem => {
+            const semKey = `${yr.label || ''}-${sem.label || ''}`;
+            (sem.courses || []).forEach(c => {
+              const rawCode = (c.code || '').trim();
+              const cKey = `${semKey}-${rawCode.replace(/\s/g, '')}`;
+              if (byCode[rawCode] !== undefined) {
+                grades[cKey] = byCode[rawCode];
+              }
+            });
+          });
+        });
+      } else {
+        // Legacy format: grades have {year_label, semester_label, code, grade}
+        (submission.grades || []).forEach(item => {
+          const key = `${item.year_label || ''}-${item.semester_label || ''}-${(item.code || '').replace(/\s/g, '')}`;
+          if (item.grade !== null && item.grade !== undefined && item.grade !== '') {
+            grades[key] = Number(item.grade);
+          }
+        });
+      }
+
       if (submission.screenshot_url) {
         setGradeScreenshotPreview(submission.screenshot_url);
       }
@@ -2758,7 +2811,7 @@
 
     async function loadGradeSubmission() {
       try {
-        const response = await fetch('/api/grade-submission/', {
+        const response = await fetch('/api/grades/latest/', {
           headers: { 'X-Requested-With': 'XMLHttpRequest' },
         });
         const data = await response.json().catch(() => ({}));
@@ -3130,7 +3183,6 @@ function closeLogoutModal() {
       renderCorStatusSummary();
       updateCorNavBadge();
       renderProspectus();
-      loadGradeSubmission();
       renderSbCalToday();
       
       // Render dynamic dates from database

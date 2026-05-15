@@ -2626,7 +2626,7 @@ Certified true copy from your institution</textarea
                     Downloadable Files
                   </p>
                   <p class="cms-card-subtitle">
-                    Manage downloadable files displayed on the homepage.
+                    Files uploaded here appear in the <strong>"Forms &amp; Documents"</strong> dropdown on the homepage and in the <strong>Student Portal</strong> overview.
                   </p>
                 </div>
                 <div class="flex items-center gap-2">
@@ -2639,6 +2639,9 @@ Certified true copy from your institution</textarea
                     style="display: none"
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.txt,.jpg,.png"
                   />
+                  <button class="btn-primary" onclick="persistDownloadsList()">
+                    <i data-lucide="save"></i> Save
+                  </button>
                 </div>
               </div>
 
@@ -2673,8 +2676,7 @@ Certified true copy from your institution</textarea
                 </div>
                 {% empty %}
                 <p class="text-xs text-gray-400 py-4 text-center">
-                  No downloads yet. Upload files to display them on the
-                  homepage.
+                  No downloads yet. Upload files to display them on the homepage and student portal.
                 </p>
                 {% endfor %}
               </div>

@@ -7,7 +7,8 @@
       "Bash(python manage.py makemigrations admin_app --name=\"add_adminnotification\")",
       "Bash(python manage.py migrate admin_app)",
       "Bash(python manage.py shell -c ' *)",
-      "Bash(python manage.py showmigrations admin_app)"
+      "Bash(python manage.py showmigrations admin_app)",
+      "Bash(envdaw\\\\Scripts\\\\python.exe manage.py check)"
     ]
   }
 }

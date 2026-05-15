@@ -133,6 +133,7 @@ def student(request):
     cms_settings       = CMSSettings.objects.get_or_create(pk=1)[0]
     calendar_events        = cms_settings.calendar_events or []
     admission_requirements = cms_settings.admission_requirements or []
+    downloads              = cms_settings.downloads or []
 
     semester = active_semester.name if active_semester else '—'
 
@@ -340,6 +341,7 @@ def student(request):
         "calendar_events_json":        json.dumps(calendar_events),
         "admission_requirements":      admission_requirements,
         "admission_requirements_json": json.dumps(admission_requirements),
+        "downloads":                   downloads,
     }
 
     return render(request, "students_app/student.html", context)
