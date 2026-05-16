@@ -19,31 +19,101 @@ function initializeData() {
   }
 }
 
-// Prospectus management client-side store (temporary, will be replaced by API)
+// Prospectus management client-side store
 let prospectuses = [];
+
+function _populateProspectusFilter(list) {
+  const sel = document.getElementById('prospectusFilterProgram');
+  if (!sel) return;
+  const current = sel.value;
+  // Collect unique program names
+  const programs = [...new Set(list.map(p => p.program_name).filter(Boolean))].sort();
+  // Keep the "All Programs" option, rebuild the rest
+  sel.innerHTML = '<option value="">All Programs</option>' +
+    programs.map(n => `<option value="${escapeHtml(n)}"${n === current ? ' selected' : ''}>${escapeHtml(n)}</option>`).join('');
+}
+
+function _renderProspectusCurriculum(p) {
+  if (!p.years || !p.years.length) return '<p class="text-xs text-gray-400 italic mt-2">No curriculum structure defined.</p>';
+  return p.years.map(y => `
+    <div class="mt-3">
+      <p class="text-xs font-bold text-gray-600 uppercase tracking-wide">${escapeHtml(y.label)}</p>
+      ${y.semesters.map(s => `
+        <div class="ml-3 mt-1">
+          <p class="text-xs font-semibold text-gray-500">${escapeHtml(s.label)}</p>
+          ${s.subjects.length ? `
+          <table class="w-full mt-1 text-xs border-collapse">
+            <thead><tr class="bg-gray-50 text-gray-500">
+              <th class="text-left px-2 py-1 border border-gray-100">Code</th>
+              <th class="text-left px-2 py-1 border border-gray-100">Subject</th>
+              <th class="text-center px-2 py-1 border border-gray-100">Lec</th>
+              <th class="text-center px-2 py-1 border border-gray-100">Lab</th>
+              <th class="text-center px-2 py-1 border border-gray-100">Total</th>
+            </tr></thead>
+            <tbody>${s.subjects.map(sub => `
+              <tr class="border-b border-gray-50 hover:bg-gray-50">
+                <td class="px-2 py-1 border border-gray-100 font-mono">${escapeHtml(sub.code)}</td>
+                <td class="px-2 py-1 border border-gray-100">${escapeHtml(sub.title)}</td>
+                <td class="px-2 py-1 border border-gray-100 text-center">${sub.lec}</td>
+                <td class="px-2 py-1 border border-gray-100 text-center">${sub.lab}</td>
+                <td class="px-2 py-1 border border-gray-100 text-center font-semibold">${sub.total}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>` : '<p class="text-xs text-gray-400 ml-2">No subjects.</p>'}
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function _renderProspectusCard(p) {
+  const prog = p.program_name ? `<span class="inline-block text-xs bg-red-50 text-red-700 border border-red-100 rounded-full px-2 py-0.5 font-semibold mr-1">${escapeHtml(p.program_name)}</span>` : '';
+  const assignBadges = (p.assignments || []).map(a =>
+    `<span class="inline-block text-xs bg-blue-50 text-blue-700 border border-blue-100 rounded-full px-2 py-0.5 mr-1">${escapeHtml(a.program_name||'')}${a.intake_year ? ' · ' + escapeHtml(a.intake_year) : ''}</span>`
+  ).join('');
+  return `
+  <div class="border border-gray-100 rounded-xl overflow-hidden" id="prospcard-${p.id}">
+    <div class="flex items-start justify-between p-4 bg-white">
+      <div class="flex-1 min-w-0">
+        <div class="flex flex-wrap items-center gap-1 mb-1">${prog}${assignBadges}</div>
+        <div class="font-semibold text-gray-800 text-sm">${escapeHtml(p.name)}</div>
+        ${p.description ? `<div class="text-xs text-gray-400 mt-0.5">${escapeHtml(p.description)}</div>` : ''}
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0 ml-3">
+        <button class="text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition font-medium" onclick="toggleProspectusDetails(${p.id})">View Details</button>
+        <button class="text-xs px-3 py-1.5 rounded-lg border border-red-100 text-red-600 hover:bg-red-50 transition font-medium" onclick="deleteProspectus(${p.id})">Delete</button>
+      </div>
+    </div>
+    <div id="prospdetails-${p.id}" class="hidden border-t border-gray-100 bg-gray-50 px-4 pb-4">
+      ${_renderProspectusCurriculum(p)}
+    </div>
+  </div>`;
+}
+
+function toggleProspectusDetails(id) {
+  const el = document.getElementById('prospdetails-' + id);
+  const btn = document.querySelector(`#prospcard-${id} button`);
+  if (!el) return;
+  const isHidden = el.classList.contains('hidden');
+  el.classList.toggle('hidden', !isHidden);
+  if (btn) btn.textContent = isHidden ? 'Hide Details' : 'View Details';
+}
 
 function renderProspectusPage(){
   const container = document.getElementById('prospectusList');
   if(!container) return;
-  // Load prospectuses from backend
   fetch('/admin-panel/api/prospectuses/', { method: 'GET', headers: {'Accept':'application/json'}, credentials: 'same-origin' })
     .then(r=>r.json())
     .then(res=>{
       if(!res.success){ container.innerHTML = `<div class="text-gray-400 text-sm">Error loading prospectuses.</div>`; return; }
       prospectuses = res.data || [];
-      if(!prospectuses.length){ container.innerHTML = `<div class="text-gray-400 text-sm">No prospectuses created yet.</div>`; return; }
-      container.innerHTML = prospectuses.map((p,idx)=>{
-        return `
-      <div class="p-3 border rounded-lg flex items-start justify-between">
-        <div>
-          <div class="font-semibold text-gray-800">${escapeHtml(p.name)}</div>
-          <div class="text-xs text-gray-500 mt-1">${escapeHtml(p.description||'')}</div>
-        </div>
-        <div class="flex items-center gap-2">
-          <button class="btn btn-outline btn-sm" onclick="deleteProspectus(${p.id})">Delete</button>
-        </div>
-      </div>`;
-      }).join('');
+      _populateProspectusFilter(prospectuses);
+      const filterVal = (document.getElementById('prospectusFilterProgram') || {}).value || '';
+      const filtered = filterVal ? prospectuses.filter(p => p.program_name === filterVal) : prospectuses;
+      if(!filtered.length){
+        container.innerHTML = `<div class="text-gray-400 text-sm py-4 text-center">${filterVal ? 'No prospectuses for this program.' : 'No prospectuses created yet.'}</div>`;
+        return;
+      }
+      container.innerHTML = filtered.map(p => _renderProspectusCard(p)).join('');
+      if(typeof lucide !== 'undefined') lucide.createIcons();
     })
     .catch(err=>{ console.error('Error fetching prospectuses',err); container.innerHTML = `<div class="text-gray-400 text-sm">Error loading prospectuses.</div>`; });
 }
@@ -1416,6 +1486,15 @@ document.addEventListener('DOMContentLoaded', function() {
   renderTable();
   renderStudents();
   renderHistory();
+
+  // Auto-switch to a page specified via ?page= URL param (e.g. from sidebar links on other pages)
+  const urlPage = new URLSearchParams(window.location.search).get('page');
+  if (urlPage) {
+    const navEl = document.querySelector(`.nav-item[onclick*="'${urlPage}'"]`);
+    switchPage(urlPage, navEl);
+    // Clean URL without reloading
+    history.replaceState(null, '', window.location.pathname);
+  }
 });
 
 /* ═══ EDIT PROFILE MODAL ═══ */

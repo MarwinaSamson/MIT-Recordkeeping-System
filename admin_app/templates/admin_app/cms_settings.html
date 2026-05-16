@@ -576,6 +576,9 @@
         <a href="{% url 'admin_app:cms_settings' %}" class="nav-item active">
           <i data-lucide="settings-2"></i><span>CMS Settings</span>
         </a>
+        <a href="{% url 'admin_app:dashboard' %}?page=prospectus" class="nav-item">
+          <i data-lucide="book-open"></i><span>Prospectus Management</span>
+        </a>
         <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
           <i data-lucide="user-cog"></i><span>Profile Settings</span>
         </a>
@@ -627,10 +630,7 @@
           >
             <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
             School Year:
-            <span class="text-gray-800 ml-0.5"
-              >{{ cms.application_deadline|date:"Y"|default:"2025" }}–{{
-              cms.application_deadline|date:"Y"|default:"2026" }}</span
-            >
+            <span class="text-gray-800 ml-0.5">{{ active_school_year.name|default:"No Active Year" }}</span>
           </div>
           <div class="flex items-center gap-2">
             <div

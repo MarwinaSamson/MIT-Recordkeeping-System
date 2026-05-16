@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from django.db import transaction
 
-from admin_app.models import DocumentVerification, Application
+from admin_app.models import DocumentVerification, Application, AdminNotification
 from students_app.models import (
     Document,
     Notification,
@@ -222,6 +222,15 @@ def upload_document(request):
         user=request.user,
         document_type=doc_title,
         file=file_obj,
+    )
+
+    full_name = request.user.get_full_name() or request.user.username
+    AdminNotification.objects.create(
+        notification_type='document_upload',
+        student=request.user,
+        title='Document Uploaded',
+        message=f"{full_name} uploaded a {doc_title}.",
+        related_object_id=saved_doc.pk,
     )
 
     return JsonResponse({
