@@ -1295,16 +1295,7 @@
         let _faculty = [];
         let _viewMode = 'grid';
 
-        // Seed with Django-injected data if available
-        try {
-            _programs = JSON.parse('{{ programs_json|escapejs|default:"[]" }}');
-            // Normalise: ensure every program has a stable id and level
-            _programs = _programs.map(p => ({
-                ...p,
-                id: p.id || genId(),
-                level: p.level || 'masters',
-            }));
-        } catch (e) { _programs = []; }
+        // Programs are loaded from the API on DOMContentLoaded (see INIT below)
 
 
         /* ═══════════════════════════════════════════════════
@@ -1888,7 +1879,12 @@
             if (!_faculty.length) { list.appendChild(empty); return; }
             _faculty.forEach((f, i) => {
                 const row = document.createElement('div');
+                row.className = 'fac-row';
                 row.style.cssText = 'background:#fafafa;border:1.5px solid #f3f4f6;border-radius:12px;padding:14px;margin-bottom:8px;';
+                const eName = (f.name || '').replace(/"/g, '&quot;');
+                const eRole = (f.role || '').replace(/"/g, '&quot;');
+                const eTags = (f.tags || []).join(', ').replace(/"/g, '&quot;');
+                const eBio  = (f.bio  || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
                 row.innerHTML = `
           <div style="display:flex;gap:14px;align-items:flex-start;">
             <div>
@@ -1900,19 +1896,37 @@
             </div>
             <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
               <div><label class="lbl" style="font-size:.6rem;">Full Name</label>
-                <input type="text" class="field" value="${f.name || ''}" placeholder="e.g. Dr. Juan Dela Cruz" onchange="_faculty[${i}].name=this.value" /></div>
+                <input type="text" class="field fac-name" value="${eName}" placeholder="e.g. Dr. Juan Dela Cruz"
+                  oninput="_faculty[${i}].name=this.value" onchange="_faculty[${i}].name=this.value" /></div>
               <div><label class="lbl" style="font-size:.6rem;">Role / Position</label>
-                <input type="text" class="field" value="${f.role || ''}" placeholder="e.g. Program Chair" onchange="_faculty[${i}].role=this.value" /></div>
+                <input type="text" class="field fac-role" value="${eRole}" placeholder="e.g. Program Chair"
+                  oninput="_faculty[${i}].role=this.value" onchange="_faculty[${i}].role=this.value" /></div>
               <div style="grid-column:1/-1;"><label class="lbl" style="font-size:.6rem;">Short Bio</label>
-                <textarea class="field" rows="2" placeholder="Ph.D. in IT · Specializes in…" onchange="_faculty[${i}].bio=this.value">${f.bio || ''}</textarea></div>
+                <textarea class="field fac-bio" rows="2" placeholder="Ph.D. in IT · Specializes in…"
+                  oninput="_faculty[${i}].bio=this.value" onchange="_faculty[${i}].bio=this.value">${eBio}</textarea></div>
               <div style="grid-column:1/-1;"><label class="lbl" style="font-size:.6rem;">Course Tags <span class="lbl-hint">(comma-separated)</span></label>
-                <input type="text" class="field" value="${(f.tags || []).join(', ')}" placeholder="MIT 201, Databases" onchange="_faculty[${i}].tags=this.value.split(',').map(t=>t.trim())" /></div>
+                <input type="text" class="field fac-tags" value="${eTags}" placeholder="MIT 201, Databases"
+                  oninput="_faculty[${i}].tags=this.value.split(',').map(t=>t.trim()).filter(Boolean)"
+                  onchange="_faculty[${i}].tags=this.value.split(',').map(t=>t.trim()).filter(Boolean)" /></div>
             </div>
             <button class="btn-del" onclick="_faculty.splice(${i},1);renderFaculty()"><i data-lucide="trash-2"></i></button>
           </div>`;
                 list.appendChild(row);
             });
             lucide.createIcons();
+        }
+
+        function collectFaculty() {
+            // Read directly from the DOM at save time so values typed without
+            // tabbing out (which would not have fired onchange) are captured.
+            return [...document.querySelectorAll('#facultyList .fac-row')].map((row, i) => ({
+                name:  (row.querySelector('.fac-name')  || {value:''}).value.trim(),
+                role:  (row.querySelector('.fac-role')  || {value:''}).value.trim(),
+                bio:   (row.querySelector('.fac-bio')   || {value:''}).value.trim(),
+                tags:  (row.querySelector('.fac-tags')  || {value:''}).value
+                           .split(',').map(t => t.trim()).filter(Boolean),
+                photo: (_faculty[i] || {}).photo || '',
+            })).filter(f => f.name || f.role);
         }
 
         function addFaculty() {
@@ -1983,18 +1997,24 @@
                 curriculum: _currRows,
                 outcomes: _outcomes,
                 objectives: _objectives,
-                faculty: _faculty,
+                faculty: collectFaculty(),
             };
 
             try {
-                const res = await fetch('/admin/api/program/save/', {
+                const res = await fetch('/admin-panel/api/program/save/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                     body: JSON.stringify(data),
                 });
-                const d = await res.json();
+                let d;
+                try {
+                    d = await res.json();
+                } catch {
+                    pgToast('Server error (HTTP ' + res.status + '). Check the console.', 'error');
+                    console.error('Save failed — server returned non-JSON (status ' + res.status + ')');
+                    return;
+                }
                 if (d.success !== false) {
-                    // Update local state
                     const idx = _programs.findIndex(p => p.id === data.id);
                     if (idx >= 0) _programs[idx] = data; else _programs.push(data);
                     renderAll();
@@ -2003,15 +2023,11 @@
                     _editId = data.id;
                 } else {
                     pgToast(d.message || 'Save failed.', 'error');
+                    console.error('Save failed:', d.message);
                 }
-            } catch {
-                // Offline fallback — update local state anyway for UI preview
-                const idx = _programs.findIndex(p => p.id === data.id);
-                if (idx >= 0) _programs[idx] = data; else _programs.push(data);
-                renderAll();
-                closeModal();
-                pgToast('Saved locally (API unreachable — wire up /admin/api/program/save/).', 'success');
-                _editId = data.id;
+            } catch (err) {
+                pgToast('Network error — could not reach server.', 'error');
+                console.error('Network error during save:', err);
             } finally {
                 btnSave.disabled = false;
                 btnSave.innerHTML = '<i data-lucide="save" style="width:14px;height:14px;"></i> Save Program';
@@ -2034,7 +2050,7 @@
         async function confirmDelete() {
             if (!_editId) return;
             try {
-                await fetch('/admin/api/program/delete/', {
+                await fetch('/admin-panel/api/program/delete/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
                     body: JSON.stringify({ id: _editId }),
@@ -2062,8 +2078,27 @@
         /* ═══════════════════════════════════════════════════
            INIT
         ═══════════════════════════════════════════════════ */
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             lucide.createIcons();
+            // Load programs from the API instead of template injection
+            // so large base64 logos don't end up in the page HTML.
+            try {
+                const res = await fetch('/admin-panel/api/program/list/', {
+                    headers: { 'X-CSRFToken': getCSRFToken() }
+                });
+                if (res.ok) {
+                    const d = await res.json();
+                    if (d.success && Array.isArray(d.programs)) {
+                        _programs = d.programs.map(p => ({
+                            ...p,
+                            id: p.id || genId(),
+                            level: p.level || 'masters',
+                        }));
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not load programs from API:', e);
+            }
             renderAll();
         });
     </script>

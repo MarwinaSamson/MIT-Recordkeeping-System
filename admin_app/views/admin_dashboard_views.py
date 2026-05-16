@@ -85,11 +85,6 @@ def logout_admin(request):
 @login_required(login_url='login')
 @user_passes_test(is_superuser, login_url='login')
 def program_management(request):
-    from ..models import CMSSettings
-    import json
-
-    cms = CMSSettings.objects.filter(pk=1).first() or CMSSettings()
-
     # Get admin profile picture
     admin_profile_picture = None
     try:
@@ -104,6 +99,5 @@ def program_management(request):
         'admin_name': request.user.get_full_name() or request.user.username,
         'admin_email': request.user.email,
         'admin_profile_picture': admin_profile_picture,
-        'programs_json': json.dumps(cms.programs or []),
     }
     return render(request, 'admin_app/program_management.html', context)

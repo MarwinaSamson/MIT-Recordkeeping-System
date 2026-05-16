@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views.index_views import index, about
+from .views.index_views import index, about, program_detail
 from .views.login_views import login_view
 from .views.signup_views import signup_view
 from .views.verify_email_views import verify_email_view
@@ -35,6 +35,7 @@ from .views.debug_views import api_check_doc_data
 urlpatterns = [
     path("", index, name="index"),
     path("about/", about, name="about"),
+    path("programs/<slug:slug>/", program_detail, name="program_detail"),
     path("login/", login_view, name="login"),
     path("register/", signup_view, name="signup"),
     path("verify/<str:token>/", verify_email_view, name="verify_email"),

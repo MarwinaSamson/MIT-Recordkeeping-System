@@ -2010,6 +2010,19 @@ def send_admin_messaging(request):
 @login_required(login_url='login')
 @user_passes_test(is_superuser, login_url='login')
 @require_http_methods(["GET"])
+def list_cms_programs(request):
+    """Return the CMSSettings.programs JSON list."""
+    from ..models import CMSSettings
+    try:
+        cms, _ = CMSSettings.objects.get_or_create(pk=1)
+        return JsonResponse({'success': True, 'programs': cms.programs or []})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
 def get_program_cms(request):
     """Get all program CMS data."""
     from ..models import CMSSettings, Faculty
@@ -2669,5 +2682,86 @@ def get_activity_log_api(request):
         ]
 
         return JsonResponse({'success': True, 'data': data, 'total': len(data)})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def save_program(request):
+    """Create or update a program entry in CMSSettings.programs JSON list."""
+    from ..models import CMSSettings
+    try:
+        data = json.loads(request.body)
+        program_id = data.get('id')
+        if not program_id or not data.get('name', '').strip():
+            return JsonResponse({'success': False, 'message': 'id and name are required.'}, status=400)
+
+        cms, _ = CMSSettings.objects.get_or_create(pk=1)
+        programs = list(cms.programs or [])
+
+        # Build the cleaned program object preserving all fields the frontend sends
+        allowed_fields = [
+            'id', 'name', 'degree', 'level', 'dept', 'institution', 'copc',
+            'eff_year', 'accreditor', 'hero_badge', 'hero_tagline', 'description',
+            'ched_title', 'ched_body', 'slug', 'order', 'visible', 'logo',
+            'stats', 'curriculum', 'outcomes', 'objectives', 'faculty',
+        ]
+        program_obj = {k: data[k] for k in allowed_fields if k in data}
+        program_obj['name'] = program_obj.get('name', '').strip()
+        # Auto-generate slug from name if not provided
+        if not program_obj.get('slug'):
+            import re
+            program_obj['slug'] = re.sub(r'[^a-z0-9]+', '-', program_obj['name'].lower()).strip('-')
+
+        idx = next((i for i, p in enumerate(programs) if p.get('id') == program_id), None)
+        if idx is not None:
+            programs[idx] = program_obj
+        else:
+            programs.append(program_obj)
+
+        cms.programs = programs
+        cms.save(update_fields=['programs'])
+
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='cms_updated',
+            notes=f'Program {"updated" if idx is not None else "created"}: {program_obj["name"]}',
+        )
+        return JsonResponse({'success': True, 'program': program_obj})
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def delete_program(request):
+    """Remove a program entry from CMSSettings.programs by id."""
+    from ..models import CMSSettings
+    try:
+        data = json.loads(request.body)
+        program_id = data.get('id')
+        if not program_id:
+            return JsonResponse({'success': False, 'message': 'id is required.'}, status=400)
+
+        cms, _ = CMSSettings.objects.get_or_create(pk=1)
+        programs = list(cms.programs or [])
+        original_len = len(programs)
+        programs = [p for p in programs if p.get('id') != program_id]
+        cms.programs = programs
+        cms.save(update_fields=['programs'])
+
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='cms_updated',
+            notes=f'Program deleted (id={program_id})',
+        )
+        return JsonResponse({'success': True, 'deleted': original_len - len(programs)})
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON.'}, status=400)
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)

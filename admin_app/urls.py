@@ -31,8 +31,11 @@ from .views.api_views import (
     send_requirement_notification,
     get_all_students,
     # Program CMS APIs
+    list_cms_programs,
     get_program_cms,
     update_program_cms,
+    save_program,
+    delete_program,
     get_faculty_list,
     add_faculty_member,
     update_faculty_member,
@@ -116,9 +119,11 @@ urlpatterns = [
     path('api/students/all/', get_all_students, name='api_get_all_students'),
 
     # Program CMS APIs
+    path('api/program/list/', list_cms_programs, name='api_list_cms_programs'),
     path('api/program/cms/', get_program_cms, name='api_get_program_cms'),
-    path('api/program/cms/update/', update_program_cms,
-         name='api_update_program_cms'),
+    path('api/program/cms/update/', update_program_cms, name='api_update_program_cms'),
+    path('api/program/save/', save_program, name='api_save_program'),
+    path('api/program/delete/', delete_program, name='api_delete_program'),
     path('api/faculty/list/', get_faculty_list, name='api_get_faculty_list'),
     path('api/faculty/add/', add_faculty_member, name='api_add_faculty'),
     path('api/faculty/update/', update_faculty_member, name='api_update_faculty'),

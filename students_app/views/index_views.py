@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from django.http import Http404
 from django.utils import timezone
 from admin_app.models import CMSSettings, Faculty, Application, SchoolYear
 
@@ -141,3 +142,33 @@ def about(request):
             "curriculum_grand_total_units": curriculum_grand_total_units,
         },
     )
+
+
+def program_detail(request, slug):
+    cms = CMSSettings.objects.filter(pk=1).first()
+    if not cms:
+        raise Http404("No programs found.")
+
+    programs = cms.programs or []
+    program = next((p for p in programs if p.get('slug') == slug and p.get('visible', True)), None)
+    if not program:
+        raise Http404("Program not found.")
+
+    # Calculate curriculum totals
+    curriculum = program.get('curriculum') or []
+    curriculum_total_units = 0
+    for row in curriculum:
+        try:
+            curriculum_total_units += int(row.get('units') or row.get('total') or 0)
+        except (TypeError, ValueError):
+            pass
+
+    # Visible programs for the nav dropdown
+    visible_programs = [p for p in programs if p.get('visible', True)]
+
+    return render(request, "students_app/program_detail.html", {
+        "cms": cms,
+        "program": program,
+        "curriculum_total_units": curriculum_total_units,
+        "visible_programs": visible_programs,
+    })

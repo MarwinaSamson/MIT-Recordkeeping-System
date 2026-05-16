@@ -1,0 +1,762 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ program.name }} – WMSU College of Computing Studies</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0"
+    />
+
+    <style>
+      :root {
+        --crimson: #7b1113;
+        --crimson-dark: #5a0c0e;
+        --crimson-light: #9b1416;
+        --gold: #c9a84c;
+        --gold-light: #e6c97a;
+        --cream: #fdfaf5;
+        --slate: #f6f5f3;
+      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body { font-family: "DM Sans", sans-serif; background: var(--cream); color: #1a1a1a; overflow-x: hidden; }
+      h1, h2, h3, h4 { font-family: "Playfair Display", serif; }
+
+      .material-symbols-rounded {
+        font-family: "Material Symbols Rounded";
+        font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+        vertical-align: middle; line-height: 1; display: inline-block;
+      }
+
+      ::-webkit-scrollbar { width: 5px; }
+      ::-webkit-scrollbar-track { background: #f1f1f1; }
+      ::-webkit-scrollbar-thumb { background: var(--crimson); border-radius: 6px; }
+
+      /* ── NAV ── */
+      .nav-link {
+        font-size: 0.82rem; font-weight: 500; color: #4a4a4a;
+        text-decoration: none; transition: color 0.15s;
+      }
+      .nav-link:hover { color: var(--crimson); }
+
+      .dropdown-group { position: relative; }
+      .dropdown-panel {
+        position: absolute; top: calc(100% + 10px); left: 50%; transform: translateX(-50%);
+        background: #fff; border: 1px solid #ede8e0; border-radius: 14px;
+        padding: 10px; min-width: 230px; box-shadow: 0 12px 40px rgba(0,0,0,0.11);
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.18s, transform 0.18s;
+        transform: translateX(-50%) translateY(-6px); z-index: 200;
+      }
+      .dropdown-group:hover .dropdown-panel,
+      .dropdown-group:focus-within .dropdown-panel {
+        opacity: 1; pointer-events: all; transform: translateX(-50%) translateY(0);
+      }
+      .panel-arrow {
+        position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
+        width: 12px; height: 12px; background: #fff;
+        border-left: 1px solid #ede8e0; border-top: 1px solid #ede8e0;
+        transform: translateX(-50%) rotate(45deg);
+      }
+      .panel-label {
+        font-family: "JetBrains Mono", monospace; font-size: 0.55rem;
+        letter-spacing: 0.18em; text-transform: uppercase; color: #b0a090;
+        padding: 4px 8px 8px; border-bottom: 1px solid #f0ece5; margin-bottom: 6px;
+      }
+      .prog-row {
+        display: flex; align-items: center; gap: 12px;
+        padding: 9px 10px; border-radius: 9px; text-decoration: none;
+        color: #1a1a1a; transition: background 0.15s;
+      }
+      .prog-row:hover { background: #fef2f2; color: var(--crimson); }
+      .prog-icon {
+        width: 34px; height: 34px; border-radius: 8px;
+        background: rgba(123,17,19,0.07); display: flex; align-items: center;
+        justify-content: center; font-size: 17px; color: var(--crimson); flex-shrink: 0;
+      }
+      .prog-row:hover .prog-icon { background: #fee2e2; }
+      .prog-text strong { display: block; font-size: 0.8rem; font-weight: 600; }
+      .prog-text span { display: block; font-size: 0.68rem; color: #7a6a5a; margin-top: 1px; }
+
+      /* ── HERO ── */
+      .hero-bg {
+        background: linear-gradient(145deg, #3d0709 0%, var(--crimson-dark) 30%, var(--crimson) 65%, var(--crimson-light) 100%);
+        position: relative; overflow: hidden;
+      }
+      .hero-bg::before {
+        content: ""; position: absolute; inset: 0;
+        background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+        background-size: 44px 44px; pointer-events: none;
+      }
+      .hero-bg::after {
+        content: ""; position: absolute; top: -30%; right: -5%;
+        width: 600px; height: 600px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(201,168,76,.07) 0%, transparent 65%);
+        pointer-events: none;
+      }
+
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(18px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      .a1 { opacity: 0; animation: fadeUp .55s .08s forwards; }
+      .a2 { opacity: 0; animation: fadeUp .55s .22s forwards; }
+      .a3 { opacity: 0; animation: fadeUp .55s .36s forwards; }
+
+      /* ── EYEBROW / DIVIDER ── */
+      .eyebrow {
+        font-family: "JetBrains Mono", monospace; font-size: 0.625rem;
+        letter-spacing: 0.22em; text-transform: uppercase; color: var(--crimson);
+      }
+      .gold-divider { width: 36px; height: 2px; background: var(--gold); border-radius: 2px; }
+      .sh {
+        font-family: "Playfair Display", serif; font-size: clamp(1.7rem,4vw,2.4rem);
+        font-weight: 700; color: #1a1a1a; line-height: 1.2;
+      }
+
+      /* ── INFO CARD ── */
+      .info-card { background: #fff; border: 1px solid #ede8e0; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+      .info-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-bottom: 1px solid #f0ece5; }
+      .info-row:last-child { border-bottom: none; }
+      .info-icon {
+        width: 36px; height: 36px; min-width: 36px; border-radius: 9px;
+        background: rgba(123,17,19,.07); display: flex; align-items: center;
+        justify-content: center; color: var(--crimson); font-size: 18px;
+      }
+      .info-label { font-family: "JetBrains Mono", monospace; font-size: 0.56rem; letter-spacing: 0.14em; text-transform: uppercase; color: #a89a8a; font-weight: 600; }
+      .info-val { font-size: 0.825rem; color: #1a1a1a; font-weight: 500; margin-top: 2px; }
+
+      /* ── STAT CARD ── */
+      .stat-card {
+        background: #fff; border: 1px solid #ede8e0; border-left: 3px solid var(--crimson);
+        border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        transition: transform .2s, box-shadow .2s;
+      }
+      .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(123,17,19,.09); }
+      .stat-n { font-family: "Playfair Display", serif; font-size: 2.2rem; font-weight: 700; line-height: 1; color: var(--crimson); }
+      .stat-lbl { font-family: "JetBrains Mono", monospace; font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase; color: #998879; margin-top: 4px; }
+
+      /* ── TABS ── */
+      .tab-bar { display: flex; border-bottom: 1px solid #ede8e0; background: #fff; border-radius: 14px 14px 0 0; overflow: hidden; }
+      .tab-btn {
+        flex: 1; padding: 14px 8px; font-family: "JetBrains Mono", monospace;
+        font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+        border: none; background: #faf8f5; color: #a89a8a; cursor: pointer;
+        border-right: 1px solid #ede8e0; transition: all .2s; position: relative;
+      }
+      .tab-btn:last-child { border-right: none; }
+      .tab-btn::after {
+        content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+        background: var(--gold); transform: scaleX(0); transform-origin: center; transition: transform .25s;
+      }
+      .tab-btn.active { background: #fff; color: var(--crimson); }
+      .tab-btn.active::after { transform: scaleX(1); }
+      .tab-btn:not(.active):hover { background: #fdf6f0; color: var(--crimson-light); }
+      .tab-panel { display: none; padding: 24px; }
+      .tab-panel.active { display: block; }
+
+      /* ── CURRICULUM TABLE ── */
+      .curr-tbl { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+      .curr-tbl th {
+        padding: 8px 12px; background: var(--slate); font-family: "JetBrains Mono", monospace;
+        font-size: 0.55rem; letter-spacing: .1em; text-transform: uppercase; color: #a89a8a;
+        font-weight: 600; text-align: left; border-bottom: 1px solid #ede8e0;
+      }
+      .curr-tbl td { padding: 9px 12px; border-bottom: 1px solid #f0ece5; color: #2a2a2a; }
+      .curr-tbl tr:last-child td { border-bottom: none; }
+      .curr-tbl .c-code { font-family: "JetBrains Mono", monospace; font-size: 0.62rem; color: var(--crimson-light); white-space: nowrap; }
+      .curr-tbl .c-units { text-align: center; font-weight: 600; color: var(--crimson); white-space: nowrap; }
+      .curr-tbl .c-type { text-align: center; }
+      .type-badge {
+        display: inline-block; font-family: "JetBrains Mono", monospace; font-size: 0.5rem;
+        font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+        padding: 2px 6px; border-radius: 4px;
+      }
+      .type-core { background: #edf9f3; color: #0a7a4a; }
+      .type-spec { background: #eff6ff; color: #1d4ed8; }
+      .type-cap  { background: #fff4e0; color: #8a5800; }
+      .curr-foot td { background: #f5f0ea; font-size: 0.65rem; font-weight: 700; color: #7a6a55; font-family: "JetBrains Mono", monospace; }
+
+      /* ── OUTCOME CARDS ── */
+      .outcome-card {
+        background: #fff; border: 1px solid #ede8e0; border-radius: 14px;
+        padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        transition: transform .2s, box-shadow .2s;
+      }
+      .outcome-card:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(123,17,19,.1); }
+      .outcome-icon {
+        width: 42px; height: 42px; border-radius: 10px;
+        background: rgba(123,17,19,.07); display: flex; align-items: center;
+        justify-content: center; font-size: 22px; color: var(--crimson); margin-bottom: 12px;
+      }
+      .outcome-title { font-family: "Playfair Display", serif; font-size: 1.05rem; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+      .outcome-desc { font-size: 0.82rem; color: #5a5a5a; line-height: 1.6; }
+
+      /* ── OBJECTIVES ── */
+      .obj-item {
+        display: flex; align-items: flex-start; gap: 14px;
+        background: #fff; border: 1px solid #ede8e0; border-left: 3px solid #f0ece5;
+        border-radius: 12px; padding: 14px 16px;
+        transition: border-color .18s, transform .18s;
+      }
+      .obj-item:hover { border-left-color: var(--crimson); transform: translateX(4px); }
+      .obj-num {
+        width: 28px; height: 28px; min-width: 28px; border-radius: 50%;
+        background: var(--crimson); color: #fff; display: flex; align-items: center;
+        justify-content: center; font-family: "JetBrains Mono", monospace;
+        font-size: 0.65rem; font-weight: 700; margin-top: 1px;
+      }
+      .obj-text { font-size: 0.85rem; color: #2a2a2a; line-height: 1.55; }
+
+      /* ── FACULTY ── */
+      .faculty-card {
+        background: #fff; border: 1px solid #ede8e0; border-radius: 16px;
+        overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        transition: transform .2s, box-shadow .2s;
+      }
+      .faculty-card:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(123,17,19,.1); }
+      .faculty-photo {
+        width: 64px; height: 64px; border-radius: 50%; object-fit: cover;
+        border: 2px solid #ede8e0;
+      }
+      .faculty-avatar {
+        width: 64px; height: 64px; border-radius: 50%;
+        background: linear-gradient(135deg, #5a0c0e, #9b1416);
+        display: flex; align-items: center; justify-content: center;
+        font-family: "Playfair Display", serif; font-size: 1.5rem; font-weight: 700;
+        color: rgba(255,255,255,.9);
+      }
+      .faculty-tag {
+        display: inline-flex; align-items: center;
+        font-family: "JetBrains Mono", monospace; font-size: 0.58rem;
+        font-weight: 600; border-radius: 5px; padding: 2px 7px;
+        background: rgba(123,17,19,.07); color: var(--crimson);
+        margin: 2px;
+      }
+
+      /* ── CHED BOX ── */
+      .ched-box {
+        background: #fffbeb; border: 1px solid #f0d87c; border-radius: 14px;
+        padding: 20px 24px;
+      }
+
+      /* ── MOBILE MENU ── */
+      #mobile-menu {
+        transition: max-height 0.35s ease, opacity 0.28s ease;
+      }
+
+      /* ── BACK LINK ── */
+      .back-link {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 0.8rem; color: rgba(255,255,255,.75);
+        text-decoration: none; transition: color .15s;
+        font-family: "JetBrains Mono", monospace; letter-spacing: .04em;
+      }
+      .back-link:hover { color: #fff; }
+
+      /* ── LEVEL BADGE ── */
+      .level-badge {
+        display: inline-block; font-family: "JetBrains Mono", monospace;
+        font-size: 0.58rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+        padding: 3px 10px; border-radius: 99px;
+      }
+      .level-masters { background: rgba(201,168,76,.2); color: var(--gold-light); border: 1px solid rgba(201,168,76,.35); }
+      .level-doctoral { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+      .level-cert { background: rgba(99,102,241,.2); color: #a5b4fc; border: 1px solid rgba(99,102,241,.3); }
+
+      @media (max-width: 640px) {
+        .tab-btn { font-size: 0.5rem; padding: 12px 4px; }
+        .curr-tbl th, .curr-tbl td { padding: 7px 8px; font-size: 0.75rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ===== NAV ===== -->
+    <header class="sticky top-0 z-50 bg-white border-b border-slate-100 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <!-- Logo -->
+          <a href="{% url 'index' %}" class="flex items-center gap-3 text-decoration-none">
+            {% if cms.logo_url %}
+            <img src="{{ cms.logo_url }}" alt="Logo" class="h-9 w-9 object-contain rounded" />
+            {% else %}
+            <div style="width:36px;height:36px;border-radius:8px;background:var(--crimson);display:flex;align-items:center;justify-content:center;">
+              <span class="material-symbols-rounded" style="font-size:20px;color:#fff;">school</span>
+            </div>
+            {% endif %}
+            <div>
+              <div style="font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:var(--crimson);line-height:1.1;">
+                {{ cms.site_name|default:"MIT Program" }}
+              </div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:#a89a8a;">
+                {{ cms.site_tagline|default:"WMSU · College of Computing Studies" }}
+              </div>
+            </div>
+          </a>
+
+          <!-- Desktop Nav -->
+          <nav class="hidden lg:flex items-center gap-7">
+            <a href="{% url 'about' %}" class="nav-link">About</a>
+            <a href="{% url 'index' %}#events-carousel" class="nav-link">Events</a>
+            <a href="{% url 'index' %}#requirements" class="nav-link">Admission</a>
+
+            <!-- Programs dropdown -->
+            <div class="dropdown-group" tabindex="0">
+              <button class="nav-link flex items-center gap-1 focus:outline-none cursor-default">
+                <span class="material-symbols-rounded" style="font-size:15px;color:var(--crimson);opacity:.7">school</span>
+                Programs
+                <span class="material-symbols-rounded" style="font-size:14px;opacity:.35">expand_more</span>
+              </button>
+              <div class="dropdown-panel">
+                <div class="panel-arrow"></div>
+                <p class="panel-label">Our Graduate Programs</p>
+                {% for prog in visible_programs %}
+                <a href="{% url 'program_detail' prog.slug %}" class="prog-row{% if prog.slug == program.slug %} prog-row--active{% endif %}">
+                  <div class="prog-icon"><span class="material-symbols-rounded">school</span></div>
+                  <div class="prog-text">
+                    <strong>{{ prog.name }}</strong>
+                    <span>{{ prog.degree }}</span>
+                  </div>
+                </a>
+                {% empty %}
+                <p style="padding:8px 10px;font-size:.75rem;color:#a89a8a;">No programs available.</p>
+                {% endfor %}
+              </div>
+            </div>
+          </nav>
+
+          <!-- Apply button + hamburger -->
+          <div class="flex items-center gap-3">
+            <a href="{% url 'login' %}" class="hidden lg:inline-flex items-center gap-1.5 text-sm font-semibold text-white px-5 py-2.5 rounded-xl" style="background:var(--crimson);">
+              <span class="material-symbols-rounded" style="font-size:16px">edit_note</span>
+              Apply Now
+            </a>
+            <button id="menu-btn" class="lg:hidden p-2 rounded-lg hover:bg-slate-50 transition-colors" aria-label="Toggle menu">
+              <span id="ico-open" class="material-symbols-rounded" style="font-size:22px;color:#4a4a4a">menu</span>
+              <span id="ico-close" class="material-symbols-rounded hidden" style="font-size:22px;color:#4a4a4a">close</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="lg:hidden max-h-0 overflow-hidden opacity-0 bg-white border-t border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-0.5">
+          <a href="{% url 'about' %}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
+            <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson)">home</span> About
+          </a>
+          <a href="{% url 'index' %}#requirements" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
+            <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson)">checklist</span> Requirements
+          </a>
+          <!-- Programs accordion -->
+          <div>
+            <button data-acc="programs" class="w-full flex justify-between items-center px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50">
+              <span class="flex items-center gap-2.5">
+                <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson)">school</span>
+                Programs
+              </span>
+              <span class="material-symbols-rounded mob-chevron" style="font-size:17px;opacity:.4">expand_more</span>
+            </button>
+            <div id="acc-programs" class="hidden pl-4 pb-1 flex flex-col gap-0.5">
+              {% for prog in visible_programs %}
+              <a href="{% url 'program_detail' prog.slug %}" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm{% if prog.slug == program.slug %} bg-red-50 text-red-700{% else %} text-slate-600 hover:bg-red-50 hover:text-red-700{% endif %}">
+                <span class="material-symbols-rounded" style="font-size:17px;color:var(--crimson)">school</span>
+                <span class="font-semibold text-xs">{{ prog.name }}</span>
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+          <a href="{% url 'login' %}" class="mt-2 flex items-center justify-center gap-2 text-sm font-semibold text-white px-5 py-3 rounded-xl" style="background:var(--crimson)">
+            <span class="material-symbols-rounded" style="font-size:16px">edit_note</span>
+            Apply Now
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero-bg py-16 md:py-24">
+      <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 relative z-10">
+        <a href="{% url 'index' %}" class="back-link mb-6 inline-flex a1">
+          <span class="material-symbols-rounded" style="font-size:16px">arrow_back</span>
+          Back to Home
+        </a>
+        <div class="flex items-start gap-6 mt-4">
+          <!-- Logo -->
+          <div class="hidden sm:block">
+            {% if program.logo %}
+            <img src="{{ program.logo }}" alt="{{ program.name }}" style="width:80px;height:80px;border-radius:16px;object-fit:contain;background:rgba(255,255,255,.12);padding:8px;" />
+            {% else %}
+            <div style="width:80px;height:80px;border-radius:16px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;">
+              <span class="material-symbols-rounded" style="font-size:40px;color:rgba(255,255,255,.8)">school</span>
+            </div>
+            {% endif %}
+          </div>
+          <div>
+            <!-- Badges row -->
+            <div class="flex flex-wrap items-center gap-2 mb-3 a1">
+              {% if program.level == 'masters' %}
+              <span class="level-badge level-masters">Master's</span>
+              {% elif program.level == 'doctoral' %}
+              <span class="level-badge level-doctoral">Doctoral</span>
+              {% elif program.level == 'certificate' %}
+              <span class="level-badge level-cert">Certificate</span>
+              {% endif %}
+              {% if program.hero_badge %}
+              <span style="font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);">— {{ program.hero_badge }}</span>
+              {% endif %}
+            </div>
+            <!-- Program name -->
+            <h1 class="a2" style="font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;line-height:1.1;">
+              {{ program.name }}
+            </h1>
+            {% if program.degree %}
+            <div class="a2" style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--gold-light);letter-spacing:.1em;text-transform:uppercase;margin-top:6px;">
+              {{ program.degree }}
+            </div>
+            {% endif %}
+            {% if program.hero_tagline %}
+            <p class="a3" style="max-width:560px;color:rgba(255,255,255,.75);font-size:.95rem;line-height:1.65;margin-top:14px;">
+              {{ program.hero_tagline }}
+            </p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Stats row -->
+        {% if program.stats %}
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-10 a3">
+          {% for stat in program.stats %}
+          {% if stat.stat_value or stat.stat_label %}
+          <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:14px 18px;backdrop-filter:blur(4px);">
+            <div style="font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:#fff;line-height:1;">{{ stat.stat_value }}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:4px;">{{ stat.stat_label }}</div>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid lg:grid-cols-3 gap-8">
+
+        <!-- Left: Program Info Card -->
+        <aside class="lg:col-span-1">
+          <div class="info-card mb-6">
+            <div style="padding:14px 18px;border-bottom:1px solid #f0ece5;background:var(--slate);">
+              <p style="font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:#a89a8a;">Program Info</p>
+            </div>
+            {% if program.institution %}
+            <div class="info-row">
+              <div class="info-icon"><span class="material-symbols-rounded">account_balance</span></div>
+              <div>
+                <div class="info-label">Institution</div>
+                <div class="info-val">{{ program.institution }}</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if program.dept %}
+            <div class="info-row">
+              <div class="info-icon"><span class="material-symbols-rounded">domain</span></div>
+              <div>
+                <div class="info-label">Department</div>
+                <div class="info-val">{{ program.dept }}</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if program.copc %}
+            <div class="info-row">
+              <div class="info-icon"><span class="material-symbols-rounded">verified</span></div>
+              <div>
+                <div class="info-label">COPC No.</div>
+                <div class="info-val">{{ program.copc }}</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if program.eff_year %}
+            <div class="info-row">
+              <div class="info-icon"><span class="material-symbols-rounded">calendar_today</span></div>
+              <div>
+                <div class="info-label">Effective Year</div>
+                <div class="info-val">{{ program.eff_year }}</div>
+              </div>
+            </div>
+            {% endif %}
+            {% if program.accreditor %}
+            <div class="info-row">
+              <div class="info-icon"><span class="material-symbols-rounded">workspace_premium</span></div>
+              <div>
+                <div class="info-label">Accreditor</div>
+                <div class="info-val">{{ program.accreditor }}</div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- CHED Authorization -->
+          {% if program.ched_title or program.ched_body %}
+          <div class="ched-box">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+              <span class="material-symbols-rounded" style="color:#8a6510;font-size:20px">verified_user</span>
+              <span style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#5a3d00;">
+                {% if program.ched_title %}{{ program.ched_title }}{% else %}CHED Authorization{% endif %}
+              </span>
+            </div>
+            {% if program.ched_body %}
+            <p style="font-size:.82rem;color:#7a5800;line-height:1.65;">{{ program.ched_body }}</p>
+            {% endif %}
+          </div>
+          {% endif %}
+        </aside>
+
+        <!-- Right: Tabs panel -->
+        <div class="lg:col-span-2">
+          <!-- Description -->
+          {% if program.description %}
+          <div class="mb-8">
+            <div class="gold-divider mb-3"></div>
+            <p class="eyebrow mb-2">About This Program</p>
+            <p style="font-size:.92rem;color:#3a3a3a;line-height:1.75;max-width:640px;">{{ program.description }}</p>
+          </div>
+          {% endif %}
+
+          <!-- Tabs -->
+          <div style="background:#fff;border:1px solid #ede8e0;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04);">
+            <div class="tab-bar">
+              {% if program.curriculum %}
+              <button class="tab-btn active" data-tab="curriculum">
+                <span class="material-symbols-rounded" style="font-size:16px;display:block;margin-bottom:3px">menu_book</span>
+                Curriculum
+              </button>
+              {% endif %}
+              {% if program.outcomes %}
+              <button class="tab-btn{% if not program.curriculum %} active{% endif %}" data-tab="outcomes">
+                <span class="material-symbols-rounded" style="font-size:16px;display:block;margin-bottom:3px">emoji_events</span>
+                Outcomes
+              </button>
+              {% endif %}
+              {% if program.objectives %}
+              <button class="tab-btn{% if not program.curriculum and not program.outcomes %} active{% endif %}" data-tab="objectives">
+                <span class="material-symbols-rounded" style="font-size:16px;display:block;margin-bottom:3px">checklist</span>
+                Objectives
+              </button>
+              {% endif %}
+              {% if program.faculty %}
+              <button class="tab-btn{% if not program.curriculum and not program.outcomes and not program.objectives %} active{% endif %}" data-tab="faculty">
+                <span class="material-symbols-rounded" style="font-size:16px;display:block;margin-bottom:3px">groups</span>
+                Faculty
+              </button>
+              {% endif %}
+            </div>
+
+            <!-- Curriculum Tab -->
+            {% if program.curriculum %}
+            <div class="tab-panel active" id="tab-curriculum">
+              {% if program.curriculum %}
+              <div style="overflow-x:auto;">
+                <table class="curr-tbl">
+                  <thead>
+                    <tr>
+                      <th>Code</th>
+                      <th>Course Title</th>
+                      <th class="text-center">Units</th>
+                      <th class="text-center">Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for course in program.curriculum %}
+                    <tr>
+                      <td class="c-code">{{ course.code|default:"—" }}</td>
+                      <td>{{ course.title|default:"—" }}</td>
+                      <td class="c-units">{{ course.units|default:"0" }}</td>
+                      <td class="c-type">
+                        {% if course.type == 'core' %}
+                        <span class="type-badge type-core">Core</span>
+                        {% elif course.type == 'spec' %}
+                        <span class="type-badge type-spec">Specialization</span>
+                        {% elif course.type == 'cap' %}
+                        <span class="type-badge type-cap">Capstone</span>
+                        {% else %}
+                        <span class="type-badge type-core">{{ course.type|default:"Core" }}</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                  {% if curriculum_total_units > 0 %}
+                  <tfoot>
+                    <tr class="curr-foot">
+                      <td colspan="2" style="font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.06em;">Total Units</td>
+                      <td class="c-units">{{ curriculum_total_units }}</td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                  {% endif %}
+                </table>
+              </div>
+              {% else %}
+              <p style="color:#a89a8a;font-size:.82rem;padding:12px;">No curriculum data added yet.</p>
+              {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Outcomes Tab -->
+            {% if program.outcomes %}
+            <div class="tab-panel{% if not program.curriculum %} active{% endif %}" id="tab-outcomes">
+              <div class="grid sm:grid-cols-2 gap-4">
+                {% for outcome in program.outcomes %}
+                <div class="outcome-card">
+                  <div class="outcome-icon">
+                    <span class="material-symbols-rounded">{{ outcome.icon|default:"emoji_events" }}</span>
+                  </div>
+                  <div class="outcome-title">{{ outcome.title }}</div>
+                  {% if outcome.description %}
+                  <div class="outcome-desc">{{ outcome.description }}</div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Objectives Tab -->
+            {% if program.objectives %}
+            <div class="tab-panel{% if not program.curriculum and not program.outcomes %} active{% endif %}" id="tab-objectives">
+              <div class="space-y-3">
+                {% for obj in program.objectives %}
+                <div class="obj-item">
+                  <div class="obj-num">{{ forloop.counter }}</div>
+                  <div class="obj-text">{{ obj.text }}</div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Faculty Tab -->
+            {% if program.faculty %}
+            <div class="tab-panel{% if not program.curriculum and not program.outcomes and not program.objectives %} active{% endif %}" id="tab-faculty">
+              <div class="grid sm:grid-cols-2 gap-4">
+                {% for member in program.faculty %}
+                <div class="faculty-card">
+                  <div style="padding:18px 20px;">
+                    <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+                      {% if member.photo %}
+                      <img src="{{ member.photo }}" alt="{{ member.name }}" class="faculty-photo" />
+                      {% else %}
+                      <div class="faculty-avatar">{{ member.name|slice:":1"|upper }}</div>
+                      {% endif %}
+                      <div>
+                        <div style="font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;">{{ member.name }}</div>
+                        {% if member.role %}
+                        <div style="font-size:.75rem;color:#7a6a5a;margin-top:2px;">{{ member.role }}</div>
+                        {% endif %}
+                      </div>
+                    </div>
+                    {% if member.bio %}
+                    <p style="font-size:.8rem;color:#4a4a4a;line-height:1.6;margin-bottom:10px;">{{ member.bio }}</p>
+                    {% endif %}
+                    {% if member.tags %}
+                    <div>
+                      {% for tag in member.tags %}
+                      {% if tag %}
+                      <span class="faculty-tag">{{ tag }}</span>
+                      {% endif %}
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Empty state if no tabs -->
+            {% if not program.curriculum and not program.outcomes and not program.objectives and not program.faculty %}
+            <div style="padding:40px;text-align:center;color:#a89a8a;">
+              <span class="material-symbols-rounded" style="font-size:40px;display:block;margin-bottom:12px;opacity:.4">info</span>
+              <p style="font-size:.85rem;">Program details will be available soon.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer style="background:#1a0708;color:rgba(255,255,255,.6);padding:32px 0;margin-top:48px;">
+      <div class="max-w-7xl mx-auto px-6 text-center">
+        <p style="font-size:.78rem;">© {% now "Y" %} {{ cms.site_name|default:"MIT Program" }} · WMSU College of Computing Studies · All rights reserved.</p>
+        <a href="{% url 'index' %}" style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);text-decoration:none;transition:color .15s;" onmouseover="this.style.color='rgba(255,255,255,.8)'" onmouseout="this.style.color='rgba(255,255,255,.4)'">
+          <span class="material-symbols-rounded" style="font-size:14px">arrow_back</span>
+          Back to Homepage
+        </a>
+      </div>
+    </footer>
+
+    <!-- ===== TAILWIND (CDN) ===== -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script>
+      // Tab switching
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabId = btn.dataset.tab;
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          const panel = document.getElementById('tab-' + tabId);
+          if (panel) panel.classList.add('active');
+        });
+      });
+
+      // Mobile menu
+      const menuBtn = document.getElementById('menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const icoOpen = document.getElementById('ico-open');
+      const icoClose = document.getElementById('ico-close');
+      let menuOpen = false;
+      function setMenu(o) {
+        menuOpen = o;
+        mobileMenu.style.maxHeight = o ? mobileMenu.scrollHeight + 'px' : '0';
+        mobileMenu.style.opacity = o ? '1' : '0';
+        icoOpen.classList.toggle('hidden', o);
+        icoClose.classList.toggle('hidden', !o);
+      }
+      menuBtn.addEventListener('click', () => setMenu(!menuOpen));
+
+      // Mobile accordion
+      document.querySelectorAll('[data-acc]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = 'acc-' + btn.dataset.acc;
+          const panel = document.getElementById(id);
+          const chev = btn.querySelector('.mob-chevron');
+          const open = panel.classList.toggle('hidden');
+          if (chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+          if (menuOpen) {
+            mobileMenu.style.maxHeight = 'none';
+            requestAnimationFrame(() => {
+              mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

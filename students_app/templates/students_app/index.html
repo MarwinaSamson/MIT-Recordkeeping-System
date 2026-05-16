@@ -1459,7 +1459,7 @@
                 <div class="panel-arrow"></div>
                 <p class="panel-label">Our Graduate Programs</p>
                 {% for prog in cms.programs %}{% if prog.visible %}
-                <a href="#requirements" class="prog-row">
+                <a href="{% if prog.slug %}{% url 'program_detail' prog.slug %}{% else %}#requirements{% endif %}" class="prog-row">
                   <div class="prog-icon">
                     <span class="material-symbols-rounded">school</span>
                   </div>
@@ -1601,6 +1601,51 @@
             >
             Requirements
           </a>
+          <!-- Programs accordion -->
+          {% if cms.programs %}
+          <div>
+            <button
+              data-acc="programs"
+              class="w-full flex justify-between items-center px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              <span class="flex items-center gap-2.5">
+                <span
+                  class="material-symbols-rounded"
+                  style="font-size: 17px; color: var(--crimson)"
+                  >school</span
+                >
+                Programs
+              </span>
+              <span
+                class="material-symbols-rounded mob-chevron"
+                style="font-size: 17px; opacity: 0.4"
+                >expand_more</span
+              >
+            </button>
+            <div
+              id="acc-programs"
+              class="hidden pl-4 pb-1 flex flex-col gap-0.5"
+            >
+              {% for prog in cms.programs %}{% if prog.visible %}
+              <a
+                href="{% if prog.slug %}{% url 'program_detail' prog.slug %}{% else %}#requirements{% endif %}"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+              >
+                <span
+                  class="material-symbols-rounded"
+                  style="font-size: 17px; color: var(--crimson)"
+                  >school</span
+                >
+                <div>
+                  <p class="font-semibold text-xs">{{ prog.name }}</p>
+                  <p class="text-[10px] text-slate-400">{{ prog.degree }}</p>
+                </div>
+              </a>
+              {% endif %}{% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
           <!-- Downloads accordion -->
           <div>
             <button
