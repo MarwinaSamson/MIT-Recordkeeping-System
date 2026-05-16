@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from admin_app.models import CMSSettings, Faculty
+from django.utils import timezone
+from admin_app.models import CMSSettings, Faculty, Application, SchoolYear
 
 
 def _course_units_from_dict(course):
@@ -13,15 +14,39 @@ def _course_units_from_dict(course):
 
 
 def index(request):
-
-    # Get CMS settings for the homepage
     cms = CMSSettings.objects.filter(pk=1).first()
     if not cms:
         cms = CMSSettings(pk=1)
         cms.save()
 
+    # ── Featured event slides only (non-featured hidden on landing page) ──────
+    all_slides = cms.event_slides or []
+    featured_slides = [s for s in all_slides if s.get('featured', False)]
+    # Fallback: show all if none are marked featured
+    event_slides = featured_slides if featured_slides else all_slides
+
+    # ── Dynamic enrollment count from the database ────────────────────────────
+    active_sy = SchoolYear.objects.filter(is_active=True).first()
+    if active_sy:
+        enrollment_count = Application.objects.filter(
+            year_admitted=active_sy.name,
+            status='verified'
+        ).count()
+    else:
+        enrollment_count = Application.objects.filter(status='verified').count()
+
+    # ── Admissions open/closed based on enrollment dates ─────────────────────
+    today = timezone.localdate()
+    if cms.enrollment_start_date and cms.enrollment_end_date:
+        admissions_active = cms.enrollment_start_date <= today <= cms.enrollment_end_date
+    else:
+        admissions_active = cms.admissions_open
+
     context = {
-        'cms': cms
+        'cms': cms,
+        'event_slides': event_slides,
+        'enrollment_count': enrollment_count,
+        'admissions_active': admissions_active,
     }
     return render(request, "students_app/index.html", context)
 

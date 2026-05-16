@@ -860,6 +860,7 @@
                 <div>
                   <label class="lbl">Hero Background Image</label>
                   <div
+                    id="heroImageDropzone"
                     class="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center justify-center p-8 cursor-pointer hover:border-red-300 hover:bg-red-50 transition"
                     onclick="document.getElementById('heroImageInput').click()"
                   >
@@ -878,6 +879,7 @@
                       id="heroImageInput"
                       accept="image/*"
                       class="hidden"
+                      onchange="uploadHeroImage(this)"
                     />
                   </div>
                 </div>
@@ -1155,6 +1157,7 @@
               <div
                 class="cms-card event-slide-row"
                 data-idx="{{ forloop.counter }}"
+                data-image-url="{{ evt.image_url|default:'' }}"
               >
                 <div class="flex items-center justify-between mb-4">
                   <div class="flex items-center gap-3">
@@ -1193,12 +1196,11 @@
                         type="file"
                         accept="image/*"
                         class="hidden evt-slide-img"
+                        onchange="uploadEventSlideImage(this)"
                       />
                     </div>
                     {% if evt.image_url %}
-                    <p class="text-xs text-gray-400 mt-2 truncate">
-                      Current: {{ evt.image_url }}
-                    </p>
+                    <p class="text-xs text-green-600 mt-2 truncate font-medium">✓ Image set</p>
                     {% endif %}
                   </div>
                   <div class="space-y-3">
@@ -1287,7 +1289,7 @@
               </div>
               {% empty %}
               <!-- Default blank slide -->
-              <div class="cms-card event-slide-row" data-idx="1">
+              <div class="cms-card event-slide-row" data-idx="1" data-image-url="">
                 <div class="flex items-center justify-between mb-4">
                   <div class="flex items-center gap-3">
                     <span
@@ -1325,6 +1327,7 @@
                         type="file"
                         accept="image/*"
                         class="hidden evt-slide-img"
+                        onchange="uploadEventSlideImage(this)"
                       />
                     </div>
                   </div>
@@ -1629,7 +1632,7 @@
                       class="font-bold text-red-700"
                       style="font-family: monospace"
                     >
-                      {{ evt.month }}/{{ evt.day }}
+                      {{ evt.month }}/{{ evt.day }}{% if evt.day_to %}–{{ evt.day_to }}{% endif %}
                     </td>
                     <td class="font-semibold">{{ evt.title }}</td>
                     <td>
@@ -1727,7 +1730,7 @@
                     placeholder="e.g. MIT New Student Orientation"
                   />
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-3 gap-4">
                   <div>
                     <label class="lbl"
                       >Month <span class="lbl-hint">(1–12)</span></label
@@ -1748,14 +1751,25 @@
                     </select>
                   </div>
                   <div>
-                    <label class="lbl">Day</label>
+                    <label class="lbl">Day From</label>
                     <input
                       type="number"
                       id="calEvtDay"
                       class="field"
                       min="1"
                       max="31"
-                      placeholder="e.g. 12"
+                      placeholder="e.g. 20"
+                    />
+                  </div>
+                  <div>
+                    <label class="lbl">Day To <span class="lbl-hint">(optional)</span></label>
+                    <input
+                      type="number"
+                      id="calEvtDayTo"
+                      class="field"
+                      min="1"
+                      max="31"
+                      placeholder="e.g. 25"
                     />
                   </div>
                 </div>
@@ -2604,7 +2618,43 @@ Certified true copy from your institution</textarea
               </div>
             </div>
 
-            <div class="flex justify-end">
+            <!-- ── Enrollment Date Range ── -->
+            <div class="cms-card mt-4">
+              <p class="cms-card-title">
+                <i data-lucide="calendar-range" class="w-4 h-4 text-red-700"></i>
+                Enrollment Date Range
+              </p>
+              <p class="cms-card-subtitle">
+                When set, the <strong>Apply Now</strong> button is automatically enabled only within
+                this date range. Leave blank to use the manual toggle above.
+              </p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label class="lbl">Enrollment Start Date</label>
+                  <input
+                    type="date"
+                    id="enrollmentStartDate"
+                    value="{{ cms.enrollment_start_date|date:'Y-m-d'|default:'' }}"
+                    class="field"
+                  />
+                </div>
+                <div>
+                  <label class="lbl">Enrollment End Date</label>
+                  <input
+                    type="date"
+                    id="enrollmentEndDate"
+                    value="{{ cms.enrollment_end_date|date:'Y-m-d'|default:'' }}"
+                    class="field"
+                  />
+                </div>
+              </div>
+              <p class="text-xs text-gray-400 mt-2">
+                Current enrolled count (pulled from DB):
+                <strong id="liveEnrollmentCount">—</strong>
+              </p>
+            </div>
+
+            <div class="flex justify-end mt-4">
               <button
                 onclick="saveApplicationWindowSettings()"
                 class="btn-primary"
@@ -4516,80 +4566,10 @@ Develop students' capacity to conduct both technical and statistical research, c
           <div class="flex flex-wrap gap-2 mb-6">
             <button
               class="cms-tab"
-              onclick="switchOthersTab('requirements', this)"
-            >
-              <i data-lucide="calendar-check"></i> Document Requirements
-            </button>
-            <button
-              class="cms-tab"
               onclick="switchOthersTab('curriculumStruct', this)"
             >
               <i data-lucide="calendar-check"></i> Curriculum Structure
             </button>
-          </div>
-
-          <!-- Document Requirements -->
-          <div id="others-requirements" class="others-panel hidden">
-            <div class="cms-card">
-              <div class="flex items-center justify-between mb-4">
-                <p class="cms-card-title">
-                  <i
-                    data-lucide="calendar-check"
-                    class="w-4 h-4 text-red-700"
-                  ></i>
-                  Document Requirements
-                </p>
-                <div class="flex items-center gap-3">
-                  <select
-                    id="othersRequirementYearFilter"
-                    class="field"
-                    style="width: 160px; height: 36px; padding: 6px 12px"
-                  >
-                    <option>2027-2028</option>
-                    <option>2026-2027</option>
-                    <option>2025-2026</option>
-                  </select>
-                  <div class="search-box">
-                    <i data-lucide="search"></i
-                    ><input
-                      id="othersRequirementsSearch"
-                      type="text"
-                      placeholder="Search requirements..."
-                    />
-                  </div>
-                  <button
-                    id="addRequirementTypeBtn"
-                    class="btn-primary"
-                    type="button"
-                  >
-                    <i data-lucide="plus"></i> Add Requirement
-                  </button>
-                </div>
-              </div>
-              <table class="cms-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Type</th>
-                    <th>Formats</th>
-                    <th>Max Size (MB)</th>
-                    <th>Active</th>
-                    <th>Order</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="otherRequirementsTableBody">
-                  <tr>
-                    <td
-                      colspan="7"
-                      class="text-center text-gray-400 py-8 text-sm"
-                    >
-                      No requirements found.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
           </div>
 
           <!-- Curriculum Structure -->
@@ -5168,6 +5148,46 @@ Develop students' capacity to conduct both technical and statistical research, c
           if (lbl) lbl.textContent = "Event Slide " + (i + 1);
         });
       }
+      function uploadEventSlideImage(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const row = input.closest(".event-slide-row");
+        const dropzone = input.closest(".border-2");
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("field", "event_image");
+        fetch("/admin-panel/api/cms/upload-file/", {
+          method: "POST",
+          headers: { "X-CSRFToken": getCSRFToken() },
+          body: formData,
+        })
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.success) {
+              row.dataset.imageUrl = d.data.url;
+              if (dropzone) {
+                dropzone.style.backgroundImage = `url(${d.data.url})`;
+                dropzone.style.backgroundSize = "cover";
+                dropzone.style.backgroundPosition = "center";
+                const icon = dropzone.querySelector("i");
+                if (icon) icon.style.display = "none";
+                dropzone.querySelectorAll("p").forEach((p) => (p.style.display = "none"));
+                if (!dropzone.querySelector(".evt-img-ok")) {
+                  const ok = document.createElement("span");
+                  ok.className = "evt-img-ok text-white text-xs font-semibold drop-shadow";
+                  ok.textContent = "✓ Image uploaded";
+                  dropzone.appendChild(ok);
+                }
+              }
+              showCmsToast("Event image uploaded!", "success");
+            } else {
+              showCmsToast("Upload failed: " + (d.message || "Unknown error"), "error");
+            }
+          })
+          .catch(() => showCmsToast("Network error uploading event image.", "error"))
+          .finally(() => { input.value = ""; });
+      }
+
       function saveEventSlides() {
         const slides = [];
         document.querySelectorAll(".event-slide-row").forEach((row) => {
@@ -5179,6 +5199,7 @@ Develop students' capacity to conduct both technical and statistical research, c
             venue: row.querySelector(".evt-venue")?.value || "",
             desc: row.querySelector(".evt-desc")?.value || "",
             audience: row.querySelector(".evt-audience")?.value || "",
+            image_url: row.dataset.imageUrl || "",
             featured:
               row
                 .querySelector(".evt-featured-toggle")
@@ -5223,6 +5244,7 @@ Develop students' capacity to conduct both technical and statistical research, c
               ].forEach((id) => (document.getElementById(id).value = ""));
               document.getElementById("calEvtMonth").value = "7";
               document.getElementById("calEvtDay").value = "";
+              document.getElementById("calEvtDayTo").value = "";
               document.getElementById("calEvtType").value = "cr";
               // Reset attachments
               _calAttachments = [];
@@ -5453,7 +5475,7 @@ Develop students' capacity to conduct both technical and statistical research, c
               const tagLabel = evt.tag ? `<span style="background: ${style.bg}; color: ${style.color}" class="text-xs font-bold px-2 py-0.5 rounded-full">${evt.tag}</span>` : "";
               return `
                   <tr data-evt-id="${evt.id}" data-month="${evt.month}" data-type="${evt.type}">
-                    <td class="font-bold text-red-700" style="font-family: monospace">${evt.month}/${evt.day}</td>
+                    <td class="font-bold text-red-700" style="font-family: monospace">${evt.month}/${evt.day}${evt.day_to ? '–' + evt.day_to : ''}</td>
                     <td class="font-semibold">${evt.title}</td>
                     <td>${tagLabel}</td>
                     <td class="text-gray-500 text-xs" style="font-family: monospace">${evt.time || ""}</td>
@@ -5496,6 +5518,7 @@ Develop students' capacity to conduct both technical and statistical research, c
               document.getElementById("calEvtTitle").value = evt.title || "";
               document.getElementById("calEvtMonth").value = String(evt.month || "1");
               document.getElementById("calEvtDay").value = String(evt.day || "1");
+              document.getElementById("calEvtDayTo").value = evt.day_to ? String(evt.day_to) : "";
               document.getElementById("calEvtType").value = evt.type || "cr";
               document.getElementById("calEvtTag").value = evt.tag || "";
               document.getElementById("calEvtTime").value = evt.time || "";
@@ -5524,11 +5547,13 @@ Develop students' capacity to conduct both technical and statistical research, c
             }
             function saveCalendarEvent() {
               const id = document.getElementById("calEvtId").value;
+              const dayToRaw = document.getElementById("calEvtDayTo").value;
               const data = {
                 id: id || null,
                 title: document.getElementById("calEvtTitle").value,
                 month: parseInt(document.getElementById("calEvtMonth").value),
                 day: parseInt(document.getElementById("calEvtDay").value),
+                day_to: dayToRaw ? parseInt(dayToRaw) : null,
                 type: document.getElementById("calEvtType").value,
                 tag: document.getElementById("calEvtTag").value,
                 time: document.getElementById("calEvtTime").value,
@@ -6173,6 +6198,8 @@ Develop students' capacity to conduct both technical and statistical research, c
                 app_stat_label2: document.getElementById("appStatLabel2").value,
                 cta_heading: document.getElementById("ctaHeading").value,
                 cta_sublabel: document.getElementById("ctaSubLabel").value,
+                enrollment_start_date: document.getElementById("enrollmentStartDate").value || null,
+                enrollment_end_date: document.getElementById("enrollmentEndDate").value || null,
               };
               fetch("/admin-panel/api/cms/update/", {
                 method: "POST",
@@ -7016,10 +7043,15 @@ Develop students' capacity to conduct both technical and statistical research, c
                           </div>
                           <div style="display:flex;gap:10px;justify-content:flex-end;">
                               <button onclick="bulkCancelUpload('${section}')" style="padding:8px 18px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:0.82rem;font-weight:600;color:#6b7280;background:#fff;cursor:pointer;">Cancel</button>
-                              <button onclick="bulkConfirmUpload('${section}', ${JSON.stringify(rows).replace(/'/g, "\\'")})" class="btn-primary" style="padding:8px 22px;">
+                              <button onclick="bulkConfirmUpload('${section}')" class="btn-primary" style="padding:8px 22px;">
                                   <i data-lucide="upload-cloud"></i> Import ${rows.length} ${schema.label}
                               </button>
                           </div>`;
+
+                // Store rows in a global variable so the Import button can access them
+                // without embedding JSON in an HTML attribute (which breaks on double-quotes).
+                window._bulkStagedData = window._bulkStagedData || {};
+                window._bulkStagedData[section] = rows;
 
                 previewEl.innerHTML = tableHtml;
                 previewEl.style.display = "block";
@@ -7067,10 +7099,16 @@ Develop students' capacity to conduct both technical and statistical research, c
               document.getElementById(s.preview).style.display = "none";
               const inp = document.getElementById(s.input);
               if (inp) inp.value = "";
+              if (window._bulkStagedData) delete window._bulkStagedData[section];
             }
 
             /* ── Confirm: POST to backend and update live list ── */
-            function bulkConfirmUpload(section, rows) {
+            function bulkConfirmUpload(section) {
+              const rows = (window._bulkStagedData || {})[section] || [];
+              if (!rows.length) {
+                showCmsToast("No data to import.", "error");
+                return;
+              }
               const modeEl = document.querySelector(
                 `input[name="bulkMode_${section}"]:checked`,
               );
@@ -7086,13 +7124,16 @@ Develop students' capacity to conduct both technical and statistical research, c
               })
                 .then((r) => r.json())
                 .then((d) => {
-                  showCmsToast(
-                    d.message ||
-                      `${BULK_SCHEMAS[section].label} imported successfully!`,
-                  );
-                  bulkCancelUpload(section);
-                  // Live-update the DOM lists so the admin sees the changes immediately
-                  bulkApplyToDOM(section, rows, mode);
+                  if (d.success) {
+                    showCmsToast(
+                      d.message ||
+                        `${BULK_SCHEMAS[section].label} imported successfully!`,
+                    );
+                    bulkCancelUpload(section);
+                    bulkApplyToDOM(section, rows, mode);
+                  } else {
+                    showCmsToast("Error: " + (d.message || "Import failed."), "error");
+                  }
                 })
                 .catch(() =>
                   showCmsToast("Import failed. Please try again.", "error"),

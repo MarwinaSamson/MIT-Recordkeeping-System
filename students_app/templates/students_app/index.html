@@ -1347,7 +1347,7 @@
           >{{ cms.announcements.0.text }}</span
         >
       </div>
-      {% if cms.admissions_open %}
+      {% if admissions_active %}
       <a
         href="{% url 'login' %}"
         class="ml-2 underline underline-offset-2 font-bold hover:text-yellow-200 transition-colors whitespace-nowrap"
@@ -1679,7 +1679,7 @@
       class="relative h-screen flex items-center overflow-hidden"
     >
       <img
-        src="{% static 'assets/WMSU.jpg' %}"
+        src="{% if cms.hero_bg_image_url %}{{ cms.hero_bg_image_url }}{% else %}{% static 'assets/WMSU.jpg' %}{% endif %}"
         class="absolute w-full h-full object-cover"
         alt="WMSU Campus"
       />
@@ -1736,7 +1736,7 @@
             {{ cms.hero_tagline }}
           </p>
           <div class="flex flex-col sm:flex-row gap-3 fu d4">
-            {% if cms.admissions_open %}
+            {% if admissions_active %}
             <a
               href="{% url 'login' %}"
               class="inline-flex items-center justify-center gap-2 font-semibold px-8 py-3.5 rounded-xl text-sm shadow-lg transition-all"
@@ -1834,7 +1834,7 @@
         <div class="carousel-outer">
           <div class="carousel-track-wrap">
             <div class="carousel-track" id="evt-track">
-              {% for evt in cms.event_slides %}
+              {% for evt in event_slides %}
               <div
                 class="carousel-slide{% if forloop.first %} is-active{% endif %}"
               >
@@ -1945,7 +1945,7 @@
         </div>
 
         <div class="carousel-dots" id="evt-dots">
-          {% for evt in cms.event_slides %}
+          {% for evt in event_slides %}
           <button
             class="carousel-dot{% if forloop.first %} active{% endif %}"
             data-idx="{{ forloop.counter0 }}"
@@ -2133,7 +2133,7 @@
               </li>
               {% endfor %}
             </ul>
-            {% if cms.admissions_open %}
+            {% if admissions_active %}
             <a
               href="{% url 'login' %}"
               class="inline-flex items-center gap-2 mt-7 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-md transition-all"
@@ -2258,7 +2258,7 @@
                     font-family: &quot;Playfair Display&quot;, serif;
                   "
                 >
-                  {{ cms.app_stat_val2 }}
+                  {{ enrollment_count }}
                 </p>
                 <p
                   class="text-[10px] text-slate-400 mt-1 uppercase tracking-wide"
@@ -2389,7 +2389,7 @@
                 {{ cms.cta_sublabel }}
               </p>
             </div>
-            {% if cms.admissions_open %}
+            {% if admissions_active %}
             <a
               href="{% url 'login' %}"
               class="shrink-0 inline-flex items-center gap-2 bg-white font-semibold px-7 py-3 rounded-xl text-sm hover:bg-slate-50 transition-all shadow"
@@ -2662,8 +2662,11 @@
           const me = EVENTS.filter((e) => e.month === cur),
             ebd = {};
           me.forEach((e) => {
-            if (!ebd[e.day]) ebd[e.day] = [];
-            ebd[e.day].push(e);
+            const dayEnd = e.day_to || e.day;
+            for (let d = e.day; d <= dayEnd; d++) {
+              if (!ebd[d]) ebd[d] = [];
+              ebd[d].push(e);
+            }
           });
           const td = new Date(),
             isCM = td.getFullYear() === y && td.getMonth() + 1 === cur;
@@ -2702,10 +2705,12 @@
           lb.textContent = `${me.length} event${me.length !== 1 ? "s" : ""} — ${MN[cur - 1]} 2026`;
           l.innerHTML = me.length
             ? me
-                .map(
-                  (e) =>
-                    `<div class="ecard ${TC[e.type].card}" onclick="showEvtDet(${e.id})"><div class="ecard-date"><div class="dn">${String(e.day).padStart(2, "0")}</div><div class="dm">${MNS[e.month - 1]}</div></div><div><div class="etag ${TC[e.type].tag}">${e.tag}</div><div class="ecard-title">${e.title}</div><div class="ecard-time">${e.time}</div></div></div>`,
-                )
+                .map((e) => {
+                  const dayStr = e.day_to
+                    ? `${String(e.day).padStart(2,"0")}–${String(e.day_to).padStart(2,"0")}`
+                    : String(e.day).padStart(2, "0");
+                  return `<div class="ecard ${TC[e.type].card}" onclick="showEvtDet(${e.id})"><div class="ecard-date"><div class="dn">${dayStr}</div><div class="dm">${MNS[e.month - 1]}</div></div><div><div class="etag ${TC[e.type].tag}">${e.tag}</div><div class="ecard-title">${e.title}</div><div class="ecard-time">${e.time}</div></div></div>`;
+                })
                 .join("")
             : `<p style="font-family:var(--mono);font-size:12px;color:#9ca3af;grid-column:1/-1;padding:16px 0;">No scheduled events this month.</p>`;
         }
@@ -2721,8 +2726,9 @@
           tg.className = "etag " + tc.tag;
           tg.textContent = e.tag;
           document.getElementById("detailTitle").textContent = e.title;
-          document.getElementById("detailDate").textContent =
-            `${MN[e.month - 1]} ${e.day}, 2026`;
+          document.getElementById("detailDate").textContent = e.day_to
+            ? `${MN[e.month - 1]} ${e.day}–${e.day_to}, 2026`
+            : `${MN[e.month - 1]} ${e.day}, 2026`;
           document.getElementById("detailTime").textContent = e.time;
           document.getElementById("detailVenue").textContent = e.venue;
           document.getElementById("detailAud").textContent = e.audience;

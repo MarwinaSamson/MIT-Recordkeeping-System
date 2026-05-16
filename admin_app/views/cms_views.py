@@ -19,9 +19,13 @@ import json
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import logout
+from django.utils import timezone
+from datetime import timedelta
 
-from ..models import AdminProfile, CMSSettings
+from ..models import AdminProfile, CMSSettings, AdminActivityLog
 from ..utils import get_activity_log   # reuse existing helper
+
+LOG_RETENTION_DAYS = 90
 
 # Curriculum groups shown on the About page Courses tab — ensures the CMS UI
 # always has selectable groups even on a fresh install (program_curriculum was []).
@@ -68,6 +72,10 @@ def cms_settings(request):
         CMSSettings.objects.filter(pk=cms.pk).update(
             program_curriculum=cms.program_curriculum
         )
+
+    # ── Auto-cleanup: delete activity logs older than retention period ───────
+    cutoff = timezone.now() - timedelta(days=LOG_RETENTION_DAYS)
+    AdminActivityLog.objects.filter(timestamp__lt=cutoff).delete()
 
     # ── Recent activity log (for History Logs tab) ─────────────────────────
     all_activities = get_activity_log(limit=200)

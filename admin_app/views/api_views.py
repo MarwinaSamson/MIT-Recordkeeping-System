@@ -747,6 +747,9 @@ def update_cms_settings(request):
             'cta_heading': str(data.get('cta_heading') or cms.cta_heading or '').strip(),
             'cta_sublabel': str(data.get('cta_sublabel') or cms.cta_sublabel or '').strip(),
             'application_deadline': data.get('application_deadline') or None,
+            'hero_bg_image_url': str(data.get('hero_bg_image_url') or cms.hero_bg_image_url or '').strip(),
+            'enrollment_start_date': data.get('enrollment_start_date') or None,
+            'enrollment_end_date': data.get('enrollment_end_date') or None,
             'contact_address': data.get('contact_address', cms.contact_address).strip(),
             'contact_phone': data.get('contact_phone', cms.contact_phone).strip(),
             'contact_email': data.get('contact_email', cms.contact_email).strip(),
@@ -875,10 +878,15 @@ def update_cms_settings(request):
                     existing_ids = [int(e.get('id', 0)) for e in existing_events if e.get('id') is not None]
                     evt_id = max(existing_ids, default=0) + 1
 
+                day_from = int(raw_calendar_event.get('day', 1))
+                raw_day_to = raw_calendar_event.get('day_to')
+                day_to = int(raw_day_to) if raw_day_to else None
+
                 event = {
                     'id': evt_id,
                     'month': int(raw_calendar_event.get('month', 1)),
-                    'day': int(raw_calendar_event.get('day', 1)),
+                    'day': day_from,
+                    'day_to': day_to,
                     'title': title,
                     'type': str(raw_calendar_event.get('type', 'cr')).strip(),
                     'tag': str(raw_calendar_event.get('tag', '')).strip(),
@@ -1142,7 +1150,7 @@ def bulk_upload_cms_settings(request):
         cms.save()
         AdminActivityLog.objects.create(
             admin=request.user,
-            action='cms_bulk_upload',
+            action='cms_updated',
             notes=f'Bulk uploaded CMS section: {section}'
         )
         return JsonResponse({'success': True, 'message': 'Bulk upload saved.'})
@@ -1154,7 +1162,7 @@ def bulk_upload_cms_settings(request):
 @user_passes_test(is_superuser, login_url='login')
 @require_http_methods(["POST"])
 def upload_cms_file(request):
-    """Upload a file for CMS downloads section."""
+    """Upload a file for CMS. Routes to different folders based on 'field' POST param."""
     try:
         if 'file' not in request.FILES:
             return JsonResponse({
@@ -1163,18 +1171,28 @@ def upload_cms_file(request):
             }, status=400)
 
         file = request.FILES['file']
+        field = request.POST.get('field', '')
 
-        # Validate file size (max 50MB)
-        max_size = 50 * 1024 * 1024
+        # Route to the appropriate upload folder
+        if field == 'hero_bg_image':
+            upload_folder = 'cms/hero'
+            max_size = 10 * 1024 * 1024  # 10 MB
+        elif field == 'event_image':
+            upload_folder = 'cms/events'
+            max_size = 10 * 1024 * 1024  # 10 MB
+        else:
+            upload_folder = 'downloads'
+            max_size = 50 * 1024 * 1024  # 50 MB
+
         if file.size > max_size:
             return JsonResponse({
                 'success': False,
-                'message': 'File size must not exceed 50MB.'
+                'message': f'File size must not exceed {max_size // (1024 * 1024)} MB.'
             }, status=400)
 
-        # Save file to media/downloads
+        # Save file to media/<upload_folder>
         from django.core.files.storage import default_storage
-        file_path = f'downloads/{file.name}'
+        file_path = f'{upload_folder}/{file.name}'
         path = default_storage.save(file_path, file)
         file_url = default_storage.url(path)
 
@@ -1197,6 +1215,25 @@ def upload_cms_file(request):
             'success': False,
             'message': f'Error uploading file: {str(e)}'
         }, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def get_enrollment_count(request):
+    """Return the current verified enrollment count (for CMS Application Window card)."""
+    try:
+        active_sy = SchoolYear.objects.filter(is_active=True).first()
+        if active_sy:
+            count = Application.objects.filter(
+                year_admitted=active_sy.name,
+                status='verified'
+            ).count()
+        else:
+            count = Application.objects.filter(status='verified').count()
+        return JsonResponse({'success': True, 'count': count})
+    except Exception as e:
+        return JsonResponse({'success': False, 'count': 0, 'message': str(e)})
 
 
 # ============== Student Requirement Notification APIs ==============

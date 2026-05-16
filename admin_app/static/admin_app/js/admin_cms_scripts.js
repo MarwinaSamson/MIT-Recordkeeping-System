@@ -207,6 +207,61 @@ function previewSeal(input) {
   reader.readAsDataURL(file);
 }
 
+/** Upload hero background image and save URL to CMS settings */
+async function uploadHeroImage(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  if (file.size > 10 * 1024 * 1024) {
+    showCmsToast('Hero image must be under 10 MB.', 'error');
+    return;
+  }
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('field', 'hero_bg_image');
+
+  const dropzone = document.getElementById('heroImageDropzone');
+  if (dropzone) dropzone.classList.add('opacity-50');
+
+  try {
+    const res = await fetch('/admin-panel/api/cms/upload-file/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCSRFToken() },
+      body: formData,
+    });
+    const data = await res.json();
+    if (data.success) {
+      const url = data.data.url;
+      // Save URL to CMS settings
+      await _postCMS({ hero_bg_image_url: url });
+      // Update preview
+      if (dropzone) {
+        dropzone.style.backgroundImage = `url(${url})`;
+        dropzone.style.backgroundSize = 'cover';
+        dropzone.style.backgroundPosition = 'center';
+        const icon = dropzone.querySelector('i[data-lucide]');
+        if (icon) icon.style.display = 'none';
+        const texts = dropzone.querySelectorAll('p');
+        texts.forEach(p => p.style.display = 'none');
+        let overlay = dropzone.querySelector('.hero-upload-overlay');
+        if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.className = 'hero-upload-overlay';
+          overlay.innerHTML = '<span class="text-white text-xs font-semibold drop-shadow">✓ Hero image uploaded</span>';
+          dropzone.appendChild(overlay);
+        }
+      }
+      showCmsToast('Hero background image uploaded!', 'success');
+    } else {
+      showCmsToast('Upload failed: ' + (data.message || 'Unknown error'), 'error');
+    }
+  } catch {
+    showCmsToast('Network error uploading hero image.', 'error');
+  } finally {
+    if (dropzone) dropzone.classList.remove('opacity-50');
+    input.value = '';
+  }
+}
+
 /** Save programs list settings */
 async function saveProgramsSettings() {
   const programs = [];
@@ -1401,4 +1456,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── The HTML already has active classes set correctly on default tabs ──
   // No JS tab-switching needed on init — CSS classes in the HTML handle it.
   lucide.createIcons();
+
+  // ── Load live enrollment count into the Application Window card ──────────
+  fetch('/admin-panel/api/cms/enrollment-count/')
+    .then(r => r.json())
+    .then(d => {
+      const el = document.getElementById('liveEnrollmentCount');
+      if (el && d.count !== undefined) el.textContent = d.count;
+    })
+    .catch(() => {});
 });

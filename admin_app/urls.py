@@ -19,6 +19,7 @@ from .views.api_views import (
     update_cms_settings,
     bulk_upload_cms_settings,
     upload_cms_file,
+    get_enrollment_count,
     # Student requirement notification APIs
     get_requirement_types,
     create_requirement_type,
@@ -92,6 +93,7 @@ urlpatterns = [
     path('api/cms/update/', update_cms_settings, name='api_update_cms'),
     path('api/cms/bulk-upload/', bulk_upload_cms_settings, name='api_bulk_upload_cms'),
     path('api/cms/upload-file/', upload_cms_file, name='api_upload_cms_file'),
+    path('api/cms/enrollment-count/', get_enrollment_count, name='api_enrollment_count'),
 
     # Student Requirement Notification APIs
     path('api/requirements/types/', get_requirement_types,

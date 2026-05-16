@@ -565,6 +565,22 @@ class CMSSettings(models.Model):
         default="Specialization Units"
     )
     
+    hero_bg_image_url = models.CharField(
+        max_length=500,
+        blank=True,
+        help_text="URL of the uploaded hero section background image"
+    )
+    enrollment_start_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Enrollment period start date. If set, Apply Now is only active between start and end."
+    )
+    enrollment_end_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text="Enrollment period end date."
+    )
+
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
