@@ -398,7 +398,27 @@ def update_cor_submission(request, submission_id):
         submission.status        = status
         submission.admin_remarks = remarks
         submission.save(update_fields=['status', 'admin_remarks'])
- 
+
+        from students_app.models import Notification
+        period = f"{submission.semester} {submission.school_year}".strip()
+        if status == 'Verified':
+            Notification.objects.create(
+                user=submission.user,
+                notification_type='document_verified',
+                title='COR Verified',
+                message=f'Your Certificate of Registration (COR) for {period} has been verified by the administrator.',
+            )
+        elif status == 'Rejected':
+            Notification.objects.create(
+                user=submission.user,
+                notification_type='document_rejected',
+                title='COR Rejected',
+                message=(
+                    f'Your Certificate of Registration (COR) for {period} has been rejected. '
+                    + (f'Remarks: {remarks}' if remarks else 'Please resubmit with the required corrections.')
+                ),
+            )
+
         return JsonResponse({
             'success': True,
             'message': f'COR {status.lower()} successfully.',
@@ -514,6 +534,7 @@ def get_grade_submissions(request):
                     'units':          entry.units,
                     'grade':          float(entry.grade) if entry.grade is not None else None,
                     'remarks':        entry.remarks or '',
+                    'admin_verified': entry.admin_verified,
                 })
 
             submissions.append({
@@ -595,40 +616,36 @@ def update_grade_submission(request, submission_id):
     except Exception as exc:
         logger.exception('Error updating grade submission: %s', exc)
         return JsonResponse({'success': False, 'message': str(exc)}, status=500)
+
+
+@login_required
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(['POST'])
+def update_grade_entry_verification(request):
     """
-    POST /admin-panel/api/grade-submissions/<id>/update/
- 
+    POST /admin-panel/api/grade-entries/verify/
+
     Body (JSON):
-        { "status": "Acknowledged" | "Flagged" | "Pending", "admin_remarks": "..." }
+        { "entry_ids": [1, 2, 3], "submission_id": 5 }
+
+    Marks the given entry IDs as admin_verified=True and all other entries
+    in the same submission as admin_verified=False.
     """
     try:
-        from students_app.models import GradeSubmission  # adjust import path
- 
-        data    = json.loads(request.body)
-        status  = data.get('status', '').strip()
-        remarks = data.get('admin_remarks', '').strip()
- 
-        if status not in ('Acknowledged', 'Flagged', 'Pending'):
-            return JsonResponse(
-                {'success': False, 'message': 'Invalid status value.'}, status=400
-            )
- 
-        submission = GradeSubmission.objects.get(pk=submission_id)
-        submission.status        = status
-        submission.admin_remarks = remarks
-        submission.save(update_fields=['status', 'admin_remarks'])
- 
-        return JsonResponse({
-            'success': True,
-            'message': f'Grades {status.lower()} successfully.',
-        })
- 
-    except ImportError:
-        return JsonResponse(
-            {'success': False, 'message': 'GradeSubmission model not found.'}, status=500
-        )
-    except GradeSubmission.DoesNotExist:
-        return JsonResponse({'success': False, 'message': 'Submission not found.'}, status=404)
+        from students_app.models import GradeEntry
+
+        data = json.loads(request.body)
+        submission_id = data.get('submission_id')
+        verified_ids  = set(data.get('entry_ids', []))
+
+        if not submission_id:
+            return JsonResponse({'success': False, 'message': 'submission_id required.'}, status=400)
+
+        GradeEntry.objects.filter(submission_id=submission_id, id__in=verified_ids).update(admin_verified=True)
+        GradeEntry.objects.filter(submission_id=submission_id).exclude(id__in=verified_ids).update(admin_verified=False)
+
+        return JsonResponse({'success': True, 'message': 'Grade entries updated.'})
+
     except Exception as exc:
-        logger.exception('Error updating grade submission: %s', exc)
+        logger.exception('Error updating grade entry verification: %s', exc)
         return JsonResponse({'success': False, 'message': str(exc)}, status=500)

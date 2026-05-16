@@ -11,7 +11,8 @@
       "Bash(envdaw\\\\Scripts\\\\python.exe manage.py check)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\solis\\\\OneDrive\\\\Desktop\\\\MIT-Recordkeeping-System\" -Force)",
       "Bash(python manage.py makemigrations admin_app --name \"add_cms_hero_enrollment_fields\")",
-      "Bash(python manage.py migrate)"
+      "Bash(python manage.py migrate)",
+      "Bash(.\\\\.venv\\\\Scripts\\\\python.exe manage.py migrate students_app)"
     ]
   }
 }

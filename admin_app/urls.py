@@ -65,6 +65,7 @@ from .views.document_verification import (
         update_cor_submission,
         get_grade_submissions,
         update_grade_submission,
+        update_grade_entry_verification,
     )
 
 app_name = 'admin_app'
@@ -171,6 +172,7 @@ urlpatterns = [
     path('api/cor-submissions/<int:submission_id>/update/', update_cor_submission, name='api_update_cor'),
     path('api/grade-submissions/', get_grade_submissions, name='api_grade_submissions'),
     path('api/grade-submissions/<int:submission_id>/update/', update_grade_submission, name='api_update_grade'),
+    path('api/grade-entries/verify/', update_grade_entry_verification, name='api_verify_grade_entries'),
     
     
     

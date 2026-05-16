@@ -3495,17 +3495,22 @@ function openGradesModal(id) {
     const entries = entriesRaw.filter(e => String(e.semester_label || '').trim() === String(selectedGrade.semester || '').trim());
     const showEntries = entries.length ? entries : entriesRaw;
     if (!showEntries.length) {
-      tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-gray-400 text-sm">No grade entries available.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-gray-400 text-sm">No grade entries available.</td></tr>`;
     } else {
       tbody.innerHTML = showEntries.map(entry => {
         const g   = entry.grade !== null ? parseFloat(entry.grade) : null;
         const cls = g !== null ? (g <= 2.0 ? 'text-green-600 font-bold' : 'text-red-500 font-bold') : 'text-gray-400';
+        const checked = entry.admin_verified ? 'checked' : '';
         return `<tr>
           <td class="px-4 py-3 text-xs font-mono font-semibold text-red-700">${escapeHtml(entry.code  || '—')}</td>
           <td class="px-4 py-3 text-xs text-gray-700">${escapeHtml(entry.title || '—')}</td>
           <td class="px-4 py-3 text-xs text-center font-mono text-gray-600">${entry.units ?? 0}</td>
           <td class="px-4 py-3 text-xs text-center font-mono ${cls}">${g !== null ? g.toFixed(2) : '—'}</td>
           <td class="px-4 py-3 text-xs text-center ${cls}">${g !== null ? (g <= 2.0 ? 'Passed' : 'Failed') : '—'}</td>
+          <td class="px-4 py-3 text-center">
+            <input type="checkbox" data-entry-id="${entry.id}" ${checked}
+              class="grade-entry-verify-cb w-4 h-4 accent-green-600 cursor-pointer rounded" />
+          </td>
         </tr>`;
       }).join('');
     }
@@ -3563,6 +3568,33 @@ function flagGrades() {
     return;
   }
   _updateGradeStatus('Flagged', remarks);
+}
+
+function saveGradeEntryVerifications() {
+  if (!selectedGrade) return;
+  const checkboxes = document.querySelectorAll('.grade-entry-verify-cb');
+  const verifiedIds = Array.from(checkboxes)
+    .filter(cb => cb.checked)
+    .map(cb => parseInt(cb.dataset.entryId, 10));
+
+  fetch('/admin-panel/api/grade-entries/verify/', {
+    method:      'POST',
+    credentials: 'same-origin',
+    headers:     { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+    body:        JSON.stringify({ submission_id: selectedGrade.id, entry_ids: verifiedIds }),
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.success) { showToast('Error: ' + data.message, 'error'); return; }
+    // Update local cache so reopening the modal reflects new state
+    const cached = gradesData.find(g => g.id === selectedGrade.id);
+    if (cached && Array.isArray(cached.grades)) {
+      const verifiedSet = new Set(verifiedIds);
+      cached.grades.forEach(e => { e.admin_verified = verifiedSet.has(e.id); });
+    }
+    showToast('Grade entry verifications saved.', 'success');
+  })
+  .catch(e => showToast('Error: ' + e.message, 'error'));
 }
 
 function _updateGradeStatus(status, remarks) {

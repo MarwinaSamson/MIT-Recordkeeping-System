@@ -173,6 +173,7 @@ class GradeEntry(models.Model):
     grade = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True)
     remarks = models.CharField(max_length=255, blank=True)
     order = models.PositiveIntegerField(default=0)
+    admin_verified = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['order']

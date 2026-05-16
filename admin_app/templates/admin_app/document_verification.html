@@ -1091,31 +1091,6 @@ with: include 'admin_app/document_verification.html'
 
         <!-- Admission Details -->
       </div>
-      <!-- Footer -->
-      <div
-        class="flex flex-wrap gap-3 justify-end px-6 pb-5 pt-2 border-t border-gray-100"
-      >
-        <button
-          onclick="requestResubmission()"
-          class="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition flex items-center gap-2"
-        >
-          <i data-lucide="refresh-ccw" class="w-4 h-4"></i> Request Resubmission
-        </button>
-        <button
-          onclick="markIncomplete()"
-          class="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition flex items-center gap-2"
-        >
-          <i data-lucide="x-circle" class="w-4 h-4 text-red-500"></i> Mark
-          Incomplete
-        </button>
-        <button
-          onclick="markVerified()"
-          class="px-5 py-2 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 transition flex items-center gap-2"
-        >
-          <i data-lucide="check-circle" class="w-4 h-4 text-green-400"></i> Mark
-          as Verified
-        </button>
-      </div>
     </div>
   </div>
 
@@ -1335,12 +1310,17 @@ with: include 'admin_app/document_verification.html'
                   >
                     Remarks
                   </th>
+                  <th
+                    class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide text-center"
+                  >
+                    Verified
+                  </th>
                 </tr>
               </thead>
               <tbody id="gradesMTableBody" class="divide-y divide-gray-50">
                 <tr>
                   <td
-                    colspan="5"
+                    colspan="6"
                     class="px-4 py-6 text-center text-gray-400 text-sm"
                   >
                     No grade entries available.
@@ -1399,6 +1379,12 @@ with: include 'admin_app/document_verification.html'
           class="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition"
         >
           Cancel
+        </button>
+        <button
+          onclick="saveGradeEntryVerifications()"
+          class="px-4 py-2 border border-blue-200 rounded-xl text-sm font-medium text-blue-700 hover:bg-blue-50 transition flex items-center gap-2"
+        >
+          <i data-lucide="save" class="w-4 h-4"></i> Save Verified Entries
         </button>
         <button
           onclick="flagGrades()"
