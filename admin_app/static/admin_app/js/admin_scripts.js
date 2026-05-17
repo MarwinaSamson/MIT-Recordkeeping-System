@@ -26,11 +26,22 @@ function _populateProspectusFilter(list) {
   const sel = document.getElementById('prospectusFilterProgram');
   if (!sel) return;
   const current = sel.value;
-  // Collect unique program names
-  const programs = [...new Set(list.map(p => p.program_name).filter(Boolean))].sort();
-  // Keep the "All Programs" option, rebuild the rest
-  sel.innerHTML = '<option value="">All Programs</option>' +
-    programs.map(n => `<option value="${escapeHtml(n)}"${n === current ? ' selected' : ''}>${escapeHtml(n)}</option>`).join('');
+  // Fetch all programs from backend so every program shows in the filter even without a prospectus
+  fetch('/admin-panel/api/programs/', { credentials: 'same-origin' })
+    .then(r => r.json())
+    .then(res => {
+      sel.innerHTML = '<option value="">All Programs</option>';
+      if (res.success && Array.isArray(res.data)) {
+        res.data.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.name;
+          opt.textContent = p.program_label || p.name;
+          if (p.name === current) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      }
+    })
+    .catch(() => {});
 }
 
 function _renderProspectusCurriculum(p) {
@@ -109,7 +120,7 @@ function renderProspectusPage(){
       const filterVal = (document.getElementById('prospectusFilterProgram') || {}).value || '';
       const filtered = filterVal ? prospectuses.filter(p => p.program_name === filterVal) : prospectuses;
       if(!filtered.length){
-        container.innerHTML = `<div class="text-gray-400 text-sm py-4 text-center">${filterVal ? 'No prospectuses for this program.' : 'No prospectuses created yet.'}</div>`;
+        container.innerHTML = `<div class="text-gray-400 text-sm py-4 text-center">${filterVal ? 'No Prospectus/Curriculum Created for this program.' : 'No prospectuses created yet.'}</div>`;
         return;
       }
       container.innerHTML = filtered.map(p => _renderProspectusCard(p)).join('');
@@ -1405,12 +1416,13 @@ function acceptEnrollApplication(){
   .then(data=>{
     if(data.success){
       selectedApp.remarks = remarks;
-      selectedApp.status = 'Enrolled';
+      selectedApp.status = 'enrolled';
       selectedApp.semester = semester;
       selectedApp.year_admitted = yearAdmitted;
       selectedApp.program_level = programLevel;
       selectedApp.curriculum = curriculum;
       selectedApp.curriculum_data = curriculumData;
+      _updateAppModalButtons();
       showToast(selectedApp.id+" accepted — status set to Enrolled ✓");
       closeModal();
       initializeData(); renderTable(); renderDashboard();
@@ -1439,7 +1451,8 @@ function rejectEnrollApplication(){
   .then(data=>{
     if(data.success){
       selectedApp.remarks=remarks;
-      selectedApp.status="Rejected";
+      selectedApp.status='rejected';
+      _updateAppModalButtons();
       showToast(selectedApp.id+" rejected","warn");
       closeModal();
       initializeData(); renderTable(); renderDashboard();
@@ -3275,10 +3288,43 @@ function openAppDetailsModal() {
   
   // Populate admission details fields (load dropdown options and set values)
   populateAdmissionDetails();
-  
+  _updateAppModalButtons();
+
   modal.style.display = 'flex';
   modal.classList.add('fade-in');
   lucide.createIcons();
+}
+
+function _updateAppModalButtons() {
+  const acceptBtn = document.getElementById('btnAcceptApp');
+  const rejectBtn = document.getElementById('btnRejectApp');
+  if (!acceptBtn || !rejectBtn || !selectedApp) return;
+
+  const status = (selectedApp.status || '').toLowerCase();
+  const isEnrolled = status === 'enrolled';
+  const isRejected = status === 'rejected';
+
+  if (isEnrolled) {
+    acceptBtn.disabled = true;
+    acceptBtn.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4"></i> Application Accepted';
+    acceptBtn.className = 'px-5 py-2.5 bg-green-200 text-green-800 rounded-lg text-sm font-medium cursor-not-allowed flex items-center gap-2 opacity-70';
+    rejectBtn.disabled = true;
+    rejectBtn.className = rejectBtn.className.replace('hover:bg-gray-100', '') + ' opacity-40 cursor-not-allowed';
+  } else if (isRejected) {
+    rejectBtn.disabled = true;
+    rejectBtn.innerHTML = '<i data-lucide="x-circle" class="w-4 h-4 text-red-500"></i> Application Rejected';
+    rejectBtn.className = 'px-5 py-2.5 border border-red-200 rounded-lg text-sm font-medium text-red-400 cursor-not-allowed flex items-center gap-2 opacity-70';
+    acceptBtn.disabled = true;
+    acceptBtn.className = acceptBtn.className.replace('hover:bg-green-700', '') + ' opacity-40 cursor-not-allowed';
+  } else {
+    acceptBtn.disabled = false;
+    acceptBtn.innerHTML = '<i data-lucide="user-check" class="w-4 h-4"></i> Accept Application';
+    acceptBtn.className = 'px-5 py-2.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition flex items-center gap-2';
+    rejectBtn.disabled = false;
+    rejectBtn.innerHTML = '<i data-lucide="x-circle" class="w-4 h-4 text-red-500"></i> Reject Application';
+    rejectBtn.className = 'px-5 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition flex items-center gap-2';
+  }
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function closeAppDetailsModal() {
@@ -3570,9 +3616,7 @@ function openGradesModal(id) {
   // Grade entries table
   const tbody = document.getElementById('gradesMTableBody');
   if (tbody) {
-    const entriesRaw = Array.isArray(selectedGrade.grades) ? selectedGrade.grades : [];
-    const entries = entriesRaw.filter(e => String(e.semester_label || '').trim() === String(selectedGrade.semester || '').trim());
-    const showEntries = entries.length ? entries : entriesRaw;
+    const showEntries = Array.isArray(selectedGrade.grades) ? selectedGrade.grades : [];
     if (!showEntries.length) {
       tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-gray-400 text-sm">No grade entries available.</td></tr>`;
     } else {

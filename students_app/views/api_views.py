@@ -621,12 +621,29 @@ def submit_application(request):
             existing.application_id = app_id
             existing.save()
             application = existing
+            is_new_application = False
         else:
             application = Application.objects.create(
                 user=user, program=program,
                 application_id=app_id, status='pending',
                 last_activity=timezone.now(),
             )
+            is_new_application = True
+
+        # Notify admin of new enrollment application submission
+        if is_new_application:
+            try:
+                from admin_app.models import AdminNotification
+                full_name = user.get_full_name() or user.username
+                AdminNotification.objects.create(
+                    notification_type='enrollment_submitted',
+                    student=user,
+                    title='New Enrollment Application',
+                    message=f"{full_name} submitted a new enrollment application ({application.application_id}).",
+                    related_object_id=application.pk,
+                )
+            except Exception:
+                pass
 
         return JsonResponse({
             'success': True,

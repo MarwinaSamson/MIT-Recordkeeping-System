@@ -439,34 +439,6 @@ def update_cor_submission(request, submission_id):
 # Grades API views
 # ---------------------------------------------------------------------------
  
-def _sem_key(label):
-    s = (label or '').lower().strip()
-    if '1st' in s or 'first' in s:  return '1st'
-    if '2nd' in s or 'second' in s: return '2nd'
-    if 'summer' in s:               return 'summer'
-    return s
-
-def _year_key(label):
-    """
-    Extract year number from labels like:
-      'First Year', 'Second Year', 'Year 1', 'Year 2', '1st Year', '2nd Year'
-    Returns a string digit: '1', '2', '3', etc.
-    """
-    import re
-    s = (label or '').lower().strip()
-
-    # Written-out ordinals / cardinals
-    word_map = {
-        'first':  '1', 'second': '2', 'third': '3',
-        'fourth': '4', 'fifth':  '5', 'sixth': '6',
-    }
-    for word, num in word_map.items():
-        if word in s:
-            return num
-
-    # Numeric: '1st', '2nd', 'Year 1', etc.
-    m = re.search(r'\d+', s)
-    return m.group() if m else ''
 
 
 @login_required
@@ -475,14 +447,6 @@ def _year_key(label):
 def get_grade_submissions(request):
     try:
         from students_app.models import GradeSubmission
-
-        def _calc_year_level(admitted, current):
-            try:
-                admitted_start = int(admitted.split('-')[0])
-                current_start  = int(current.split('-')[0])
-                return str(current_start - admitted_start + 1)
-            except Exception:
-                return ''
 
         submissions = []
         for s in GradeSubmission.objects.select_related('user').order_by('-uploaded_at'):
@@ -494,37 +458,8 @@ def get_grade_submissions(request):
                 program_choices = dict(Application.PROGRAM_CHOICES)
                 program_name = program_choices.get(app.program, app.program)
 
-            # Determine which prospectus year level the active school year maps to
-            active_sem_key      = _sem_key(s.semester)
-            active_sy           = (s.school_year or '').strip()
-            admitted_sy         = (app.year_admitted or '').strip() if app else ''
-            expected_year_level = _calc_year_level(admitted_sy, active_sy)
-
-            # DEBUG — remove once confirmed working
-            logger.debug(
-                'GRADE FILTER | user=%s admitted_sy=%r active_sy=%r '
-                'expected_year=%r active_sem=%r',
-                s.user.email, admitted_sy, active_sy,
-                expected_year_level, active_sem_key,
-            )
-
             grades = []
             for entry in s.gradeentry_set.all().order_by('order'):
-                entry_year_key = _year_key(entry.year_label)
-                entry_sem_key  = _sem_key(entry.semester_label)
-
-                # DEBUG — remove once confirmed working
-                logger.debug(
-                    '  entry year_label=%r → %r | sem_label=%r → %r',
-                    entry.year_label, entry_year_key,
-                    entry.semester_label, entry_sem_key,
-                )
-
-                if active_sem_key and entry_sem_key != active_sem_key:
-                    continue
-                if expected_year_level and entry_year_key != expected_year_level:
-                    continue
-
                 grades.append({
                     'id':             entry.id,
                     'year_label':     entry.year_label,

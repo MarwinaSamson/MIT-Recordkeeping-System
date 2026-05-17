@@ -196,6 +196,7 @@ class AdminNotification(models.Model):
         ('grade_upload', 'Grade Screenshot Uploaded'),
         ('requirement_submitted', 'Requirement Submitted'),
         ('document_upload', 'Document Uploaded'),
+        ('enrollment_submitted', 'Enrollment Application Submitted'),
     ]
 
     notification_type = models.CharField(max_length=40, choices=NOTIFICATION_TYPES)
