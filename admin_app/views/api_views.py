@@ -1815,6 +1815,7 @@ def students_with_status(request):
     """
     from collections import defaultdict
     from decimal import Decimal
+    import re
     from students_app.models import (
         CORSubmission,
         Document,
@@ -1822,9 +1823,32 @@ def students_with_status(request):
         GradeSubmission,
         PersonalDetails,
     )
+    from admin_app.models import CMSSettings
 
-    required_types = {c[0] for c in Document.DOCUMENT_TYPE_CHOICES}
-    required_n = len(required_types)
+    def _title_to_key(title):
+        if not title:
+            return ''
+        return re.sub(r'[^a-z0-9]+', '_', title.lower()).strip('_')
+
+    cms = CMSSettings.objects.filter(pk=1).first()
+    required_requirements = cms.admission_requirements if cms and cms.admission_requirements else []
+    if required_requirements:
+        required_items = [
+            {
+                'title': req.get('title', '').strip(),
+                'key': _title_to_key(req.get('title', '')),
+                'required': bool(req.get('required', True)),
+            }
+            for req in required_requirements
+            if req.get('title', '').strip() and req.get('required', True)
+        ]
+    else:
+        required_items = [
+            {'title': display_name, 'key': doc_type, 'required': True}
+            for doc_type, display_name in Document.DOCUMENT_TYPE_CHOICES
+        ]
+
+    required_n = len(required_items)
 
     users = (
         User.objects.filter(application__isnull=False)
@@ -1834,12 +1858,23 @@ def students_with_status(request):
     user_ids = [u.id for u in users]
 
     verified_types = defaultdict(set)
+    uploaded_types = defaultdict(set)
     for ver in (
         DocumentVerification.objects.filter(document__user_id__in=user_ids)
         .select_related('document')
     ):
-        if ver.status == 'verified' and ver.document_id:
-            verified_types[ver.document.user_id].add(ver.document.document_type)
+        if ver.document_id:
+            doc_key = _title_to_key(ver.document.document_type)
+            if doc_key:
+                uploaded_types[ver.document.user_id].add(doc_key)
+            if ver.status == 'verified':
+                verified_types[ver.document.user_id].add(doc_key)
+
+    # Also count submitted documents that have not yet been verified.
+    for doc in Document.objects.filter(user_id__in=user_ids):
+        doc_key = _title_to_key(doc.document_type)
+        if doc_key:
+            uploaded_types[doc.user_id].add(doc_key)
 
     cor_latest = {}
     for row in (
@@ -1874,9 +1909,17 @@ def students_with_status(request):
             full_name = user.get_full_name() or user.email
 
         app = user.application
-        vt = verified_types[user.id] & required_types
-        documents_uploaded = len(vt)
-        pending_documents = len(required_types - vt)
+        vt = verified_types[user.id]
+        ut = uploaded_types[user.id]
+        documents_uploaded = len([item for item in required_items if item['key'] in vt])
+        pending_documents = len([item for item in required_items if item['key'] not in vt])
+        missing_documents = []
+        for item in required_items:
+            if item['key'] not in vt:
+                if item['key'] in ut:
+                    missing_documents.append(f"{item['title']} (uploaded but not yet verified)")
+                else:
+                    missing_documents.append(f"{item['title']} (not submitted)")
 
         cor = cor_latest.get(user.id)
         cor_uploaded = bool(cor and cor.status == 'Verified')
@@ -1886,6 +1929,8 @@ def students_with_status(request):
         gwa = None
         if gs and gs.gpa is not None:
             gwa = float(gs.gpa)
+
+        is_eligible = not missing_documents and cor_uploaded and failing_grades == 0 and (gwa is None or gwa <= 2.0)
 
         students.append({
             'id': user.id,
@@ -1897,6 +1942,11 @@ def students_with_status(request):
             'cor_uploaded': cor_uploaded,
             'failing_grades': failing_grades,
             'gwa': gwa,
+            'missing_documents': missing_documents,
+            'uploaded_titles': sorted(list(ut)),
+            'verified_titles': sorted(list(vt)),
+            'required_items': required_items,
+            'is_eligible': is_eligible,
         })
 
     return JsonResponse({'success': True, 'students': students})
@@ -2584,6 +2634,7 @@ def get_admin_notifications(request):
     data = []
     for n in notifications:
         student_name = n.student.get_full_name() or n.student.username
+        app = Application.objects.filter(user=n.student).first()
         data.append({
             'id': n.pk,
             'type': n.notification_type,
@@ -2592,6 +2643,9 @@ def get_admin_notifications(request):
             'title': n.title,
             'message': n.message,
             'student': student_name,
+            'student_user_id': n.student_id,
+            'application_id': app.application_id if app else None,
+            'related_object_id': n.related_object_id,
             'time': _notif_time_ago(n.created_at),
             'fullTime': n.created_at.strftime('%b %d, %Y · %I:%M %p'),
             'epoch': int(n.created_at.timestamp() * 1000),

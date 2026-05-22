@@ -2528,11 +2528,27 @@
     /* ============================================================
        COR — Dynamic Year/Semester System
        ============================================================ */
-    let corSemesters = [
-      { id:'1-1', yearLabel:'1st Year', semLabel:'1st Sem', acadYear:'2025–2026' },
-      { id:'1-2', yearLabel:'1st Year', semLabel:'2nd Sem', acadYear:'2025–2026' },
-      { id:'2-1', yearLabel:'2nd Year', semLabel:'1st Sem', acadYear:'2026–2027' },
-      { id:'2-2', yearLabel:'2nd Year', semLabel:'2nd Sem', acadYear:'2026–2027' },
+    const activeSchoolYearLabel = (window.mitStudentData?.currentSchoolYear || window.mitStudentData?.schoolYearDisplay || '').trim();
+
+    function normalizeSchoolYearLabel(value) {
+      return (value || '').trim().replace(/[–—]/g, '-').replace(/\s+/g, '');
+    }
+
+    function formatSchoolYearLabel(value, offsetYears) {
+      const normalized = normalizeSchoolYearLabel(value);
+      const match = normalized.match(/^(\d{4})-(\d{4})$/);
+      if (!match) return value || '—';
+
+      const startYear = Number(match[1]) + offsetYears;
+      const endYear = Number(match[2]) + offsetYears;
+      return `${startYear}\u2013${endYear}`;
+    }
+
+    const corSemesters = [
+      { id:'1-1', yearLabel:'1st Year', semLabel:'1st Sem', acadYear: formatSchoolYearLabel(activeSchoolYearLabel, 0) },
+      { id:'1-2', yearLabel:'1st Year', semLabel:'2nd Sem', acadYear: formatSchoolYearLabel(activeSchoolYearLabel, 0) },
+      { id:'2-1', yearLabel:'2nd Year', semLabel:'1st Sem', acadYear: formatSchoolYearLabel(activeSchoolYearLabel, 1) },
+      { id:'2-2', yearLabel:'2nd Year', semLabel:'2nd Sem', acadYear: formatSchoolYearLabel(activeSchoolYearLabel, 1) },
     ];
     const corStates = {};
 
@@ -2739,7 +2755,7 @@
     let prospYears = Array.isArray(D.prospectusTree) ? D.prospectusTree : [];
 
     const grades = {};
-    let activeProspYear = 1;
+     let activeProspYear = prospYears.length ? prospYears[0].id : null;
 
     function buildGradeEntriesPayload() {
       const entries = [];
@@ -2830,6 +2846,10 @@
       tabsEl.innerHTML='';
       contentEl.innerHTML='';
 
+      if (prospYears.length && !prospYears.some((yr) => yr.id === activeProspYear)) {
+        activeProspYear = prospYears[0].id;
+      }
+
       if(!Array.isArray(prospYears) || prospYears.length===0){
         contentEl.innerHTML = '<div style="padding:18px;border:1px dashed var(--border-2);border-radius:var(--radius-sm);color:var(--ink-4);font-size:0.78rem;font-family:var(--font-mono)">No prospectus found for the assigned curriculum.</div>';
         return;
@@ -2856,6 +2876,21 @@
           </div>
         </div>`;
 
+        // Determine the active semester from backend-injected data (robust to different formats)
+        const activeSemesterRaw = (D.currentSemester || D.currentSemesterName || D.current_semester || D.currentSemesterLabel || '').toString().trim();
+        const _norm = s => String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+
+        function semesterIndexFromLabel(lbl) {
+          const s = String(lbl||'').toLowerCase();
+          if (!s) return null;
+          if (s.match(/(^|[^0-9])1(st)?([^0-9]|$)|\bfirst\b/)) return 1;
+          if (s.match(/(^|[^0-9])2(nd)?([^0-9]|$)|\bsecond\b/)) return 2;
+          if (s.match(/(^|[^0-9])3(rd)?([^0-9]|$)|\bthird\b/)) return 3;
+          return null;
+        }
+
+        const activeSemesterIndex = semesterIndexFromLabel(activeSemesterRaw) || null;
+
         yr.semesters.forEach(sem=>{
           const semKey=`${yr.label}-${sem.label}`;
           const courses=Array.isArray(sem.courses) ? sem.courses : [];
@@ -2869,19 +2904,24 @@
             const cKey=`${semKey}-${(c.code||'').replace(/\s/g,'')}`;
             const gradeVal = grades[cKey];
             const gradeClass = gradeVal !== undefined ? (gradeVal <= 2.0 ? 'has-grade' : 'failing') : '';
-            html+=`<tr>
+              // Disable grade input unless this semester matches the current active semester
+              const semIndex = semesterIndexFromLabel(sem.label);
+              const isEditable = (activeSemesterIndex && semIndex) ? (semIndex === activeSemesterIndex) : (_norm(sem.label) === _norm(activeSemesterRaw));
+              const disabledAttr = isEditable ? '' : 'disabled';
+
+              html+=`<tr>
               <td><span class="course-code">${c.code}</span></td>
               <td>${c.title}</td>
               <td style="font-family:var(--font-mono);font-size:0.7rem">None</td>
               <td style="font-family:var(--font-mono)">${c.lec}</td>
               <td style="font-family:var(--font-mono)">${c.lab}</td>
               <td style="font-family:var(--font-mono)">${c.lec+c.lab}</td>
-              <td><input class="grade-input ${gradeClass}" type="number" min="1" max="5" step="0.25" placeholder="—"
-                data-course="${cKey}"
-                data-code="${c.code}"
-                data-title="${c.title.replace(/"/g,'&quot;')}"
-                data-units="${c.lec+c.lab}"
-                value="${gradeVal||''}" oninput="updateGrade(this)"></td>
+                <td><input class="grade-input ${gradeClass}" type="number" min="1" max="5" step="0.25" placeholder="—"
+                  data-course="${cKey}"
+                  data-code="${c.code}"
+                  data-title="${c.title.replace(/"/g,'&quot;')}"
+                  data-units="${c.lec+c.lab}"
+                  value="${gradeVal||''}" ${disabledAttr} oninput="updateGrade(this)"></td>
             </tr>`;
           });
           html+=`<tr class="total-row"><td colspan="5" style="text-align:right;font-family:var(--font-mono)">TOTAL</td><td style="font-family:var(--font-mono)">${totalUnits}</td><td>—</td></tr>`;
@@ -2944,7 +2984,8 @@
 
     let gradesScreenshotFile = null;
     async function saveGrades(){
-      const inputs = Array.from(document.querySelectorAll('.grade-input[data-course]'));
+      // Only include editable inputs (skip disabled/past-semester inputs)
+      const inputs = Array.from(document.querySelectorAll('.grade-input[data-course]')).filter(inp => !inp.disabled);
       const entries = [];
       inputs.forEach((inp) => {
         const v = parseFloat(inp.value);

@@ -35,9 +35,20 @@
       };
     </script>
     <style>
-      body { font-family: "DM Sans", sans-serif; }
-      h1, h2, h3 { font-family: "Playfair Display", serif; }
-      input:focus, select:focus { outline: none; border-color: #8c1515 !important; box-shadow: 0 0 0 3px rgba(140,21,21,0.08); }
+      body {
+        font-family: "DM Sans", sans-serif;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: "Playfair Display", serif;
+      }
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: #8c1515 !important;
+        box-shadow: 0 0 0 3px rgba(140, 21, 21, 0.08);
+      }
 
       .preview-image {
         width: 80px;
@@ -105,16 +116,27 @@
   <body class="bg-beige min-h-screen">
     <header class="text-center pt-10 pb-6">
       <div class="flex items-center justify-center mb-4">
-        <img src="{% static 'assets/logoandcap.png' %}" alt="WMSU Logo"
-          class="h-16 w-auto object-contain drop-shadow-sm" />
+        <img
+          src="{% static 'assets/logoandcap.png' %}"
+          alt="WMSU Logo"
+          class="h-16 w-auto object-contain drop-shadow-sm"
+        />
       </div>
       <div class="flex items-center justify-center gap-3 mb-2">
         <span class="block w-8 h-px bg-[#8c1515]/30"></span>
-        <p class="text-[0.62rem] font-semibold tracking-[0.18em] uppercase text-[#8c1515]">Enrollment Portal</p>
+        <p
+          class="text-[0.62rem] font-semibold tracking-[0.18em] uppercase text-[#8c1515]"
+        >
+          Enrollment Portal
+        </p>
         <span class="block w-8 h-px bg-[#8c1515]/30"></span>
       </div>
-      <h1 class="text-3xl font-bold text-ink">WMSU <em class="italic text-brand">Graduate School</em></h1>
-      <p class="text-sm text-muted mt-1">Admission Form &mdash; Complete all sections to submit your application.</p>
+      <h1 class="text-3xl font-bold text-ink">
+        WMSU <em class="italic text-brand">Graduate School</em>
+      </h1>
+      <p class="text-sm text-muted mt-1">
+        Admission Form &mdash; Complete all sections to submit your application.
+      </p>
     </header>
     <div class="max-w-4xl mx-auto px-4 mb-8">
       <div class="flex items-center justify-between" id="progressBar"></div>
@@ -295,14 +317,13 @@
 
             <div class="mt-3 flex items-center gap-2 text-xs text-gray-500">
               <i class="fas fa-info-circle"></i>
-              <span
-                >Choose EITHER one PDF file OR multiple images. {% if
+              <span>
+                Choose EITHER one PDF file OR multiple images. {% if
                 req.required %}At least one page required.{% else %}Optional —
-                can be submitted later.{% endif %}</span
-              >
+                can be submitted later.{% endif %}
+              </span>
             </div>
           </div>
-
           {% else %}
           <!-- ── SIMPLE SINGLE-FILE BLOCK ── -->
           <div class="border border-gray-200 rounded-xl p-5">
@@ -336,10 +357,10 @@
             </div>
             <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
               <i class="fas fa-info-circle"></i>
-              <span
-                >PDF or image, max 10MB. {% if not req.required %}Optional — can
-                be submitted later.{% endif %}</span
-              >
+              <span>
+                PDF or image, max 10MB. {% if not req.required %}Optional — can
+                be submitted later.{% endif %}
+              </span>
             </div>
           </div>
           {% endif %} {% empty %}

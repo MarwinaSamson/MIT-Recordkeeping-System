@@ -1053,10 +1053,6 @@ function _renderDocPreviewModal(){
       </button>`;
   } else {
     actionsEl.innerHTML=`
-
-        if(levelEl && targetProgramLevel){
-          levelEl.value = targetProgramLevel;
-        }
       <button onclick="unsetDoc(${docPreviewCurrentIdx}); _renderDocPreviewModal();" class="flex items-center gap-1.5 border border-gray-300 text-gray-600 text-xs font-semibold px-4 py-2 rounded-xl hover:bg-gray-50 transition">
         <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> ${isV ? 'Undo Verify' : 'Undo Reject'}
       </button>`;
@@ -4045,8 +4041,9 @@ document.getElementById('corSemesterFilter')?.addEventListener('change', _render
     const newCls    = isNew ? ' notif-new' : '';
     const epoch     = n.epoch || '';
     return `
-      <div class="relative ${cardBg} border border-gray-100 rounded-2xl shadow-sm px-5 py-4 flex gap-4 cursor-pointer hover:shadow-md transition admin-notif-card${newCls}"
-           data-id="${n.id}" data-type="${n.type}" onclick="markOneAdminNotifRead(${n.id}, this)">
+       <div class="relative ${cardBg} border border-gray-100 rounded-2xl shadow-sm px-5 py-4 flex gap-4 cursor-pointer hover:shadow-md transition admin-notif-card${newCls}"
+         data-id="${n.id}" data-type="${n.type}" data-related-id="${n.related_object_id || ''}" data-application-id="${n.application_id || ''}"
+         onclick="openAdminNotification(${n.id}, '${String(n.type || '').replace(/'/g, "\\'")}', ${n.related_object_id || 'null'}, '${String(n.application_id || '').replace(/'/g, "\\'")}', this)">
         ${unreadDot}
         <div class="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${colorCls}">
           <i data-lucide="${iconName}" class="w-5 h-5"></i>
@@ -4268,6 +4265,67 @@ document.getElementById('corSemesterFilter')?.addEventListener('change', _render
       renderNotifList(new Set());
     } catch (e) {
       console.error('Failed to mark all read', e);
+    }
+  };
+
+  async function ensureGradeSubmissionsLoaded() {
+    if (Array.isArray(gradesData) && gradesData.length) return gradesData;
+    const res = await fetch('/admin-panel/api/grade-submissions/', { credentials: 'same-origin' });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message || 'Error loading grades');
+    gradesData = data.submissions || [];
+    _updateGradeStats();
+    _renderGradesRows();
+    lucide.createIcons();
+    return gradesData;
+  }
+
+  window.openAdminNotification = async function (id, type, relatedObjectId, applicationId, cardEl) {
+    try {
+      await window.markOneAdminNotifRead(id, cardEl);
+
+      if (type === 'grade_upload' && relatedObjectId) {
+        switchDocVerTab('grades');
+        await ensureGradeSubmissionsLoaded();
+
+        const submission = gradesData.find(g => Number(g.id) === Number(relatedObjectId));
+        if (submission) {
+          requestAnimationFrame(() => setTimeout(() => openGradesModal(submission.id), 80));
+        } else {
+          showToast('Grade submission not found', 'warn');
+        }
+        return;
+      }
+
+      if (type === 'cor_upload' && relatedObjectId) {
+        switchDocVerTab('cor');
+        await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 60)));
+        const corListRes = await fetch('/admin-panel/api/cor-submissions/', { credentials: 'same-origin' });
+        const corListData = await corListRes.json();
+        if (corListData.success) {
+          corData = corListData.submissions || [];
+          _renderCORRows();
+          const submission = corData.find(c => Number(c.id) === Number(relatedObjectId));
+          if (submission) {
+            requestAnimationFrame(() => setTimeout(() => openCORModal(submission.id), 80));
+          } else {
+            showToast('COR submission not found', 'warn');
+          }
+        }
+        return;
+      }
+
+      if (type === 'document_upload' || type === 'requirement_submitted') {
+        switchDocVerTab('admission');
+        if (applicationId) {
+          const app = applications.find(a => String(a.id) === String(applicationId));
+          if (app) selectedApp = app;
+          requestAnimationFrame(() => setTimeout(() => openModal(applicationId), 80));
+        }
+      }
+    } catch (e) {
+      console.error('Failed to open notification target', e);
+      showToast('Unable to open notification target', 'error');
     }
   };
 

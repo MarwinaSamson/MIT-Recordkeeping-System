@@ -10,57 +10,100 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='gradeentry',
-            options={'ordering': ['order']},
-        ),
-        migrations.AddField(
-            model_name='gradeentry',
-            name='order',
-            field=models.PositiveIntegerField(default=0),
-        ),
-        migrations.AddField(
-            model_name='gradeentry',
-            name='semester_label',
-            field=models.CharField(blank=True, max_length=120),
-        ),
-        migrations.AddField(
-            model_name='gradeentry',
-            name='year_label',
-            field=models.CharField(blank=True, max_length=120),
-        ),
-        migrations.AddField(
-            model_name='gradesubmission',
-            name='curriculum_name',
-            field=models.CharField(blank=True, max_length=255),
-        ),
-        migrations.AlterField(
-            model_name='gradeentry',
-            name='title',
-            field=models.CharField(max_length=512),
-        ),
-        migrations.AlterField(
-            model_name='gradesubmission',
-            name='school_year',
-            field=models.CharField(blank=True, max_length=32),
-        ),
-        migrations.AlterField(
-            model_name='gradesubmission',
-            name='screenshot',
-            field=models.FileField(blank=True, null=True, upload_to='grade_submissions/'),
-        ),
-        migrations.AlterField(
-            model_name='gradesubmission',
-            name='semester',
-            field=models.CharField(blank=True, max_length=64),
-        ),
-        migrations.AlterField(
-            model_name='gradesubmission',
-            name='status',
-            field=models.CharField(choices=[('Pending', 'Pending'), ('Acknowledged', 'Acknowledged'), ('Flagged', 'Flagged')], default='Pending', max_length=20),
-        ),
-        migrations.AlterUniqueTogether(
-            name='gradeentry',
-            unique_together={('submission', 'year_label', 'semester_label', 'code')},
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AlterModelOptions(
+                    name='gradeentry',
+                    options={'ordering': ['order']},
+                ),
+                migrations.AddField(
+                    model_name='gradeentry',
+                    name='order',
+                    field=models.PositiveIntegerField(default=0),
+                ),
+                migrations.AddField(
+                    model_name='gradeentry',
+                    name='semester_label',
+                    field=models.CharField(blank=True, max_length=120),
+                ),
+                migrations.AddField(
+                    model_name='gradeentry',
+                    name='year_label',
+                    field=models.CharField(blank=True, max_length=120),
+                ),
+                migrations.AddField(
+                    model_name='gradesubmission',
+                    name='curriculum_name',
+                    field=models.CharField(blank=True, max_length=255),
+                ),
+                migrations.AlterField(
+                    model_name='gradeentry',
+                    name='title',
+                    field=models.CharField(max_length=512),
+                ),
+                migrations.AlterField(
+                    model_name='gradesubmission',
+                    name='school_year',
+                    field=models.CharField(blank=True, max_length=32),
+                ),
+                migrations.AlterField(
+                    model_name='gradesubmission',
+                    name='screenshot',
+                    field=models.FileField(blank=True, null=True, upload_to='grade_submissions/'),
+                ),
+                migrations.AlterField(
+                    model_name='gradesubmission',
+                    name='semester',
+                    field=models.CharField(blank=True, max_length=64),
+                ),
+                migrations.AlterField(
+                    model_name='gradesubmission',
+                    name='status',
+                    field=models.CharField(choices=[('Pending', 'Pending'), ('Acknowledged', 'Acknowledged'), ('Flagged', 'Flagged')], default='Pending', max_length=20),
+                ),
+                migrations.AlterUniqueTogether(
+                    name='gradeentry',
+                    unique_together={('submission', 'year_label', 'semester_label', 'code')},
+                ),
+            ],
+            database_operations=[
+                migrations.RunSQL(
+                    sql=r'''
+                    ALTER TABLE students_app_gradeentry
+                        ADD COLUMN IF NOT EXISTS "order" integer NOT NULL DEFAULT 0;
+                    ALTER TABLE students_app_gradeentry
+                        ADD COLUMN IF NOT EXISTS semester_label varchar(120) NOT NULL DEFAULT '';
+                    ALTER TABLE students_app_gradeentry
+                        ADD COLUMN IF NOT EXISTS year_label varchar(120) NOT NULL DEFAULT '';
+                    ALTER TABLE students_app_gradesubmission
+                        ADD COLUMN IF NOT EXISTS curriculum_name varchar(255) NOT NULL DEFAULT '';
+
+                    UPDATE students_app_gradeentry
+                    SET "order" = 0
+                    WHERE "order" IS NULL;
+                    UPDATE students_app_gradeentry
+                    SET semester_label = ''
+                    WHERE semester_label IS NULL;
+                    UPDATE students_app_gradeentry
+                    SET year_label = ''
+                    WHERE year_label IS NULL;
+                    UPDATE students_app_gradesubmission
+                    SET curriculum_name = ''
+                    WHERE curriculum_name IS NULL;
+
+                    ALTER TABLE students_app_gradeentry
+                        ALTER COLUMN "order" SET DEFAULT 0,
+                        ALTER COLUMN "order" SET NOT NULL,
+                        ALTER COLUMN semester_label SET DEFAULT '',
+                        ALTER COLUMN semester_label SET NOT NULL,
+                        ALTER COLUMN year_label SET DEFAULT '',
+                        ALTER COLUMN year_label SET NOT NULL;
+                    ALTER TABLE students_app_gradesubmission
+                        ALTER COLUMN curriculum_name SET DEFAULT '',
+                        ALTER COLUMN curriculum_name SET NOT NULL;
+                    ''',
+                    reverse_sql=migrations.RunSQL.noop,
+                ),
+            ],
         ),
     ]
