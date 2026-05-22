@@ -280,6 +280,14 @@
     </style>
   </head>
 
+  <!-- Toast notification -->
+  <div id="reviewToast" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] hidden max-w-md w-full px-4">
+    <div class="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 shadow-lg text-sm font-medium">
+      <i class="fas fa-exclamation-circle mt-0.5 flex-shrink-0"></i>
+      <span id="reviewToastMsg"></span>
+    </div>
+  </div>
+
   <body class="bg-beige min-h-screen">
     <header class="text-center pt-10 pb-6">
       <div class="flex items-center justify-center mb-4">
@@ -1228,6 +1236,16 @@
         }
       }
 
+      function showReviewError(msg) {
+        const toast = document.getElementById('reviewToast');
+        const msgEl = document.getElementById('reviewToastMsg');
+        if (toast && msgEl) {
+          msgEl.textContent = msg;
+          toast.classList.remove('hidden');
+          setTimeout(() => toast.classList.add('hidden'), 6000);
+        }
+      }
+
       // ===== SUBMIT FUNCTION =====
       function submitApplication() {
         // Disable button to prevent double submission
@@ -1315,10 +1333,7 @@
               document.getElementById("modal").classList.remove("hidden");
             } else {
               // Show error message
-              alert(
-                "Error submitting application: " +
-                  (data.message || "Unknown error"),
-              );
+              showReviewError("Error submitting application: " + (data.message || "Unknown error"));
               if (submitBtn) {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML =
@@ -1328,7 +1343,7 @@
           })
           .catch((error) => {
             console.error("Error:", error);
-            alert("Error submitting application: " + error.message);
+            showReviewError("Error submitting application: " + error.message);
             if (submitBtn) {
               submitBtn.disabled = false;
               submitBtn.innerHTML =
@@ -1422,7 +1437,7 @@
           }
           applyImages();
         } catch (error) {
-          console.log("School seals loaded successfully");
+          console.warn("Could not load school seals:", error.message);
         }
       }
 

@@ -1965,7 +1965,7 @@
           renderFullCalendar();
         }
       } catch (error) {
-        console.log('Calendar auto-refresh (non-critical error):', error);
+        console.warn('Calendar auto-refresh error:', error.message);
       }
     }
     
@@ -2295,11 +2295,7 @@
 
     // Build DOCS array dynamically from CMS admission_requirements
     function buildDocsFromCMS() {
-      console.log('buildDocsFromCMS called, ADMISSION_REQUIREMENTS_RAW:', ADMISSION_REQUIREMENTS_RAW);
-      
       if (!ADMISSION_REQUIREMENTS_RAW || !Array.isArray(ADMISSION_REQUIREMENTS_RAW) || ADMISSION_REQUIREMENTS_RAW.length === 0) {
-        console.log('Using fallback DOCS (no CMS data)');
-        // Fallback to hardcoded if CMS unavailable
         return [
           { key:'tor',                name:'Official Transcript of Records', icon:'description',  required:true },
           { key:'psa',                name:'PSA Birth Certificate',          icon:'article',      required:true },
@@ -2308,27 +2304,15 @@
           { key:'honorable_dismissal',name:'Honorable Dismissal',            icon:'school',       required:true },
         ];
       }
-      
-      console.log('Building DOCS from CMS data, count:', ADMISSION_REQUIREMENTS_RAW.length);
-      // Convert CMS format {number, title, description} to DOCS format
-      const result = ADMISSION_REQUIREMENTS_RAW.map((req, index) => {
-        const key = _titleToKey(req.title);
-        console.log(`  [${index}] "${req.title}" => key="${key}"`);
-        return {
-          key: key,
-          name: req.title,
-          icon: 'description',  // Default icon
-          required: true,  // CMS requirements are all required by default
-        };
-      });
-      console.log('Converted to DOCS:', result);
-      return result;
+      return ADMISSION_REQUIREMENTS_RAW.map(req => ({
+        key: _titleToKey(req.title),
+        name: req.title,
+        icon: 'description',
+        required: true,
+      }));
     }
 
     let DOCS = buildDocsFromCMS();
-    console.log('DOCS after buildDocsFromCMS:', DOCS);
-    console.log('DOCS length:', DOCS.length);
-    console.log('DOCUMENT_STATUS_MAP:', DOCUMENT_STATUS_MAP);
     
     const docStates = {};
     DOCS.forEach(d=>{
@@ -2359,7 +2343,6 @@
       if (file) filename = file;
       
       docStates[d.key] = {status: status, filename: filename};
-      console.log(`docStates[${d.key}]: status=${status}, file=${filename}, verification=${statusInfo?.verification_status}`);
     });
     
     const statusConfig = {
@@ -2371,13 +2354,10 @@
       required:{label:'Required',    cls:'status-required',iconCls:'required',icon:'priority_high'},
     };
     function renderDocGrid() {
-      const grid=$('docGrid'); if(!grid){console.log('docGrid element not found!'); return;}
-      console.log('renderDocGrid called with DOCS:', DOCS);
-      console.log('docStates:', docStates);
+      const grid=$('docGrid'); if(!grid){ return;}
       grid.innerHTML=DOCS.map(d=>{
         const st=docStates[d.key]||{status:'missing'};
         const sc=statusConfig[st.status]||statusConfig.missing;
-        console.log(`Processing doc key="${d.key}", name="${d.name}", status="${st.status}"`);
         const rejectionNote = st.status === 'rejected' && st.rejection_reason
           ? `<div style="font-size:0.67rem;color:var(--red);margin-top:3px;font-family:var(--font-mono)">
                <span class="ms" style="font-size:12px;vertical-align:middle">error</span>
@@ -2399,7 +2379,6 @@
           </div>
         </div>`;
       }).join('');
-      console.log('renderDocGrid complete, grid.innerHTML.length:', grid.innerHTML.length);
     }
 
     function renderMiniDocList() {
@@ -2444,7 +2423,6 @@
       const bar=$('progBar'); if(bar)bar.style.width=pct+'%';
       const lbl=$('progLabel'); if(lbl)lbl.textContent=`${submitted} of ${total} submitted`;
       const stat=$('statDocs'); if(stat)stat.textContent=`${submitted}/${total}`;
-      console.log(`updateProgress: submitted=${submitted}, verified=${verified}, total=${total}, pct=${pct}%`);
     }
 
     /* ============================================================
@@ -2872,7 +2850,7 @@
             html+=`<tr>
               <td><span class="course-code">${c.code}</span></td>
               <td>${c.title}</td>
-              <td style="font-family:var(--font-mono);font-size:0.7rem">None</td>
+              <td style="font-family:var(--font-mono);font-size:0.7rem">${c.prereq||'None'}</td>
               <td style="font-family:var(--font-mono)">${c.lec}</td>
               <td style="font-family:var(--font-mono)">${c.lab}</td>
               <td style="font-family:var(--font-mono)">${c.lec+c.lab}</td>
@@ -3155,7 +3133,6 @@ function closeLogoutModal() {
        INIT
        ============================================================ */
     function init() {
-      console.log('init() called');
       const initials=D.initials||'ST';
       ['sidebarAvatar','topAvatar','profileAvatarBig'].forEach(id=>{const el=$(id);if(el)el.textContent=initials;});
 
@@ -3168,8 +3145,6 @@ function closeLogoutModal() {
       // Disable profile fields by default
       editableFields.forEach(id=>{const el=$(id);if(el)el.disabled=true;});
 
-      // Render all components
-      console.log('Rendering components, DOCS length:', DOCS.length);
       renderDocGrid();
       renderMiniDocList();
       renderStatusSummary();
@@ -3188,7 +3163,6 @@ function closeLogoutModal() {
       // Render dynamic dates from database
       renderImportantDates();
       renderDeadline();
-      console.log('init() complete');
 
       // Load saved COR + grades from database (non-blocking)
       loadSavedCORs();

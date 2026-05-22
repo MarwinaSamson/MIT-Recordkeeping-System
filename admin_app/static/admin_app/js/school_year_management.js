@@ -32,7 +32,6 @@ async function postJSON(url, data = {}) {
     }
     
     const responseData = await res.json();
-    console.log(`Response from ${url}:`, responseData);
     return responseData;
   } catch (err) {
     console.error(`Fetch error for ${url}:`, err);
@@ -232,9 +231,7 @@ async function createNewSchoolYear() {
   }
 
   try {
-    console.log('Creating school year:', { name, status, start_date, end_date, notes, is_active });
     const data = await postJSON('/admin-panel/admin/school-years/create/', { name, status, start_date, end_date, notes, is_active });
-    console.log('Response:', data);
 
     if (!data) {
       showToast('No response from server', 'error');
@@ -515,7 +512,6 @@ let currentSemesterConfig = null; // { type: '1st'|'2nd'|'Summer', id: 1|2|3 }
 
 async function loadSemesterData() {
   if (!activeSchoolYear) {
-    console.log('No active school year, cannot load semesters');
     return;
   }
 

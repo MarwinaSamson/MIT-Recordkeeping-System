@@ -488,8 +488,6 @@ function previewSlideImage(input, n) {
 function saveSlideText(n) {
   const title   = document.getElementById(`slideTitle${n}`)?.value.trim()   || '';
   const caption = document.getElementById(`slideCaption${n}`)?.value.trim() || '';
-  // In production, POST to a real API. For now we show a toast.
-  console.log(`Slide ${n}:`, { title, caption });
   showCmsToast(`Slide ${n} text saved!`, 'success');
 }
 

@@ -823,18 +823,9 @@ WMSU Graduate School`;
                 return;
             }
         } catch (err) {
-            console.log('Using demo data');
+            console.warn('Could not load student data:', err);
         }
-        loadDemoData();
-    }
-
-    function loadDemoData() {
-        studentListData = [
-            { id: 1, full_name: 'Maria Santos', student_id: 'MIT-001', documents_uploaded: 5, documents_required: 5, failing_grades: 0, gwa: 1.75, cor_uploaded: true, pending_documents: 0 },
-            { id: 2, full_name: 'Juan Dela Cruz', student_id: 'MIT-002', documents_uploaded: 3, documents_required: 5, failing_grades: 1, gwa: 2.25, cor_uploaded: false, pending_documents: 2 },
-            { id: 3, full_name: 'Jose Rizal', student_id: 'MIT-003', documents_uploaded: 5, documents_required: 5, failing_grades: 0, gwa: 1.50, cor_uploaded: true, pending_documents: 0 },
-            { id: 4, full_name: 'Andres Bonifacio', student_id: 'MIT-004', documents_uploaded: 4, documents_required: 5, failing_grades: 2, gwa: 2.50, cor_uploaded: false, pending_documents: 1 },
-        ];
+        studentListData = [];
         updateStats();
         populateSelects();
     }
@@ -907,7 +898,7 @@ WMSU Graduate School`;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         } else {
-            alert(message);
+            console.warn('Toast element not found:', message);
         }
     }
 

@@ -12,8 +12,6 @@ function initializeData() {
   if(typeof contextData !== 'undefined') {
     applications = contextData.allApplications || [];
     activityLog = contextData.allActivities || [];
-    console.log('Data initialized. Applications count:', applications.length);
-    console.log('Applications data:', applications);
   } else {
     console.warn('contextData is not defined!');
   }
@@ -876,45 +874,7 @@ async function bulkVerifyApplications() {
   renderTable();
 }
 
-/* ═══ REVIEW MODAL ═══ */
-function openModal(id){
-  console.log('openModal called with id:', id);
-  console.log('Current applications array:', applications);
-  selectedApp=applications.find(a=>a.id===id);
-  console.log('Selected app:', selectedApp);
-  if(!selectedApp) {
-    console.error('Application not found with id:', id);
-    alert('Error: Could not find application with ID ' + id);
-    return;
-  }
-  document.getElementById("modalID").innerText =selectedApp.id;
-  document.getElementById("mName").innerText   =selectedApp.name;
-  document.getElementById("mEmail").innerText  =selectedApp.email;
-  document.getElementById("mCourse").innerText =selectedApp.course;
-  document.getElementById("mMobile").innerText =selectedApp.mobile;
-  document.getElementById("mAppID").innerText  =selectedApp.id;
-  document.getElementById("mDate").innerText   =selectedApp.submission_date;
-  document.getElementById("lastUpdated").innerText="Last updated: "+new Date().toISOString().split("T")[0];
-  document.getElementById("remarks").value     =selectedApp.remarks||"";
-  // Populate admission details
-  const semEl = document.getElementById("admSemester");
-  const yearEl = document.getElementById("admYear");
-  const levelEl = document.getElementById('admProgramLevel');
-  const currEl = document.getElementById("admCurriculum");
-  if(semEl) semEl.value   = selectedApp.semester   || "";
-  if(yearEl) yearEl.value = selectedApp.year_admitted || "";
-  if(levelEl) levelEl.value = selectedApp.program_level || "";
-  if(currEl) currEl.value = selectedApp.student_curriculum || selectedApp.curriculum  || "";
-  renderDocCards();
-  const modal = document.getElementById("modal");
-  if(modal) {
-    modal.classList.add("open");
-    modal.style.display = "flex";
-    console.log('Modal opened successfully');
-  } else {
-    console.error('Modal element not found');
-  }
-}
+/* ═══ REVIEW MODAL (defined below, overridden by updated version) ═══ */
 function closeModal(){
   const modal = document.getElementById("modal");
   if(modal) {
@@ -2404,16 +2364,13 @@ var toggleStudentId = null;
 var toggleStudentIsActive = null;
 
 function openToggleStatusModal(userId, fullName, isActive, reason, changedBy, changedAt) {
-  console.log('openToggleStatusModal called', userId, fullName, isActive);
   
   toggleStudentId = userId;
   toggleStudentIsActive = isActive;
   
   var modal = document.getElementById('toggleStatusModal');
-  console.log('modal element:', modal);
-  
   if (!modal) {
-    alert('Error: toggleStatusModal not found in the page HTML.');
+    showToast('Status modal not available. Please refresh the page.', 'error');
     return;
   }
   
@@ -2453,7 +2410,6 @@ function openToggleStatusModal(userId, fullName, isActive, reason, changedBy, ch
   
   modal.style.display = 'flex';
   lucide.createIcons();
-  console.log('Modal should be visible now');
 }
 
 function closeToggleStatusModal() {
@@ -2677,15 +2633,12 @@ function loadCurriculumData(savedData) {
   updateCourseCount();
 }
 
-// Modify the existing openModal function to include curriculum loading
-// Find the existing openModal function in admin_scripts.js and replace it with this:
- function openModal(id) {
-  console.log('openModal called with id:', id);
+/* ═══ REVIEW MODAL ═══ */
+function openModal(id) {
   selectedApp = applications.find(a => a.id === id);
   window.selectedApp = selectedApp;
   if (!selectedApp) {
-    console.error('Application not found with id:', id);
-    alert('Error: Could not find application with ID ' + id);
+    showToast('Application not found. Please refresh the page.', 'error');
     return;
   }
   document.getElementById("modalID").innerText = selectedApp.id;
@@ -3173,7 +3126,7 @@ function openAppDetailsModal() {
     return `
       <div class="review-section border border-gray-200 rounded-xl p-5 space-y-3 bg-white hover:shadow-md transition-all">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-bold text-brand" style="font-family:'Merriweather',serif">${escapeHtml(title)}</h3>
+          <h3 class="text-lg font-bold text-crimson" style="font-family:'Playfair Display',serif">${escapeHtml(title)}</h3>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">${rows}</div>
       </div>

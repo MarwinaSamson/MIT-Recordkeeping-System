@@ -287,7 +287,7 @@
               </div>
               <p class="text-sm font-semibold leading-snug">
                 Deadline for document submission:
-                <span class="text-yellow-300">March 15, 2026</span>
+                <span class="text-yellow-300">{% if cms.enrollment_end_date %}{{ cms.enrollment_end_date|date:"F j, Y" }}{% else %}See announcements{% endif %}</span>
               </p>
               <p class="text-xs text-white/60 mt-1">
                 Notify applicants with incomplete submissions.
