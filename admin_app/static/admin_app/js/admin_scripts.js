@@ -35,7 +35,7 @@ function _populateProspectusFilter(list) {
         res.data.forEach(p => {
           const opt = document.createElement('option');
           opt.value = p.name;
-          opt.textContent = p.program_label || p.name;
+          opt.textContent = p.name;
           if (p.name === current) opt.selected = true;
           sel.appendChild(opt);
         });
@@ -210,7 +210,6 @@ function renderBuilder(){
                   <div class="col-span-1 text-center">LEC</div>
                   <div class="col-span-1 text-center">LAB</div>
                   <div class="col-span-1 text-center">TOTAL</div>
-                  <div class="col-span-1 text-right">GRADE</div>
                 </div>
                 ${s.subjects.map((sub,subIdx)=>`
                   <div class="grid grid-cols-12 gap-2 items-center bg-white p-2 rounded-md border border-gray-50">
@@ -220,7 +219,6 @@ function renderBuilder(){
                     <div class="col-span-1"><input type="number" value="${sub.lec}" min="0" oninput="updateSubjectField(${yIdx},${sIdx},${subIdx},'lec',this.value);renderBuilder()" class="w-full px-3 py-2 border border-gray-200 rounded text-sm text-center"/></div>
                     <div class="col-span-1"><input type="number" value="${sub.lab}" min="0" oninput="updateSubjectField(${yIdx},${sIdx},${subIdx},'lab',this.value);renderBuilder()" class="w-full px-3 py-2 border border-gray-200 rounded text-sm text-center"/></div>
                     <div class="col-span-1"><input type="number" value="${sub.total}" min="0" oninput="updateSubjectField(${yIdx},${sIdx},${subIdx},'total',this.value);renderBuilder()" class="w-full px-3 py-2 border border-gray-200 rounded text-sm text-center"/></div>
-                    <div class="col-span-1 text-right"><input value="${escapeHtml(sub.grade||'--')}" placeholder="--" oninput="updateSubjectField(${yIdx},${sIdx},${subIdx},'grade',this.value)" class="w-20 px-2 py-1 border border-gray-200 rounded text-sm text-center" /></div>
                   </div>
                 `).join('')}
                 <div class="grid grid-cols-12 gap-2 items-center mt-2 p-2 bg-gray-50 rounded-md border border-gray-100 text-sm font-semibold">
@@ -283,7 +281,7 @@ function openProspectusModal(){
     sel.innerHTML = '<option value="">Select program</option>';
     if(res && res.success && Array.isArray(res.data)){
       res.data.forEach(p=>{
-        const opt = document.createElement('option'); opt.value = p.name; opt.textContent = p.program_label || p.name; sel.appendChild(opt);
+        const opt = document.createElement('option'); opt.value = p.name; opt.textContent = p.name; sel.appendChild(opt);
       });
     }
   }).catch(err=>{ console.warn('Failed to load programs',err); });
@@ -437,6 +435,11 @@ function populateAdmissionDetails(){
     // Set school year from app data if present, otherwise use the active school year from DB
     if(yearEl){
       yearEl.value = targetYear || activeSchoolYearName || '';
+    }
+
+    // Set program level from app data
+    if(levelEl && targetProgramLevel){
+      levelEl.value = targetProgramLevel;
     }
     
     // Set curriculum - fetch from student's EducationalBackground (graduate level)

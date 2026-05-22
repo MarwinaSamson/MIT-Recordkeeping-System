@@ -567,15 +567,22 @@ WMSU Graduate School`;
       </div>
     `;
 
-        // Set default recipient based on action type
+        // Set default recipient based on action type and hide irrelevant options
         const recipientSelect = document.getElementById('modalRecipientGroup');
         if (recipientSelect) {
-            if (actionType === 'eligible_enrollment') recipientSelect.value = 'eligible';
-            else if (actionType === 'ineligible_enrollment') recipientSelect.value = 'ineligible';
-            else if (actionType === 'missing_requirements') recipientSelect.value = 'affected';
-            else if (actionType === 'cor_reminder') recipientSelect.value = 'no_cor';
-            else if (actionType === 'grade_concern') recipientSelect.value = 'failing_grades';
-            else recipientSelect.value = 'all';
+            let targetValue = 'all';
+            if (actionType === 'eligible_enrollment') targetValue = 'eligible';
+            else if (actionType === 'ineligible_enrollment') targetValue = 'ineligible';
+            else if (actionType === 'missing_requirements') targetValue = 'affected';
+            else if (actionType === 'cor_reminder') targetValue = 'no_cor';
+            else if (actionType === 'grade_concern') targetValue = 'failing_grades';
+
+            recipientSelect.value = targetValue;
+
+            // Show only the matching option (hide others) when action type is specific
+            Array.from(recipientSelect.options).forEach(opt => {
+                opt.hidden = (actionType !== 'custom_message') && (opt.value !== targetValue);
+            });
         }
 
         // Update preview

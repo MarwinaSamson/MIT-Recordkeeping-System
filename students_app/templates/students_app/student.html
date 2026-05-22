@@ -2739,7 +2739,7 @@
     let prospYears = Array.isArray(D.prospectusTree) ? D.prospectusTree : [];
 
     const grades = {};
-    let activeProspYear = 1;
+    let activeProspYear = prospYears.length > 0 ? prospYears[0].id : null;
 
     function buildGradeEntriesPayload() {
       const entries = [];
