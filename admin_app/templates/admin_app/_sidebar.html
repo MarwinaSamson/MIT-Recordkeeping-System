@@ -1,0 +1,76 @@
+{% load static %}
+<aside class="sidebar shadow-2xl z-20">
+  <!-- Logo -->
+  <div class="flex flex-col items-center gap-1 py-3 px-4 border-b border-white/10 mb-1">
+    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-lg">
+      <img
+        src="{% static 'assets/seals/logoandcap.png' %}"
+        alt="WMSU"
+        class="w-9 h-9 object-contain"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+      />
+      <span class="text-red-800 font-bold text-sm" style="display:none">W</span>
+    </div>
+    <div class="text-center">
+      <p class="text-white font-bold text-xs">WMSU</p>
+      <p class="text-white/65 text-xs">Graduate School</p>
+      <p class="text-white/65 text-xs">Zamboanga City</p>
+    </div>
+  </div>
+
+  <nav class="flex flex-col flex-1 px-2 gap-0.5">
+    <p class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-1 pb-0.5" style="font-size:0.6rem;">Main</p>
+    <a href="{% url 'admin_app:dashboard' %}" class="nav-item{% if current_page == 'dashboard' %} active{% endif %}">
+      <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+      <i data-lucide="file-check"></i><span>Application Management</span>
+    </a>
+    <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+      <i data-lucide="users"></i><span>Students</span>
+    </a>
+    <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+      <i data-lucide="alert-circle"></i><span>Missing Requirements</span>
+    </a>
+    <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+      <i data-lucide="clock"></i><span>Activity History</span>
+    </a>
+    <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+      <i data-lucide="inbox"></i><span>Student Messaging</span>
+    </a>
+    <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+      <i data-lucide="bell"></i><span>Notifications</span>
+    </a>
+    <p class="text-white/40 text-xs font-semibold uppercase tracking-widest px-4 pt-2 pb-0.5" style="font-size:0.6rem;">System</p>
+    <a href="{% url 'admin_app:program_management' %}" class="nav-item{% if current_page == 'program_management' %} active{% endif %}">
+      <i data-lucide="layout-grid"></i><span>Program Management</span>
+    </a>
+    <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+      <i data-lucide="calendar"></i><span>School Year Management</span>
+    </a>
+    <a href="{% url 'admin_app:cms_settings' %}" class="nav-item{% if current_page == 'cms_settings' %} active{% endif %}">
+      <i data-lucide="settings-2"></i><span>CMS</span>
+    </a>
+    <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+      <i data-lucide="book-open"></i><span>Prospectus Management</span>
+    </a>
+    <a href="{% url 'admin_app:dashboard' %}" class="nav-item">
+      <i data-lucide="user-cog"></i><span>Profile Settings</span>
+    </a>
+  </nav>
+
+  <div class="px-2 pb-2 mt-auto border-t border-white/10 pt-2">
+    <div class="flex items-center gap-2 px-2 mb-1">
+      <div class="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0" style="background:rgba(255,255,255,0.22);">
+        {% if admin_name %}{{ admin_name|slice:":1"|upper }}{% endif %}
+      </div>
+      <div class="min-w-0">
+        <p class="text-white text-xs font-semibold truncate">{{ admin_name }}</p>
+        <p class="text-white/50 text-xs truncate">Administrator</p>
+      </div>
+    </div>
+    <div class="nav-item text-red-300 hover:text-white hover:bg-red-900/50" onclick="handleLogout()">
+      <i data-lucide="log-out"></i><span>Log Out</span>
+    </div>
+  </div>
+</aside>

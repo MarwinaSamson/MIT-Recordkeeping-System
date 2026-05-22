@@ -50,10 +50,12 @@
           class="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-lg"
         >
           <img
-            src="{% static 'admin_app/assets/seals/logowithcap.png' %}"
+            src="{% static 'assets/seals/logoandcap.png' %}"
             alt="WMSU"
             class="w-9 h-9 object-contain"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
           />
+          <span class="text-red-800 font-bold text-sm" style="display:none">W</span>
         </div>
         <div class="text-center">
           <p class="text-white font-bold text-xs">WMSU</p>
