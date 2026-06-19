@@ -535,7 +535,9 @@
           >
             <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
             School Year:
-            <span class="text-gray-800 ml-0.5">{{ active_school_year.name|default:"No Active Year" }}</span>
+            <span class="text-gray-800 ml-0.5"
+              >{{ active_school_year.name|default:"No Active Year" }}</span
+            >
           </div>
           <div class="flex items-center gap-2">
             <div
@@ -563,7 +565,7 @@
           >
             Account Management
           </button>
-          
+
           <button
             class="settings-top-tab active px-5 py-2.5 text-sm font-semibold border-b-2 border-red-800 text-red-800 whitespace-nowrap"
             onclick="switchTopTab('content', this)"
@@ -631,8 +633,6 @@
             </table>
           </div>
         </div>
-
-        
 
         <!-- ── Content Management ── -->
         <div id="top-content" class="top-panel">
@@ -1105,7 +1105,9 @@
                       />
                     </div>
                     {% if evt.image_url %}
-                    <p class="text-xs text-green-600 mt-2 truncate font-medium">✓ Image set</p>
+                    <p class="text-xs text-green-600 mt-2 truncate font-medium">
+                      ✓ Image set
+                    </p>
                     {% endif %}
                   </div>
                   <div class="space-y-3">
@@ -1194,7 +1196,11 @@
               </div>
               {% empty %}
               <!-- Default blank slide -->
-              <div class="cms-card event-slide-row" data-idx="1" data-image-url="">
+              <div
+                class="cms-card event-slide-row"
+                data-idx="1"
+                data-image-url=""
+              >
                 <div class="flex items-center justify-between mb-4">
                   <div class="flex items-center gap-3">
                     <span
@@ -1537,7 +1543,8 @@
                       class="font-bold text-red-700"
                       style="font-family: monospace"
                     >
-                      {{ evt.month }}/{{ evt.day }}{% if evt.day_to %}–{{ evt.day_to }}{% endif %}
+                      {{ evt.month }}/{{ evt.day }}{% if evt.day_to %}–{{
+                      evt.day_to }}{% endif %}
                     </td>
                     <td class="font-semibold">{{ evt.title }}</td>
                     <td>
@@ -1667,7 +1674,9 @@
                     />
                   </div>
                   <div>
-                    <label class="lbl">Day To <span class="lbl-hint">(optional)</span></label>
+                    <label class="lbl"
+                      >Day To <span class="lbl-hint">(optional)</span></label
+                    >
                     <input
                       type="number"
                       id="calEvtDayTo"
@@ -2526,12 +2535,16 @@ Certified true copy from your institution</textarea
             <!-- ── Enrollment Date Range ── -->
             <div class="cms-card mt-4">
               <p class="cms-card-title">
-                <i data-lucide="calendar-range" class="w-4 h-4 text-red-700"></i>
+                <i
+                  data-lucide="calendar-range"
+                  class="w-4 h-4 text-red-700"
+                ></i>
                 Enrollment Date Range
               </p>
               <p class="cms-card-subtitle">
-                When set, the <strong>Apply Now</strong> button is automatically enabled only within
-                this date range. Leave blank to use the manual toggle above.
+                When set, the <strong>Apply Now</strong> button is automatically
+                enabled only within this date range. Leave blank to use the
+                manual toggle above.
               </p>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div>
@@ -2581,7 +2594,10 @@ Certified true copy from your institution</textarea
                     Downloadable Files
                   </p>
                   <p class="cms-card-subtitle">
-                    Files uploaded here appear in the <strong>"Forms &amp; Documents"</strong> dropdown on the homepage and in the <strong>Student Portal</strong> overview.
+                    Files uploaded here appear in the
+                    <strong>"Forms &amp; Documents"</strong> dropdown on the
+                    homepage and in the
+                    <strong>Student Portal</strong> overview.
                   </p>
                 </div>
                 <div class="flex items-center gap-2">
@@ -2631,7 +2647,8 @@ Certified true copy from your institution</textarea
                 </div>
                 {% empty %}
                 <p class="text-xs text-gray-400 py-4 text-center">
-                  No downloads yet. Upload files to display them on the homepage and student portal.
+                  No downloads yet. Upload files to display them on the homepage
+                  and student portal.
                 </p>
                 {% endfor %}
               </div>
@@ -4073,6 +4090,7 @@ Develop students' capacity to conduct both technical and statistical research, c
                         <label class="lbl">Photo</label>
                         <div
                           class="border-2 border-dashed border-gray-200 rounded-xl bg-white flex flex-col items-center justify-center p-5 cursor-pointer hover:border-red-300 hover:bg-red-50 transition faculty-photo-upload"
+                          data-photo-url="{{ fac.photo_url|default:''|escapejs }}"
                           onclick="
                             this.querySelector('.fac-photo-input').click()
                           "
@@ -4183,6 +4201,7 @@ Develop students' capacity to conduct both technical and statistical research, c
                         <label class="lbl">Photo</label>
                         <div
                           class="border-2 border-dashed border-gray-200 rounded-xl bg-white flex flex-col items-center justify-center p-5 cursor-pointer hover:border-red-300 hover:bg-red-50 transition faculty-photo-upload"
+                          data-photo-url=""
                           onclick="
                             this.querySelector('.fac-photo-input').click()
                           "
@@ -4480,7 +4499,9 @@ Develop students' capacity to conduct both technical and statistical research, c
           <!-- Curriculum Structure -->
           <div id="others-curriculumStruct" class="others-panel hidden">
             <div class="cms-card">
-              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+              <div
+                class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4"
+              >
                 <div>
                   <p class="cms-card-title">
                     <i
@@ -4490,9 +4511,9 @@ Develop students' capacity to conduct both technical and statistical research, c
                     Curriculum Structure
                   </p>
                   <p class="text-xs text-gray-500 mt-1 max-w-xl">
-                    These subjects appear on the public About page Course Catalog.
-                    While this list has at least one subject, it replaces grouped
-                    courses saved under Program CMS.
+                    These subjects appear on the public About page Course
+                    Catalog. While this list has at least one subject, it
+                    replaces grouped courses saved under Program CMS.
                   </p>
                 </div>
                 <button
@@ -4519,7 +4540,8 @@ Develop students' capacity to conduct both technical and statistical research, c
                       colspan="4"
                       class="text-center text-gray-400 py-8 text-sm"
                     >
-                      No subjects yet. Add a subject code to publish it on About.
+                      No subjects yet. Add a subject code to publish it on
+                      About.
                     </td>
                   </tr>
                 </tbody>
@@ -4588,7 +4610,11 @@ Develop students' capacity to conduct both technical and statistical research, c
                 </div>
               </div>
               <div class="p-6 space-y-3">
-                <input type="hidden" id="curriculumStructEditIndex" value="-1" />
+                <input
+                  type="hidden"
+                  id="curriculumStructEditIndex"
+                  value="-1"
+                />
                 <div>
                   <label class="lbl">Subject Code</label>
                   <input
@@ -4618,7 +4644,9 @@ Develop students' capacity to conduct both technical and statistical research, c
                   />
                 </div>
                 <div>
-                  <label class="lbl">Description <span class="lbl-hint">(optional)</span></label>
+                  <label class="lbl"
+                    >Description <span class="lbl-hint">(optional)</span></label
+                  >
                   <textarea
                     id="curriculumStructDesc"
                     rows="3"
@@ -4634,7 +4662,11 @@ Develop students' capacity to conduct both technical and statistical research, c
                   >
                     Cancel
                   </button>
-                  <button type="button" class="btn-primary" onclick="saveCurriculumStructModal()">
+                  <button
+                    type="button"
+                    class="btn-primary"
+                    onclick="saveCurriculumStructModal()"
+                  >
                     <i data-lucide="save"></i> Save
                   </button>
                 </div>
@@ -5020,9 +5052,14 @@ Develop students' capacity to conduct both technical and statistical research, c
     <!-- Stubs for new CMS sections (wire to API in admin_cms_scripts.js) -->
     <script>
       function handleLogout() {
-        const m = document.querySelector('main');
-        if (m) { m.style.transition = 'opacity .18s'; m.style.opacity = '0'; }
-        setTimeout(() => { window.location.href = "{% url 'admin_app:logout' %}"; }, 190);
+        const m = document.querySelector("main");
+        if (m) {
+          m.style.transition = "opacity .18s";
+          m.style.opacity = "0";
+        }
+        setTimeout(() => {
+          window.location.href = "{% url 'admin_app:logout' %}";
+        }, 190);
       }
     </script>
 
@@ -5084,21 +5121,31 @@ Develop students' capacity to conduct both technical and statistical research, c
                 dropzone.style.backgroundPosition = "center";
                 const icon = dropzone.querySelector("i");
                 if (icon) icon.style.display = "none";
-                dropzone.querySelectorAll("p").forEach((p) => (p.style.display = "none"));
+                dropzone
+                  .querySelectorAll("p")
+                  .forEach((p) => (p.style.display = "none"));
                 if (!dropzone.querySelector(".evt-img-ok")) {
                   const ok = document.createElement("span");
-                  ok.className = "evt-img-ok text-white text-xs font-semibold drop-shadow";
+                  ok.className =
+                    "evt-img-ok text-white text-xs font-semibold drop-shadow";
                   ok.textContent = "✓ Image uploaded";
                   dropzone.appendChild(ok);
                 }
               }
               showCmsToast("Event image uploaded!", "success");
             } else {
-              showCmsToast("Upload failed: " + (d.message || "Unknown error"), "error");
+              showCmsToast(
+                "Upload failed: " + (d.message || "Unknown error"),
+                "error",
+              );
             }
           })
-          .catch(() => showCmsToast("Network error uploading event image.", "error"))
-          .finally(() => { input.value = ""; });
+          .catch(() =>
+            showCmsToast("Network error uploading event image.", "error"),
+          )
+          .finally(() => {
+            input.value = "";
+          });
       }
 
       function saveEventSlides() {
@@ -5909,6 +5956,7 @@ Develop students' capacity to conduct both technical and statistical research, c
               const reader = new FileReader();
               reader.onload = (e) => {
                 const upload = input.closest(".faculty-photo-upload");
+                upload.dataset.photoUrl = e.target.result;
                 upload.innerHTML = `<img src="${e.target.result}" style="width:100%;height:120px;object-fit:cover;border-radius:10px;" /><input type="file" class="fac-photo-input hidden" accept="image/*" onchange="previewFacultyPhoto(this)" />`;
               };
               reader.readAsDataURL(input.files[0]);
@@ -5917,6 +5965,7 @@ Develop students' capacity to conduct both technical and statistical research, c
             function saveAboutFaculty() {
               const faculty = [];
               document.querySelectorAll(".faculty-card-row").forEach((card) => {
+                const upload = card.querySelector(".faculty-photo-upload");
                 faculty.push({
                   name: card.querySelector(".fac-name")?.value || "",
                   title: card.querySelector(".fac-title")?.value || "",
@@ -5925,6 +5974,7 @@ Develop students' capacity to conduct both technical and statistical research, c
                     .split(",")
                     .map((t) => t.trim())
                     .filter(Boolean),
+                  photo_url: upload?.dataset.photoUrl || "",
                 });
               });
               fetch("/admin-panel/api/cms/update/", {

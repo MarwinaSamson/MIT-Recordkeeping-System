@@ -1560,7 +1560,11 @@
                   class="material-symbols-rounded text-white"
                   style="font-size: 19px"
                 >
-                  {% if curriculum_group.title|lower == 'foundation' or curriculum_group.title|lower == 'core' %}settings{% elif curriculum_group.title|lower == 'specialization' %}star{% elif curriculum_group.title|lower == 'cognate' %}brightness_5{% else %}emoji_events{% endif %}
+                  {% if curriculum_group.title|lower == 'foundation' or
+                  curriculum_group.title|lower == 'core' %}settings{% elif
+                  curriculum_group.title|lower == 'specialization' %}star{% elif
+                  curriculum_group.title|lower == 'cognate' %}brightness_5{%
+                  else %}emoji_events{% endif %}
                 </span>
               </div>
               <div class="section-meta">
@@ -1569,7 +1573,14 @@
               </div>
               <span
                 class="unit-badge-lg"
-                {% if curriculum_group.title|lower == "cognate" %}style="background: rgba(154, 96, 32, 0.08); color: #9a6020"{% endif %}
+                {%
+                if
+                curriculum_group.title|lower=""
+                ="cognate"
+                %}style="background: rgba(154, 96, 32, 0.08); color: #9a6020"
+                {%
+                endif
+                %}
               >
                 {{ curriculum_group.total_units }} Units
               </span>
@@ -1687,7 +1698,12 @@
                   class="material-symbols-rounded"
                   style="font-size: 20px; color: var(--crimson)"
                 >
-                  {% if outcome.number == 1 %}dns{% elif outcome.number == 2 %}science{% elif outcome.number == 3 %}hub{% elif outcome.number == 4 %}layers{% elif outcome.number == 5 %}manage_accounts{% elif outcome.number == 6 %}lightbulb{% elif outcome.number == 7 %}smart_toy{% else %}storage{% endif %}
+                  {% if outcome.number == 1 %}dns{% elif outcome.number == 2
+                  %}science{% elif outcome.number == 3 %}hub{% elif
+                  outcome.number == 4 %}layers{% elif outcome.number == 5
+                  %}manage_accounts{% elif outcome.number == 6 %}lightbulb{%
+                  elif outcome.number == 7 %}smart_toy{% else %}storage{% endif
+                  %}
                 </span>
               </div>
               <span
@@ -1862,9 +1878,20 @@
               box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
             "
           >
+            {% if member.photo_url %}
+            <div class="fav h-44 w-full overflow-hidden">
+              <img
+                src="{{ member.photo_url }}"
+                alt="{{ member.name|default:'Faculty member' }}"
+                class="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+            {% else %}
             <div class="fav h-44 w-full">
               <span>{{ member.name|slice:":1"|upper|default:"F" }}</span>
             </div>
+            {% endif %}
             <div class="p-5">
               <p
                 class="font-serif text-lg font-bold text-gray-900 leading-snug"

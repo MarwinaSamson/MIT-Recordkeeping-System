@@ -988,7 +988,7 @@ def update_cms_settings(request):
                         })
             update_data['about_courses'] = cleaned_about_courses
 
-        # Validate and save about faculty list [{name: str, title: str, bio: str, tags: [str]}]
+        # Validate and save about faculty list [{name, title, bio, tags, photo_url}]
         raw_about_faculty = data.get('about_faculty', None)
         if raw_about_faculty is not None:
             cleaned_faculty = []
@@ -996,6 +996,7 @@ def update_cms_settings(request):
                 name = str(fac.get('name', '')).strip()
                 title = str(fac.get('title', '')).strip()
                 bio = str(fac.get('bio', '')).strip()
+                photo_url = str(fac.get('photo_url', '') or '').strip()
                 tags = fac.get('tags', [])
                 if isinstance(tags, str):
                     tags = [tag.strip() for tag in tags.split(',') if tag.strip()]
@@ -1008,7 +1009,8 @@ def update_cms_settings(request):
                         'name': name,
                         'title': title,
                         'bio': bio,
-                        'tags': tags
+                        'tags': tags,
+                        'photo_url': photo_url,
                     })
             update_data['about_faculty'] = cleaned_faculty
 

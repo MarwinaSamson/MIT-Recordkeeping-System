@@ -36,8 +36,14 @@
       };
     </script>
     <style>
-      body { font-family: "DM Sans", sans-serif; }
-      h1, h2, h3 { font-family: "Playfair Display", serif; }
+      body {
+        font-family: "DM Sans", sans-serif;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: "Playfair Display", serif;
+      }
 
       .review-section {
         transition: all 0.2s;
@@ -281,8 +287,13 @@
   </head>
 
   <!-- Toast notification -->
-  <div id="reviewToast" class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] hidden max-w-md w-full px-4">
-    <div class="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 shadow-lg text-sm font-medium">
+  <div
+    id="reviewToast"
+    class="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] hidden max-w-md w-full px-4"
+  >
+    <div
+      class="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-xl px-4 py-3 shadow-lg text-sm font-medium"
+    >
       <i class="fas fa-exclamation-circle mt-0.5 flex-shrink-0"></i>
       <span id="reviewToastMsg"></span>
     </div>
@@ -291,16 +302,27 @@
   <body class="bg-beige min-h-screen">
     <header class="text-center pt-10 pb-6">
       <div class="flex items-center justify-center mb-4">
-        <img src="{% static 'assets/logoandcap.png' %}" alt="WMSU Logo"
-          class="h-16 w-auto object-contain drop-shadow-sm" />
+        <img
+          src="{% static 'assets/logoandcap.png' %}"
+          alt="WMSU Logo"
+          class="h-16 w-auto object-contain drop-shadow-sm"
+        />
       </div>
       <div class="flex items-center justify-center gap-3 mb-2">
         <span class="block w-8 h-px bg-[#8c1515]/30"></span>
-        <p class="text-[0.62rem] font-semibold tracking-[0.18em] uppercase text-[#8c1515]">Enrollment Portal</p>
+        <p
+          class="text-[0.62rem] font-semibold tracking-[0.18em] uppercase text-[#8c1515]"
+        >
+          Enrollment Portal
+        </p>
         <span class="block w-8 h-px bg-[#8c1515]/30"></span>
       </div>
-      <h1 class="text-3xl font-bold text-ink">WMSU <em class="italic text-brand">Graduate School</em></h1>
-      <p class="text-sm text-muted mt-1">Admission Form &mdash; Complete all sections to submit your application.</p>
+      <h1 class="text-3xl font-bold text-ink">
+        WMSU <em class="italic text-brand">Graduate School</em>
+      </h1>
+      <p class="text-sm text-muted mt-1">
+        Admission Form &mdash; Complete all sections to submit your application.
+      </p>
     </header>
     <div class="max-w-4xl mx-auto px-4 mb-8">
       <div class="flex items-center justify-between" id="progressBar"></div>
@@ -1237,12 +1259,12 @@
       }
 
       function showReviewError(msg) {
-        const toast = document.getElementById('reviewToast');
-        const msgEl = document.getElementById('reviewToastMsg');
+        const toast = document.getElementById("reviewToast");
+        const msgEl = document.getElementById("reviewToastMsg");
         if (toast && msgEl) {
           msgEl.textContent = msg;
-          toast.classList.remove('hidden');
-          setTimeout(() => toast.classList.add('hidden'), 6000);
+          toast.classList.remove("hidden");
+          setTimeout(() => toast.classList.add("hidden"), 6000);
         }
       }
 
@@ -1333,7 +1355,10 @@
               document.getElementById("modal").classList.remove("hidden");
             } else {
               // Show error message
-              showReviewError("Error submitting application: " + (data.message || "Unknown error"));
+              showReviewError(
+                "Error submitting application: " +
+                  (data.message || "Unknown error"),
+              );
               if (submitBtn) {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML =
@@ -1379,7 +1404,7 @@
         localStorage.removeItem("privacyConsent");
         localStorage.removeItem("privacySignature");
         localStorage.removeItem("submissionData");
-        window.location.href = "/";
+        window.location.href = "{% url 'index' %}";
       }
 
       window.addEventListener("beforeunload", function (e) {
