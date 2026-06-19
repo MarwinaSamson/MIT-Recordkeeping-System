@@ -1679,7 +1679,7 @@
       class="relative h-screen flex items-center overflow-hidden"
     >
       <img
-        src="{% static 'assets/WMSU.jpg' %}"
+        src="{% if cms.hero_bg_image_url %}{{ cms.hero_bg_image_url }}{% else %}{% static 'assets/WMSU.jpg' %}{% endif %}"
         class="absolute w-full h-full object-cover"
         alt="WMSU Campus"
       />
@@ -1865,8 +1865,7 @@
                         >calendar_month</span
                       >
                       {{ evt.date|date:"F j, Y" }}<span class="dot">·</span
-                      ><span class="material-symbols-rounded">schedule</span> {{
-                      evt.time }}
+                      ><span class="material-symbols-rounded">schedule</span> {{evt.time }}
                     </div>
                     <h3
                       class="text-xl sm:text-2xl font-bold leading-snug mb-3"
@@ -1910,6 +1909,7 @@
                     {% endif %}
                   </div>
                 </div>
+
               </div>
               {% empty %}
               <!-- Default slide when no events -->

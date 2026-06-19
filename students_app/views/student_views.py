@@ -42,6 +42,36 @@ def _initials(name):
     return "".join([p[0] for p in parts])[:2].upper()
 
 
+def _normalize_semester_label(value):
+    if not value:
+        return ""
+    label = value.strip().lower()
+    if label in ('1st semester', '1st', 'first semester', 'first'):
+        return '1st Semester'
+    if label in ('2nd semester', '2nd', 'second semester', 'second'):
+        return '2nd Semester'
+    if label in ('summer', 'summer semester'):
+        return 'Summer'
+    return value.strip()
+
+
+def _resolve_active_semester_for_grades(user):
+    from admin_app.models import Application
+
+    application = Application.objects.filter(user=user).first()
+    if application and application.semester:
+        normalized = _normalize_semester_label(application.semester)
+        if normalized:
+            return normalized
+
+    current_month = datetime.now().month
+    if 6 <= current_month <= 11:
+        return '1st Semester'
+    if 12 <= current_month <= 12 or 1 <= current_month <= 5:
+        return '2nd Semester'
+    return '1st Semester'
+
+
 @login_required
 @ensure_csrf_cookie
 def student(request):
@@ -60,8 +90,7 @@ def student(request):
     calendar_events        = cms_settings.calendar_events or []
     admission_requirements = cms_settings.admission_requirements or []
 
-    current_month = datetime.now().month
-    semester = '1st Semester' if 6 <= current_month <= 11 else '2nd Semester'
+    semester = _resolve_active_semester_for_grades(request.user)
 
     sy_display = "2025 – 2026"
     ay_display = "A.Y. 2025–2026"

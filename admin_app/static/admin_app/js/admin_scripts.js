@@ -6,6 +6,8 @@ let activityLog = [];
 let toastTimer;  // Timer for toast notifications
 let selectedApp;  // Currently selected application in modal
 let rejectTargetIdx;  // Index of document being rejected
+let gradeSubmissions = [];
+let selectedGradeSubmission = null;
 
 // Initialize data from contextData when page loads
 function initializeData() {
@@ -2956,6 +2958,245 @@ function verifyGradesForApp(id) {
       showToast('Grades modal not found', 'error');
     }
   });
+
+  // Load grade submissions on demand so the modal can show the correct data.
+  if (typeof renderGradesTable === 'function') {
+    renderGradesTable();
+  }
+}
+
+async function loadGradeSubmissions() {
+  try {
+    const response = await fetch('/admin-panel/api/grade-submissions/', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Unable to load grade submissions.');
+    }
+
+    gradeSubmissions = Array.isArray(data.submissions) ? data.submissions : [];
+    if (typeof renderGradesTable === 'function') {
+      renderGradesTable();
+    }
+  } catch (error) {
+    console.error(error);
+    showToast(error.message || 'Unable to load grade submissions.', 'error');
+  }
+}
+
+function renderGradesTable() {
+  const tbody = document.getElementById('gradesTableBody');
+  const empty = document.getElementById('gradesEmptyState');
+  const search = document.getElementById('gradesSearch')?.value || '';
+  const courseFilter = document.getElementById('gradesCourseFilter')?.value || 'all';
+  const statusFilter = document.getElementById('gradesStatusFilter')?.value || 'all';
+
+  if (!tbody) return;
+
+  if (!gradeSubmissions.length) {
+    loadGradeSubmissions();
+  }
+
+  const normalizedSearch = search.trim().toLowerCase();
+  const filtered = gradeSubmissions.filter(item => {
+    const text = [
+      item.student_name,
+      item.student_id,
+      item.course,
+      item.semester,
+      item.school_year,
+      item.status,
+      (item.grades || []).map(g => g.code).join(' ')
+    ].join(' ').toLowerCase();
+
+    if (normalizedSearch && !text.includes(normalizedSearch)) {
+      return false;
+    }
+
+    if (courseFilter !== 'all' && !String(item.course || '').startsWith(courseFilter)) {
+      return false;
+    }
+
+    if (statusFilter !== 'all' && String(item.status || '') !== statusFilter) {
+      return false;
+    }
+
+    return true;
+  });
+
+  if (!filtered.length) {
+    tbody.innerHTML = '';
+    if (empty) empty.classList.remove('hidden');
+    return;
+  }
+
+  if (empty) empty.classList.add('hidden');
+
+  tbody.innerHTML = filtered.map(item => {
+    const statusClass = item.status === 'Acknowledged'
+      ? 'bg-green-100 text-green-700'
+      : item.status === 'Flagged'
+        ? 'bg-red-100 text-red-700'
+        : 'bg-orange-100 text-orange-700';
+
+    const screenshotCell = item.screenshot_url
+      ? `<a href="${item.screenshot_url}" target="_blank" class="inline-flex items-center gap-1 text-blue-600 hover:underline text-xs"><i data-lucide="image" class="w-3.5 h-3.5"></i> View</a>`
+      : `<span class="text-xs text-gray-400">None</span>`;
+
+    return `
+      <tr class="hover:bg-gray-50">
+        <td class="px-5 py-3.5">
+          <div class="font-semibold text-gray-800">${escapeHtml(item.student_name || '—')}</div>
+          <div class="text-xs text-gray-400">${escapeHtml(item.student_id || '—')}</div>
+        </td>
+        <td class="px-4 py-3.5 text-sm text-gray-600">${escapeHtml(item.course || '—')}</td>
+        <td class="px-4 py-3.5 text-sm text-gray-600">${escapeHtml(item.semester || '—')}<br><span class="text-xs text-gray-400">${escapeHtml(item.school_year || '—')}</span></td>
+        <td class="px-4 py-3.5 text-sm text-gray-600">${item.subject_count || 0}</td>
+        <td class="px-4 py-3.5 text-sm font-semibold text-gray-700">${item.gpa !== null && item.gpa !== undefined ? item.gpa.toFixed(2) : '—'}</td>
+        <td class="px-4 py-3.5">${screenshotCell}</td>
+        <td class="px-4 py-3.5"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${statusClass}">${escapeHtml(item.status || 'Pending')}</span></td>
+        <td class="px-4 py-3.5">
+          <button onclick="openGradesModal(${item.id})" class="text-sm font-semibold text-green-700 hover:text-green-800">Review</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  lucide.createIcons();
+}
+
+function openGradesModal(submissionId) {
+  selectedGradeSubmission = gradeSubmissions.find(item => item.id === submissionId);
+  if (!selectedGradeSubmission) {
+    showToast('Selected grade submission was not found.', 'error');
+    return;
+  }
+
+  const modal = document.getElementById('gradesModal');
+  if (!modal) return;
+
+  document.getElementById('gradesModalStudentName')?.replaceChildren(document.createTextNode(selectedGradeSubmission.student_name || '—'));
+  document.getElementById('gradesMName')?.replaceChildren(document.createTextNode(selectedGradeSubmission.student_name || '—'));
+  document.getElementById('gradesMStudentID')?.replaceChildren(document.createTextNode(selectedGradeSubmission.student_id || '—'));
+  document.getElementById('gradesMCourse')?.replaceChildren(document.createTextNode(selectedGradeSubmission.course || '—'));
+  document.getElementById('gradesMMSemester')?.replaceChildren(document.createTextNode(selectedGradeSubmission.semester || '—'));
+  document.getElementById('gradesMYear')?.replaceChildren(document.createTextNode(selectedGradeSubmission.school_year || '—'));
+  document.getElementById('gradesMGPA')?.replaceChildren(document.createTextNode(
+    selectedGradeSubmission.gpa !== null && selectedGradeSubmission.gpa !== undefined
+      ? selectedGradeSubmission.gpa.toFixed(2)
+      : '—'
+  ));
+
+  const tbody = document.getElementById('gradesMTableBody');
+  if (tbody) {
+    const rows = (selectedGradeSubmission.grades || []).map(item => `
+      <tr>
+        <td class="px-4 py-3 text-sm text-gray-700">${escapeHtml(item.code || '—')}</td>
+        <td class="px-4 py-3 text-sm text-gray-700">${escapeHtml(item.title || '—')}</td>
+        <td class="px-4 py-3 text-sm text-gray-700 text-center">${item.units || 0}</td>
+        <td class="px-4 py-3 text-sm text-gray-700 text-center">${item.grade !== null && item.grade !== undefined ? item.grade.toFixed(2) : '—'}</td>
+        <td class="px-4 py-3 text-sm text-gray-700 text-center">${escapeHtml(item.remarks || '—')}</td>
+      </tr>
+    `).join('');
+    tbody.innerHTML = rows || `
+      <tr>
+        <td colspan="5" class="px-4 py-6 text-center text-gray-400 text-sm">No grade entries available.</td>
+      </tr>
+    `;
+  }
+
+  const preview = document.getElementById('gradesScreenshotPreview');
+  if (preview) {
+    if (selectedGradeSubmission.screenshot_url) {
+      preview.innerHTML = `
+        <img src="${selectedGradeSubmission.screenshot_url}" alt="Grade screenshot" class="max-h-[300px] max-w-full rounded-xl object-contain">
+      `;
+    } else {
+      preview.innerHTML = `
+        <i data-lucide="image" class="w-12 h-12 text-gray-300 mb-3"></i>
+        <p class="text-sm text-gray-400">No screenshot uploaded yet.</p>
+        <p class="text-xs text-gray-300 mt-1">Student uploads a photo of their grade sheet.</p>
+      `;
+    }
+  }
+
+  const remarks = document.getElementById('gradesRemarks');
+  if (remarks) remarks.value = selectedGradeSubmission.admin_remarks || '';
+
+  const statusBadge = document.getElementById('gradesCurrentStatusBadge');
+  if (statusBadge) {
+    statusBadge.textContent = selectedGradeSubmission.status || 'Pending';
+    statusBadge.className = 'px-3 py-1 rounded-full text-xs font-semibold ' + (
+      selectedGradeSubmission.status === 'Acknowledged'
+        ? 'bg-green-100 text-green-700'
+        : selectedGradeSubmission.status === 'Flagged'
+          ? 'bg-red-100 text-red-700'
+          : 'bg-orange-100 text-orange-700'
+    );
+  }
+
+  modal.style.display = 'flex';
+  modal.classList.add('fade-in');
+  lucide.createIcons();
+}
+
+function closeGradesModal() {
+  const modal = document.getElementById('gradesModal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('fade-in');
+  }
+  selectedGradeSubmission = null;
+}
+
+async function flagGrades() {
+  if (!selectedGradeSubmission) return;
+  await updateGradeSubmissionStatus('Flagged');
+}
+
+async function acknowledgeGrades() {
+  if (!selectedGradeSubmission) return;
+  await updateGradeSubmissionStatus('Acknowledged');
+}
+
+async function updateGradeSubmissionStatus(status) {
+  if (!selectedGradeSubmission) return;
+  const remarks = document.getElementById('gradesRemarks')?.value || '';
+  try {
+    const response = await fetch(`/admin-panel/api/grade-submissions/${selectedGradeSubmission.id}/update/`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCSRFToken()
+      },
+      body: JSON.stringify({
+        status,
+        admin_remarks: remarks,
+      })
+    });
+    const data = await response.json();
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Unable to update grade submission.');
+    }
+
+    showToast(data.message || 'Grade submission updated.', 'success');
+    selectedGradeSubmission.status = status;
+    selectedGradeSubmission.admin_remarks = remarks;
+    if (typeof renderGradesTable === 'function') {
+      renderGradesTable();
+    }
+    openGradesModal(selectedGradeSubmission.id);
+  } catch (error) {
+    console.error(error);
+    showToast(error.message || 'Unable to update grade submission.', 'error');
+  }
 }
 
 

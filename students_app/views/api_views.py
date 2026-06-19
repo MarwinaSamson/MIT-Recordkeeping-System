@@ -58,6 +58,34 @@ def _get_cms_requirements():
     return cms.admission_requirements or []
 
 
+def _normalize_semester_label(value):
+    if not value:
+        return ""
+    label = value.strip().lower()
+    if label in ('1st semester', '1st', 'first semester', 'first'):
+        return '1st Semester'
+    if label in ('2nd semester', '2nd', 'second semester', 'second'):
+        return '2nd Semester'
+    if label in ('summer', 'summer semester'):
+        return 'Summer'
+    return value.strip()
+
+
+def _resolve_allowed_grade_semester(user):
+    application = Application.objects.filter(user=user).first()
+    if application and application.semester:
+        normalized = _normalize_semester_label(application.semester)
+        if normalized:
+            return normalized
+
+    current_month = datetime.now().month
+    if 6 <= current_month <= 11:
+        return '1st Semester'
+    if 12 <= current_month <= 12 or 1 <= current_month <= 5:
+        return '2nd Semester'
+    return '1st Semester'
+
+
 def _time_ago(dt):
     diff = (timezone.now() - dt).total_seconds()
     if diff < 60:     return 'Just now'
@@ -322,6 +350,16 @@ def submit_grade_submission(request):
 
     if not semester or not school_year:
         return JsonResponse({'success': False, 'message': 'semester and school_year are required.'}, status=400)
+
+    allowed_semester = _resolve_allowed_grade_semester(request.user)
+    if _normalize_semester_label(semester) != allowed_semester:
+        return JsonResponse(
+            {
+                'success': False,
+                'message': f'Grade upload is only allowed for {allowed_semester} right now.',
+            },
+            status=400,
+        )
 
     try:
         entries = json.loads(entries_json)
