@@ -9,7 +9,7 @@ let rejectTargetIdx;  // Index of document being rejected
 
 // Initialize data from contextData when page loads
 function initializeData() {
-  if(typeof contextData !== 'undefined') {
+  if (typeof contextData !== 'undefined') {
     applications = contextData.allApplications || [];
     activityLog = contextData.allActivities || [];
   } else {
@@ -39,7 +39,7 @@ function _populateProspectusFilter(list) {
         });
       }
     })
-    .catch(() => {});
+    .catch(() => { });
 }
 
 function _renderProspectusCurriculum(p) {
@@ -76,7 +76,7 @@ function _renderProspectusCurriculum(p) {
 function _renderProspectusCard(p) {
   const prog = p.program_name ? `<span class="inline-block text-xs bg-red-50 text-red-700 border border-red-100 rounded-full px-2 py-0.5 font-semibold mr-1">${escapeHtml(p.program_name)}</span>` : '';
   const assignBadges = (p.assignments || []).map(a =>
-    `<span class="inline-block text-xs bg-blue-50 text-blue-700 border border-blue-100 rounded-full px-2 py-0.5 mr-1">${escapeHtml(a.program_name||'')}${a.intake_year ? ' · ' + escapeHtml(a.intake_year) : ''}</span>`
+    `<span class="inline-block text-xs bg-blue-50 text-blue-700 border border-blue-100 rounded-full px-2 py-0.5 mr-1">${escapeHtml(a.program_name || '')}${a.intake_year ? ' · ' + escapeHtml(a.intake_year) : ''}</span>`
   ).join('');
   return `
   <div class="border border-gray-100 rounded-xl overflow-hidden" id="prospcard-${p.id}">
@@ -106,81 +106,81 @@ function toggleProspectusDetails(id) {
   if (btn) btn.textContent = isHidden ? 'Hide Details' : 'View Details';
 }
 
-function renderProspectusPage(){
+function renderProspectusPage() {
   const container = document.getElementById('prospectusList');
-  if(!container) return;
-  fetch('/admin-panel/api/prospectuses/', { method: 'GET', headers: {'Accept':'application/json'}, credentials: 'same-origin' })
-    .then(r=>r.json())
-    .then(res=>{
-      if(!res.success){ container.innerHTML = `<div class="text-gray-400 text-sm">Error loading prospectuses.</div>`; return; }
+  if (!container) return;
+  fetch('/admin-panel/api/prospectuses/', { method: 'GET', headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+    .then(r => r.json())
+    .then(res => {
+      if (!res.success) { container.innerHTML = `<div class="text-gray-400 text-sm">Error loading prospectuses.</div>`; return; }
       prospectuses = res.data || [];
       _populateProspectusFilter(prospectuses);
       const filterVal = (document.getElementById('prospectusFilterProgram') || {}).value || '';
       const filtered = filterVal ? prospectuses.filter(p => p.program_name === filterVal) : prospectuses;
-      if(!filtered.length){
+      if (!filtered.length) {
         container.innerHTML = `<div class="text-gray-400 text-sm py-4 text-center">${filterVal ? 'No Prospectus/Curriculum Created for this program.' : 'No prospectuses created yet.'}</div>`;
         return;
       }
       container.innerHTML = filtered.map(p => _renderProspectusCard(p)).join('');
-      if(typeof lucide !== 'undefined') lucide.createIcons();
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     })
-    .catch(err=>{ console.error('Error fetching prospectuses',err); container.innerHTML = `<div class="text-gray-400 text-sm">Error loading prospectuses.</div>`; });
+    .catch(err => { console.error('Error fetching prospectuses', err); container.innerHTML = `<div class="text-gray-400 text-sm">Error loading prospectuses.</div>`; });
 }
 
 // Prospectus builder state
 let currentBuilder = { name: '', description: '', years: [] };
 
-function resetBuilder(){
+function resetBuilder() {
   currentBuilder = { name: '', description: '', years: [] };
   const nameEl = document.getElementById('builderName');
   const descEl = document.getElementById('builderDesc');
-  if(nameEl) nameEl.value='';
-  if(descEl) descEl.value='';
+  if (nameEl) nameEl.value = '';
+  if (descEl) descEl.value = '';
   renderBuilder();
 }
 
-function addYear(){
+function addYear() {
   const yearIdx = currentBuilder.years.length;
-  currentBuilder.years.push({ label: `Year ${yearIdx+1}`, semesters: [ { label: 'First Semester', subjects: [] } ] });
+  currentBuilder.years.push({ label: `Year ${yearIdx + 1}`, semesters: [{ label: 'First Semester', subjects: [] }] });
   renderBuilder();
 }
 
-function removeYear(yIdx){
-  if(!confirm('Remove this year and all its semesters?')) return;
-  currentBuilder.years.splice(yIdx,1);
+function removeYear(yIdx) {
+  if (!confirm('Remove this year and all its semesters?')) return;
+  currentBuilder.years.splice(yIdx, 1);
   renderBuilder();
 }
 
-function addSemester(yIdx){
+function addSemester(yIdx) {
   currentBuilder.years[yIdx].semesters.push({ label: 'New Semester', subjects: [] });
   renderBuilder();
 }
 
-function removeSemester(yIdx,sIdx){
-  if(!confirm('Remove this semester and its subjects?')) return;
-  currentBuilder.years[yIdx].semesters.splice(sIdx,1);
+function removeSemester(yIdx, sIdx) {
+  if (!confirm('Remove this semester and its subjects?')) return;
+  currentBuilder.years[yIdx].semesters.splice(sIdx, 1);
   renderBuilder();
 }
 
-function addSubject(yIdx,sIdx){
-  currentBuilder.years[yIdx].semesters[sIdx].subjects.push({ code:'', title:'', prereq:'', lec:3, lab:0, total:3 });
+function addSubject(yIdx, sIdx) {
+  currentBuilder.years[yIdx].semesters[sIdx].subjects.push({ code: '', title: '', prereq: '', lec: 3, lab: 0, total: 3 });
   renderBuilder();
 }
 
-function removeSubject(yIdx,sIdx,subIdx){
-  currentBuilder.years[yIdx].semesters[sIdx].subjects.splice(subIdx,1);
+function removeSubject(yIdx, sIdx, subIdx) {
+  currentBuilder.years[yIdx].semesters[sIdx].subjects.splice(subIdx, 1);
   renderBuilder();
 }
 
-function updateYearLabel(yIdx,val){ currentBuilder.years[yIdx].label = val; }
-function updateSemesterLabel(yIdx,sIdx,val){ currentBuilder.years[yIdx].semesters[sIdx].label = val; }
-function updateSubjectField(yIdx,sIdx,subIdx,field,val){ currentBuilder.years[yIdx].semesters[sIdx].subjects[subIdx][field] = val; }
+function updateYearLabel(yIdx, val) { currentBuilder.years[yIdx].label = val; }
+function updateSemesterLabel(yIdx, sIdx, val) { currentBuilder.years[yIdx].semesters[sIdx].label = val; }
+function updateSubjectField(yIdx, sIdx, subIdx, field, val) { currentBuilder.years[yIdx].semesters[sIdx].subjects[subIdx][field] = val; }
 
-function renderBuilder(){
+function renderBuilder() {
   const container = document.getElementById('builderYears');
-  if(!container) return;
-  if(!currentBuilder.years.length){ container.innerHTML = `<div class="text-gray-400 text-sm">No years yet. Click "Add Year" to start.</div>`; return; }
-  container.innerHTML = currentBuilder.years.map((y,yIdx)=>{
+  if (!container) return;
+  if (!currentBuilder.years.length) { container.innerHTML = `<div class="text-gray-400 text-sm">No years yet. Click "Add Year" to start.</div>`; return; }
+  container.innerHTML = currentBuilder.years.map((y, yIdx) => {
     return `
       <div class="p-3 border rounded-lg">
         <div class="flex items-center justify-between mb-2">
@@ -191,7 +191,7 @@ function renderBuilder(){
           </div>
         </div>
         <div class="space-y-3">
-          ${y.semesters.map((s,sIdx)=>`
+          ${y.semesters.map((s, sIdx) => `
                 <div class="p-3 border rounded-lg bg-gray-50">
               <div class="flex items-center justify-between mb-2">
                 <input value="${escapeHtml(s.label)}" oninput="updateSemesterLabel(${yIdx}, ${sIdx}, this.value)" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-700 text-sm" />
@@ -209,7 +209,7 @@ function renderBuilder(){
                   <div class="col-span-1 text-center">LAB</div>
                   <div class="col-span-1 text-center">TOTAL</div>
                 </div>
-                ${s.subjects.map((sub,subIdx)=>`
+                ${s.subjects.map((sub, subIdx) => `
                   <div class="grid grid-cols-12 gap-2 items-center bg-white p-2 rounded-md border border-gray-50">
                     <div class="col-span-2"><input value="${escapeHtml(sub.code)}" placeholder="Code" oninput="updateSubjectField(${yIdx},${sIdx},${subIdx},'code',this.value)" class="w-full px-3 py-2 border border-gray-200 rounded text-sm"/></div>
                     <div class="col-span-5"><input value="${escapeHtml(sub.title)}" placeholder="Descriptive Title" oninput="updateSubjectField(${yIdx},${sIdx},${subIdx},'title',this.value)" class="w-full px-3 py-2 border border-gray-200 rounded text-sm"/></div>
@@ -221,9 +221,9 @@ function renderBuilder(){
                 `).join('')}
                 <div class="grid grid-cols-12 gap-2 items-center mt-2 p-2 bg-gray-50 rounded-md border border-gray-100 text-sm font-semibold">
                   <div class="col-span-9 text-right">TOTAL</div>
-                  <div class="col-span-1 text-center">${s.subjects.reduce((a,b)=>a+Number(b.lec||0),0)}</div>
-                  <div class="col-span-1 text-center">${s.subjects.reduce((a,b)=>a+Number(b.lab||0),0)}</div>
-                  <div class="col-span-1 text-center">${s.subjects.reduce((a,b)=>a+Number(b.total||0),0)}</div>
+                  <div class="col-span-1 text-center">${s.subjects.reduce((a, b) => a + Number(b.lec || 0), 0)}</div>
+                  <div class="col-span-1 text-center">${s.subjects.reduce((a, b) => a + Number(b.lab || 0), 0)}</div>
+                  <div class="col-span-1 text-center">${s.subjects.reduce((a, b) => a + Number(b.total || 0), 0)}</div>
                 </div>
               </div>
             </div>
@@ -234,242 +234,242 @@ function renderBuilder(){
   }).join('');
 }
 
-function saveBuilderAsProspectus(){
+function saveBuilderAsProspectus() {
   const name = document.getElementById('builderName').value.trim();
   const desc = document.getElementById('builderDesc').value.trim();
-  if(!name){ showToast('Prospectus name required','error'); return; }
+  if (!name) { showToast('Prospectus name required', 'error'); return; }
   const programSelect = document.getElementById('builderProgramSelect');
   const program_name = programSelect?.value || '';
   const payload = { name, description: desc, years: currentBuilder.years, program_name };
   fetch('/admin-panel/api/prospectuses/create/', {
     method: 'POST',
     credentials: 'same-origin',
-    headers: {'Content-Type':'application/json','X-CSRFToken': getCSRFToken()},
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
     body: JSON.stringify(payload)
-  }).then(r=>r.json()).then(res=>{
-    if(res.success){ showToast('Prospectus saved'); resetBuilder(); renderProspectusPage(); }
-    else showToast(res.message||'Unable to save', 'error');
-  }).catch(err=>{ console.error(err); showToast('Network error', 'error'); });
+  }).then(r => r.json()).then(res => {
+    if (res.success) { showToast('Prospectus saved'); resetBuilder(); renderProspectusPage(); }
+    else showToast(res.message || 'Unable to save', 'error');
+  }).catch(err => { console.error(err); showToast('Network error', 'error'); });
 }
 
 // small helper to escape HTML for values
-function escapeHtml(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+function escapeHtml(s) { if (!s) return ''; return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
 
-function deleteProspectus(id){
-  if(!confirm('Delete this prospectus?')) return;
+function deleteProspectus(id) {
+  if (!confirm('Delete this prospectus?')) return;
   fetch(`/admin-panel/api/prospectuses/${id}/delete/`, {
     method: 'POST',
     credentials: 'same-origin',
-    headers: {'Content-Type':'application/json','X-CSRFToken': getCSRFToken()},
-    body: JSON.stringify({id})
-  }).then(r=>r.json()).then(res=>{
-    if(res.success){ showToast('Prospectus deleted'); renderProspectusPage(); }
-    else showToast(res.message||'Unable to delete','error');
-  }).catch(err=>{ console.error(err); showToast('Network error','error'); });
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+    body: JSON.stringify({ id })
+  }).then(r => r.json()).then(res => {
+    if (res.success) { showToast('Prospectus deleted'); renderProspectusPage(); }
+    else showToast(res.message || 'Unable to delete', 'error');
+  }).catch(err => { console.error(err); showToast('Network error', 'error'); });
 }
 
 // Prospectus modal controls
-function openProspectusModal(){
+function openProspectusModal() {
   resetBuilder();
   renderBuilder();
   // populate programs select from backend
-  fetch('/admin-panel/api/programs/', { credentials: 'same-origin' }).then(r=>r.json()).then(res=>{
+  fetch('/admin-panel/api/programs/', { credentials: 'same-origin' }).then(r => r.json()).then(res => {
     const sel = document.getElementById('builderProgramSelect');
-    if(!sel) return;
+    if (!sel) return;
     sel.innerHTML = '<option value="">Select program</option>';
-    if(res && res.success && Array.isArray(res.data)){
-      res.data.forEach(p=>{
+    if (res && res.success && Array.isArray(res.data)) {
+      res.data.forEach(p => {
         const opt = document.createElement('option'); opt.value = p.name; opt.textContent = p.name; sel.appendChild(opt);
       });
     }
-  }).catch(err=>{ console.warn('Failed to load programs',err); });
+  }).catch(err => { console.warn('Failed to load programs', err); });
 
   const modal = document.getElementById('prospectusModal');
-  if(modal){ modal.classList.add('open'); modal.style.display='flex'; }
+  if (modal) { modal.classList.add('open'); modal.style.display = 'flex'; }
 }
-function closeProspectusModal(){
+function closeProspectusModal() {
   const modal = document.getElementById('prospectusModal');
-  if(modal){ modal.classList.remove('open'); modal.style.display='none'; }
+  if (modal) { modal.classList.remove('open'); modal.style.display = 'none'; }
 }
-document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ closeProspectusModal(); } });
-document.getElementById('prospectusModal')?.addEventListener('click', function(e){ if(e.target===this) closeProspectusModal(); });
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeProspectusModal(); } });
+document.getElementById('prospectusModal')?.addEventListener('click', function (e) { if (e.target === this) closeProspectusModal(); });
 
 // Initialize on page load
 // Populate Admission Details (School Year, Semester, Curriculum)
-function populateAdmissionDetails(){
+function populateAdmissionDetails() {
   const semEl = document.getElementById('admSemester');
   const yearEl = document.getElementById('admYear');
   const levelEl = document.getElementById('admProgramLevel');
   const currEl = document.getElementById('admCurriculum');
   let activeSchoolYearName = '';
   let activeSemesterName = '';
-  
+
   // Determine which values to try to set (from selectedApp or empty)
   const targetCurriculum = window.selectedApp?.student_curriculum || window.selectedApp?.curriculum || '';
   const targetSemester = window.selectedApp?.semester || '';
   const targetYear = window.selectedApp?.year_admitted || '';
   const targetProgramLevel = window.selectedApp?.program_level || '';
   const userId = window.selectedApp?.user_id || null;
-  
+
   // Load all options in parallel
   Promise.all([
     // Load semesters
-    fetch('/admin-panel/api/admission/semesters/', { 
-      method: 'GET', 
-      credentials: 'same-origin', 
-      headers: {'Accept':'application/json'} 
+    fetch('/admin-panel/api/admission/semesters/', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' }
     })
-      .then(r=>r.json())
-      .then(res=>{
-        if(!semEl) return;
+      .then(r => r.json())
+      .then(res => {
+        if (!semEl) return;
         semEl.innerHTML = '<option value="">— Select —</option>';
-        if(res && res.success && Array.isArray(res.semesters) && res.semesters.length){
-          res.semesters.forEach(s=>{ 
-            const opt=document.createElement('option'); 
-            opt.value=s.name || ''; 
-            opt.textContent=s.name || ''; 
-            semEl.appendChild(opt); 
+        if (res && res.success && Array.isArray(res.semesters) && res.semesters.length) {
+          res.semesters.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.name || '';
+            opt.textContent = s.name || '';
+            semEl.appendChild(opt);
           });
         } else {
-          ['1st Semester','2nd Semester','Summer'].forEach(s=>{ 
-            const opt=document.createElement('option'); 
-            opt.value=s; 
-            opt.textContent=s; 
-            semEl.appendChild(opt); 
+          ['1st Semester', '2nd Semester', 'Summer'].forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s;
+            opt.textContent = s;
+            semEl.appendChild(opt);
           });
         }
         return 'semesters';
       })
-      .catch(err=>{ console.warn('Failed to load semesters', err); }),
-      
+      .catch(err => { console.warn('Failed to load semesters', err); }),
+
     // Load school years and get active one (with active semester)
-    fetch('/admin-panel/api/admission/active-school-year/', { 
-      method: 'GET', 
-      credentials: 'same-origin', 
-      headers: {'Accept':'application/json'} 
+    fetch('/admin-panel/api/admission/active-school-year/', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' }
     })
-      .then(r=>r.json())
-      .then(res=>{
-        if(res && res.success && res.data){
+      .then(r => r.json())
+      .then(res => {
+        if (res && res.success && res.data) {
           activeSchoolYearName = res.data.school_year?.name || '';
           activeSemesterName = res.data.active_semester?.name || '';
         }
         return 'active_schoolyear';
       })
-      .catch(err=>{ console.warn('Failed to load active school year', err); }),
-      
+      .catch(err => { console.warn('Failed to load active school year', err); }),
+
     // Load all school years
-    fetch('/admin-panel/api/admission/school-years/', { 
-      method: 'GET', 
-      credentials: 'same-origin', 
-      headers: {'Accept':'application/json'} 
+    fetch('/admin-panel/api/admission/school-years/', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' }
     })
-      .then(r=>r.json())
-      .then(res=>{
-        if(!yearEl) return;
+      .then(r => r.json())
+      .then(res => {
+        if (!yearEl) return;
         yearEl.innerHTML = '<option value="">— Select —</option>';
-        if(res && res.success && Array.isArray(res.school_years) && res.school_years.length){
-          res.school_years.forEach(y=>{ 
-            const opt=document.createElement('option'); 
-            opt.value=y.name; 
-            opt.textContent=y.name; 
-            yearEl.appendChild(opt); 
+        if (res && res.success && Array.isArray(res.school_years) && res.school_years.length) {
+          res.school_years.forEach(y => {
+            const opt = document.createElement('option');
+            opt.value = y.name;
+            opt.textContent = y.name;
+            yearEl.appendChild(opt);
           });
         }
         return 'schoolyears';
       })
-      .catch(err=>{ console.warn('Failed to load school years', err); }),
-      
+      .catch(err => { console.warn('Failed to load school years', err); }),
+
     // Load program levels from Program table
     fetch('/admin-panel/api/programs/', {
       method: 'GET',
       credentials: 'same-origin',
-      headers: {'Accept':'application/json'}
+      headers: { 'Accept': 'application/json' }
     })
-      .then(r=>r.json())
-      .then(res=>{
-        if(!levelEl) return;
+      .then(r => r.json())
+      .then(res => {
+        if (!levelEl) return;
         levelEl.innerHTML = '<option value="">— Select Level —</option>';
-        if(res && res.success && Array.isArray(res.data) && res.data.length){
-          res.data.forEach(program=>{
-            const opt=document.createElement('option');
-            opt.value=program.name;
-            opt.textContent=program.program_label || program.name;
+        if (res && res.success && Array.isArray(res.data) && res.data.length) {
+          res.data.forEach(program => {
+            const opt = document.createElement('option');
+            opt.value = program.name;
+            opt.textContent = program.program_label || program.name;
             levelEl.appendChild(opt);
           });
         }
       })
-      .catch(err=>{ console.warn('Failed to load programs', err); }),
-      
+      .catch(err => { console.warn('Failed to load programs', err); }),
+
     // Load curricula
-    fetch('/admin-panel/api/admission/curricula/', { 
-      method: 'GET', 
-      credentials: 'same-origin', 
-      headers: {'Accept':'application/json'} 
+    fetch('/admin-panel/api/admission/curricula/', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' }
     })
-      .then(r=>r.json())
-      .then(res=>{
-        if(!currEl) return;
+      .then(r => r.json())
+      .then(res => {
+        if (!currEl) return;
         currEl.innerHTML = '<option value="">— Select Curriculum —</option>';
-        if(res && res.success && Array.isArray(res.curricula) && res.curricula.length){
-          res.curricula.forEach(c=>{ 
-            const opt=document.createElement('option'); 
-            opt.value=c.name; 
-            opt.textContent=c.name + (c.program_name ? ' — '+c.program_name : ''); 
-            currEl.appendChild(opt); 
+        if (res && res.success && Array.isArray(res.curricula) && res.curricula.length) {
+          res.curricula.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.name;
+            opt.textContent = c.name + (c.program_name ? ' — ' + c.program_name : '');
+            currEl.appendChild(opt);
           });
         }
         return 'curricula';
       })
-      .catch(err=>{ console.warn('Failed to load curricula', err); })
+      .catch(err => { console.warn('Failed to load curricula', err); })
   ]).then(() => {
     // After all options are loaded, set the values
-    
+
     // Set semester from app data if present, otherwise use the active semester from DB
-    if(semEl){
+    if (semEl) {
       semEl.value = targetSemester || activeSemesterName || '';
     }
-    
+
     // Set school year from app data if present, otherwise use the active school year from DB
-    if(yearEl){
+    if (yearEl) {
       yearEl.value = targetYear || activeSchoolYearName || '';
     }
 
     // Set program level from app data
-    if(levelEl && targetProgramLevel){
+    if (levelEl && targetProgramLevel) {
       levelEl.value = targetProgramLevel;
     }
-    
+
     // Set curriculum - fetch from student's EducationalBackground (graduate level)
-    if(currEl && userId){
-      fetch(`/admin-panel/api/admission/student-curriculum/${userId}/`, { 
-        method: 'GET', 
-        credentials: 'same-origin', 
-        headers: {'Accept':'application/json'} 
+    if (currEl && userId) {
+      fetch(`/admin-panel/api/admission/student-curriculum/${userId}/`, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json' }
       })
-        .then(r=>r.json())
-        .then(res=>{
+        .then(r => r.json())
+        .then(res => {
           // Use student's curriculum if found and no app override
-          if(res.success && res.curriculum && !targetCurriculum){
+          if (res.success && res.curriculum && !targetCurriculum) {
             currEl.value = res.curriculum;
-          } else if(targetCurriculum){
+          } else if (targetCurriculum) {
             // Use app stored curriculum as fallback
             currEl.value = targetCurriculum;
           }
         })
-        .catch(err=>{ 
+        .catch(err => {
           // Fallback to application's stored curriculum
-          if(targetCurriculum && currEl){
+          if (targetCurriculum && currEl) {
             currEl.value = targetCurriculum;
           }
         });
-    } else if(currEl && targetCurriculum){
+    } else if (currEl && targetCurriculum) {
       currEl.value = targetCurriculum;
     }
-  }).catch(err=>{ console.warn('Error in populateAdmissionDetails', err); });
+  }).catch(err => { console.warn('Error in populateAdmissionDetails', err); });
 }
 
-if(document.readyState === 'loading') {
+if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeData);
 } else {
   initializeData();
@@ -477,7 +477,7 @@ if(document.readyState === 'loading') {
 
 // Assignment UI removed — creation-time program selection is used instead.
 
-function assignProspectus(){
+function assignProspectus() {
   const pSelect = document.getElementById('assignProspectusSelect');
   const progSelect = document.getElementById('assignProgramSelect');
   const progCode = document.getElementById('assignProgramCode');
@@ -486,65 +486,65 @@ function assignProspectus(){
   const program_name = (progSelect?.value || '').trim();
   const program_code = (progCode?.value || '').trim();
   const intake_year = (intake?.value || '').trim();
-  if(!prospectus_id){ showToast('Select a prospectus to assign','error'); return; }
-  if(!program_name && !program_code){ if(!confirm('Assigning without a program name or code. Continue?') ) return; }
+  if (!prospectus_id) { showToast('Select a prospectus to assign', 'error'); return; }
+  if (!program_name && !program_code) { if (!confirm('Assigning without a program name or code. Continue?')) return; }
   const payload = { prospectus_id: Number(prospectus_id), program_name, program_code, intake_year };
-  fetch('/admin-panel/api/prospectuses/assign/', { method: 'POST', headers: {'Content-Type':'application/json','X-CSRFToken': getCSRFToken()}, body: JSON.stringify(payload) })
-    .then(r=>r.json()).then(res=>{
-      if(res.success){ showToast('Assigned prospectus'); }
-      else showToast(res.message||'Unable to assign','error');
-    }).catch(err=>{ console.error(err); showToast('Network error','error'); });
+  fetch('/admin-panel/api/prospectuses/assign/', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() }, body: JSON.stringify(payload) })
+    .then(r => r.json()).then(res => {
+      if (res.success) { showToast('Assigned prospectus'); }
+      else showToast(res.message || 'Unable to assign', 'error');
+    }).catch(err => { console.error(err); showToast('Network error', 'error'); });
 }
 
 // Document status summary function
-function getDocStatus(docs){
+function getDocStatus(docs) {
   const v = docs.filter(d => d.status === "Verified").length;
   const p = docs.filter(d => d.status === "Pending Review" || d.status === "Under Review").length;
   const r = docs.filter(d => d.status === "Rejected").length;
   const m = docs.filter(d => d.missing === true || d.status === "Missing").length;
   let h = "";
-  if(v) h += `<span class="flex items-center gap-1"><span class="dot dot-green"></span>${v} Verified</span>`;
-  if(p) h += `<span class="flex items-center gap-1"><span class="dot dot-orange"></span>${p} Pending</span>`;
-  if(r) h += `<span class="flex items-center gap-1"><span class="dot dot-red"></span>${r} Rejected</span>`;
-  if(m) h += `<span class="flex items-center gap-1"><span class="dot dot-red"></span>${m} Missing</span>`;
+  if (v) h += `<span class="flex items-center gap-1"><span class="dot dot-green"></span>${v} Verified</span>`;
+  if (p) h += `<span class="flex items-center gap-1"><span class="dot dot-orange"></span>${p} Pending</span>`;
+  if (r) h += `<span class="flex items-center gap-1"><span class="dot dot-red"></span>${r} Rejected</span>`;
+  if (m) h += `<span class="flex items-center gap-1"><span class="dot dot-red"></span>${m} Missing</span>`;
   return h || `<span class="text-gray-400 text-xs">No docs</span>`;
 }
-function statusBadge(s){
+function statusBadge(s) {
   const normalized = s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
   const full = {
-    "Pending review":"Pending Review",
-    "Under review":"Under Review"
+    "Pending review": "Pending Review",
+    "Under review": "Under Review"
   }[normalized] || normalized;
-  const m={"Pending Review":"badge-pending","Under Review":"badge-review","Verified":"badge-verified","Incomplete":"badge-incomplete","Rejected":"badge-rejected"};
-  const ic={"Pending Review":"⏳","Under Review":"🔄","Verified":"✅","Incomplete":"⚠️","Rejected":"❌"};
-  return `<span class="status-badge ${m[full]||'badge-review'}">${ic[full]||''}${full}</span>`;
+  const m = { "Pending Review": "badge-pending", "Under Review": "badge-review", "Verified": "badge-verified", "Incomplete": "badge-incomplete", "Rejected": "badge-rejected" };
+  const ic = { "Pending Review": "⏳", "Under Review": "🔄", "Verified": "✅", "Incomplete": "⚠️", "Rejected": "❌" };
+  return `<span class="status-badge ${m[full] || 'badge-review'}">${ic[full] || ''}${full}</span>`;
 }
-function initials(n){return n.split(" ").filter((_,i,a)=>i===0||i===a.length-1).map(x=>x[0]).join("").toUpperCase();}
-function avatarBg(n){const c=["bg-red-200 text-red-800","bg-blue-200 text-blue-800","bg-green-200 text-green-800","bg-purple-200 text-purple-800","bg-yellow-200 text-yellow-800"];return c[n.charCodeAt(0)%c.length];}
+function initials(n) { return n.split(" ").filter((_, i, a) => i === 0 || i === a.length - 1).map(x => x[0]).join("").toUpperCase(); }
+function avatarBg(n) { const c = ["bg-red-200 text-red-800", "bg-blue-200 text-blue-800", "bg-green-200 text-green-800", "bg-purple-200 text-purple-800", "bg-yellow-200 text-yellow-800"]; return c[n.charCodeAt(0) % c.length]; }
 
-function showToast(msg,type="success"){
-  const t=document.getElementById("toast");
-  const ic=document.getElementById("toastIcon");
-  document.getElementById("toastText").innerText=msg;
-  ic.setAttribute("data-lucide",type==="success"?"check-circle":"alert-triangle");
-  ic.className="w-4 h-4 "+(type==="success"?"text-green-400":"text-yellow-400");
+function showToast(msg, type = "success") {
+  const t = document.getElementById("toast");
+  const ic = document.getElementById("toastIcon");
+  document.getElementById("toastText").innerText = msg;
+  ic.setAttribute("data-lucide", type === "success" ? "check-circle" : "alert-triangle");
+  ic.className = "w-4 h-4 " + (type === "success" ? "text-green-400" : "text-yellow-400");
   lucide.createIcons();
   t.classList.remove("hidden");
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.add("hidden"),3200);
+  toastTimer = setTimeout(() => t.classList.add("hidden"), 3200);
 }
 
 /* ═══ ACTIVITY HISTORY ═══ */
 const ACTION_BADGE = {
-  'Verified Document':      'bg-green-100 text-green-700',
-  'Rejected Document':      'bg-red-100 text-red-700',
-  'Marked Incomplete':      'bg-yellow-100 text-yellow-700',
+  'Verified Document': 'bg-green-100 text-green-700',
+  'Rejected Document': 'bg-red-100 text-red-700',
+  'Marked Incomplete': 'bg-yellow-100 text-yellow-700',
   'Requested Resubmission': 'bg-blue-100 text-blue-700',
-  'Sent Message':           'bg-purple-100 text-purple-700',
-  'Added Note':             'bg-indigo-100 text-indigo-700',
-  'Updated Profile':        'bg-gray-100 text-gray-600',
-  'Changed Profile Photo':  'bg-gray-100 text-gray-600',
-  'Updated CMS Settings':   'bg-gray-100 text-gray-600',
+  'Sent Message': 'bg-purple-100 text-purple-700',
+  'Added Note': 'bg-indigo-100 text-indigo-700',
+  'Updated Profile': 'bg-gray-100 text-gray-600',
+  'Changed Profile Photo': 'bg-gray-100 text-gray-600',
+  'Updated CMS Settings': 'bg-gray-100 text-gray-600',
 };
 
 function renderHistory() {
@@ -562,10 +562,10 @@ function renderHistory() {
 
   if (search) {
     rows = rows.filter(r =>
-      (r.appId  || '').toLowerCase().includes(search) ||
-      (r.doc    || '').toLowerCase().includes(search) ||
-      (r.admin  || '').toLowerCase().includes(search) ||
-      (r.notes  || '').toLowerCase().includes(search)
+      (r.appId || '').toLowerCase().includes(search) ||
+      (r.doc || '').toLowerCase().includes(search) ||
+      (r.admin || '').toLowerCase().includes(search) ||
+      (r.notes || '').toLowerCase().includes(search)
     );
   }
 
@@ -608,14 +608,14 @@ async function refreshActivityHistory() {
 function switchPage(pageId, el) {
   // Ensure data is initialized from context
   initializeData();
-  
+
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const targetPage = document.getElementById('page-' + pageId);
   if (targetPage) targetPage.classList.add('active');
-  
+
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   if (el) el.classList.add('active');
-  
+
   if (pageId === 'documents') {
     if (typeof switchDocVerTab === 'function') {
       switchDocVerTab('application');
@@ -645,10 +645,10 @@ function switchPage(pageId, el) {
 }
 
 /* ═══ DASHBOARD ═══ */
-function renderDashboard(){
+function renderDashboard() {
   // Render Recent Applications
   const recentAppsContainer = document.getElementById('dashRecentList');
-  if(recentAppsContainer && contextData.recentApplications) {
+  if (recentAppsContainer && contextData.recentApplications) {
     recentAppsContainer.innerHTML = contextData.recentApplications.map(app => `
       <div class="flex items-center justify-between p-4 hover:bg-gray-50 transition border-b border-gray-100 last:border-0">
         <div class="flex items-center gap-3">
@@ -662,20 +662,20 @@ function renderDashboard(){
       </div>
     `).join('');
   }
-  
+
   // Render Verification Progress
   const verificationContainer = document.getElementById('dashProgress');
-  if(verificationContainer && contextData.verificationProgress) {
+  if (verificationContainer && contextData.verificationProgress) {
     const vp = contextData.verificationProgress;
     const items = [
-      {name:'Verified',    count:vp.verified||0,  color:'#22c55e'},
-      {name:'Under Review',count:vp.reviewing||0, color:'#eab308'},
-      {name:'Pending',     count:vp.pending||0,   color:'#f97316'},
-      {name:'Rejected',    count:vp.rejected||0,  color:'#ef4444'}
+      { name: 'Verified', count: vp.verified || 0, color: '#22c55e' },
+      { name: 'Under Review', count: vp.reviewing || 0, color: '#eab308' },
+      { name: 'Pending', count: vp.pending || 0, color: '#f97316' },
+      { name: 'Rejected', count: vp.rejected || 0, color: '#ef4444' }
     ];
-    const total = items.reduce((s,i)=>s+i.count,0)||1;
-    verificationContainer.innerHTML = items.map(item=>{
-      const pct = Math.round((item.count/total)*100);
+    const total = items.reduce((s, i) => s + i.count, 0) || 1;
+    verificationContainer.innerHTML = items.map(item => {
+      const pct = Math.round((item.count / total) * 100);
       return `
         <div>
           <div class="flex justify-between items-center mb-1">
@@ -688,32 +688,32 @@ function renderDashboard(){
         </div>`;
     }).join('');
   }
-  
+
   lucide.createIcons();
 }
 
 /* ═══ DOCUMENTS TABLE ═══ */
-function renderTable(){
-  const tbody=document.getElementById("tableBody");
-  const empty=document.getElementById("emptyState");
-  if(!tbody) return;
-  tbody.innerHTML="";
-  const search=(document.getElementById("searchInput")?.value||"").toLowerCase();
-  const filter=document.getElementById("statusFilter")?.value||"all";
-  let filtered=applications.filter(a=>a.name.toLowerCase().includes(search)&&(filter==="all"||a.status===filter));
-  if(!filtered.length){empty?.classList.remove("hidden");}
-  else{
+function renderTable() {
+  const tbody = document.getElementById("tableBody");
+  const empty = document.getElementById("emptyState");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  const search = (document.getElementById("searchInput")?.value || "").toLowerCase();
+  const filter = document.getElementById("statusFilter")?.value || "all";
+  let filtered = applications.filter(a => a.name.toLowerCase().includes(search) && (filter === "all" || a.status === filter));
+  if (!filtered.length) { empty?.classList.remove("hidden"); }
+  else {
     empty?.classList.add("hidden");
-    filtered.forEach(app=>{
+    filtered.forEach(app => {
       // Account status
       const isActive = app.accountActive !== undefined ? app.accountActive : true;
-      const esc = (s) => String(s||'').replace(/'/g,"\\'");
+      const esc = (s) => String(s || '').replace(/'/g, "\\'");
       const userId = app.userId || 0;
       const reason = esc(app.accountStatusReason || '');
       const changedBy = esc(app.accountStatusChangedBy || '');
       const changedAt = esc(app.accountStatusChangedAt || '');
-      
-      tbody.innerHTML+=`
+
+      tbody.innerHTML += `
         <tr class="border-t border-gray-50 hover:bg-gray-50/70 transition-colors" data-app-id="${app.id}">
           <td class="px-4 py-4 text-red-700 font-semibold text-sm">${app.id}</td>
           <td class="px-4 py-4"><p class="font-semibold text-gray-800 text-sm">${app.name}</p><p class="text-xs text-gray-400">${app.email}</p><p class="text-xs text-gray-400">${app.mobile}</p></td>
@@ -737,43 +737,43 @@ function renderTable(){
 
 
 
-function updateCounts(){
-  const s = applications.map(a=>(a.status||'').toLowerCase());
-  document.getElementById("totalCount").innerText     =applications.length;
-  document.getElementById("pendingCount").innerText   =s.filter(x=>x==="pending review").length;
-  document.getElementById("reviewCount").innerText    =s.filter(x=>x==="under review").length;
-  document.getElementById("verifiedCount").innerText  =s.filter(x=>x==="verified").length;
-  document.getElementById("incompleteCount").innerText=s.filter(x=>x==="incomplete").length;
+function updateCounts() {
+  const s = applications.map(a => (a.status || '').toLowerCase());
+  document.getElementById("totalCount").innerText = applications.length;
+  document.getElementById("pendingCount").innerText = s.filter(x => x === "pending review").length;
+  document.getElementById("reviewCount").innerText = s.filter(x => x === "under review").length;
+  document.getElementById("verifiedCount").innerText = s.filter(x => x === "verified").length;
+  document.getElementById("incompleteCount").innerText = s.filter(x => x === "incomplete").length;
 }
 /* ═══ STUDENTS ═══ */
-function renderStudents(){
-  const grid=document.getElementById("studentGrid");
-  const cnt=document.getElementById("studentCount");
-  if(!grid) return;
-  const search=(document.getElementById("studentSearch")?.value||"").toLowerCase();
-  const course=document.getElementById("studentCourse")?.value||"all";
-  let filtered=applications.filter(a=>
-    (a.name.toLowerCase().includes(search)||a.id.toLowerCase().includes(search))&&
-    (course==="all"||a.course===course)
+function renderStudents() {
+  const grid = document.getElementById("studentGrid");
+  const cnt = document.getElementById("studentCount");
+  if (!grid) return;
+  const search = (document.getElementById("studentSearch")?.value || "").toLowerCase();
+  const course = document.getElementById("studentCourse")?.value || "all";
+  let filtered = applications.filter(a =>
+    (a.name.toLowerCase().includes(search) || a.id.toLowerCase().includes(search)) &&
+    (course === "all" || a.course === course)
   );
-  if(cnt) cnt.innerText=filtered.length;
-  if(!filtered.length){
-    grid.innerHTML=`<div class="col-span-3 py-16 text-center text-gray-400"><i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-40"></i><p class="text-sm">No students found.</p></div>`;
+  if (cnt) cnt.innerText = filtered.length;
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="col-span-3 py-16 text-center text-gray-400"><i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-40"></i><p class="text-sm">No students found.</p></div>`;
     lucide.createIcons(); return;
   }
-  grid.innerHTML=filtered.map(app=>{
+  grid.innerHTML = filtered.map(app => {
     // Account status
     const isActive = app.accountActive !== undefined ? app.accountActive : true;
-    const accountBadge = isActive 
+    const accountBadge = isActive
       ? '<span class="px-2 py-0.5 text-xs rounded-full bg-green-50 border border-green-200 text-green-700 font-medium">Active</span>'
       : '<span class="px-2 py-0.5 text-xs rounded-full bg-red-50 border border-red-200 text-red-700 font-medium">Inactive</span>';
-    
-    const esc = (s) => String(s||'').replace(/'/g,"\\'");
+
+    const esc = (s) => String(s || '').replace(/'/g, "\\'");
     const userId = app.userId || 0;
     const reason = esc(app.accountStatusReason || '');
     const changedBy = esc(app.accountStatusChangedBy || '');
     const changedAt = esc(app.accountStatusChangedAt || '');
-    
+
     const toggleBtn = `
       <button onclick="openToggleStatusModal(${userId},'${esc(app.name)}',${isActive},'${reason}','${changedBy}','${changedAt}')" 
         class="text-xs font-medium px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 w-full justify-center
@@ -781,11 +781,11 @@ function renderStudents(){
         <i data-lucide="${isActive ? 'user-x' : 'user-check'}" class="w-3 h-3"></i>
         ${isActive ? 'Deactivate Account' : 'Activate Account'}
       </button>`;
-    
-    const statusInfo = app.accountStatusReason 
-      ? `<p class="text-xs text-gray-400 mt-1.5">${esc(app.accountStatusChangedBy||'')}${app.accountStatusChangedBy && app.accountStatusChangedAt ? ' · ' : ''}${esc(app.accountStatusChangedAt||'')}</p>`
+
+    const statusInfo = app.accountStatusReason
+      ? `<p class="text-xs text-gray-400 mt-1.5">${esc(app.accountStatusChangedBy || '')}${app.accountStatusChangedBy && app.accountStatusChangedAt ? ' · ' : ''}${esc(app.accountStatusChangedAt || '')}</p>`
       : '';
-    
+
     return `
     <div class="bg-white rounded-2xl shadow-sm p-5 fade-in hover:shadow-md transition">
       <div class="flex items-center gap-4 mb-3">
@@ -835,17 +835,17 @@ function getSelectedAppIds() {
 
 async function bulkVerifyApplications() {
   const selectedIds = getSelectedAppIds();
-  
+
   if (selectedIds.length === 0) {
     showToast('Please select at least one application to verify', 'warn');
     return;
   }
-  
+
   if (!confirm(`Are you sure you want to bulk verify ${selectedIds.length} application(s)?`)) return;
-  
+
   let successCount = 0;
   let failCount = 0;
-  
+
   for (const appId of selectedIds) {
     try {
       const response = await fetch('/admin-panel/api/application/bulk-verify/', {
@@ -857,7 +857,7 @@ async function bulkVerifyApplications() {
         body: JSON.stringify({ application_id: appId })
       });
       const data = await response.json();
-      
+
       if (data.success) {
         const app = applications.find(a => a.id === appId);
         if (app) app.status = 'Verified';
@@ -869,15 +869,15 @@ async function bulkVerifyApplications() {
       failCount++;
     }
   }
-  
+
   showToast(`Verified: ${successCount}, Failed: ${failCount}`, successCount > 0 ? 'success' : 'warn');
   renderTable();
 }
 
 /* ═══ REVIEW MODAL (defined below, overridden by updated version) ═══ */
-function closeModal(){
+function closeModal() {
   const modal = document.getElementById("modal");
-  if(modal) {
+  if (modal) {
     modal.classList.remove("open");
     modal.style.display = "none";
   }
@@ -886,27 +886,27 @@ function closeModal(){
 /* ═══ DOCUMENT PREVIEW HELPERS ═══ */
 let docPreviewCurrentIdx = 0;
 
-function getFileExt(url){
-  const clean = (url||'').split('?')[0];
+function getFileExt(url) {
+  const clean = (url || '').split('?')[0];
   return clean.split('.').pop().toLowerCase();
 }
 
-function getDocumentPreviewMarkup(doc, size='thumb'){
+function getDocumentPreviewMarkup(doc, size = 'thumb') {
   const url = doc.fileUrl || '';
   const ext = getFileExt(url);
-  const imageExts = ['jpg','jpeg','png','webp','gif'];
-  const pdfExts   = ['pdf'];
+  const imageExts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+  const pdfExts = ['pdf'];
   const h = size === 'full' ? 'h-full' : 'h-full';
 
-  if(!url){
+  if (!url) {
     return `<div class="w-full h-full flex flex-col items-center justify-center gap-2 text-gray-400 select-none">
       <i data-lucide="file-x" class="w-8 h-8 opacity-40"></i>
       <p class="text-xs font-semibold">No file attached</p>
     </div>`;
   }
 
-  if(imageExts.includes(ext)){
-    if(size === 'full'){
+  if (imageExts.includes(ext)) {
+    if (size === 'full') {
       return `<img src="${url}" alt="${doc.name}"
         class="max-w-full max-h-full object-contain rounded-lg shadow-md cursor-zoom-in"
         onclick="window.open('${url}','_blank')" />`;
@@ -916,8 +916,8 @@ function getDocumentPreviewMarkup(doc, size='thumb'){
       onclick="openDocPreview(${doc._idx})" />`;
   }
 
-  if(pdfExts.includes(ext)){
-    if(size === 'full'){
+  if (pdfExts.includes(ext)) {
+    if (size === 'full') {
       return `<iframe src="${url}#toolbar=0&navpanes=0&view=FitH" class="w-full h-full rounded-lg border-0"
         title="${doc.name}">
         <div class="w-full h-full flex flex-col items-center justify-center gap-2 text-gray-500 bg-gray-100 rounded-lg">
@@ -943,7 +943,7 @@ function getDocumentPreviewMarkup(doc, size='thumb'){
 }
 
 /* ── Full-screen doc preview modal ── */
-function openDocPreview(idx){
+function openDocPreview(idx) {
   docPreviewCurrentIdx = idx;
   _renderDocPreviewModal();
   const overlay = document.getElementById('docPreviewOverlay');
@@ -951,16 +951,16 @@ function openDocPreview(idx){
   lucide.createIcons();
 }
 
-function closeDocPreview(){
+function closeDocPreview() {
   document.getElementById('docPreviewOverlay').style.display = 'none';
 }
 
-function navDocPreview(dir){
+function navDocPreview(dir) {
   const total = selectedApp.docs.length;
   let next = (docPreviewCurrentIdx + dir + total) % total;
   // Skip missing docs when navigating
   let attempts = 0;
-  while(selectedApp.docs[next].missing && attempts < total){
+  while (selectedApp.docs[next].missing && attempts < total) {
     next = (next + dir + total) % total;
     attempts++;
   }
@@ -969,36 +969,36 @@ function navDocPreview(dir){
   lucide.createIcons();
 }
 
-function _renderDocPreviewModal(){
-  const doc  = selectedApp.docs[docPreviewCurrentIdx];
+function _renderDocPreviewModal() {
+  const doc = selectedApp.docs[docPreviewCurrentIdx];
   const total = selectedApp.docs.length;
-  const isV  = doc.status === 'Verified';
-  const isR  = doc.status === 'Rejected';
+  const isV = doc.status === 'Verified';
+  const isR = doc.status === 'Rejected';
 
   // Header info
-  document.getElementById('dpDocName').textContent    = doc.name;
-  document.getElementById('dpDocType').textContent    = doc.type;
-  document.getElementById('dpDocUploaded').textContent= doc.uploadDate;
-  document.getElementById('dpDocCounter').textContent = `${docPreviewCurrentIdx+1} / ${total}`;
+  document.getElementById('dpDocName').textContent = doc.name;
+  document.getElementById('dpDocType').textContent = doc.type;
+  document.getElementById('dpDocUploaded').textContent = doc.uploadDate;
+  document.getElementById('dpDocCounter').textContent = `${docPreviewCurrentIdx + 1} / ${total}`;
 
   // Badge
   const badgeEl = document.getElementById('dpDocBadge');
-  if(isV) badgeEl.className='status-badge badge-verified', badgeEl.innerHTML='<i data-lucide="check-circle" class="w-3 h-3"></i>Verified';
-  else if(isR) badgeEl.className='status-badge badge-rejected', badgeEl.innerHTML='<i data-lucide="x-circle" class="w-3 h-3"></i>Rejected';
-  else badgeEl.className='status-badge badge-pending', badgeEl.innerHTML='<i data-lucide="clock" class="w-3 h-3"></i>'+doc.status;
+  if (isV) badgeEl.className = 'status-badge badge-verified', badgeEl.innerHTML = '<i data-lucide="check-circle" class="w-3 h-3"></i>Verified';
+  else if (isR) badgeEl.className = 'status-badge badge-rejected', badgeEl.innerHTML = '<i data-lucide="x-circle" class="w-3 h-3"></i>Rejected';
+  else badgeEl.className = 'status-badge badge-pending', badgeEl.innerHTML = '<i data-lucide="clock" class="w-3 h-3"></i>' + doc.status;
 
   // Verified-by strip
   const vstrip = document.getElementById('dpVerifiedBy');
-  if(isV && doc.verifiedBy){
+  if (isV && doc.verifiedBy) {
     vstrip.classList.remove('hidden');
-    vstrip.innerHTML=`<i data-lucide="user-check" class="w-3.5 h-3.5 text-green-500"></i><span class="text-green-700 text-xs font-medium">Verified by <strong>${doc.verifiedBy}</strong> on ${doc.verifiedOn}</span>`;
+    vstrip.innerHTML = `<i data-lucide="user-check" class="w-3.5 h-3.5 text-green-500"></i><span class="text-green-700 text-xs font-medium">Verified by <strong>${doc.verifiedBy}</strong> on ${doc.verifiedOn}</span>`;
   } else { vstrip.classList.add('hidden'); }
 
   // Issues strip
   const istrip = document.getElementById('dpIssues');
-  if(doc.issues && doc.issues.length){
+  if (doc.issues && doc.issues.length) {
     istrip.classList.remove('hidden');
-    istrip.innerHTML=`<i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-red-500 flex-shrink-0"></i><span class="text-red-600 text-xs">${doc.issues.join(' · ')}</span>`;
+    istrip.innerHTML = `<i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-red-500 flex-shrink-0"></i><span class="text-red-600 text-xs">${doc.issues.join(' · ')}</span>`;
   } else { istrip.classList.add('hidden'); }
 
   // Preview area
@@ -1006,8 +1006,8 @@ function _renderDocPreviewModal(){
 
   // Action buttons
   const actionsEl = document.getElementById('dpActions');
-  if(!isV && !isR){
-    actionsEl.innerHTML=`
+  if (!isV && !isR) {
+    actionsEl.innerHTML = `
       <button onclick="verifyDoc(${docPreviewCurrentIdx}); _renderDocPreviewModal();" class="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
         <i data-lucide="check" class="w-3.5 h-3.5"></i> Verify
       </button>
@@ -1015,7 +1015,7 @@ function _renderDocPreviewModal(){
         <i data-lucide="x" class="w-3.5 h-3.5"></i> Reject
       </button>`;
   } else {
-    actionsEl.innerHTML=`
+    actionsEl.innerHTML = `
 
         if(levelEl && targetProgramLevel){
           levelEl.value = targetProgramLevel;
@@ -1026,7 +1026,7 @@ function _renderDocPreviewModal(){
   }
 
   // Open full button
-  document.getElementById('dpOpenFull').onclick = ()=> viewFullDoc(doc.fileUrl, doc.name);
+  document.getElementById('dpOpenFull').onclick = () => viewFullDoc(doc.fileUrl, doc.name);
 
   // Nav buttons
   document.getElementById('dpNavPrev').classList.toggle('invisible', total <= 1);
@@ -1036,8 +1036,8 @@ function _renderDocPreviewModal(){
 }
 
 /* inject the doc preview overlay HTML once */
-(function injectDocPreviewOverlay(){
-  if(document.getElementById('docPreviewOverlay')) return;
+(function injectDocPreviewOverlay() {
+  if (document.getElementById('docPreviewOverlay')) return;
   const html = `
   <div id="docPreviewOverlay" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)">
     <div style="background:#fff;border-radius:1.5rem;width:100%;max-width:860px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 32px 64px rgba(0,0,0,.35)">
@@ -1084,16 +1084,16 @@ function _renderDocPreviewModal(){
   </div>`;
   document.body.insertAdjacentHTML('beforeend', html);
   // Close on backdrop click
-  document.getElementById('docPreviewOverlay').addEventListener('click', function(e){
-    if(e.target === this) closeDocPreview();
+  document.getElementById('docPreviewOverlay').addEventListener('click', function (e) {
+    if (e.target === this) closeDocPreview();
   });
 })();
 
-function renderDocCards(){
+function renderDocCards() {
   const container = document.getElementById("docCards");
   container.innerHTML = "";
 
-  if(!selectedApp.docs || selectedApp.docs.length === 0){
+  if (!selectedApp.docs || selectedApp.docs.length === 0) {
     container.innerHTML = `<div class="col-span-full py-10 text-center text-gray-400">
       <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
       <p class="text-sm">No documents submitted yet.</p></div>`;
@@ -1104,7 +1104,7 @@ function renderDocCards(){
     doc._idx = idx;
 
     // ── MISSING document card ──────────────────────────────────────────────
-    if(doc.missing || doc.status === 'Missing'){
+    if (doc.missing || doc.status === 'Missing') {
       container.innerHTML += `
         <div class="doc-card border-2 border-dashed border-red-300 bg-red-50/40 rounded-2xl p-4 flex flex-col text-sm">
           <div class="flex items-start justify-between gap-2 mb-3">
@@ -1142,8 +1142,8 @@ function renderDocCards(){
     const badge = isV
       ? `<span class="status-badge badge-verified"><i data-lucide="check-circle" class="w-3 h-3"></i>Verified</span>`
       : isR
-      ? `<span class="status-badge badge-rejected"><i data-lucide="x-circle" class="w-3 h-3"></i>Rejected</span>`
-      : `<span class="status-badge badge-review"><i data-lucide="clock" class="w-3 h-3"></i>${doc.status}</span>`;
+        ? `<span class="status-badge badge-rejected"><i data-lucide="x-circle" class="w-3 h-3"></i>Rejected</span>`
+        : `<span class="status-badge badge-review"><i data-lucide="clock" class="w-3 h-3"></i>${doc.status}</span>`;
     const issues = doc.issues && doc.issues.length
       ? `<div class="mt-1.5 px-2 py-1.5 bg-red-50 rounded-lg">
           <p class="text-[11px] font-semibold text-red-500 mb-0.5">Issues:</p>
@@ -1199,62 +1199,62 @@ function renderDocCards(){
   lucide.createIcons();
 }
 
-function verifyDoc(idx){
-  const doc=selectedApp.docs[idx];
+function verifyDoc(idx) {
+  const doc = selectedApp.docs[idx];
   fetch('/admin-panel/api/document/verify/', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
     body: JSON.stringify({
       application_id: selectedApp.id,
       document_id: doc.id
     })
   })
-  .then(r=>r.json())
-  .then(data=>{
-    if(data.success){
-      doc.status="Verified";
-      doc.verifiedBy=contextData.adminName||"Admin";
-      doc.verifiedOn=new Date().toISOString().split("T")[0];
-      doc.issues=[];
-      showToast(data.message);
-      renderDocCards();
-      if(document.getElementById('docPreviewOverlay')?.style.display==='flex') _renderDocPreviewModal();
-    } else {
-      showToast('Error: '+data.message,'error');
-    }
-  })
-  .catch(e=>{showToast('Error: '+e.message,'error');});
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        doc.status = "Verified";
+        doc.verifiedBy = contextData.adminName || "Admin";
+        doc.verifiedOn = new Date().toISOString().split("T")[0];
+        doc.issues = [];
+        showToast(data.message);
+        renderDocCards();
+        if (document.getElementById('docPreviewOverlay')?.style.display === 'flex') _renderDocPreviewModal();
+      } else {
+        showToast('Error: ' + data.message, 'error');
+      }
+    })
+    .catch(e => { showToast('Error: ' + e.message, 'error'); });
 }
-function unsetDoc(idx){
-  const doc=selectedApp.docs[idx];
+function unsetDoc(idx) {
+  const doc = selectedApp.docs[idx];
   fetch('/admin-panel/api/document/reset/', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
     body: JSON.stringify({
       application_id: selectedApp.id,
       document_id: doc.id
     })
   })
-  .then(r=>r.json())
-  .then(data=>{
-    if(data.success){
-      doc.status="Under Review";
-      doc.verifiedBy="";
-      doc.verifiedOn="";
-      doc.issues=[];
-      showToast(data.message);
-      renderDocCards();
-      if(document.getElementById('docPreviewOverlay')?.style.display==='flex') _renderDocPreviewModal();
-    } else {
-      showToast('Error: '+data.message,'error');
-    }
-  })
-  .catch(e=>{showToast('Error: '+e.message,'error');});
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        doc.status = "Under Review";
+        doc.verifiedBy = "";
+        doc.verifiedOn = "";
+        doc.issues = [];
+        showToast(data.message);
+        renderDocCards();
+        if (document.getElementById('docPreviewOverlay')?.style.display === 'flex') _renderDocPreviewModal();
+      } else {
+        showToast('Error: ' + data.message, 'error');
+      }
+    })
+    .catch(e => { showToast('Error: ' + e.message, 'error'); });
 }
 
-function viewFullDoc(fileUrl, docName){
-  if(!fileUrl) {
-    showToast("Document file not available","error");
+function viewFullDoc(fileUrl, docName) {
+  if (!fileUrl) {
+    showToast("Document file not available", "error");
     return;
   }
   window.open(fileUrl, '_blank');
@@ -1262,108 +1262,108 @@ function viewFullDoc(fileUrl, docName){
 }
 
 /* ═══ REJECT MODAL ═══ */
-function rejectDoc(idx){
-  rejectTargetIdx=idx;
-  const doc=selectedApp.docs[idx];
-  document.getElementById("rejectDocName").innerText=doc.name+" — "+doc.type;
-  document.getElementById("rejectReason").value=doc.issues.length?doc.issues[0]:"";
+function rejectDoc(idx) {
+  rejectTargetIdx = idx;
+  const doc = selectedApp.docs[idx];
+  document.getElementById("rejectDocName").innerText = doc.name + " — " + doc.type;
+  document.getElementById("rejectReason").value = doc.issues.length ? doc.issues[0] : "";
   document.getElementById("rejectError").classList.add("hidden");
-  document.querySelectorAll(".chip").forEach(c=>c.classList.remove("selected"));
-  if(doc.issues.length) document.querySelectorAll(".chip").forEach(c=>{if(c.dataset.reason===doc.issues[0]) c.classList.add("selected");});
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("selected"));
+  if (doc.issues.length) document.querySelectorAll(".chip").forEach(c => { if (c.dataset.reason === doc.issues[0]) c.classList.add("selected"); });
   const rejectModal = document.getElementById("rejectModal");
   rejectModal.classList.add("open");
   rejectModal.style.display = "flex";
   lucide.createIcons();
 }
-function closeRejectModal(){
+function closeRejectModal() {
   const modal = document.getElementById("rejectModal");
-  if(modal) {
+  if (modal) {
     modal.classList.remove("open");
     modal.style.display = "none";
   }
   rejectTargetIdx = null;
 }
-function selectChip(el){
-  document.querySelectorAll(".chip").forEach(c=>c.classList.remove("selected"));
+function selectChip(el) {
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("selected"));
   el.classList.add("selected");
-  document.getElementById("rejectReason").value=el.dataset.reason;
+  document.getElementById("rejectReason").value = el.dataset.reason;
   document.getElementById("rejectError").classList.add("hidden");
 }
-function confirmReject(){
-  const reason=document.getElementById("rejectReason").value.trim();
-  if(!reason){document.getElementById("rejectError").classList.remove("hidden");return;}
-  
-  const doc=selectedApp.docs[rejectTargetIdx];
+function confirmReject() {
+  const reason = document.getElementById("rejectReason").value.trim();
+  if (!reason) { document.getElementById("rejectError").classList.remove("hidden"); return; }
+
+  const doc = selectedApp.docs[rejectTargetIdx];
   fetch('/admin-panel/api/document/reject/', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
     body: JSON.stringify({
       application_id: selectedApp.id,
       document_id: doc.id,
       reason: reason
     })
   })
-  .then(r=>r.json())
-  .then(data=>{
-    if(data.success){
-      selectedApp.docs[rejectTargetIdx].status="Rejected";
-      selectedApp.docs[rejectTargetIdx].issues=[reason];
-      showToast("Document rejected: "+reason.substring(0,40)+(reason.length>40?"…":""),"warn");
-      closeRejectModal();
-      renderDocCards();
-      if(document.getElementById('docPreviewOverlay')?.style.display==='flex') _renderDocPreviewModal();
-    } else {
-      showToast('Error: '+data.message,'error');
-    }
-  })
-  .catch(e=>{showToast('Error: '+e.message,'error');});
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        selectedApp.docs[rejectTargetIdx].status = "Rejected";
+        selectedApp.docs[rejectTargetIdx].issues = [reason];
+        showToast("Document rejected: " + reason.substring(0, 40) + (reason.length > 40 ? "…" : ""), "warn");
+        closeRejectModal();
+        renderDocCards();
+        if (document.getElementById('docPreviewOverlay')?.style.display === 'flex') _renderDocPreviewModal();
+      } else {
+        showToast('Error: ' + data.message, 'error');
+      }
+    })
+    .catch(e => { showToast('Error: ' + e.message, 'error'); });
 }
 
 /* ═══ MODAL ACTIONS ═══ */
-function markIncomplete(){
-  const remarks=document.getElementById("remarks").value;
-  
+function markIncomplete() {
+  const remarks = document.getElementById("remarks").value;
+
   fetch('/admin-panel/api/application/status/', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
     body: JSON.stringify({
       application_id: selectedApp.id,
       status: 'rejected',
       remarks: remarks
     })
   })
-  .then(r=>r.json())
-  .then(data=>{
-    if(data.success){
-      selectedApp.remarks=remarks;
-      selectedApp.status="Rejected";
-      showToast(selectedApp.id+" rejected","warn");
-      closeModal();
-      initializeData(); renderTable(); renderDashboard();
-    } else {
-      showToast('Error: '+data.message,'error');
-    }
-  })
-  .catch(e=>{showToast('Error: '+e.message,'error');});
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        selectedApp.remarks = remarks;
+        selectedApp.status = "Rejected";
+        showToast(selectedApp.id + " rejected", "warn");
+        closeModal();
+        initializeData(); renderTable(); renderDashboard();
+      } else {
+        showToast('Error: ' + data.message, 'error');
+      }
+    })
+    .catch(e => { showToast('Error: ' + e.message, 'error'); });
 }
-function requestResubmission(){
-  activityLog.unshift({time:new Date().toLocaleString(),admin:"Marwina Admin",appId:selectedApp?.id||"",doc:"Application",action:"Resubmission",notes:"Resubmission request sent."});
-  showToast("Resubmission request sent to student","warn");
+function requestResubmission() {
+  activityLog.unshift({ time: new Date().toLocaleString(), admin: "Marwina Admin", appId: selectedApp?.id || "", doc: "Application", action: "Resubmission", notes: "Resubmission request sent." });
+  showToast("Resubmission request sent to student", "warn");
 }
 
-function acceptEnrollApplication(){
-  if(!selectedApp) return showToast('No application selected','error');
-  if(!confirm('Accept application '+selectedApp.id+' and mark as Enrolled?')) return;
-  const remarks    = document.getElementById("remarks")?.value || '';
-  const semester   = document.getElementById("admSemester")?.value  || "";
-  const yearAdmitted = document.getElementById("admYear")?.value    || "";
+function acceptEnrollApplication() {
+  if (!selectedApp) return showToast('No application selected', 'error');
+  if (!confirm('Accept application ' + selectedApp.id + ' and mark as Enrolled?')) return;
+  const remarks = document.getElementById("remarks")?.value || '';
+  const semester = document.getElementById("admSemester")?.value || "";
+  const yearAdmitted = document.getElementById("admYear")?.value || "";
   const programLevel = document.getElementById("admProgramLevel")?.value || "";
   const curriculum = document.getElementById("admCurriculum")?.value || "";
   const curriculumData = saveCurriculumData();
 
   fetch('/admin-panel/api/application/status/', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
     body: JSON.stringify({
       application_id: selectedApp.id,
       status: 'enrolled',
@@ -1375,88 +1375,88 @@ function acceptEnrollApplication(){
       curriculum_data: curriculumData
     })
   })
-  .then(r=>r.json())
-  .then(data=>{
-    if(data.success){
-      selectedApp.remarks = remarks;
-      selectedApp.status = 'enrolled';
-      selectedApp.semester = semester;
-      selectedApp.year_admitted = yearAdmitted;
-      selectedApp.program_level = programLevel;
-      selectedApp.curriculum = curriculum;
-      selectedApp.curriculum_data = curriculumData;
-      _updateAppModalButtons();
-      showToast(selectedApp.id+" accepted — status set to Enrolled ✓");
-      closeModal();
-      initializeData(); renderTable(); renderDashboard();
-    } else {
-      showToast('Error: '+data.message,'error');
-    }
-  })
-  .catch(e=>{showToast('Error: '+e.message,'error');});
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        selectedApp.remarks = remarks;
+        selectedApp.status = 'enrolled';
+        selectedApp.semester = semester;
+        selectedApp.year_admitted = yearAdmitted;
+        selectedApp.program_level = programLevel;
+        selectedApp.curriculum = curriculum;
+        selectedApp.curriculum_data = curriculumData;
+        _updateAppModalButtons();
+        showToast(selectedApp.id + " accepted — status set to Enrolled ✓");
+        closeModal();
+        initializeData(); renderTable(); renderDashboard();
+      } else {
+        showToast('Error: ' + data.message, 'error');
+      }
+    })
+    .catch(e => { showToast('Error: ' + e.message, 'error'); });
 }
 
-function rejectEnrollApplication(){
-  if(!selectedApp) return showToast('No application selected','error');
-  if(!confirm('Reject application '+selectedApp.id+'?')) return;
-  const remarks=document.getElementById("remarks")?.value || '';
+function rejectEnrollApplication() {
+  if (!selectedApp) return showToast('No application selected', 'error');
+  if (!confirm('Reject application ' + selectedApp.id + '?')) return;
+  const remarks = document.getElementById("remarks")?.value || '';
 
   fetch('/admin-panel/api/application/status/', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
     body: JSON.stringify({
       application_id: selectedApp.id,
       status: 'rejected',
       remarks: remarks
     })
   })
-  .then(r=>r.json())
-  .then(data=>{
-    if(data.success){
-      selectedApp.remarks=remarks;
-      selectedApp.status='rejected';
-      _updateAppModalButtons();
-      showToast(selectedApp.id+" rejected","warn");
-      closeModal();
-      initializeData(); renderTable(); renderDashboard();
-    } else {
-      showToast('Error: '+data.message,'error');
-    }
-  })
-  .catch(e=>{showToast('Error: '+e.message,'error');});
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        selectedApp.remarks = remarks;
+        selectedApp.status = 'rejected';
+        _updateAppModalButtons();
+        showToast(selectedApp.id + " rejected", "warn");
+        closeModal();
+        initializeData(); renderTable(); renderDashboard();
+      } else {
+        showToast('Error: ' + data.message, 'error');
+      }
+    })
+    .catch(e => { showToast('Error: ' + e.message, 'error'); });
 }
-function deleteApp(id){
-  if(!confirm("Delete application "+id+"?")) return;
-  applications=applications.filter(a=>a.id!==id);
-  showToast("Application "+id+" deleted","warn");
+function deleteApp(id) {
+  if (!confirm("Delete application " + id + "?")) return;
+  applications = applications.filter(a => a.id !== id);
+  showToast("Application " + id + " deleted", "warn");
   renderTable(); renderDashboard();
 }
-function exportCSV(){
-  const rows=[["ID","Name","Course","Status","Last Activity"]];
-  applications.forEach(a=>rows.push([a.id,a.name,a.course,a.status,a.last_activity]));
-  const csv=rows.map(r=>r.join(",")).join("\n");
-  const a=document.createElement("a");
-  a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
-  a.download="applications.csv"; a.click();
+function exportCSV() {
+  const rows = [["ID", "Name", "Course", "Status", "Last Activity"]];
+  applications.forEach(a => rows.push([a.id, a.name, a.course, a.status, a.last_activity]));
+  const csv = rows.map(r => r.join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(csv);
+  a.download = "applications.csv"; a.click();
   showToast("CSV exported");
 }
-function handleLogout(){
-  if(confirm("Log out of the admin panel?")) {
+function handleLogout() {
+  if (confirm("Log out of the admin panel?")) {
     // Redirect to logout endpoint
     window.location.href = '/admin-panel/logout/';
   }
 }
 
 /* ═══ BACKDROP CLOSE ═══ */
-document.getElementById("modal").addEventListener("click",function(e){if(e.target===this) closeModal();});
-document.getElementById("rejectModal").addEventListener("click",function(e){if(e.target===this) closeRejectModal();});
+document.getElementById("modal").addEventListener("click", function (e) { if (e.target === this) closeModal(); });
+document.getElementById("rejectModal").addEventListener("click", function (e) { if (e.target === this) closeRejectModal(); });
 
 /* ═══ LIVE FILTERS ═══ */
-document.getElementById("searchInput").addEventListener("input",renderTable);
-document.getElementById("statusFilter").addEventListener("change",renderTable);
+document.getElementById("searchInput").addEventListener("input", renderTable);
+document.getElementById("statusFilter").addEventListener("change", renderTable);
 
 /* ═══ INIT ═══ */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   initializeData();
   renderDashboard();
   renderTable();
@@ -1478,22 +1478,22 @@ function openEditProfileModal() {
   // Populate form with current user data
   const adminName = document.querySelector('h3.font-bold.text-gray-800.text-base').innerText;
   const adminEmail = document.querySelector('p.text-xs.text-gray-400:last-of-type').innerText;
-  
+
   // Split name into first and last name
   const nameParts = adminName.trim().split(' ');
   const firstName = nameParts[0] || '';
   const lastName = nameParts.slice(1).join(' ') || '';
-  
+
   document.getElementById('editFirstName').value = firstName;
   document.getElementById('editLastName').value = lastName;
   document.getElementById('editEmail').value = adminEmail;
-  
+
   // Clear error messages
   document.getElementById('editProfileError').classList.add('hidden');
   document.getElementById('firstNameError').classList.add('hidden');
   document.getElementById('lastNameError').classList.add('hidden');
   document.getElementById('emailError').classList.add('hidden');
-  
+
   // Show modal
   document.getElementById('editProfileModal').classList.add('open');
   document.getElementById('editProfileModal').style.display = 'flex';
@@ -1506,17 +1506,17 @@ function closeEditProfileModal() {
 
 function handleEditProfile(event) {
   event.preventDefault();
-  
+
   const firstName = document.getElementById('editFirstName').value.trim();
   const lastName = document.getElementById('editLastName').value.trim();
   const email = document.getElementById('editEmail').value.trim();
-  
+
   // Clear previous errors
   document.getElementById('editProfileError').classList.add('hidden');
   document.getElementById('firstNameError').classList.add('hidden');
   document.getElementById('lastNameError').classList.add('hidden');
   document.getElementById('emailError').classList.add('hidden');
-  
+
   // Validate inputs
   let hasError = false;
   if (!firstName) {
@@ -1534,14 +1534,14 @@ function handleEditProfile(event) {
     document.getElementById('emailError').classList.remove('hidden');
     hasError = true;
   }
-  
+
   if (hasError) return;
-  
+
   // Disable submit button during request
   const submitBtn = document.getElementById('saveProfileBtn');
   submitBtn.disabled = true;
   submitBtn.innerText = 'Saving...';
-  
+
   // Send update request
   fetch('/admin-panel/api/admin/profile/update/', {
     method: 'POST',
@@ -1555,28 +1555,28 @@ function handleEditProfile(event) {
       email: email
     })
   })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      showToast('Profile updated successfully!', 'success');
-      closeEditProfileModal();
-      // You might want to refresh the page or update the UI here
-      location.reload();
-    } else {
-      document.getElementById('editProfileError').innerText = data.message;
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showToast('Profile updated successfully!', 'success');
+        closeEditProfileModal();
+        // You might want to refresh the page or update the UI here
+        location.reload();
+      } else {
+        document.getElementById('editProfileError').innerText = data.message;
+        document.getElementById('editProfileError').classList.remove('hidden');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      document.getElementById('editProfileError').innerText = 'An error occurred. Please try again.';
       document.getElementById('editProfileError').classList.remove('hidden');
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    document.getElementById('editProfileError').innerText = 'An error occurred. Please try again.';
-    document.getElementById('editProfileError').classList.remove('hidden');
-  })
-  .finally(() => {
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Save Changes';
-    lucide.createIcons();
-  });
+    })
+    .finally(() => {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Save Changes';
+      lucide.createIcons();
+    });
 }
 
 /* ═══ PHOTO UPLOAD ═══ */
@@ -1587,28 +1587,28 @@ function triggerPhotoUpload() {
 function handlePhotoUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
-  
+
   // Validate file type
   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
   if (!allowedTypes.includes(file.type)) {
     showToast('Only JPG, PNG, and WEBP images are allowed', 'warn');
     return;
   }
-  
+
   // Validate file size (5MB)
   const maxSize = 5 * 1024 * 1024;
   if (file.size > maxSize) {
     showToast('File size must not exceed 5MB', 'warn');
     return;
   }
-  
+
   // Create FormData for file upload
   const formData = new FormData();
   formData.append('photo', file);
-  
+
   // Show uploading toast
   showToast('Uploading photo...', 'success');
-  
+
   // Send upload request
   fetch('/admin-panel/api/admin/photo/upload/', {
     method: 'POST',
@@ -1617,38 +1617,38 @@ function handlePhotoUpload(event) {
     },
     body: formData
   })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      showToast('Profile photo updated successfully!', 'success');
-      // Update the avatar image with the new photo URL
-      const avatarDiv = document.getElementById('adminAvatar');
-      if (avatarDiv && data.data && data.data.photo_url) {
-        // Clear the background color and add the image
-        avatarDiv.classList.remove('bg-red-800');
-        avatarDiv.innerHTML = `<img src="${data.data.photo_url}?t=${new Date().getTime()}" class="w-full h-full object-cover rounded-full" alt="Profile Photo">`;
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showToast('Profile photo updated successfully!', 'success');
+        // Update the avatar image with the new photo URL
+        const avatarDiv = document.getElementById('adminAvatar');
+        if (avatarDiv && data.data && data.data.photo_url) {
+          // Clear the background color and add the image
+          avatarDiv.classList.remove('bg-red-800');
+          avatarDiv.innerHTML = `<img src="${data.data.photo_url}?t=${new Date().getTime()}" class="w-full h-full object-cover rounded-full" alt="Profile Photo">`;
+        }
+        // Reload page after short delay to update activity history
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        showToast('Error: ' + data.message, 'warn');
       }
-      // Reload page after short delay to update activity history
-      setTimeout(() => location.reload(), 1000);
-    } else {
-      showToast('Error: ' + data.message, 'warn');
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    showToast('Error uploading photo. Please try again.', 'warn');
-  })
-  .finally(() => {
-    // Reset the file input
-    event.target.value = '';
-  });
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showToast('Error uploading photo. Please try again.', 'warn');
+    })
+    .finally(() => {
+      // Reset the file input
+      event.target.value = '';
+    });
 }
 
 // Handle backdrop close for edit profile modal
 document.addEventListener('DOMContentLoaded', () => {
   const editProfileModal = document.getElementById('editProfileModal');
   if (editProfileModal) {
-    editProfileModal.addEventListener('click', function(e) {
+    editProfileModal.addEventListener('click', function (e) {
       if (e.target === this) {
         closeEditProfileModal();
       }
@@ -1712,12 +1712,12 @@ function removeProgramRow(btn) {
 }
 
 function saveCMSSettings() {
-  const admissionsOpen   = document.getElementById('cmsAdmissionsToggle').classList.contains('on');
+  const admissionsOpen = document.getElementById('cmsAdmissionsToggle').classList.contains('on');
   const showAnnouncement = document.getElementById('cmsAnnouncementToggle').classList.contains('on');
-  const heroTagline      = document.getElementById('cmsHeroTagline').value.trim();
-  const deadline         = document.getElementById('cmsDeadline').value;
-  const errorEl          = document.getElementById('cmsSaveError');
-  const saveBtn          = document.getElementById('cmsSaveBtn');
+  const heroTagline = document.getElementById('cmsHeroTagline').value.trim();
+  const deadline = document.getElementById('cmsDeadline').value;
+  const errorEl = document.getElementById('cmsSaveError');
+  const saveBtn = document.getElementById('cmsSaveBtn');
 
   errorEl.classList.add('hidden');
 
@@ -1738,10 +1738,10 @@ function saveCMSSettings() {
   // Collect programs
   const programs = [];
   document.querySelectorAll('.program-row').forEach(row => {
-    const name        = row.querySelector('.prog-name').value.trim();
-    const degree      = row.querySelector('.prog-degree').value.trim();
+    const name = row.querySelector('.prog-name').value.trim();
+    const degree = row.querySelector('.prog-degree').value.trim();
     const description = row.querySelector('.prog-desc').value.trim();
-    const visible     = row.querySelector('.prog-visible-toggle').classList.contains('on');
+    const visible = row.querySelector('.prog-visible-toggle').classList.contains('on');
     if (name) programs.push({ name, degree, description, visible });
   });
 
@@ -1762,33 +1762,33 @@ function saveCMSSettings() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
     body: JSON.stringify({
-      admissions_open:      admissionsOpen,
-      show_announcement:    showAnnouncement,
+      admissions_open: admissionsOpen,
+      show_announcement: showAnnouncement,
       announcements,
-      hero_tagline:         heroTagline,
+      hero_tagline: heroTagline,
       application_deadline: deadline || null,
       programs,
       downloads,
     })
   })
-  .then(r => r.json())
-  .then(data => {
-    if (data.success) {
-      showToast('Homepage settings saved!', 'success');
-    } else {
-      errorEl.textContent = data.message || 'Failed to save settings.';
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        showToast('Homepage settings saved!', 'success');
+      } else {
+        errorEl.textContent = data.message || 'Failed to save settings.';
+        errorEl.classList.remove('hidden');
+      }
+    })
+    .catch(() => {
+      errorEl.textContent = 'Network error. Please try again.';
       errorEl.classList.remove('hidden');
-    }
-  })
-  .catch(() => {
-    errorEl.textContent = 'Network error. Please try again.';
-    errorEl.classList.remove('hidden');
-  })
-  .finally(() => {
-    saveBtn.disabled = false;
-    saveBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Save Homepage Settings';
-    lucide.createIcons();
-  });
+    })
+    .finally(() => {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Save Homepage Settings';
+      lucide.createIcons();
+    });
 }
 
 /* ═══ DOWNLOADS MANAGEMENT ═══ */
@@ -1805,6 +1805,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function handleDownloadUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
+  const resourceInput = document.getElementById('downloadResourceTypeInput');
+  const resourceType = (resourceInput?.value || '').trim() || file.name;
 
   const formData = new FormData();
   formData.append('file', file);
@@ -1822,25 +1824,26 @@ function handleDownloadUpload(event) {
     },
     body: formData
   })
-  .then(r => r.json())
-  .then(data => {
-    if (data.success) {
-      addDownloadRow(data.data);
-      showToast('File uploaded successfully!', 'success');
-    } else {
-      showToast('Error: ' + data.message, 'warn');
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    showToast('Error uploading file. Please try again.', 'warn');
-  })
-  .finally(() => {
-    uploadBtn.disabled = false;
-    uploadBtn.innerHTML = originalHTML;
-    event.target.value = '';
-    lucide.createIcons();
-  });
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        addDownloadRow({ ...data.data, resource_type: resourceType, file_name: file.name });
+        showToast('File uploaded successfully!', 'success');
+      } else {
+        showToast('Error: ' + data.message, 'warn');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showToast('Error uploading file. Please try again.', 'warn');
+    })
+    .finally(() => {
+      uploadBtn.disabled = false;
+      uploadBtn.innerHTML = originalHTML;
+      event.target.value = '';
+      if (resourceInput) resourceInput.value = '';
+      lucide.createIcons();
+    });
 }
 
 function addDownloadRow(fileData) {
@@ -1863,6 +1866,8 @@ function addDownloadRow(fileData) {
         <p class="text-xs text-gray-400 truncate">${fileData.url}</p>
       </div>
       <input type="hidden" class="dl-name" value="${fileData.name}">
+      <input type="hidden" class="dl-resource-type" value="${fileData.resource_type || fileData.name}">
+      <input type="hidden" class="dl-file-name" value="${fileData.file_name || fileData.name}">
       <input type="hidden" class="dl-url" value="${fileData.url}">
       <input type="hidden" class="dl-type" value="${fileData.file_type}">
     </div>
@@ -1900,14 +1905,14 @@ async function loadStudentsWithRequirements() {
       headers: { 'X-CSRFToken': getCSRFToken() }
     });
     const data = await response.json();
-    
+
     if (data.success) {
       renderMissingRequirements(data.data);
       updateRequirementStats(data.data);
     }
   } catch (error) {
     console.error('Error loading students with requirements:', error);
-    document.getElementById('missingRequirementsList').innerHTML = 
+    document.getElementById('missingRequirementsList').innerHTML =
       '<p class="text-gray-400 text-sm text-center py-8">Error loading data. Please refresh.</p>';
   }
 }
@@ -1915,12 +1920,12 @@ async function loadStudentsWithRequirements() {
 // Render the list of students with missing requirements
 function renderMissingRequirements(students) {
   const container = document.getElementById('missingRequirementsList');
-  
+
   if (!students || students.length === 0) {
     container.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No students with missing requirements.</p>';
     return;
   }
-  
+
   container.innerHTML = students.map(student => {
     const reqsHtml = student.requirements.map(req => `
       <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
@@ -1937,7 +1942,7 @@ function renderMissingRequirements(students) {
         </div>
       </div>
     `).join('');
-    
+
     return `
       <div class="border border-gray-100 rounded-xl p-4">
         <div class="flex items-center justify-between mb-3">
@@ -1958,7 +1963,7 @@ function renderMissingRequirements(students) {
       </div>
     `;
   }).join('');
-  
+
   lucide.createIcons();
 }
 
@@ -1976,7 +1981,7 @@ function getReqStatusClass(status) {
 // Update requirement statistics
 function updateRequirementStats(students) {
   let total = 0, pending = 0, notified = 0, submitted = 0;
-  
+
   students.forEach(student => {
     student.requirements.forEach(req => {
       total++;
@@ -1985,7 +1990,7 @@ function updateRequirementStats(students) {
       else if (req.status === 'submitted') submitted++;
     });
   });
-  
+
   document.getElementById('reqTotalCount').textContent = total;
   document.getElementById('reqPendingCount').textContent = pending;
   document.getElementById('reqNotifiedCount').textContent = notified;
@@ -2000,7 +2005,7 @@ async function loadRequirementTypes() {
       headers: { 'X-CSRFToken': getCSRFToken() }
     });
     const data = await response.json();
-    
+
     if (data.success) {
       populateRequirementDropdowns(data.data);
     }
@@ -2012,7 +2017,7 @@ async function loadRequirementTypes() {
 // Populate requirement dropdowns
 function populateRequirementDropdowns(types) {
   const select = document.getElementById('addReqRequirementSelect');
-  select.innerHTML = '<option value="">-- Select a requirement --</option>' + 
+  select.innerHTML = '<option value="">-- Select a requirement --</option>' +
     types.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
 }
 
@@ -2025,23 +2030,23 @@ async function openAddRequirementModal() {
       headers: { 'X-CSRFToken': getCSRFToken() }
     });
     const data = await response.json();
-    
+
     if (data.success) {
       const select = document.getElementById('addReqStudentSelect');
-      select.innerHTML = '<option value="">-- Select a student --</option>' + 
+      select.innerHTML = '<option value="">-- Select a student --</option>' +
         data.data.map(s => `<option value="${s.user_id}">${s.full_name} (${s.email})</option>`).join('');
     }
   } catch (error) {
     console.error('Error loading students:', error);
   }
-  
+
   // Load requirement types
   await loadRequirementTypes();
-  
+
   // Clear form
   document.getElementById('addReqNotes').value = '';
   document.getElementById('addReqError').classList.add('hidden');
-  
+
   // Show modal
   document.getElementById('addRequirementModal').style.display = 'flex';
 }
@@ -2056,15 +2061,15 @@ async function saveStudentRequirement() {
   const requirementId = document.getElementById('addReqRequirementSelect').value;
   const notes = document.getElementById('addReqNotes').value;
   const errorEl = document.getElementById('addReqError');
-  
+
   if (!studentId || !requirementId) {
     errorEl.textContent = 'Please select both a student and a requirement.';
     errorEl.classList.remove('hidden');
     return;
   }
-  
+
   errorEl.classList.add('hidden');
-  
+
   try {
     const response = await fetch('/admin-panel/api/requirements/add/', {
       method: 'POST',
@@ -2079,7 +2084,7 @@ async function saveStudentRequirement() {
       })
     });
     const data = await response.json();
-    
+
     if (data.success) {
       showToast('Requirement added successfully!', 'success');
       closeAddRequirementModal();
@@ -2097,7 +2102,7 @@ async function saveStudentRequirement() {
 // Remove a student requirement
 async function removeRequirement(requirementId) {
   if (!confirm('Are you sure you want to remove this requirement?')) return;
-  
+
   try {
     const response = await fetch('/admin-panel/api/requirements/remove/', {
       method: 'POST',
@@ -2108,7 +2113,7 @@ async function removeRequirement(requirementId) {
       body: JSON.stringify({ student_requirement_id: requirementId })
     });
     const data = await response.json();
-    
+
     if (data.success) {
       showToast('Requirement removed successfully!', 'success');
       loadStudentsWithRequirements();
@@ -2138,7 +2143,7 @@ async function loadRequirementTypesForManagement() {
       headers: { 'X-CSRFToken': getCSRFToken() }
     });
     const data = await response.json();
-    
+
     if (data.success) {
       const container = document.getElementById('requirementTypesList');
       if (data.data.length === 0) {
@@ -2167,15 +2172,15 @@ async function loadRequirementTypesForManagement() {
 async function createRequirementType() {
   const name = document.getElementById('newReqTypeName').value.trim();
   const errorEl = document.getElementById('manageReqError');
-  
+
   if (!name) {
     errorEl.textContent = 'Please enter a requirement name.';
     errorEl.classList.remove('hidden');
     return;
   }
-  
+
   errorEl.classList.add('hidden');
-  
+
   try {
     const response = await fetch('/admin-panel/api/requirements/types/create/', {
       method: 'POST',
@@ -2186,7 +2191,7 @@ async function createRequirementType() {
       body: JSON.stringify({ name: name, description: '' })
     });
     const data = await response.json();
-    
+
     if (data.success) {
       showToast('Requirement type created!', 'success');
       document.getElementById('newReqTypeName').value = '';
@@ -2205,7 +2210,7 @@ async function createRequirementType() {
 // Delete requirement type
 async function deleteRequirementType(typeId) {
   if (!confirm('Are you sure you want to delete this requirement type?')) return;
-  
+
   try {
     const response = await fetch('/admin-panel/api/requirements/types/delete/', {
       method: 'POST',
@@ -2216,7 +2221,7 @@ async function deleteRequirementType(typeId) {
       body: JSON.stringify({ requirement_type_id: typeId })
     });
     const data = await response.json();
-    
+
     if (data.success) {
       showToast('Requirement type deleted!', 'success');
       await loadRequirementTypesForManagement();
@@ -2238,7 +2243,7 @@ async function openNotifyModal() {
       headers: { 'X-CSRFToken': getCSRFToken() }
     });
     const data = await response.json();
-    
+
     if (data.success) {
       const container = document.getElementById('notifyStudentList');
       if (data.data.length === 0) {
@@ -2262,7 +2267,7 @@ async function openNotifyModal() {
   } catch (error) {
     console.error('Error loading students:', error);
   }
-  
+
   document.getElementById('notifyMessage').value = '';
   document.getElementById('notifyError').classList.add('hidden');
   document.getElementById('notifyModal').style.display = 'flex';
@@ -2277,28 +2282,28 @@ async function sendNotifications() {
   const checkboxes = document.querySelectorAll('.notify-checkbox:checked');
   const message = document.getElementById('notifyMessage').value.trim();
   const errorEl = document.getElementById('notifyError');
-  
+
   if (checkboxes.length === 0) {
     errorEl.textContent = 'Please select at least one student.';
     errorEl.classList.remove('hidden');
     return;
   }
-  
+
   if (!message) {
     errorEl.textContent = 'Please enter a notification message.';
     errorEl.classList.remove('hidden');
     return;
   }
-  
+
   errorEl.classList.add('hidden');
-  
+
   // Collect all requirement IDs
   const requirementIds = [];
   checkboxes.forEach(cb => {
     const reqIds = cb.dataset.requirements.split(',');
     requirementIds.push(...reqIds);
   });
-  
+
   try {
     const response = await fetch('/admin-panel/api/requirements/notify/', {
       method: 'POST',
@@ -2312,7 +2317,7 @@ async function sendNotifications() {
       })
     });
     const data = await response.json();
-    
+
     if (data.success) {
       showToast(data.message, 'success');
       closeNotifyModal();
@@ -2329,7 +2334,7 @@ async function sendNotifications() {
 
 // Add requirements page to switchPage function
 const originalSwitchPage = switchPage;
-switchPage = function(pageId, el) {
+switchPage = function (pageId, el) {
   originalSwitchPage(pageId, el);
   if (pageId === 'requirements') {
     initRequirementsPage();
@@ -2341,19 +2346,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const addReqModal = document.getElementById('addRequirementModal');
   const manageReqModal = document.getElementById('manageRequirementsModal');
   const notifyModal = document.getElementById('notifyModal');
-  
+
   if (addReqModal) {
-    addReqModal.addEventListener('click', function(e) {
+    addReqModal.addEventListener('click', function (e) {
       if (e.target === this) closeAddRequirementModal();
     });
   }
   if (manageReqModal) {
-    manageReqModal.addEventListener('click', function(e) {
+    manageReqModal.addEventListener('click', function (e) {
       if (e.target === this) closeManageRequirementsModal();
     });
   }
   if (notifyModal) {
-    notifyModal.addEventListener('click', function(e) {
+    notifyModal.addEventListener('click', function (e) {
       if (e.target === this) closeNotifyModal();
     });
   }
@@ -2364,18 +2369,18 @@ var toggleStudentId = null;
 var toggleStudentIsActive = null;
 
 function openToggleStatusModal(userId, fullName, isActive, reason, changedBy, changedAt) {
-  
+
   toggleStudentId = userId;
   toggleStudentIsActive = isActive;
-  
+
   var modal = document.getElementById('toggleStatusModal');
   if (!modal) {
     showToast('Status modal not available. Please refresh the page.', 'error');
     return;
   }
-  
+
   document.getElementById('toggleStatusSubtitle').innerText = fullName;
-  
+
   if (isActive) {
     document.getElementById('toggleStatusIcon').className = 'w-10 h-10 rounded-xl flex items-center justify-center bg-red-100';
     document.getElementById('toggleStatusIcon').innerHTML = '<i data-lucide="user-x" class="w-5 h-5 text-red-600"></i>';
@@ -2395,7 +2400,7 @@ function openToggleStatusModal(userId, fullName, isActive, reason, changedBy, ch
     document.getElementById('toggleStatusConfirmBtn').className = 'flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition bg-green-600 hover:bg-green-700';
     document.getElementById('toggleStatusConfirmBtn').innerHTML = '<i data-lucide="user-check" class="w-4 h-4"></i> Activate Account';
   }
-  
+
   var lastNoteDiv = document.getElementById('lastStatusNote');
   if (reason) {
     lastNoteDiv.classList.remove('hidden');
@@ -2404,10 +2409,10 @@ function openToggleStatusModal(userId, fullName, isActive, reason, changedBy, ch
   } else {
     lastNoteDiv.classList.add('hidden');
   }
-  
+
   document.getElementById('toggleStatusReason').value = '';
   document.getElementById('toggleStatusReasonErr').classList.add('hidden');
-  
+
   modal.style.display = 'flex';
   lucide.createIcons();
 }
@@ -2422,30 +2427,30 @@ function closeToggleStatusModal() {
 function confirmToggleStatus() {
   var reason = document.getElementById('toggleStatusReason').value.trim();
   var errorEl = document.getElementById('toggleStatusReasonErr');
-  
+
   if (!reason) {
     errorEl.classList.remove('hidden');
     return;
   }
-  
+
   errorEl.classList.add('hidden');
-  
+
   fetch('/admin-panel/api/student/toggle-status/', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken()},
-    body: JSON.stringify({user_id: toggleStudentId, is_active: !toggleStudentIsActive, reason: reason})
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+    body: JSON.stringify({ user_id: toggleStudentId, is_active: !toggleStudentIsActive, reason: reason })
   })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (data.success) {
-      showToast(data.message, 'success');
-      closeToggleStatusModal();
-      setTimeout(function() { location.reload(); }, 1000);
-    } else {
-      showToast('Error: ' + data.message, 'warn');
-    }
-  })
-  .catch(function(e) { showToast('Error: ' + e.message, 'warn'); });
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.success) {
+        showToast(data.message, 'success');
+        closeToggleStatusModal();
+        setTimeout(function () { location.reload(); }, 1000);
+      } else {
+        showToast('Error: ' + data.message, 'warn');
+      }
+    })
+    .catch(function (e) { showToast('Error: ' + e.message, 'warn'); });
 }
 
 
@@ -2460,16 +2465,16 @@ function toggleCurriculumFields() {
   const programSelect = document.getElementById('admDoctoralProgram');
 
   if (!container) return;
-  
+
   if (level === 'masters' || level === 'doctoral') {
     container.style.display = 'block';
-    
+
     // Add an empty course row if no courses exist
     const tbody = document.getElementById('coursesTableBody');
     if (tbody && tbody.children.length === 0) {
       addCourseRow();
     }
-    
+
     if (level === 'doctoral' && doctoralFields) {
       doctoralFields.style.display = 'block';
       if (programSelect && programSelect.value === 'Other' && otherProgramInput) {
@@ -2492,7 +2497,7 @@ function toggleCurriculumFields() {
 function addCourseRow(courseData = null) {
   const tbody = document.getElementById('coursesTableBody');
   if (!tbody) return;
-  
+
   const rowId = 'course_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
 
   const tr = document.createElement('tr');
@@ -2570,15 +2575,15 @@ function saveCurriculumData() {
     const units = parseInt(row.querySelector('.course-units')?.value) || 0;
     const prerequisite = row.querySelector('.course-prereq')?.value || '';
     const level = row.querySelector('.course-level')?.value || '';
-    
+
     if (code && title && units > 0) {
       courses.push({ code, title, units, prerequisite, level });
     }
   });
-  
+
   const programLevel = document.getElementById('admProgramLevel')?.value || '';
   let doctoralProgram = '';
-  
+
   if (programLevel === 'doctoral') {
     const selectedProgram = document.getElementById('admDoctoralProgram')?.value || '';
     if (selectedProgram === 'Other') {
@@ -2587,7 +2592,7 @@ function saveCurriculumData() {
       doctoralProgram = selectedProgram;
     }
   }
-  
+
   return {
     program_level: programLevel,
     doctoral_program: doctoralProgram,
@@ -2599,21 +2604,21 @@ function saveCurriculumData() {
 
 function loadCurriculumData(savedData) {
   if (!savedData) return;
-  
+
   const tbody = document.getElementById('coursesTableBody');
   if (tbody) tbody.innerHTML = '';
-  
+
   const levelSelect = document.getElementById('admProgramLevel');
   if (levelSelect && savedData.program_level) {
     levelSelect.value = savedData.program_level;
     toggleCurriculumFields();
   }
-  
+
   if (savedData.program_level === 'doctoral' && savedData.doctoral_program) {
     const programSelect = document.getElementById('admDoctoralProgram');
     const otherInput = document.getElementById('admDoctoralProgramOther');
     const predefinedPrograms = ['PhD in Educational Management', 'PhD in Public Administration', 'Doctor of Business Administration', 'Doctor of Information Technology'];
-    
+
     if (predefinedPrograms.includes(savedData.doctoral_program)) {
       if (programSelect) programSelect.value = savedData.doctoral_program;
     } else {
@@ -2624,11 +2629,11 @@ function loadCurriculumData(savedData) {
       }
     }
   }
-  
+
   if (savedData.courses && savedData.courses.length) {
     savedData.courses.forEach(course => addCourseRow(course));
   }
-  
+
   updateTotalUnits();
   updateCourseCount();
 }
@@ -2650,12 +2655,12 @@ function openModal(id) {
   document.getElementById("mDate").innerText = selectedApp.submission_date;
   document.getElementById("lastUpdated").innerText = "Last updated: " + new Date().toISOString().split("T")[0];
   document.getElementById("remarks").value = selectedApp.remarks || "";
-  
+
   renderDocCards();
-  
+
   // Now populate admission dropdowns and set selected values
   populateAdmissionDetails();
-  
+
   // Load curriculum data
   setTimeout(() => {
     const levelSelect = document.getElementById('admProgramLevel');
@@ -2664,7 +2669,7 @@ function openModal(id) {
       toggleCurriculumFields(); // ← let the function handle visibility
     }
   }, 100);
-  
+
   const modal = document.getElementById("modal");
   if (modal) {
     modal.classList.add("open");
@@ -2695,26 +2700,26 @@ function markVerified() {
       curriculum_data: curriculumData
     })
   })
-  .then(r => r.json())
-  .then(data => {
-    if (data.success) {
-      selectedApp.remarks = remarks;
-      selectedApp.status = "Verified";
-      selectedApp.semester = semester;
-      selectedApp.year_admitted = yearAdmitted;
-      selectedApp.program_level = programLevel;
-      selectedApp.curriculum = curriculum;
-      selectedApp.curriculum_data = curriculumData;
-      showToast(selectedApp.id + " marked as Verified ✓");
-      closeModal();
-      initializeData();
-      renderTable();
-      renderDashboard();
-    } else {
-      showToast('Error: ' + data.message, 'error');
-    }
-  })
-  .catch(e => { showToast('Error: ' + e.message, 'error'); });
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        selectedApp.remarks = remarks;
+        selectedApp.status = "Verified";
+        selectedApp.semester = semester;
+        selectedApp.year_admitted = yearAdmitted;
+        selectedApp.program_level = programLevel;
+        selectedApp.curriculum = curriculum;
+        selectedApp.curriculum_data = curriculumData;
+        showToast(selectedApp.id + " marked as Verified ✓");
+        closeModal();
+        initializeData();
+        renderTable();
+        renderDashboard();
+      } else {
+        showToast('Error: ' + data.message, 'error');
+      }
+    })
+    .catch(e => { showToast('Error: ' + e.message, 'error'); });
 }
 
 // Add escapeHtml helper if not exists
@@ -2783,10 +2788,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Add event listener for doctoral program change after DOM loads
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const programSelect = document.getElementById('admDoctoralProgram');
   if (programSelect) {
-    programSelect.addEventListener('change', function() {
+    programSelect.addEventListener('change', function () {
       const otherInput = document.getElementById('admDoctoralProgramOther');
       if (this.value === 'Other' && otherInput) {
         otherInput.style.display = 'block';
@@ -2806,33 +2811,33 @@ function switchCurriculumTab(tabId) {
   document.querySelectorAll('.curriculum-tab-content').forEach(content => {
     content.classList.add('hidden');
   });
-  
+
   // Show selected tab content
   const selectedContent = document.getElementById(`curriculum-tab-${tabId}`);
   if (selectedContent) {
     selectedContent.classList.remove('hidden');
   }
-  
+
   // Update tab button styles
   document.querySelectorAll('.curriculum-tab').forEach(btn => {
     btn.classList.remove('bg-red-700', 'text-white');
     btn.classList.add('bg-gray-100', 'text-gray-600');
   });
-  
+
   // Find and highlight the clicked tab
   const tabs = document.querySelectorAll('.curriculum-tab');
   let tabIndex = 0;
   if (tabId === 'program-info') tabIndex = 0;
   else if (tabId === 'courses') tabIndex = 1;
   else if (tabId === 'summary') tabIndex = 2;
-  
+
   if (tabs[tabIndex]) {
     tabs[tabIndex].classList.remove('bg-gray-100', 'text-gray-600');
     tabs[tabIndex].classList.add('bg-red-700', 'text-white');
   }
-  
+
   currentCurriculumTab = tabId;
-  
+
   // If switching to summary tab, update the summary data
   if (tabId === 'summary') {
     updateCurriculumSummary();
@@ -2841,12 +2846,12 @@ function switchCurriculumTab(tabId) {
 
 function updateCurriculumSummary() {
   let level11 = 0, level12 = 0, level21 = 0, level22 = 0, level31 = 0, level32 = 0, summer = 0;
-  
+
   document.querySelectorAll('#coursesTableBody tr').forEach(row => {
     const units = parseInt(row.querySelector('.course-units')?.value) || 0;
     const level = row.querySelector('.course-level')?.value || '';
-    
-    switch(level) {
+
+    switch (level) {
       case '1st Year 1st Sem': level11 += units; break;
       case '1st Year 2nd Sem': level12 += units; break;
       case '2nd Year 1st Sem': level21 += units; break;
@@ -2856,7 +2861,7 @@ function updateCurriculumSummary() {
       case 'Summer': summer += units; break;
     }
   });
-  
+
   document.getElementById('level11Units').textContent = level11;
   document.getElementById('level12Units').textContent = level12;
   document.getElementById('level21Units').textContent = level21;
@@ -2880,10 +2885,10 @@ function toggleDoctoralProgramOther() {
 
 function importSampleCurriculum() {
   if (!confirm('Load sample MIT curriculum? This will replace any existing courses.')) return;
-  
+
   const tbody = document.getElementById('coursesTableBody');
   if (tbody) tbody.innerHTML = '';
-  
+
   const sampleCourses = [
     { code: 'MIT 201', title: 'Advanced Programming', units: 3, prerequisite: 'None', level: '1st Year 1st Sem' },
     { code: 'MIT 202', title: 'Database Systems', units: 3, prerequisite: 'MIT 201', level: '1st Year 1st Sem' },
@@ -2893,32 +2898,32 @@ function importSampleCurriculum() {
     { code: 'MIT 206', title: 'Data Analytics', units: 3, prerequisite: 'MIT 202', level: '2nd Year 1st Sem' },
     { code: 'MIT 207', title: 'Thesis Writing', units: 6, prerequisite: 'MIT 203', level: '2nd Year 2nd Sem' },
   ];
-  
+
   sampleCourses.forEach(course => addCourseRow(course));
   showToast('Sample curriculum loaded', 'success');
 }
 
 // Override the existing updateTotalUnits function to also update summary
 const originalUpdateTotalUnits = updateTotalUnits;
-updateTotalUnits = function() {
+updateTotalUnits = function () {
   if (originalUpdateTotalUnits) originalUpdateTotalUnits();
   updateCurriculumSummary();
 };
 
 // Override the existing updateCourseCount function
 const originalUpdateCourseCount = updateCourseCount;
-updateCourseCount = function() {
+updateCourseCount = function () {
   if (originalUpdateCourseCount) originalUpdateCourseCount();
   updateCurriculumSummary();
 };
 
 // Override the existing toggleCurriculumFields function to show program info
 const originalToggleCurriculumFields = toggleCurriculumFields;
-toggleCurriculumFields = function() {
+toggleCurriculumFields = function () {
   if (originalToggleCurriculumFields) originalToggleCurriculumFields();
-  
+
   const level = document.getElementById('admProgramLevel')?.value;
-  
+
   if (level === 'masters') {
     document.getElementById('curriculumProgramName').value = 'Master in Information Technology';
     document.getElementById('curriculumDegreeCode').value = 'MIT';
@@ -2929,7 +2934,7 @@ toggleCurriculumFields = function() {
     document.getElementById('curriculumProgramName').value = '';
     document.getElementById('curriculumDegreeCode').value = '';
   }
-  
+
   const container = document.getElementById('curriculumContainer');
   if (container && (level === 'masters' || level === 'doctoral')) {
     container.style.display = 'block';
@@ -2942,22 +2947,22 @@ toggleCurriculumFields = function() {
 
 // Override the existing loadCurriculumData function
 const originalLoadCurriculumData = loadCurriculumData;
-loadCurriculumData = function(savedData) {
+loadCurriculumData = function (savedData) {
   if (originalLoadCurriculumData) originalLoadCurriculumData(savedData);
-  
+
   // Set batch year if available
   if (savedData && savedData.batch_year) {
     document.getElementById('curriculumBatchYear').value = savedData.batch_year;
   }
-  
+
   updateCurriculumSummary();
 };
 
 // Override the existing saveCurriculumData function
 const originalSaveCurriculumData = saveCurriculumData;
-saveCurriculumData = function() {
+saveCurriculumData = function () {
   const baseData = originalSaveCurriculumData ? originalSaveCurriculumData() : {};
-  
+
   return {
     ...baseData,
     batch_year: document.getElementById('curriculumBatchYear')?.value || '',
@@ -2975,7 +2980,7 @@ function getDoctoralProgramValue() {
 }
 
 function notifyMissingDoc(docType, docName) {
-  if(!selectedApp) return;
+  if (!selectedApp) return;
   showToast(`Notification queued: ${docName} missing for ${selectedApp.name}`, 'warn');
   // TODO: wire to /admin-panel/api/requirements/notify/ with the student's user ID
   // and the relevant requirement, or send an email via a dedicated endpoint.
@@ -3000,9 +3005,9 @@ function switchDocVerTab(tab) {
 
   // Always update the stat cards for whichever tab is active
   if (tab === 'application') { renderApplicationCards(); renderApplicationPanel(); }
-  if (tab === 'admission')   { renderTable(); }          // updateCounts() is called inside renderTable
-  if (tab === 'cor')         { typeof renderCORTable === 'function' && renderCORTable(); }
-  if (tab === 'grades')      { typeof renderGradesTable === 'function' && renderGradesTable(); }
+  if (tab === 'admission') { renderTable(); }          // updateCounts() is called inside renderTable
+  if (tab === 'cor') { typeof renderCORTable === 'function' && renderCORTable(); }
+  if (tab === 'grades') { typeof renderGradesTable === 'function' && renderGradesTable(); }
 
   lucide.createIcons();
 }
@@ -3086,7 +3091,7 @@ function openAppDetailsModal() {
   const modal = document.getElementById('appDetailsModal');
   if (!modal) return;
   const reviewSections = document.getElementById('appModalReviewSections');
-  
+
   // Populate modal with application data
   document.getElementById('appModalID').textContent = selectedApp.id || '—';
   document.getElementById('appModalSummaryID').textContent = selectedApp.id || '—';
@@ -3194,25 +3199,25 @@ function openAppDetailsModal() {
       ]) : '',
     ].filter(Boolean).join('');
   }
-  
+
   // REMOVE OLD Program Details section (these lines can be removed since the Admission Details section now handles this)
   // document.getElementById('appModalPDLevel').textContent = (selectedApp.program_level || '—');
   // document.getElementById('appModalPDIntake').textContent = (selectedApp.semester || '—');
   // document.getElementById('appModalPDSpecialization').textContent = (selectedApp.specialization || '—');
-  
+
   // ========== NEW: Populate Admission Details fields ==========
   // Populate semester dropdown
   const semesterSelect = document.getElementById('admSemester');
   if (semesterSelect) {
     semesterSelect.value = selectedApp.semester || '';
   }
-  
+
   // Populate school year dropdown
   const yearSelect = document.getElementById('admYear');
   if (yearSelect) {
     yearSelect.value = selectedApp.year_admitted || '';
   }
-  
+
   // Populate program level dropdown
   const programLevelSelect = document.getElementById('admProgramLevel');
   if (programLevelSelect) {
@@ -3222,18 +3227,18 @@ function openAppDetailsModal() {
       toggleCurriculumFields();
     }
   }
-  
+
   // Populate curriculum dropdown
   const curriculumSelect = document.getElementById('admCurriculum');
   if (curriculumSelect) {
     curriculumSelect.value = selectedApp.curriculum || '';
   }
-  
+
   // Load curriculum data if exists
   if (selectedApp.curriculum_data) {
     loadCurriculumData(selectedApp.curriculum_data);
   }
-  
+
   // Also populate the curriculum batch year if available in the data
   if (selectedApp.curriculum_data && selectedApp.curriculum_data.batch_year) {
     const batchYearInput = document.getElementById('curriculumBatchYear');
@@ -3241,7 +3246,7 @@ function openAppDetailsModal() {
       batchYearInput.value = selectedApp.curriculum_data.batch_year;
     }
   }
-  
+
   // Populate admission details fields (load dropdown options and set values)
   populateAdmissionDetails();
   _updateAppModalButtons();
@@ -3290,13 +3295,13 @@ function closeAppDetailsModal() {
     modal.classList.remove('fade-in');
   }
 }
-function updateApplicationStats(){
-  const s = applications.map(a=>(a.status||'').toLowerCase());
-  document.getElementById("appTotalCount").innerText     =applications.length;
-  document.getElementById("appPendingCount").innerText   =s.filter(x=>x==="pending review").length;
-  document.getElementById("appReviewCount").innerText    =s.filter(x=>x==="under review").length;
-  document.getElementById("appVerifiedCount").innerText  =s.filter(x=>x==="verified").length;
-  document.getElementById("appIncompleteCount").innerText=s.filter(x=>x==="incomplete").length;
+function updateApplicationStats() {
+  const s = applications.map(a => (a.status || '').toLowerCase());
+  document.getElementById("appTotalCount").innerText = applications.length;
+  document.getElementById("appPendingCount").innerText = s.filter(x => x === "pending review").length;
+  document.getElementById("appReviewCount").innerText = s.filter(x => x === "under review").length;
+  document.getElementById("appVerifiedCount").innerText = s.filter(x => x === "verified").length;
+  document.getElementById("appIncompleteCount").innerText = s.filter(x => x === "incomplete").length;
 }
 
 function _switchAndOpen(tabName, callback) {
@@ -3324,7 +3329,7 @@ function verifyCORForApp(id) {
         if (!data.success) { showToast('Error loading COR submissions', 'error'); return; }
         corData = data.submissions || [];
         _renderCORRows();
-        
+
         // Find and open the COR submission for this student
         const submission = corData.find(c => c.student_id === selectedApp.id);
         if (submission) {
@@ -3366,15 +3371,15 @@ function verifyGradesForApp(id) {
 }
 
 
-function renderApplicationPanel(){
+function renderApplicationPanel() {
   const container = document.getElementById('docVerPanel-application');
-  if(!container) return;
-  const app = selectedApp || (applications.length? applications[0] : null);
-  if(!app){
-    container.querySelectorAll('span[id^="app"], span[id^="pi"], span[id^="ab"], span[id^="pd"]').forEach(el=>el.innerText='—');
+  if (!container) return;
+  const app = selectedApp || (applications.length ? applications[0] : null);
+  if (!app) {
+    container.querySelectorAll('span[id^="app"], span[id^="pi"], span[id^="ab"], span[id^="pd"]').forEach(el => el.innerText = '—');
     document.getElementById('requirementsList').innerHTML = '<div class="text-xs text-gray-400">Select an application from Admission Documents and click Details.</div>';
-    document.getElementById('appProgressBar').style.width='0%';
-    document.getElementById('timelineDates').innerText='';
+    document.getElementById('appProgressBar').style.width = '0%';
+    document.getElementById('timelineDates').innerText = '';
     return;
   }
   // Summary
@@ -3382,7 +3387,7 @@ function renderApplicationPanel(){
   document.getElementById('appName').innerText = app.name || '—';
   document.getElementById('appCourse').innerText = app.course || '—';
   document.getElementById('appDate').innerText = app.submission_date || '—';
-  document.getElementById('appStatus').innerHTML = statusBadge(app.status||'');
+  document.getElementById('appStatus').innerHTML = statusBadge(app.status || '');
 
   // Personal info
   document.getElementById('piName').innerText = app.name || '—';
@@ -3395,11 +3400,11 @@ function renderApplicationPanel(){
   document.getElementById('piAddress').innerText = app.address || '—';
 
   // Academic background
-  document.getElementById('abSchool').innerText = (app.academic||{}).school || '—';
-  document.getElementById('abYearGrad').innerText = (app.academic||{}).year_graduated || '—';
-  document.getElementById('abDegree').innerText = (app.academic||{}).degree || '—';
-  document.getElementById('abGWA').innerText = (app.academic||{}).gwa || '—';
-  document.getElementById('abHonors').innerText = (app.academic||{}).honors || '—';
+  document.getElementById('abSchool').innerText = (app.academic || {}).school || '—';
+  document.getElementById('abYearGrad').innerText = (app.academic || {}).year_graduated || '—';
+  document.getElementById('abDegree').innerText = (app.academic || {}).degree || '—';
+  document.getElementById('abGWA').innerText = (app.academic || {}).gwa || '—';
+  document.getElementById('abHonors').innerText = (app.academic || {}).honors || '—';
 
   // Program details
   document.getElementById('pdCourse').innerText = app.course || '—';
@@ -3412,48 +3417,48 @@ function renderApplicationPanel(){
   reqRoot.innerHTML = '';
   const docs = app.docs || [];
   // show first 6 docs or pad missing
-  for(let i=0;i<6;i++){
-    const d = docs[i] || {name: `Requirement ${i+1}`, status: 'Missing', uploadDate: ''};
-    const status = d.status || (d.missing? 'Missing' : 'Pending Review');
+  for (let i = 0; i < 6; i++) {
+    const d = docs[i] || { name: `Requirement ${i + 1}`, status: 'Missing', uploadDate: '' };
+    const status = d.status || (d.missing ? 'Missing' : 'Pending Review');
     reqRoot.innerHTML += `
       <div class="p-3 border rounded-lg bg-white">
         <div class="flex items-center justify-between mb-1">
           <div class="text-sm font-medium text-gray-800">${escapeHtml(d.name)}</div>
-          <div class="text-xs text-gray-500">${d.uploadDate||''}</div>
+          <div class="text-xs text-gray-500">${d.uploadDate || ''}</div>
         </div>
         <div class="text-xs mt-1">${statusBadge(status)}</div>
       </div>`;
   }
 
   // Timeline: interpret app.status stages
-  const stages = ['Submitted','Documents Verified','Under Review','Decision Made','Processed'];
-  const idx = Math.max(0, stages.indexOf(app.status) );
-  const pct = Math.min(100, Math.round(((idx+1)/stages.length)*100));
+  const stages = ['Submitted', 'Documents Verified', 'Under Review', 'Decision Made', 'Processed'];
+  const idx = Math.max(0, stages.indexOf(app.status));
+  const pct = Math.min(100, Math.round(((idx + 1) / stages.length) * 100));
   document.getElementById('appProgressBar').style.width = pct + '%';
   const td = document.getElementById('timelineDates');
-  td.innerHTML = stages.map((s,i)=>{
-    const date = (app.timeline && app.timeline[s]) || (i===0 ? app.submission_date : '—');
-    return `<div><strong class="text-gray-700">${escapeHtml(s)}:</strong> <span class="text-gray-500 text-xs">${escapeHtml(date||'—')}</span></div>`;
+  td.innerHTML = stages.map((s, i) => {
+    const date = (app.timeline && app.timeline[s]) || (i === 0 ? app.submission_date : '—');
+    return `<div><strong class="text-gray-700">${escapeHtml(s)}:</strong> <span class="text-gray-500 text-xs">${escapeHtml(date || '—')}</span></div>`;
   }).join('');
 
   lucide.createIcons();
 }
 
-function _postDecision(decision){
-  if(!selectedApp) { showToast('No application selected','error'); return; }
-  if(!confirm(`Confirm ${decision} for application ${selectedApp.id}?`)) return;
+function _postDecision(decision) {
+  if (!selectedApp) { showToast('No application selected', 'error'); return; }
+  if (!confirm(`Confirm ${decision} for application ${selectedApp.id}?`)) return;
   fetch('/admin-panel/api/application/decision/', {
-    method: 'POST', credentials: 'same-origin', headers: {'Content-Type':'application/json','X-CSRFToken': getCSRFToken()},
+    method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
     body: JSON.stringify({ application_id: selectedApp.id, decision: decision })
-  }).then(r=>r.json()).then(res=>{
-    if(res.success){ showToast(res.message||'Updated'); selectedApp.status = decision; renderApplicationPanel(); renderTable(); }
-    else showToast(res.message||'Unable to update','error');
-  }).catch(err=>{ console.error(err); showToast('Network error','error'); });
+  }).then(r => r.json()).then(res => {
+    if (res.success) { showToast(res.message || 'Updated'); selectedApp.status = decision; renderApplicationPanel(); renderTable(); }
+    else showToast(res.message || 'Unable to update', 'error');
+  }).catch(err => { console.error(err); showToast('Network error', 'error'); });
 }
 
-function acceptApplication(){ _postDecision('Accepted'); }
-function waitlistApplication(){ _postDecision('Waitlisted'); }
-function rejectApplication(){ _postDecision('Rejected'); }
+function acceptApplication() { _postDecision('Accepted'); }
+function waitlistApplication() { _postDecision('Waitlisted'); }
+function rejectApplication() { _postDecision('Rejected'); }
 
 
 /* ═══ GRADES VERIFICATION ═══ */
@@ -3477,24 +3482,24 @@ function renderGradesTable() {
 }
 
 function _updateGradeStats() {
-  document.getElementById('gradesTotalCount').innerText       = gradesData.length;
-  document.getElementById('gradesPendingCount').innerText     = gradesData.filter(g => g.status === 'Pending').length;
-  document.getElementById('gradesAcknowledgedCount').innerText= gradesData.filter(g => g.status === 'Acknowledged').length;
-  document.getElementById('gradesFlaggedCount').innerText     = gradesData.filter(g => g.status === 'Flagged').length;
+  document.getElementById('gradesTotalCount').innerText = gradesData.length;
+  document.getElementById('gradesPendingCount').innerText = gradesData.filter(g => g.status === 'Pending').length;
+  document.getElementById('gradesAcknowledgedCount').innerText = gradesData.filter(g => g.status === 'Acknowledged').length;
+  document.getElementById('gradesFlaggedCount').innerText = gradesData.filter(g => g.status === 'Flagged').length;
 }
 
 function _renderGradesRows() {
-  const tbody  = document.getElementById('gradesTableBody');
-  const empty  = document.getElementById('gradesEmptyState');
+  const tbody = document.getElementById('gradesTableBody');
+  const empty = document.getElementById('gradesEmptyState');
   if (!tbody) return;
 
-  const search       = (document.getElementById('gradesSearchInput')?.value || '').toLowerCase();
+  const search = (document.getElementById('gradesSearchInput')?.value || '').toLowerCase();
   const statusFilter = document.getElementById('gradesStatusFilter')?.value || 'all';
 
   const filtered = gradesData.filter(g => {
     const matchSearch = !search ||
       (g.student_name || '').toLowerCase().includes(search) ||
-      (g.student_id   || '').toLowerCase().includes(search);
+      (g.student_id || '').toLowerCase().includes(search);
     const matchStatus = statusFilter === 'all' || g.status === statusFilter;
     return matchSearch && matchStatus;
   });
@@ -3505,9 +3510,9 @@ function _renderGradesRows() {
   empty?.classList.add('hidden');
 
   filtered.forEach(g => {
-    const gpaNum     = g.gpa !== null ? parseFloat(g.gpa) : null;
+    const gpaNum = g.gpa !== null ? parseFloat(g.gpa) : null;
     const gpaDisplay = gpaNum !== null ? gpaNum.toFixed(2) : '—';
-    const gpaColor   = gpaNum !== null ? (gpaNum <= 2.0 ? 'text-green-600' : 'text-red-500') : 'text-gray-400';
+    const gpaColor = gpaNum !== null ? (gpaNum <= 2.0 ? 'text-green-600' : 'text-red-500') : 'text-gray-400';
     const screenshot = g.screenshot_url
       ? `<a href="${g.screenshot_url}" target="_blank"
            class="flex items-center gap-1 text-xs text-blue-600 hover:underline">
@@ -3545,9 +3550,9 @@ function _renderGradesRows() {
 
 function _gradeStatusBadge(status) {
   const cls = {
-    'Pending':      'bg-orange-100 text-orange-700',
+    'Pending': 'bg-orange-100 text-orange-700',
     'Acknowledged': 'bg-green-100  text-green-700',
-    'Flagged':      'bg-red-100    text-red-700',
+    'Flagged': 'bg-red-100    text-red-700',
   }[status] || 'bg-gray-100 text-gray-600';
   return `<span class="px-2 py-1 rounded-full text-xs font-semibold ${cls}">${escapeHtml(status || '—')}</span>`;
 }
@@ -3557,16 +3562,16 @@ function openGradesModal(id) {
   if (!selectedGrade) return;
 
   document.getElementById('gradesModalStudentName').textContent = selectedGrade.student_name || '—';
-  document.getElementById('gradesMName').textContent      = selectedGrade.student_name  || '—';
-  document.getElementById('gradesMStudentID').textContent = selectedGrade.student_id    || '—';
-  document.getElementById('gradesMMSemester').textContent = selectedGrade.semester      || '—';
-  document.getElementById('gradesMYear').textContent      = selectedGrade.school_year   || '—';
+  document.getElementById('gradesMName').textContent = selectedGrade.student_name || '—';
+  document.getElementById('gradesMStudentID').textContent = selectedGrade.student_id || '—';
+  document.getElementById('gradesMMSemester').textContent = selectedGrade.semester || '—';
+  document.getElementById('gradesMYear').textContent = selectedGrade.school_year || '—';
 
   const gpaNum = selectedGrade.gpa !== null ? parseFloat(selectedGrade.gpa) : null;
-  const gpaEl  = document.getElementById('gradesMGPA');
+  const gpaEl = document.getElementById('gradesMGPA');
   if (gpaEl) {
-    gpaEl.textContent  = gpaNum !== null ? gpaNum.toFixed(2) : '—';
-    gpaEl.className    = 'text-gray-800 font-bold ' + (gpaNum !== null ? (gpaNum <= 2.0 ? 'text-green-600' : 'text-red-500') : 'text-gray-400');
+    gpaEl.textContent = gpaNum !== null ? gpaNum.toFixed(2) : '—';
+    gpaEl.className = 'text-gray-800 font-bold ' + (gpaNum !== null ? (gpaNum <= 2.0 ? 'text-green-600' : 'text-red-500') : 'text-gray-400');
   }
 
   // Grade entries table
@@ -3577,11 +3582,11 @@ function openGradesModal(id) {
       tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-6 text-center text-gray-400 text-sm">No grade entries available.</td></tr>`;
     } else {
       tbody.innerHTML = showEntries.map(entry => {
-        const g   = entry.grade !== null ? parseFloat(entry.grade) : null;
+        const g = entry.grade !== null ? parseFloat(entry.grade) : null;
         const cls = g !== null ? (g <= 2.0 ? 'text-green-600 font-bold' : 'text-red-500 font-bold') : 'text-gray-400';
         const checked = entry.admin_verified ? 'checked' : '';
         return `<tr>
-          <td class="px-4 py-3 text-xs font-mono font-semibold text-red-700">${escapeHtml(entry.code  || '—')}</td>
+          <td class="px-4 py-3 text-xs font-mono font-semibold text-red-700">${escapeHtml(entry.code || '—')}</td>
           <td class="px-4 py-3 text-xs text-gray-700">${escapeHtml(entry.title || '—')}</td>
           <td class="px-4 py-3 text-xs text-center font-mono text-gray-600">${entry.units ?? 0}</td>
           <td class="px-4 py-3 text-xs text-center font-mono ${cls}">${g !== null ? g.toFixed(2) : '—'}</td>
@@ -3614,11 +3619,11 @@ function openGradesModal(id) {
   const badge = document.getElementById('gradesCurrentStatusBadge');
   if (badge) {
     const cls = {
-      'Pending':      'bg-orange-100 text-orange-700',
+      'Pending': 'bg-orange-100 text-orange-700',
       'Acknowledged': 'bg-green-100  text-green-700',
-      'Flagged':      'bg-red-100    text-red-700',
+      'Flagged': 'bg-red-100    text-red-700',
     }[selectedGrade.status] || 'bg-gray-100 text-gray-600';
-    badge.className   = `px-3 py-1 rounded-full text-xs font-semibold ${cls}`;
+    badge.className = `px-3 py-1 rounded-full text-xs font-semibold ${cls}`;
     badge.textContent = selectedGrade.status || 'Pending';
   }
 
@@ -3657,46 +3662,46 @@ function saveGradeEntryVerifications() {
     .map(cb => parseInt(cb.dataset.entryId, 10));
 
   fetch('/admin-panel/api/grade-entries/verify/', {
-    method:      'POST',
+    method: 'POST',
     credentials: 'same-origin',
-    headers:     { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
-    body:        JSON.stringify({ submission_id: selectedGrade.id, entry_ids: verifiedIds }),
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+    body: JSON.stringify({ submission_id: selectedGrade.id, entry_ids: verifiedIds }),
   })
-  .then(r => r.json())
-  .then(data => {
-    if (!data.success) { showToast('Error: ' + data.message, 'error'); return; }
-    // Update local cache so reopening the modal reflects new state
-    const cached = gradesData.find(g => g.id === selectedGrade.id);
-    if (cached && Array.isArray(cached.grades)) {
-      const verifiedSet = new Set(verifiedIds);
-      cached.grades.forEach(e => { e.admin_verified = verifiedSet.has(e.id); });
-    }
-    showToast('Grade entry verifications saved.', 'success');
-  })
-  .catch(e => showToast('Error: ' + e.message, 'error'));
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) { showToast('Error: ' + data.message, 'error'); return; }
+      // Update local cache so reopening the modal reflects new state
+      const cached = gradesData.find(g => g.id === selectedGrade.id);
+      if (cached && Array.isArray(cached.grades)) {
+        const verifiedSet = new Set(verifiedIds);
+        cached.grades.forEach(e => { e.admin_verified = verifiedSet.has(e.id); });
+      }
+      showToast('Grade entry verifications saved.', 'success');
+    })
+    .catch(e => showToast('Error: ' + e.message, 'error'));
 }
 
 function _updateGradeStatus(status, remarks) {
   fetch(`/admin-panel/api/grade-submissions/${selectedGrade.id}/update/`, {
-    method:      'POST',
+    method: 'POST',
     credentials: 'same-origin',
-    headers:     { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
-    body:        JSON.stringify({ status, admin_remarks: remarks }),
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+    body: JSON.stringify({ status, admin_remarks: remarks }),
   })
-  .then(r => r.json())
-  .then(data => {
-    if (!data.success) { showToast('Error: ' + data.message, 'error'); return; }
-    showToast(data.message, status === 'Flagged' ? 'warn' : 'success');
-    const idx = gradesData.findIndex(g => g.id === selectedGrade.id);
-    if (idx !== -1) {
-      gradesData[idx].status        = status;
-      gradesData[idx].admin_remarks = remarks;
-    }
-    closeGradesModal();
-    _updateGradeStats();
-    _renderGradesRows();
-  })
-  .catch(e => showToast('Error: ' + e.message, 'error'));
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) { showToast('Error: ' + data.message, 'error'); return; }
+      showToast(data.message, status === 'Flagged' ? 'warn' : 'success');
+      const idx = gradesData.findIndex(g => g.id === selectedGrade.id);
+      if (idx !== -1) {
+        gradesData[idx].status = status;
+        gradesData[idx].admin_remarks = remarks;
+      }
+      closeGradesModal();
+      _updateGradeStats();
+      _renderGradesRows();
+    })
+    .catch(e => showToast('Error: ' + e.message, 'error'));
 }
 
 function exportGradesCSV() {
@@ -3708,8 +3713,8 @@ function exportGradesCSV() {
     g.status,
   ]));
   const csv = rows.map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
-  const a   = document.createElement('a');
-  a.href    = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
   a.download = 'grade_submissions.csv';
   a.click();
   showToast('Grades CSV exported');
@@ -3723,19 +3728,19 @@ function exportCORCSV() {
     new Date(c.uploaded_at).toLocaleDateString(),
   ]));
   const csv = rows.map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
-  const a   = document.createElement('a');
-  a.href    = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
   a.download = 'cor_submissions.csv';
   a.click();
   showToast('COR CSV exported');
 }
 
 // Live filters
-document.getElementById('gradesSearchInput')?.addEventListener('input',  _renderGradesRows);
+document.getElementById('gradesSearchInput')?.addEventListener('input', _renderGradesRows);
 document.getElementById('gradesStatusFilter')?.addEventListener('change', _renderGradesRows);
 
 // Close on backdrop click
-document.getElementById('gradesModal')?.addEventListener('click', function(e) {
+document.getElementById('gradesModal')?.addEventListener('click', function (e) {
   if (e.target === this) closeGradesModal();
 });
 
@@ -3768,8 +3773,8 @@ function _renderCORRows() {
   const semesterFilter = document.getElementById('corSemesterFilter')?.value || 'all';
 
   const filtered = corData.filter(cor => {
-    const matchSearch = !search || 
-      cor.student_name.toLowerCase().includes(search) || 
+    const matchSearch = !search ||
+      cor.student_name.toLowerCase().includes(search) ||
       cor.student_id.toString().includes(search);
     const matchStatus = statusFilter === 'all' || cor.status === statusFilter;
     const matchSemester = semesterFilter === 'all' || cor.semester === semesterFilter;
@@ -3778,7 +3783,7 @@ function _renderCORRows() {
 
   const tbody = document.getElementById('corTableBody');
   if (!tbody) return;
-  
+
   if (filtered.length === 0) {
     tbody.innerHTML = '';
     const emptyState = document.getElementById('corEmptyState');
@@ -3887,20 +3892,20 @@ function updateCORStatus(status) {
   if (!selectedCOR) { showToast('No COR selected', 'error'); return; }
 
   const remarks = document.getElementById('corRemarks').value;
-  
+
   fetch(`/admin-panel/api/cor-submissions/${selectedCOR.id}/update/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
     body: JSON.stringify({ status, admin_remarks: remarks })
   })
-  .then(r => r.json())
-  .then(data => {
-    if (!data.success) { showToast(data.message || 'Error updating COR status', 'error'); return; }
-    showToast(`COR marked as ${status}`, 'success');
-    closeCORModal();
-    renderCORTable();
-  })
-  .catch(e => showToast('Error: ' + e.message, 'error'));
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) { showToast(data.message || 'Error updating COR status', 'error'); return; }
+      showToast(`COR marked as ${status}`, 'success');
+      closeCORModal();
+      renderCORTable();
+    })
+    .catch(e => showToast('Error: ' + e.message, 'error'));
 }
 
 function verifyCOR() {
@@ -3912,7 +3917,7 @@ function rejectCOR() {
 }
 
 // COR modal event listeners
-document.getElementById('corModal')?.addEventListener('click', function(e) {
+document.getElementById('corModal')?.addEventListener('click', function (e) {
   if (e.target === this) closeCORModal();
 });
 
@@ -3948,18 +3953,18 @@ document.getElementById('corSemesterFilter')?.addEventListener('change', _render
     document_upload: 'indigo',
   };
   const COLOR_CLASSES = {
-    blue:   'bg-blue-100 text-blue-600',
+    blue: 'bg-blue-100 text-blue-600',
     purple: 'bg-purple-100 text-purple-600',
-    green:  'bg-green-100 text-green-600',
+    green: 'bg-green-100 text-green-600',
     indigo: 'bg-indigo-100 text-indigo-600',
-    gray:   'bg-gray-100 text-gray-500',
+    gray: 'bg-gray-100 text-gray-500',
   };
 
   // ── Relative timestamps ────────────────────────────────────────────
   function timeAgo(isoOrEpoch) {
     const dt = typeof isoOrEpoch === 'number' ? isoOrEpoch : Date.parse(isoOrEpoch);
     const diff = Math.floor((Date.now() - dt) / 1000);
-    if (diff < 60)   return 'Just now';
+    if (diff < 60) return 'Just now';
     if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
     if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
     if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
@@ -3994,12 +3999,12 @@ document.getElementById('corSemesterFilter')?.addEventListener('change', _render
   // ── Card builder ───────────────────────────────────────────────────
   function buildCard(n, isNew = false) {
     const iconName = ICON_MAP[n.type] || 'bell';
-    const color    = COLOR_MAP[n.type] || 'gray';
+    const color = COLOR_MAP[n.type] || 'gray';
     const colorCls = COLOR_CLASSES[color] || COLOR_CLASSES.gray;
     const unreadDot = n.is_read ? '' : '<span class="absolute top-3 right-3 w-2 h-2 rounded-full bg-red-500"></span>';
-    const cardBg    = n.is_read ? 'bg-white' : 'bg-blue-50/40';
-    const newCls    = isNew ? ' notif-new' : '';
-    const epoch     = n.epoch || '';
+    const cardBg = n.is_read ? 'bg-white' : 'bg-blue-50/40';
+    const newCls = isNew ? ' notif-new' : '';
+    const epoch = n.epoch || '';
     return `
       <div class="relative ${cardBg} border border-gray-100 rounded-2xl shadow-sm px-5 py-4 flex gap-4 cursor-pointer hover:shadow-md transition admin-notif-card${newCls}"
            data-id="${n.id}" data-type="${n.type}" onclick="markOneAdminNotifRead(${n.id}, this)">
@@ -4020,7 +4025,7 @@ document.getElementById('corSemesterFilter')?.addEventListener('change', _render
 
   // ── Render list ────────────────────────────────────────────────────
   function renderNotifList(newIds = new Set()) {
-    const list  = document.getElementById('adminNotifList');
+    const list = document.getElementById('adminNotifList');
     const empty = document.getElementById('adminNotifEmpty');
     if (!list) return;
 
@@ -4057,7 +4062,7 @@ document.getElementById('corSemesterFilter')?.addEventListener('change', _render
 
     let newIds = new Set();
     try {
-      const res  = await fetch(`/admin-panel/api/notifications/?page=${_notifPage}`);
+      const res = await fetch(`/admin-panel/api/notifications/?page=${_notifPage}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       _hasMore = data.has_more;
@@ -4094,7 +4099,7 @@ document.getElementById('corSemesterFilter')?.addEventListener('change', _render
   // ── Background poll (runs always) ─────────────────────────────────
   async function pollAdminNotifCount() {
     try {
-      const res  = await fetch('/admin-panel/api/notifications/count/');
+      const res = await fetch('/admin-panel/api/notifications/count/');
       const data = await res.json();
       updateAdminNotifBadge(data.unread_count);
 
@@ -4102,14 +4107,14 @@ document.getElementById('corSemesterFilter')?.addEventListener('change', _render
       if (_tabOpen) {
         await silentRefresh();
       }
-    } catch (_) {}
+    } catch (_) { }
   }
 
   // Fetches page 1 silently; prepends genuinely new cards with animation
   async function silentRefresh() {
     let newIds = new Set();
     try {
-      const res  = await fetch('/admin-panel/api/notifications/?page=1');
+      const res = await fetch('/admin-panel/api/notifications/?page=1');
       if (!res.ok) return;
       const data = await res.json();
       updateAdminNotifBadge(data.unread_count);
@@ -4141,7 +4146,7 @@ document.getElementById('corSemesterFilter')?.addEventListener('change', _render
 
   function showBanner(count) {
     const banner = document.getElementById('adminNotifNewBanner');
-    const text   = document.getElementById('adminNotifNewBannerText');
+    const text = document.getElementById('adminNotifNewBannerText');
     if (!banner) return;
     if (text) text.textContent = `${count} new notification${count !== 1 ? 's' : ''} — click to refresh`;
     banner.classList.remove('hidden');
@@ -4179,11 +4184,11 @@ document.getElementById('corSemesterFilter')?.addEventListener('change', _render
     _notifFilter = type;
     document.querySelectorAll('.notif-filter-btn').forEach(b => {
       const isActive = b === btn;
-      b.classList.toggle('bg-gray-800',    isActive);
-      b.classList.toggle('text-white',     isActive);
+      b.classList.toggle('bg-gray-800', isActive);
+      b.classList.toggle('text-white', isActive);
       b.classList.toggle('border-gray-800', isActive);
-      b.classList.toggle('bg-white',       !isActive);
-      b.classList.toggle('text-gray-500',  !isActive);
+      b.classList.toggle('bg-white', !isActive);
+      b.classList.toggle('text-gray-500', !isActive);
       b.classList.toggle('border-gray-200', !isActive);
     });
     renderNotifList(new Set());

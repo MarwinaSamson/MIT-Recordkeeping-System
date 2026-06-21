@@ -1499,7 +1499,7 @@
                     <span class="pdf-icon-label">{{ dl.file_type }}</span>
                   </div>
                   <div class="dl-text">
-                    <strong>{{ dl.name }}</strong><span></span>
+                    <strong>{{ dl.resource_type|default:dl.name }}</strong><span></span>
                   </div>
                   <div class="dl-download">
                     <span class="material-symbols-rounded">download</span>
@@ -1682,7 +1682,7 @@
                   >description</span
                 >
                 <div>
-                  <p class="font-semibold text-xs">{{ dl.name }}</p>
+                  <p class="font-semibold text-xs">{{ dl.resource_type|default:dl.name }}</p>
                   <p class="text-[10px] text-slate-400">{{ dl.file_type }}</p>
                 </div>
               </a>

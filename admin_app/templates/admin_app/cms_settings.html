@@ -2601,6 +2601,17 @@ Certified true copy from your institution</textarea
                   </p>
                 </div>
                 <div class="flex items-center gap-2">
+                  <div class="flex flex-col gap-1 min-w-[260px]">
+                    <label class="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+                      Resource Type / Display Name
+                    </label>
+                    <input
+                      type="text"
+                      id="downloadResourceTypeInput"
+                      class="field"
+                      placeholder="Admission Form for Incoming Freshmen"
+                    />
+                  </div>
                   <button id="uploadDownloadBtn" class="btn-outline">
                     <i data-lucide="upload"></i> Upload File
                   </button>
@@ -2621,6 +2632,7 @@ Certified true copy from your institution</textarea
                 <div
                   class="download-row flex items-center gap-3 row-card"
                   data-name="{{ download.name }}"
+                  data-resource-type="{{ download.resource_type|default:download.name }}"
                   data-url="{{ download.url }}"
                   data-file-type="{{ download.file_type }}"
                 >
@@ -2630,8 +2642,15 @@ Certified true copy from your institution</textarea
                     {{ download.file_type }}
                   </div>
                   <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold text-gray-800 truncate">
-                      {{ download.name }}
+                    <label class="block text-[10px] font-semibold uppercase tracking-wide text-gray-500 mb-1">Resource Type</label>
+                    <input
+                      type="text"
+                      class="field download-resource-type"
+                      value="{{ download.resource_type|default:download.name }}"
+                      placeholder="Admission Form for Incoming Freshmen"
+                    />
+                    <p class="text-[10px] text-gray-400 truncate mt-1">
+                      File: {{ download.name }}
                     </p>
                     <p class="text-xs text-gray-400 truncate">
                       {{ download.url }}

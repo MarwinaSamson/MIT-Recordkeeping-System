@@ -811,17 +811,22 @@ def update_cms_settings(request):
                     })
             update_data['programs'] = cleaned_programs
 
-        # Validate and save downloads list [{name, url, file_type}]
+        # Validate and save downloads list [{name, resource_type, file_name, url, file_type}]
         raw_downloads = data.get('downloads', None)
         if raw_downloads is not None:
             cleaned_downloads = []
             for d in raw_downloads:
-                name = str(d.get('name', '')).strip()
+                display_name = str(
+                    d.get('resource_type', '') or d.get('name', '')
+                ).strip()
+                original_name = str(d.get('file_name', '')).strip()
                 url = str(d.get('url', '')).strip()
                 file_type = str(d.get('file_type', '')).strip()
-                if name and url:
+                if display_name and url:
                     cleaned_downloads.append({
-                        'name': name,
+                        'name': display_name,
+                        'resource_type': display_name,
+                        'file_name': original_name or display_name,
                         'url': url,
                         'file_type': file_type,
                     })

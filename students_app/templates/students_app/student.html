@@ -1212,7 +1212,7 @@
                 <span style="font-size:10px;font-weight:700;color:var(--crimson);font-family:var(--font-mono)">{{ dl.file_type }}</span>
               </div>
               <div style="flex:1;min-width:0">
-                <div style="font-size:0.82rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ dl.name }}</div>
+                <div style="font-size:0.82rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ dl.resource_type|default:dl.name }}</div>
                 <div style="font-size:0.67rem;color:var(--ink-4);font-family:var(--font-mono)">Click to download</div>
               </div>
               <span class="ms" style="font-size:18px;color:var(--crimson);flex-shrink:0">download</span>

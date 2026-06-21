@@ -30,9 +30,9 @@ function getCSRFToken() {
 let _toastTimer = null;
 
 function showCmsToast(msg, type = 'success') {
-  const toast  = document.getElementById('cmsToast');
-  const icon   = document.getElementById('cmsToastIcon');
-  const text   = document.getElementById('cmsToastText');
+  const toast = document.getElementById('cmsToast');
+  const icon = document.getElementById('cmsToastIcon');
+  const text = document.getElementById('cmsToastText');
   if (!toast) return;
 
   text.textContent = msg;
@@ -165,13 +165,13 @@ async function saveAnnouncementSettings() {
 /** Save homepage hero + deadline settings */
 async function saveHomepageSettings() {
   await _postCMS({
-    admissions_open:      document.getElementById('cmsAdmissionsToggle')?.classList.contains('on'),
-    show_announcement:    document.getElementById('cmsAnnouncementToggle')?.classList.contains('on'),
-    nav_subtitle:         document.getElementById('cmsNavSubtitle')?.value.trim() || '',
-    hero_badge:           document.getElementById('cmsHeroBadge')?.value.trim() || '',
-    hero_heading1:        document.getElementById('cmsHeroHeading1')?.value.trim() || '',
-    hero_heading2:        document.getElementById('cmsHeroHeading2')?.value.trim() || '',
-    hero_tagline:         document.getElementById('cmsHeroTagline')?.value.trim() || '',
+    admissions_open: document.getElementById('cmsAdmissionsToggle')?.classList.contains('on'),
+    show_announcement: document.getElementById('cmsAnnouncementToggle')?.classList.contains('on'),
+    nav_subtitle: document.getElementById('cmsNavSubtitle')?.value.trim() || '',
+    hero_badge: document.getElementById('cmsHeroBadge')?.value.trim() || '',
+    hero_heading1: document.getElementById('cmsHeroHeading1')?.value.trim() || '',
+    hero_heading2: document.getElementById('cmsHeroHeading2')?.value.trim() || '',
+    hero_tagline: document.getElementById('cmsHeroTagline')?.value.trim() || '',
     application_deadline: document.getElementById('cmsDeadline')?.value || null,
   });
 }
@@ -266,10 +266,10 @@ async function uploadHeroImage(input) {
 async function saveProgramsSettings() {
   const programs = [];
   document.querySelectorAll('.program-row').forEach(row => {
-    const name        = row.querySelector('.prog-name')?.value.trim()  || '';
-    const degree      = row.querySelector('.prog-degree')?.value.trim()|| '';
-    const description = row.querySelector('.prog-desc')?.value.trim()  || '';
-    const visible     = row.querySelector('.prog-visible-toggle')?.classList.contains('on') ?? true;
+    const name = row.querySelector('.prog-name')?.value.trim() || '';
+    const degree = row.querySelector('.prog-degree')?.value.trim() || '';
+    const description = row.querySelector('.prog-desc')?.value.trim() || '';
+    const visible = row.querySelector('.prog-visible-toggle')?.classList.contains('on') ?? true;
     if (name) programs.push({ name, degree, description, visible });
   });
   await _postCMS({ programs });
@@ -297,7 +297,7 @@ async function _postCMS(payload) {
 function _collectAnnouncements() {
   const rows = [];
   document.querySelectorAll('.announcement-row').forEach(row => {
-    const text     = row.querySelector('.ann-text')?.value.trim()  || '';
+    const text = row.querySelector('.ann-text')?.value.trim() || '';
     const duration = parseInt(row.querySelector('.ann-duration')?.value) || 5;
     if (text) rows.push({ text, duration: Math.max(3, duration) });
   });
@@ -347,9 +347,10 @@ function collectDownloadsPayload() {
   const out = [];
   list.querySelectorAll('.download-row').forEach((row) => {
     const name = (row.dataset.name || '').trim();
+    const resourceType = (row.querySelector('.download-resource-type')?.value || row.dataset.resourceType || '').trim();
     const url = (row.dataset.url || '').trim();
     const file_type = (row.dataset.fileType || '').trim();
-    if (name && url) out.push({ name, url, file_type });
+    if (name && url) out.push({ name, resource_type: resourceType, url, file_type });
   });
   return out;
 }
@@ -389,31 +390,36 @@ function removeDownloadRow(btn) {
 }
 
 function _initDownloadsUpload() {
-  const btn   = document.getElementById('uploadDownloadBtn');
+  const btn = document.getElementById('uploadDownloadBtn');
   const input = document.getElementById('downloadFileInput');
+  const resourceInput = document.getElementById('downloadResourceTypeInput');
   if (!btn || !input) return;
 
   btn.addEventListener('click', () => input.click());
   input.addEventListener('change', async function () {
     if (!this.files[0]) return;
-    const file     = this.files[0];
+    const file = this.files[0];
+    const resourceType = (resourceInput?.value || '').trim() || file.name;
     const formData = new FormData();
     formData.append('file', file);
 
     const origHTML = btn.innerHTML;
-    btn.disabled   = true;
-    btn.innerHTML  = '<i data-lucide="loader" class="w-3.5 h-3.5" style="animation:spin 1s linear infinite"></i> Uploading…';
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader" class="w-3.5 h-3.5" style="animation:spin 1s linear infinite"></i> Uploading…';
     lucide.createIcons();
 
     try {
-      const res  = await fetch('/admin-panel/api/cms/upload-file/', {
+      const res = await fetch('/admin-panel/api/cms/upload-file/', {
         method: 'POST',
         headers: { 'X-CSRFToken': getCSRFToken() },
         body: formData,
       });
       const data = await res.json();
       if (data.success) {
-        _appendDownloadRow(data.data || { name: file.name, url: '', file_type: file.name.split('.').pop().toUpperCase() });
+        _appendDownloadRow({
+          ...(data.data || { name: file.name, url: '', file_type: file.name.split('.').pop().toUpperCase() }),
+          resource_type: resourceType,
+        });
         const saved = await persistDownloadsList({ silentSuccess: true });
         showCmsToast(saved ? 'File uploaded and saved to the homepage list.' : 'File uploaded, but saving the list failed — try removing and re-uploading.', saved ? 'success' : 'error');
       } else {
@@ -422,9 +428,10 @@ function _initDownloadsUpload() {
     } catch {
       showCmsToast('Network error during upload.', 'error');
     } finally {
-      btn.disabled  = false;
+      btn.disabled = false;
       btn.innerHTML = origHTML;
-      this.value    = '';
+      this.value = '';
+      if (resourceInput) resourceInput.value = '';
       lucide.createIcons();
     }
   });
@@ -437,9 +444,11 @@ function _appendDownloadRow(file) {
   list.querySelectorAll('p.text-gray-400').forEach(p => p.remove());
 
   const ext = (file.file_type || '').toUpperCase() || file.name.split('.').pop().toUpperCase();
+  const resourceType = (file.resource_type || file.display_name || file.label || file.name || '').trim();
   const div = document.createElement('div');
   div.className = 'download-row flex items-center gap-3 row-card';
   div.dataset.name = file.name || '';
+  div.dataset.resourceType = resourceType;
   div.dataset.url = file.url || '';
   div.dataset.fileType = ext;
   div.innerHTML = `
@@ -447,7 +456,9 @@ function _appendDownloadRow(file) {
       ${ext}
     </div>
     <div class="flex-1 min-w-0">
-      <p class="text-sm font-semibold text-gray-800 truncate">${file.name}</p>
+      <label class="block text-[10px] font-semibold uppercase tracking-wide text-gray-500 mb-1">Resource Type</label>
+      <input type="text" class="field download-resource-type" value="${resourceType.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;')}" placeholder="Admission Form for Incoming Freshmen" />
+      <p class="text-[10px] text-gray-400 truncate mt-1">File: ${file.name}</p>
       <p class="text-xs text-gray-400 truncate">${file.url || ''}</p>
     </div>
     <button type="button" onclick="removeDownloadRow(this)" class="btn-del">
@@ -470,8 +481,8 @@ function previewSlideImage(input, n) {
   reader.onload = e => {
     const container = input.closest('.border-dashed');
     if (!container) return;
-    container.style.backgroundImage    = `url(${e.target.result})`;
-    container.style.backgroundSize     = 'cover';
+    container.style.backgroundImage = `url(${e.target.result})`;
+    container.style.backgroundSize = 'cover';
     container.style.backgroundPosition = 'center';
     container.innerHTML = `
       <div class="flex items-center gap-2 text-white drop-shadow">
@@ -486,7 +497,7 @@ function previewSlideImage(input, n) {
 }
 
 function saveSlideText(n) {
-  const title   = document.getElementById(`slideTitle${n}`)?.value.trim()   || '';
+  const title = document.getElementById(`slideTitle${n}`)?.value.trim() || '';
   const caption = document.getElementById(`slideCaption${n}`)?.value.trim() || '';
   showCmsToast(`Slide ${n} text saved!`, 'success');
 }
@@ -500,11 +511,11 @@ function addCarouselSlide() {
 ══════════════════════════════════════════════════════════════ */
 async function saveContactSettings() {
   const payload = {
-    contact_address:  document.getElementById('contactAddress')?.value.trim()  || '',
-    contact_phone:    document.getElementById('contactPhone')?.value.trim()    || '',
-    contact_email:    document.getElementById('contactEmail')?.value.trim()    || '',
+    contact_address: document.getElementById('contactAddress')?.value.trim() || '',
+    contact_phone: document.getElementById('contactPhone')?.value.trim() || '',
+    contact_email: document.getElementById('contactEmail')?.value.trim() || '',
     contact_facebook: document.getElementById('contactFacebook')?.value.trim() || '',
-    contact_hours:    document.getElementById('contactHours')?.value.trim()    || '',
+    contact_hours: document.getElementById('contactHours')?.value.trim() || '',
   };
   await _postCMS(payload);
 }
@@ -514,7 +525,7 @@ async function saveContactSettings() {
 ══════════════════════════════════════════════════════════════ */
 async function saveFooterSettings() {
   const payload = {
-    footer_tagline:   document.getElementById('footerTagline')?.value.trim()   || '',
+    footer_tagline: document.getElementById('footerTagline')?.value.trim() || '',
     footer_copyright: document.getElementById('footerCopyright')?.value.trim() || '',
   };
   await _postCMS(payload);
@@ -527,17 +538,17 @@ async function saveFooterSettings() {
 // ── Program Info ──
 async function saveProgramInfo() {
   const data = {
-    program_name:         document.getElementById('programName')?.value        || '',
-    program_degree:       document.getElementById('programDegree')?.value      || '',
-    program_tagline:      document.getElementById('programTagline')?.value     || '',
-    program_description:  document.getElementById('programDescription')?.value || '',
-    program_institution:  document.getElementById('programInstitution')?.value || '',
-    program_copc_number:  document.getElementById('programCOPC')?.value        || '',
+    program_name: document.getElementById('programName')?.value || '',
+    program_degree: document.getElementById('programDegree')?.value || '',
+    program_tagline: document.getElementById('programTagline')?.value || '',
+    program_description: document.getElementById('programDescription')?.value || '',
+    program_institution: document.getElementById('programInstitution')?.value || '',
+    program_copc_number: document.getElementById('programCOPC')?.value || '',
     program_effective_year: document.getElementById('programEffectiveYear')?.value || '',
-    program_accreditor:   document.getElementById('programAccreditor')?.value  || '',
+    program_accreditor: document.getElementById('programAccreditor')?.value || '',
   };
   try {
-    const res  = await fetch('/admin/api/program/cms/update/', {
+    const res = await fetch('/admin/api/program/cms/update/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
       body: JSON.stringify(data),
@@ -732,12 +743,12 @@ function removeStatistic(idx) {
 async function saveProgramCMS() {
   const payload = {
     program_objectives: objectivesData,
-    program_outcomes:   outcomesData,
+    program_outcomes: outcomesData,
     program_curriculum: curriculumData,
-    program_stats:      statisticsData,
+    program_stats: statisticsData,
   };
   try {
-    const res  = await fetch('/admin/api/program/cms/update/', {
+    const res = await fetch('/admin/api/program/cms/update/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
       body: JSON.stringify(payload),
@@ -755,26 +766,26 @@ async function saveProgramCMS() {
 ══════════════════════════════════════════════════════════════ */
 async function loadProgramCMS() {
   try {
-    const res  = await fetch('/admin/api/program/cms/');
+    const res = await fetch('/admin/api/program/cms/');
     const json = await res.json();
     if (!json.success) return;
     const d = json.data;
 
     // Populate text fields
-    _setVal('programName',          d.program_name);
-    _setVal('programDegree',        d.program_degree);
-    _setVal('programTagline',       d.program_tagline);
-    _setVal('programDescription',   d.program_description);
-    _setVal('programInstitution',   d.program_institution);
-    _setVal('programCOPC',          d.program_copc_number);
+    _setVal('programName', d.program_name);
+    _setVal('programDegree', d.program_degree);
+    _setVal('programTagline', d.program_tagline);
+    _setVal('programDescription', d.program_description);
+    _setVal('programInstitution', d.program_institution);
+    _setVal('programCOPC', d.program_copc_number);
     _setVal('programEffectiveYear', d.program_effective_year);
-    _setVal('programAccreditor',    d.program_accreditor);
+    _setVal('programAccreditor', d.program_accreditor);
 
     // Populate dynamic lists
     loadObjectives(d.program_objectives || []);
-    loadOutcomes(d.program_outcomes     || []);
+    loadOutcomes(d.program_outcomes || []);
     loadCurriculum(d.program_curriculum || []);
-    loadStatistics(d.program_stats      || []);
+    loadStatistics(d.program_stats || []);
 
     // Faculty is loaded lazily on tab open
   } catch (e) {
@@ -789,7 +800,7 @@ let facultyData = [];
 
 async function loadFaculty() {
   try {
-    const res  = await fetch('/admin/api/faculty/list/');
+    const res = await fetch('/admin/api/faculty/list/');
     const json = await res.json();
     if (!json.success) return;
     facultyData = json.data || [];
@@ -840,13 +851,13 @@ function renderFaculty() {
 
 function openAddFacultyModal() {
   document.getElementById('facultyModalTitle').textContent = 'Add Faculty Member';
-  document.getElementById('facultyFirstName').value        = '';
-  document.getElementById('facultyLastName').value         = '';
-  document.getElementById('facultyTitle').value            = '';
-  document.getElementById('facultySpecializations').value  = '';
-  document.getElementById('facultyPhoto').value            = '';
-  document.getElementById('facultyModal')._editId          = null;
-  document.getElementById('facultyModal').style.display    = 'flex';
+  document.getElementById('facultyFirstName').value = '';
+  document.getElementById('facultyLastName').value = '';
+  document.getElementById('facultyTitle').value = '';
+  document.getElementById('facultySpecializations').value = '';
+  document.getElementById('facultyPhoto').value = '';
+  document.getElementById('facultyModal')._editId = null;
+  document.getElementById('facultyModal').style.display = 'flex';
   lucide.createIcons();
 }
 
@@ -854,12 +865,12 @@ function openEditFacultyModal(id) {
   const f = facultyData.find(x => x.id === id);
   if (!f) return;
   document.getElementById('facultyModalTitle').textContent = 'Edit Faculty Member';
-  document.getElementById('facultyFirstName').value        = f.first_name;
-  document.getElementById('facultyLastName').value         = f.last_name;
-  document.getElementById('facultyTitle').value            = f.title;
-  document.getElementById('facultySpecializations').value  = f.specializations;
-  document.getElementById('facultyModal')._editId          = id;
-  document.getElementById('facultyModal').style.display    = 'flex';
+  document.getElementById('facultyFirstName').value = f.first_name;
+  document.getElementById('facultyLastName').value = f.last_name;
+  document.getElementById('facultyTitle').value = f.title;
+  document.getElementById('facultySpecializations').value = f.specializations;
+  document.getElementById('facultyModal')._editId = id;
+  document.getElementById('facultyModal').style.display = 'flex';
   lucide.createIcons();
 }
 
@@ -868,12 +879,12 @@ function closeFacultyModal() {
 }
 
 async function saveFacultyMember() {
-  const firstName       = document.getElementById('facultyFirstName').value.trim();
-  const lastName        = document.getElementById('facultyLastName').value.trim();
-  const title           = document.getElementById('facultyTitle').value.trim();
+  const firstName = document.getElementById('facultyFirstName').value.trim();
+  const lastName = document.getElementById('facultyLastName').value.trim();
+  const title = document.getElementById('facultyTitle').value.trim();
   const specializations = document.getElementById('facultySpecializations').value.trim();
-  const photoFile       = document.getElementById('facultyPhoto').files[0];
-  const editId          = document.getElementById('facultyModal')._editId;
+  const photoFile = document.getElementById('facultyPhoto').files[0];
+  const editId = document.getElementById('facultyModal')._editId;
 
   if (!firstName || !lastName || !title) {
     showCmsToast('First name, last name and title are required.', 'error');
@@ -881,17 +892,17 @@ async function saveFacultyMember() {
   }
 
   const formData = new FormData();
-  formData.append('first_name',       firstName);
-  formData.append('last_name',        lastName);
-  formData.append('title',            title);
-  formData.append('specializations',  specializations);
+  formData.append('first_name', firstName);
+  formData.append('last_name', lastName);
+  formData.append('title', title);
+  formData.append('specializations', specializations);
   if (photoFile) formData.append('photo', photoFile);
-  if (editId)    formData.append('faculty_id', editId);
+  if (editId) formData.append('faculty_id', editId);
 
   const url = editId ? '/admin/api/faculty/update/' : '/admin/api/faculty/add/';
 
   try {
-    const res  = await fetch(url, {
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'X-CSRFToken': getCSRFToken() },
       body: formData,
@@ -912,7 +923,7 @@ async function saveFacultyMember() {
 async function deleteFaculty(id) {
   if (!confirm('Delete this faculty member?')) return;
   try {
-    const res  = await fetch('/admin/api/faculty/delete/', {
+    const res = await fetch('/admin/api/faculty/delete/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
       body: JSON.stringify({ faculty_id: id }),
@@ -1419,10 +1430,10 @@ function renderHistoryLogs(activities) {
     <tr>
       <td>
         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold
-          ${act.action === 'verified'   ? 'bg-green-50 text-green-700'  :
-            act.action === 'rejected'   ? 'bg-red-50 text-red-700'      :
-            act.action === 'cms_updated'? 'bg-blue-50 text-blue-700'    :
-                                          'bg-gray-100 text-gray-600'}">
+          ${act.action === 'verified' ? 'bg-green-50 text-green-700' :
+      act.action === 'rejected' ? 'bg-red-50 text-red-700' :
+        act.action === 'cms_updated' ? 'bg-blue-50 text-blue-700' :
+          'bg-gray-100 text-gray-600'}">
           ${_esc(act.action_display || act.action)}
         </span>
       </td>
@@ -1462,5 +1473,5 @@ document.addEventListener('DOMContentLoaded', () => {
       const el = document.getElementById('liveEnrollmentCount');
       if (el && d.count !== undefined) el.textContent = d.count;
     })
-    .catch(() => {});
+    .catch(() => { });
 });
