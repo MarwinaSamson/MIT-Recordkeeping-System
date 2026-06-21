@@ -1560,11 +1560,7 @@
                   class="material-symbols-rounded text-white"
                   style="font-size: 19px"
                 >
-                  {% if curriculum_group.title|lower == 'foundation' or
-                  curriculum_group.title|lower == 'core' %}settings{% elif
-                  curriculum_group.title|lower == 'specialization' %}star{% elif
-                  curriculum_group.title|lower == 'cognate' %}brightness_5{%
-                  else %}emoji_events{% endif %}
+                  {% if curriculum_group.title|lower == 'foundation' or curriculum_group.title|lower == 'core' %}settings{% elif curriculum_group.title|lower == 'specialization' %}star{% elif curriculum_group.title|lower == 'cognate' %}brightness_5{% else %}emoji_events{% endif %}
                 </span>
               </div>
               <div class="section-meta">
@@ -1698,12 +1694,7 @@
                   class="material-symbols-rounded"
                   style="font-size: 20px; color: var(--crimson)"
                 >
-                  {% if outcome.number == 1 %}dns{% elif outcome.number == 2
-                  %}science{% elif outcome.number == 3 %}hub{% elif
-                  outcome.number == 4 %}layers{% elif outcome.number == 5
-                  %}manage_accounts{% elif outcome.number == 6 %}lightbulb{%
-                  elif outcome.number == 7 %}smart_toy{% else %}storage{% endif
-                  %}
+                  {% if outcome.number == 1 %}dns{% elif outcome.number == 2  %}science{% elif outcome.number == 3 %}hub{% elif outcome.number == 4 %}layers{% elif outcome.number == 5 %}manage_accounts{% elif outcome.number == 6 %}lightbulb{% elif outcome.number == 7 %}smart_toy{% else %}storage{% endif %}
                 </span>
               </div>
               <span
