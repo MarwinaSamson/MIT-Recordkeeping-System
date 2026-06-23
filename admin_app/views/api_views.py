@@ -2724,8 +2724,20 @@ def save_program(request):
 
         idx = next((i for i, p in enumerate(programs) if p.get('id') == program_id), None)
         if idx is not None:
+            # Preserve the original creator on updates
+            existing_created_by = programs[idx].get('created_by')
             programs[idx] = program_obj
+            if existing_created_by is not None:
+                programs[idx]['created_by'] = existing_created_by
         else:
+            # Enforce one-program-per-user rule
+            user_id = request.user.id
+            if any(p.get('created_by') == user_id for p in programs):
+                return JsonResponse(
+                    {'success': False, 'message': 'You already have a program. Delete it first before creating a new one.'},
+                    status=403,
+                )
+            program_obj['created_by'] = user_id
             programs.append(program_obj)
 
         cms.programs = programs

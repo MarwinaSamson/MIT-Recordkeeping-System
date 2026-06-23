@@ -99,5 +99,6 @@ def program_management(request):
         'admin_name': request.user.get_full_name() or request.user.username,
         'admin_email': request.user.email,
         'admin_profile_picture': admin_profile_picture,
+        'current_user_id': request.user.id,
     }
     return render(request, 'admin_app/program_management.html', context)
