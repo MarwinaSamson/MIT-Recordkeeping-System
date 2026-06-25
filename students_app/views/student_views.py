@@ -55,14 +55,13 @@ def _normalize_curriculum_name(value):
 
 def _resolve_student_prospectus(curriculum_name):
     """Resolve a student's curriculum token to a canonical Prospectus row."""
-    from admin_app.models import Prospectus, ProspectusAssignment
+    from admin_app.models import Prospectus
 
     raw = (curriculum_name or '').strip()
     if not raw:
         return None
 
     normalized = _normalize_curriculum_name(raw)
-    year_only = normalized
 
     search_terms = [raw, normalized]
     if normalized:
@@ -75,7 +74,7 @@ def _resolve_student_prospectus(curriculum_name):
     for term in search_terms:
         if term:
             exact_filters.append({'name__iexact': term})
-            exact_filters.append({'program_name__iexact': term})
+            exact_filters.append({'program__name__iexact': term})
             exact_filters.append({'description__iexact': term})
 
     # Try direct matches first.
@@ -83,12 +82,6 @@ def _resolve_student_prospectus(curriculum_name):
         prospectus = Prospectus.objects.filter(**filter_kwargs).prefetch_related('years__semesters__subjects').first()
         if prospectus:
             return prospectus
-
-    # Check prospectus assignments using intake year mappings.
-    if year_only:
-        assignment = ProspectusAssignment.objects.select_related('prospectus').filter(intake_year__iexact=year_only).first()
-        if assignment and assignment.prospectus:
-            return assignment.prospectus
 
     # Fallback to substring matches so legacy records still resolve.
     for term in search_terms:
@@ -98,7 +91,7 @@ def _resolve_student_prospectus(curriculum_name):
             Prospectus.objects.filter(name__icontains=term)
             .prefetch_related('years__semesters__subjects')
             .first()
-            or Prospectus.objects.filter(program_name__icontains=term)
+            or Prospectus.objects.filter(program__name__icontains=term)
             .prefetch_related('years__semesters__subjects')
             .first()
         )

@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -1263,6 +1264,36 @@
           class="relative max-w-4xl mx-auto px-6 py-20 sm:py-28 text-center"
           style="z-index: 1; position: relative"
         >
+          <!-- Institution logos row -->
+          <div class="a1 flex items-center justify-center gap-6 mb-6">
+            <!-- WMSU seal -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;">
+              <img src="{% static 'assets/Western_Mindanao_State_University.png' %}"
+                alt="WMSU Logo"
+                style="width:72px;height:72px;object-fit:contain;border-radius:50%;background:rgba(255,255,255,.1);padding:6px;" />
+            </div>
+
+            {% if main_program.college_logo %}
+            <div style="width:1px;height:56px;background:rgba(255,255,255,.2);"></div>
+            <!-- College logo -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;">
+              <img src="{{ main_program.college_logo }}"
+                alt="College Logo"
+                style="width:72px;height:72px;object-fit:cover;border-radius:50%;background:rgba(255,255,255,.1);padding:4px;border:2px solid rgba(255,255,255,.2);" />
+            </div>
+            {% endif %}
+
+            {% if main_program.logo %}
+            <div style="width:1px;height:56px;background:rgba(255,255,255,.2);"></div>
+            <!-- Program seal -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;">
+              <img src="{{ main_program.logo }}"
+                alt="Program Seal"
+                style="width:72px;height:72px;object-fit:contain;border-radius:50%;background:rgba(255,255,255,.1);padding:6px;" />
+            </div>
+            {% endif %}
+          </div>
+
           <p class="a1 eyebrow mb-3" style="color: rgba(201, 168, 76, 0.85)">
             {{ cms.about_hero_eyebrow }}
           </p>

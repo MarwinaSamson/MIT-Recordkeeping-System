@@ -1459,7 +1459,7 @@
                 <div class="panel-arrow"></div>
                 <p class="panel-label">Our Graduate Programs</p>
                 {% for prog in cms.programs %}{% if prog.visible %}
-                <a href="{% if prog.slug %}{% url 'program_detail' prog.slug %}{% else %}#requirements{% endif %}" class="prog-row">
+                <a href="{% url 'about' %}" class="prog-row">
                   <div class="prog-icon">
                     <span class="material-symbols-rounded">school</span>
                   </div>
@@ -1628,7 +1628,7 @@
             >
               {% for prog in cms.programs %}{% if prog.visible %}
               <a
-                href="{% if prog.slug %}{% url 'program_detail' prog.slug %}{% else %}#requirements{% endif %}"
+                href="{% url 'about' %}"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 hover:bg-red-50 hover:text-red-700 transition-colors"
               >
                 <span

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Application, DocumentVerification, AdminActivityLog
 from .models import SchoolYear, Semester
-from .models import Prospectus, ProspectusYear, ProspectusSemester, ProspectusSubject, ProspectusAssignment, Program
+from .models import Prospectus, ProspectusYear, ProspectusSemester, ProspectusSubject, Program
 
 
 @admin.register(Application)
@@ -81,8 +81,8 @@ class SemesterAdmin(admin.ModelAdmin):
 
 @admin.register(Prospectus)
 class ProspectusAdmin(admin.ModelAdmin):
-    list_display = ('name', 'program_name', 'program_code', 'is_active', 'created_at')
-    search_fields = ('name', 'program_name', 'program_code')
+    list_display = ('name', 'program', 'is_active', 'created_at')
+    search_fields = ('name', 'program__name')
     readonly_fields = ('created_at', 'updated_at')
 
 
@@ -102,12 +102,6 @@ class ProspectusSemesterAdmin(admin.ModelAdmin):
 class ProspectusSubjectAdmin(admin.ModelAdmin):
     list_display = ('code', 'title', 'semester', 'lec', 'lab', 'total')
     search_fields = ('code', 'title')
-
-
-@admin.register(ProspectusAssignment)
-class ProspectusAssignmentAdmin(admin.ModelAdmin):
-    list_display = ('prospectus', 'program_name', 'program_code', 'intake_year', 'created_at')
-    search_fields = ('program_name', 'program_code')
 
 
 @admin.register(Program)

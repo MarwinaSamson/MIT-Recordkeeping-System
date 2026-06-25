@@ -132,6 +132,9 @@ def about(request):
             })
     curriculum_grand_total_units = sum(g['total_units'] for g in curriculum_groups)
 
+    programs = cms.programs or []
+    main_program = next((p for p in programs if p.get('visible', True)), None) or (programs[0] if programs else {})
+
     return render(
         request,
         "students_app/about.html",
@@ -140,6 +143,7 @@ def about(request):
             "faculty": faculty_data,
             "curriculum_groups": curriculum_groups,
             "curriculum_grand_total_units": curriculum_grand_total_units,
+            "main_program": main_program,
         },
     )
 

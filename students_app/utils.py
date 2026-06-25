@@ -70,7 +70,7 @@ def normalize_curriculum_name(value):
 
 def resolve_canonical_curriculum_name(value):
     """Resolve a legacy curriculum string to a canonical Prospectus.name."""
-    from admin_app.models import Prospectus, ProspectusAssignment
+    from admin_app.models import Prospectus
 
     raw = (value or '').strip()
     if not raw:
@@ -89,23 +89,18 @@ def resolve_canonical_curriculum_name(value):
             continue
         prospectus = (
             Prospectus.objects.filter(name__iexact=term).first()
-            or Prospectus.objects.filter(program_name__iexact=term).first()
+            or Prospectus.objects.filter(program__name__iexact=term).first()
             or Prospectus.objects.filter(description__iexact=term).first()
         )
         if prospectus:
             return prospectus.name
-
-    if normalized:
-        assignment = ProspectusAssignment.objects.select_related('prospectus').filter(intake_year__iexact=normalized).first()
-        if assignment and assignment.prospectus:
-            return assignment.prospectus.name
 
     for term in search_terms:
         if not term:
             continue
         prospectus = (
             Prospectus.objects.filter(name__icontains=term).first()
-            or Prospectus.objects.filter(program_name__icontains=term).first()
+            or Prospectus.objects.filter(program__name__icontains=term).first()
         )
         if prospectus:
             return prospectus.name

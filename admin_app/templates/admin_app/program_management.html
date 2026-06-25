@@ -12,6 +12,8 @@
         rel="stylesheet" />
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <link href="{% static 'admin_app/ccs/admin_style.css' %}" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         /* ── Base ── */
@@ -467,18 +469,20 @@
         }
 
         .logo-zone {
-            width: 100%;
-            height: 110px;
+            width: 120px;
+            height: 120px;
             border: 2px dashed #e5e7eb;
-            border-radius: 14px;
+            border-radius: 50%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
             cursor: pointer;
             background: #fafafa;
             transition: border-color .15s, background .15s;
+            overflow: hidden;
+            flex-shrink: 0;
         }
 
         .logo-zone:hover {
@@ -824,22 +828,36 @@
                 <div class="prog-tab-panel active" id="panel-identity">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div class="sm:col-span-2">
-                            <label class="lbl">Program Logo / Seal <span class="lbl-hint">(shows in the hero and navbar
-                                    of the program's about page)</span></label>
-                            <div class="logo-zone" id="logoZone"
-                                onclick="document.getElementById('logoFileInput').click()"
-                                ondragover="logoDragOver(event)" ondragleave="logoDragLeave(event)"
-                                ondrop="logoDrop(event)">
-                                <div id="logoPreview"
-                                    style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
-                                    <i data-lucide="upload-cloud" style="width:28px;height:28px;color:#d1d5db;"></i>
+                            <label class="lbl">Logos / Seals <span class="lbl-hint">(click a circle to upload · PNG with transparency recommended · max 2 MB each)</span></label>
+                            <div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;margin-top:6px;">
+                                <!-- Program Seal -->
+                                <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+                                    <div class="logo-zone" id="logoZone"
+                                        onclick="document.getElementById('logoFileInput').click()"
+                                        ondragover="logoDragOver(event)" ondragleave="logoDragLeave(event)"
+                                        ondrop="logoDrop(event)"
+                                        title="Click to upload Program Seal">
+                                        <div id="logoPreview" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+                                            <i data-lucide="upload-cloud" style="width:24px;height:24px;color:#d1d5db;"></i>
+                                        </div>
+                                        <input type="file" id="logoFileInput" accept="image/*" style="display:none;" onchange="handleLogoFile(this.files[0])" />
+                                    </div>
+                                    <span style="font-size:0.72rem;color:#6b7280;font-weight:500;">Program Seal</span>
                                 </div>
-                                <p style="font-size:0.73rem;color:#9ca3af;margin:0;">Click or drag &amp; drop logo /
-                                    seal</p>
-                                <p style="font-size:0.67rem;color:#d1d5db;margin:2px 0 0;">PNG with transparency
-                                    recommended · max 2 MB</p>
-                                <input type="file" id="logoFileInput" accept="image/*" style="display:none;"
-                                    onchange="handleLogoFile(this.files[0])" />
+                                <!-- College Logo -->
+                                <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+                                    <div class="logo-zone" id="collegeLogoZone"
+                                        onclick="document.getElementById('collegeLogoFileInput').click()"
+                                        ondragover="collegeLogoDragOver(event)" ondragleave="collegeLogoDragLeave(event)"
+                                        ondrop="collegeLogoDrop(event)"
+                                        title="Click to upload College Logo">
+                                        <div id="collegeLogoPreview" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+                                            <i data-lucide="upload-cloud" style="width:24px;height:24px;color:#d1d5db;"></i>
+                                        </div>
+                                        <input type="file" id="collegeLogoFileInput" accept="image/*" style="display:none;" onchange="handleCollegeLogoFile(this.files[0])" />
+                                    </div>
+                                    <span style="font-size:0.72rem;color:#6b7280;font-weight:500;">College Logo</span>
+                                </div>
                             </div>
                         </div>
                         <div class="sm:col-span-2">
@@ -935,45 +953,31 @@
 
                 <!-- ── TAB: Curriculum ── -->
                 <div class="prog-tab-panel" id="panel-curriculum">
-                    <!-- Bulk upload strip -->
-                    <div
-                        style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-                        <i data-lucide="upload-cloud" style="width:18px;height:18px;color:#d97706;flex-shrink:0;"></i>
-                        <div style="flex:1;min-width:0;">
-                            <p style="font-size:0.78rem;font-weight:700;color:#92600a;margin:0;">Bulk Upload Curriculum
-                            </p>
-                            <p style="font-size:0.7rem;color:#b45309;margin:2px 0 0;">Upload a CSV to populate all
-                                courses at once instead of adding one by one.</p>
+
+                    <!-- Save-program-first notice (shown when no _editId) -->
+                    <div id="currNoProgram" style="display:none;">
+                        <div class="empty-state" style="padding:32px;">
+                            <i data-lucide="save" style="width:32px;height:32px;margin:0 auto 10px;opacity:.3;display:block;"></i>
+                            <p class="text-sm font-semibold text-gray-500">Save the program first</p>
+                            <p class="text-xs text-gray-400 mt-1">The program must be saved before you can manage its curriculum.</p>
                         </div>
-                        <button onclick="downloadCurrTemplate()"
-                            style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;border:1.5px solid #fcd34d;background:#fff;font-size:0.72rem;font-weight:700;color:#92600a;cursor:pointer;">
-                            <i data-lucide="download" style="width:12px;height:12px;"></i> Template
-                        </button>
-                        <button onclick="document.getElementById('currBulkInput').click()"
-                            style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;background:#d97706;color:#fff;font-size:0.72rem;font-weight:700;border:none;cursor:pointer;">
-                            <i data-lucide="file-up" style="width:12px;height:12px;"></i> Upload CSV
-                        </button>
-                        <input type="file" id="currBulkInput" accept=".csv" style="display:none;"
-                            onchange="handleCurrBulk(this.files[0])" />
                     </div>
 
-                    <!-- Curriculum preview / table -->
-                    <div id="currBulkPreview" style="display:none;margin-bottom:16px;"></div>
-
-                    <!-- Manual add -->
-                    <div class="flex items-center justify-between mb-3">
-                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Courses — Manual Entry</p>
-                        <button onclick="addCourseRow()" class="btn-secondary"
-                            style="padding:6px 12px;font-size:0.72rem;">
-                            <i data-lucide="plus" style="width:12px;height:12px;"></i> Add Course
-                        </button>
-                    </div>
-                    <div id="currManualList" class="space-y-2">
-                        <div class="empty-state" style="padding:24px;" id="currEmptyMsg">
-                            <i data-lucide="book"
-                                style="width:32px;height:32px;margin:0 auto 8px;opacity:.25;display:block;"></i>
-                            <p class="text-sm">No courses yet — add manually or upload a CSV.</p>
+                    <!-- Curriculum content (shown when _editId is set) -->
+                    <div id="currContent">
+                        <!-- Header row -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                            <div>
+                                <p class="text-sm font-bold text-gray-700">Curriculum Prospectuses</p>
+                                <p class="text-xs text-gray-400 mt-0.5">Each prospectus represents one curriculum version (e.g. AY 2023–2024).</p>
+                            </div>
+                            <button onclick="currShowNewForm()" id="btnAddProspectus" class="btn-primary" style="font-size:0.78rem;padding:7px 14px;">
+                                <i data-lucide="plus" style="width:13px;height:13px;"></i> New Prospectus
+                            </button>
                         </div>
+
+                        <!-- Prospectus list -->
+                        <div id="prospectusList"></div>
                     </div>
                 </div>
 
@@ -1089,7 +1093,7 @@
             </div><!-- /tab content -->
 
             <!-- Modal footer -->
-            <div
+            <div id="progModalFooter"
                 style="padding:16px 24px;border-top:1.5px solid #f3f4f6;display:flex;align-items:center;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:#fff;border-radius:0 0 20px 20px;">
                 <button onclick="closeModal()" class="btn-secondary">Cancel</button>
                 <button onclick="saveProgram()" class="btn-primary" id="btnSave">
@@ -1137,13 +1141,18 @@
         let _programs = [];       // array of program objects
         let _editId = null;     // null = new program, else program id
         const CURRENT_USER_ID = {{ current_user_id }};
-        let _logoFile = null;     // staged logo file object
-        let _logoUrl = '';       // existing logo URL (from server)
+        let _logoFile = null;
+        let _logoUrl = '';
+        let _collegeLogoFile = null;
+        let _collegeLogoUrl = '';
         let _visible = true;     // visibility toggle state
-        let _currRows = [];       // curriculum course rows in editor
+        let _currRows = [];       // kept for legacy compat
         let _outcomes = [];
         let _objectives = [];
         let _faculty = [];
+        // Curriculum / prospectus state
+        let _prospectuses = [];   // loaded from API for current program
+        let _progSlug = '';       // slug of the program currently open in the editor
         let _viewMode = 'grid';
 
         // Programs are loaded from the API on DOMContentLoaded (see INIT below)
@@ -1350,10 +1359,10 @@
                 pgToast('Delete your existing program first before adding a new one.', 'error');
                 return;
             }
-            _editId = null;
+            _editId = null; _progSlug = '';
             _logoFile = null; _logoUrl = '';
             _visible = true;
-            _currRows = []; _outcomes = []; _objectives = []; _faculty = [];
+            _currRows = []; _outcomes = []; _objectives = []; _faculty = []; _prospectuses = [];
             resetModalFields();
             document.getElementById('modalTitle').textContent = 'New Program';
             document.getElementById('modalSubtitle').textContent = 'Fill in the program details across each tab';
@@ -1361,7 +1370,7 @@
             document.getElementById('visibilityToggle').style.background = '#15803d';
             document.getElementById('visibilityToggle').querySelector('span').style.left = '22px';
             switchProgTab('identity', document.querySelector('.prog-tab'));
-            renderCurrManual(); renderOutcomes(); renderObjectives(); renderFaculty();
+            renderOutcomes(); renderObjectives(); renderFaculty();
             const panel = document.getElementById('progEditorPanel');
             panel.style.display = 'block';
             panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1371,9 +1380,11 @@
         function openEditModal(id) {
             const p = _programs.find(x => x.id === id);
             if (!p) return;
-            _editId = id;
+            _editId = id; _progSlug = p.slug || '';
             _logoFile = null; _logoUrl = p.logo || '';
+            _collegeLogoFile = null; _collegeLogoUrl = p.college_logo || '';
             _visible = p.visible !== false;
+            _prospectuses = [];
             _currRows = p.curriculum ? JSON.parse(JSON.stringify(p.curriculum)) : [];
             _outcomes = p.outcomes ? JSON.parse(JSON.stringify(p.outcomes)) : [];
             _objectives = p.objectives ? JSON.parse(JSON.stringify(p.objectives)) : [];
@@ -1404,6 +1415,16 @@
                 lp.innerHTML = `<i data-lucide="upload-cloud" style="width:28px;height:28px;color:#d1d5db;"></i>`;
             }
 
+            // College logo preview
+            const clp = document.getElementById('collegeLogoPreview');
+            if (clp) {
+                if (_collegeLogoUrl) {
+                    clp.innerHTML = `<img src="${_collegeLogoUrl}" style="width:100%;height:100%;object-fit:cover;" />`;
+                } else {
+                    clp.innerHTML = `<i data-lucide="upload-cloud" style="width:24px;height:24px;color:#d1d5db;"></i>`;
+                }
+            }
+
             // Visibility
             const vt = document.getElementById('visibilityToggle');
             const dot = vt.querySelector('span');
@@ -1419,7 +1440,8 @@
 
             updateLogoThumb();
             switchProgTab('identity', document.querySelector('.prog-tab'));
-            renderCurrManual(); renderOutcomes(); renderObjectives(); renderFaculty();
+            renderOutcomes(); renderObjectives(); renderFaculty();
+            if (_progSlug) loadProspectusTab();   // pre-fetch so list is ready when tab opens
             const panel = document.getElementById('progEditorPanel');
             panel.style.display = 'block';
             panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1445,7 +1467,11 @@
             setVal('progInstitution', 'Western Mindanao State University, Zamboanga City');
             setVal('progAccreditor', 'Commission on Higher Education (CHED), Republic of the Philippines');
             setVal('progOrder', '1');
+            _logoFile = null; _logoUrl = '';
+            _collegeLogoFile = null; _collegeLogoUrl = '';
             document.getElementById('logoPreview').innerHTML = `<i data-lucide="upload-cloud" style="width:28px;height:28px;color:#d1d5db;"></i>`;
+            const clp = document.getElementById('collegeLogoPreview');
+            if (clp) clp.innerHTML = `<i data-lucide="upload-cloud" style="width:24px;height:24px;color:#d1d5db;"></i>`;
             renderStats([]);
             updateLogoThumb();
         }
@@ -1460,9 +1486,1139 @@
             if (btn) btn.classList.add('active');
             const panel = document.getElementById('panel-' + id);
             if (panel) panel.classList.add('active');
+            const footer = document.getElementById('progModalFooter');
+            if (footer) footer.style.display = id === 'curriculum' ? 'none' : 'flex';
+            if (id === 'curriculum') loadProspectusTab();
             lucide.createIcons();
         }
 
+
+        /* ═══════════════════════════════════════════════════
+           CURRICULUM / PROSPECTUS
+        ═══════════════════════════════════════════════════ */
+
+        async function loadProspectusTab() {
+            const noProgEl  = document.getElementById('currNoProgram');
+            const contentEl = document.getElementById('currContent');
+            if (!_editId || !_progSlug) {
+                noProgEl.style.display = 'block';
+                contentEl.style.display = 'none';
+                return;
+            }
+            noProgEl.style.display = 'none';
+            contentEl.style.display = 'block';
+            const listEl = document.getElementById('prospectusList');
+            listEl.innerHTML = '<p style="font-size:0.8rem;color:#9ca3af;padding:12px 0;">Loading…</p>';
+            try {
+                const res = await fetch(`/admin-panel/api/prospectuses/by-program/${_progSlug}/`, {
+                    headers: { 'X-CSRFToken': getCSRFToken() }
+                });
+                const d = await res.json();
+                if (d.success) {
+                    _prospectuses = Array.isArray(d.data) ? d.data : [];
+                    console.log('[Curriculum] slug:', _progSlug, '| loaded:', _prospectuses.length, 'prospectus(es)', _prospectuses);
+                    renderProspectuses();
+                } else {
+                    console.error('[Curriculum] API error:', d.message);
+                    listEl.innerHTML = `<p style="font-size:0.8rem;color:#dc2626;">${d.message || 'Unknown API error.'}</p>`;
+                }
+            } catch (e) {
+                console.error('[Curriculum] fetch/parse error:', e);
+                listEl.innerHTML = `<p style="font-size:0.8rem;color:#dc2626;">Could not load curriculum data: ${e.message}</p>`;
+                pgToast('Failed to load curriculum data.', 'error');
+            }
+        }
+
+        function renderProspectuses() {
+            const listEl = document.getElementById('prospectusList');
+            if (!listEl) { console.error('[Curriculum] #prospectusList not found'); return; }
+            if (!_prospectuses.length) {
+                listEl.innerHTML = `
+                    <div class="empty-state" style="padding:28px;">
+                        <i data-lucide="book-open" style="width:28px;height:28px;margin:0 auto 8px;opacity:.25;display:block;"></i>
+                        <p class="text-sm">No prospectuses yet. Click <strong>New Prospectus</strong> to create one.</p>
+                    </div>`;
+                lucide.createIcons();
+                return;
+            }
+            listEl.innerHTML = '';
+            _prospectuses.forEach(p => {
+                try {
+                    listEl.appendChild(buildProspectusCard(p));
+                } catch(e) {
+                    console.error('[Curriculum] Error rendering card for prospectus', p.id, p.name, e);
+                    const errDiv = document.createElement('div');
+                    errDiv.style.cssText = 'padding:10px 14px;background:#fee2e2;border:1.5px solid #fecaca;border-radius:10px;margin-bottom:10px;font-size:0.78rem;color:#dc2626;';
+                    errDiv.textContent = `Error rendering "${p.name}": ${e.message}`;
+                    listEl.appendChild(errDiv);
+                }
+            });
+            lucide.createIcons();
+        }
+
+        function buildProspectusCard(p) {
+            // compute summary counts
+            const yearCount = (p.years || []).length;
+            const subjectCount = (p.years || []).reduce((a, y) =>
+                a + (y.semesters || []).reduce((b, s) => b + (s.subjects || []).length, 0), 0);
+            const safeName = p.name.replace(/'/g, "&#39;");
+
+            const card = document.createElement('div');
+            card.id = `pcard-${p.id}`;
+            card.style.cssText = 'border:1.5px solid #e5e7eb;border-radius:14px;margin-bottom:12px;background:#fff;position:relative;';
+
+            // ── Summary row (always visible) ─────────────────────────
+            const hdr = document.createElement('div');
+            hdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#fff;border-radius:14px 14px 0 0;cursor:pointer;user-select:none;';
+            hdr.addEventListener('click', () => toggleProspectusCard(p.id));
+            hdr.innerHTML = `
+                <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                    <div style="width:34px;height:34px;border-radius:9px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i data-lucide="book-open" style="width:16px;height:16px;color:#6b7280;"></i>
+                    </div>
+                    <div style="min-width:0;">
+                        <p style="font-size:0.85rem;font-weight:700;color:#111827;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</p>
+                        <p style="font-size:0.72rem;color:#9ca3af;margin:1px 0 0;">${p.description || '&nbsp;'}</p>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:12px;">
+                    <span style="font-size:0.68rem;color:#6b7280;background:#f3f4f6;padding:3px 8px;border-radius:20px;white-space:nowrap;">
+                        ${yearCount} yr${yearCount !== 1 ? 's' : ''} &middot; ${subjectCount} subject${subjectCount !== 1 ? 's' : ''}
+                    </span>
+                    <!-- 3-dot menu -->
+                    <div style="position:relative;" class="pmenu-wrap">
+                        <button onclick="event.stopPropagation();toggleProspectusMenu(${p.id})"
+                            style="width:32px;height:32px;border-radius:8px;border:1.5px solid #e5e7eb;background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#6b7280;padding:0;"
+                            title="Actions">
+                            <i data-lucide="more-vertical" style="width:15px;height:15px;"></i>
+                        </button>
+                        <div id="pmenu-${p.id}" class="pcard-menu"
+                            style="display:none;position:absolute;right:0;top:36px;z-index:999;background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.12);min-width:168px;overflow:hidden;">
+                            <button onclick="event.stopPropagation();currViewDetails(${p.id});closeProspectusMenu(${p.id})"
+                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.78rem;color:#374151;font-weight:500;text-align:left;"
+                                onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='none'">
+                                <i data-lucide="eye" style="width:13px;height:13px;color:#6b7280;flex-shrink:0;"></i> View Details
+                            </button>
+                            <button onclick="event.stopPropagation();currPrint(${p.id});closeProspectusMenu(${p.id})"
+                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.78rem;color:#374151;font-weight:500;text-align:left;"
+                                onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='none'">
+                                <i data-lucide="printer" style="width:13px;height:13px;color:#6b7280;flex-shrink:0;"></i> Print
+                            </button>
+                            <button onclick="event.stopPropagation();currExportPDF(${p.id});closeProspectusMenu(${p.id})"
+                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.78rem;color:#374151;font-weight:500;text-align:left;"
+                                onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='none'">
+                                <i data-lucide="file-text" style="width:13px;height:13px;color:#6b7280;flex-shrink:0;"></i> Export as PDF
+                            </button>
+                            <button onclick="event.stopPropagation();currExportWord(${p.id});closeProspectusMenu(${p.id})"
+                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.78rem;color:#374151;font-weight:500;text-align:left;"
+                                onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='none'">
+                                <i data-lucide="file" style="width:13px;height:13px;color:#6b7280;flex-shrink:0;"></i> Export as Word
+                            </button>
+                            <div style="height:1px;background:#f3f4f6;margin:3px 0;"></div>
+                            <button onclick="event.stopPropagation();closeProspectusMenu(${p.id});currDeleteProspectus(${p.id},'${safeName}')"
+                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.78rem;color:#dc2626;font-weight:500;text-align:left;"
+                                onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='none'">
+                                <i data-lucide="trash-2" style="width:13px;height:13px;color:#dc2626;flex-shrink:0;"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            card.appendChild(hdr);
+
+            // ── Detail body (collapsed by default) ───────────────────
+            const body = document.createElement('div');
+            body.id = `pbody-${p.id}`;
+            body.style.cssText = 'display:none;border-top:1.5px solid #e5e7eb;padding:14px 16px;background:#fafafa;';
+            body.appendChild(buildYearsSection(p));
+
+            // Signatory section
+            const sigRow = document.createElement('div');
+            sigRow.style.cssText = 'border-top:1px solid #e5e7eb;margin-top:14px;padding-top:12px;';
+            sigRow.innerHTML = `
+                <p style="font-size:0.72rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px;">Signatories</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div>
+                        <p style="font-size:0.72rem;font-weight:700;color:#374151;margin:0 0 6px;">Prepared by:</p>
+                        <label style="font-size:0.68rem;color:#6b7280;display:block;margin-bottom:2px;">Name</label>
+                        <input type="text" value="${p.prepared_by_name||''}" placeholder="Name, credentials"
+                            onchange="currUpdateSignatory(${p.id},'prepared_by_name',this.value)"
+                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.72rem;outline:none;margin-bottom:6px;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" />
+                        <label style="font-size:0.68rem;color:#6b7280;display:block;margin-bottom:2px;">Title</label>
+                        <input type="text" value="${p.prepared_by_title||'MIT Department Curriculum Committee Chair'}" placeholder="Title"
+                            onchange="currUpdateSignatory(${p.id},'prepared_by_title',this.value)"
+                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.72rem;outline:none;margin-bottom:6px;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" />
+                        <label style="font-size:0.68rem;color:#6b7280;display:block;margin-bottom:2px;">Date</label>
+                        <input type="text" value="${p.prepared_by_date||''}" placeholder="e.g. June 20, 2025"
+                            onchange="currUpdateSignatory(${p.id},'prepared_by_date',this.value)"
+                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.72rem;outline:none;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" />
+                    </div>
+                    <div>
+                        <p style="font-size:0.72rem;font-weight:700;color:#374151;margin:0 0 6px;">Noted by:</p>
+                        <label style="font-size:0.68rem;color:#6b7280;display:block;margin-bottom:2px;">Name</label>
+                        <input type="text" value="${p.noted_by_name||''}" placeholder="Name, credentials"
+                            onchange="currUpdateSignatory(${p.id},'noted_by_name',this.value)"
+                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.72rem;outline:none;margin-bottom:6px;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" />
+                        <label style="font-size:0.68rem;color:#6b7280;display:block;margin-bottom:2px;">Title</label>
+                        <input type="text" value="${p.noted_by_title||'College Dean'}" placeholder="Title"
+                            onchange="currUpdateSignatory(${p.id},'noted_by_title',this.value)"
+                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.72rem;outline:none;margin-bottom:6px;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" />
+                        <label style="font-size:0.68rem;color:#6b7280;display:block;margin-bottom:2px;">Date</label>
+                        <input type="text" value="${p.noted_by_date||''}" placeholder="e.g. June 20, 2025"
+                            onchange="currUpdateSignatory(${p.id},'noted_by_date',this.value)"
+                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.72rem;outline:none;box-sizing:border-box;"
+                            onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" />
+                    </div>
+                </div>`;
+            body.appendChild(sigRow);
+
+            // Add Year + Save row
+            const actRow = document.createElement('div');
+            actRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #e5e7eb;';
+            actRow.innerHTML = `
+                <button onclick="currAddYear(${p.id})"
+                    style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:8px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.72rem;font-weight:600;cursor:pointer;">
+                    <i data-lucide="plus" style="width:12px;height:12px;"></i> Add Year
+                </button>
+                <button onclick="currSaveProspectus(${p.id})"
+                    style="display:inline-flex;align-items:center;gap:5px;padding:6px 16px;border-radius:8px;background:#9B1C1C;color:#fff;font-size:0.72rem;font-weight:700;border:none;cursor:pointer;">
+                    <i data-lucide="save" style="width:12px;height:12px;"></i> Save Changes
+                </button>`;
+            body.appendChild(actRow);
+            card.appendChild(body);
+            return card;
+        }
+
+        function buildYearsSection(p) {
+            const wrap = document.createElement('div');
+            wrap.id = `pyears-${p.id}`;
+            if (!p.years || !p.years.length) {
+                wrap.innerHTML = '<p style="font-size:0.78rem;color:#9ca3af;margin-bottom:8px;">No years yet — click <strong>Add Year</strong> below.</p>';
+                return wrap;
+            }
+            p.years.forEach((y, yi) => {
+                const yDiv = document.createElement('div');
+                yDiv.style.cssText = 'margin-bottom:10px;border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;background:#fff;';
+
+                const yHdr = document.createElement('div');
+                yHdr.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e5e7eb;cursor:pointer;';
+                yHdr.innerHTML = `
+                    <i data-lucide="chevron-down" id="ychev-${p.id}-${yi}" style="width:13px;height:13px;color:#6b7280;transition:transform .2s;transform:rotate(180deg);flex-shrink:0;"></i>
+                    <input type="text" value="${y.label}" onchange="currUpdateYearLabel(${p.id},${yi},this.value)"
+                        onclick="event.stopPropagation()"
+                        style="flex:1;font-size:0.82rem;font-weight:700;color:#374151;background:transparent;border:none;outline:none;" />
+                    <button onclick="event.stopPropagation();currAddSemester(${p.id},${yi})"
+                        style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.7rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        <i data-lucide="plus" style="width:11px;height:11px;"></i> Add Semester
+                    </button>
+                    <button onclick="event.stopPropagation();currAddOtherReq(${p.id},${yi})"
+                        style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.7rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        <i data-lucide="plus" style="width:11px;height:11px;"></i> Other Requirements
+                    </button>
+                    <button onclick="event.stopPropagation();currDeleteYear(${p.id},${yi})"
+                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.72rem;font-weight:600;white-space:nowrap;padding:4px 2px;flex-shrink:0;">
+                        Delete Year
+                    </button>`;
+                yHdr.addEventListener('click', () => toggleYearSection(p.id, yi));
+
+                const yBody = document.createElement('div');
+                yBody.id = `ybody-${p.id}-${yi}`;
+                yBody.style.cssText = 'padding:10px 12px;';
+
+                if (!(y.semesters || []).length) {
+                    const noSem = document.createElement('p');
+                    noSem.style.cssText = 'font-size:0.75rem;color:#9ca3af;padding:2px 0 4px;';
+                    noSem.textContent = 'No semesters yet. Click "Add Semester" above.';
+                    yBody.appendChild(noSem);
+                } else {
+                    (y.semesters || []).forEach((s, si) => {
+                        yBody.appendChild(buildSemesterSection(p, yi, si, s));
+                    });
+                }
+
+                yDiv.appendChild(yHdr);
+                yDiv.appendChild(yBody);
+                wrap.appendChild(yDiv);
+            });
+            return wrap;
+        }
+
+        function buildSemesterSection(p, yi, si, s) {
+            const sDiv = document.createElement('div');
+            sDiv.style.cssText = 'margin-bottom:10px;border:1.5px solid #f3f4f6;border-radius:8px;overflow:hidden;background:#fff;';
+
+            const sHdr = document.createElement('div');
+            sHdr.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:#fafafa;border-bottom:1px solid #f3f4f6;';
+            if (s.is_other_req) {
+                sHdr.innerHTML = `
+                    <span style="flex:1;font-size:0.78rem;font-weight:600;color:#374151;">Other Requirements</span>
+                    <button onclick="currAddSubject(${p.id},${yi},${si})"
+                        style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.68rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        <i data-lucide="plus" style="width:10px;height:10px;"></i> Add Subject
+                    </button>
+                    <button onclick="currDeleteSemester(${p.id},${yi},${si})"
+                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.7rem;font-weight:600;white-space:nowrap;padding:3px 2px;flex-shrink:0;">
+                        Delete Other Requirements
+                    </button>`;
+            } else {
+                sHdr.innerHTML = `
+                    <input type="text" value="${s.label}" onchange="currUpdateSemLabel(${p.id},${yi},${si},this.value)"
+                        style="flex:1;font-size:0.78rem;font-weight:600;color:#374151;background:transparent;border:none;outline:none;" />
+                    <button onclick="currAddSubject(${p.id},${yi},${si})"
+                        style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.68rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        <i data-lucide="plus" style="width:10px;height:10px;"></i> Add Subject
+                    </button>
+                    <button onclick="currDeleteSemester(${p.id},${yi},${si})"
+                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.7rem;font-weight:600;white-space:nowrap;padding:3px 2px;flex-shrink:0;">
+                        Delete Semester
+                    </button>`;
+            }
+            sDiv.appendChild(sHdr);
+
+            const subWrap = document.createElement('div');
+            subWrap.style.cssText = 'padding:8px 10px;';
+
+            if (s.subjects && s.subjects.length) {
+                const tbl = document.createElement('table');
+                tbl.style.cssText = 'width:100%;border-collapse:collapse;';
+                if (s.is_other_req) {
+                    tbl.innerHTML = `<thead><tr style="background:#f9fafb;">
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:85px;">Code</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Descriptive Title</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:90px;">Prereq</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lec</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lab</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Total</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Description</th>
+                        <th style="border-bottom:1.5px solid #e5e7eb;width:28px;"></th>
+                    </tr></thead>`;
+                } else {
+                    tbl.innerHTML = `<thead><tr style="background:#f9fafb;">
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:85px;">Code</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Descriptive Title</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:90px;">Prereq</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lec</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lab</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Total</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:72px;line-height:1.3;">IT Core<br>Courses</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:72px;line-height:1.3;">IT Spec.<br>Courses</th>
+                        <th style="border-bottom:1.5px solid #e5e7eb;width:28px;"></th>
+                    </tr></thead>`;
+                }
+                const tbody = document.createElement('tbody');
+                s.subjects.forEach((sub, subi) => {
+                    const total = (sub.lec || 0) + (sub.lab || 0);
+                    const tr = document.createElement('tr');
+                    tr.style.cssText = 'border-bottom:1px solid #f3f4f6;';
+                    if (s.is_other_req) {
+                        tr.innerHTML = `
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.code||''}" placeholder="Code" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'code',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.title||''}" placeholder="Descriptive Title" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'title',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.prereq||''}" placeholder="—" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'prereq',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lec||0}" min="0" max="12" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'lec',+this.value);currRefreshTotal('${p.id}',${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
+                            <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lab||0}" min="0" max="12" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'lab',+this.value);currRefreshTotal('${p.id}',${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
+                            <td id="ctotal-${p.id}-${yi}-${si}-${subi}" style="padding:3px 6px;text-align:center;font-size:0.73rem;font-weight:700;color:#374151;">${total}</td>
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.desc||''}" placeholder="Description" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'desc',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 4px;text-align:center;"><button onclick="currDeleteSubject(${p.id},${yi},${si},${subi})" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:2px;"><i data-lucide="x" style="width:12px;height:12px;"></i></button></td>`;
+                    } else {
+                        tr.innerHTML = `
+                        <td style="padding:3px 5px;"><input type="text" value="${sub.code||''}" placeholder="Code" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'code',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                        <td style="padding:3px 5px;"><input type="text" value="${sub.title||''}" placeholder="Descriptive Title" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'title',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                        <td style="padding:3px 5px;"><input type="text" value="${sub.prereq||''}" placeholder="—" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'prereq',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                        <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lec||0}" min="0" max="12" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'lec',+this.value);currRefreshTotal('${p.id}',${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
+                        <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lab||0}" min="0" max="12" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'lab',+this.value);currRefreshTotal('${p.id}',${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
+                        <td id="ctotal-${p.id}-${yi}-${si}-${subi}" style="padding:3px 6px;text-align:center;font-size:0.73rem;font-weight:700;color:#374151;">${total}</td>
+                        <td style="padding:3px 5px;text-align:center;"><input type="checkbox" id="cs-core-${p.id}-${yi}-${si}-${subi}" ${sub.is_core ? 'checked' : ''} onchange="currToggleCore('${p.id}',${yi},${si},${subi},this)" style="width:16px;height:16px;cursor:pointer;accent-color:#7b1113;" /></td>
+                        <td style="padding:3px 5px;text-align:center;"><input type="checkbox" id="cs-spec-${p.id}-${yi}-${si}-${subi}" ${sub.is_spec ? 'checked' : ''} onchange="currToggleSpec('${p.id}',${yi},${si},${subi},this)" style="width:16px;height:16px;cursor:pointer;accent-color:#7b1113;" /></td>
+                        <td style="padding:3px 4px;text-align:center;"><button onclick="currDeleteSubject(${p.id},${yi},${si},${subi})" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:2px;"><i data-lucide="x" style="width:12px;height:12px;"></i></button></td>`;
+                    }
+                    tbody.appendChild(tr);
+                });
+                tbl.appendChild(tbody);
+                subWrap.appendChild(tbl);
+            } else {
+                const empty = document.createElement('p');
+                empty.style.cssText = 'font-size:0.75rem;color:#9ca3af;padding:4px 0;';
+                empty.textContent = 'No subjects yet. Click "Add Subject" to add one.';
+                subWrap.appendChild(empty);
+            }
+
+            sDiv.appendChild(subWrap);
+            return sDiv;
+        }
+
+        // ── prospectus state helpers ─────────────────────────────
+
+        function currGetProspectus(pid) { return _prospectuses.find(p => p.id === pid); }
+        function currUpdateYearLabel(pid, yi, val) { currGetProspectus(pid).years[yi].label = val; }
+        function currUpdateSemLabel(pid, yi, si, val) { currGetProspectus(pid).years[yi].semesters[si].label = val; }
+        function currUpdateSubject(pid, yi, si, subi, field, val) { currGetProspectus(pid).years[yi].semesters[si].subjects[subi][field] = val; }
+        function currUpdateSignatory(pid, field, val) { currGetProspectus(pid)[field] = val; }
+        function currRefreshTotal(pid, yi, si, subi) {
+            const sub = currGetProspectus(pid).years[yi].semesters[si].subjects[subi];
+            sub.total = (sub.lec || 0) + (sub.lab || 0);
+            const el = document.getElementById(`ctotal-${pid}-${yi}-${si}-${subi}`);
+            if (el) el.textContent = sub.total;
+        }
+        function currToggleCore(pid, yi, si, subi, el) {
+            const sub = currGetProspectus(pid).years[yi].semesters[si].subjects[subi];
+            sub.is_core = el.checked;
+            if (el.checked) {
+                sub.is_spec = false;
+                const specEl = document.getElementById(`cs-spec-${pid}-${yi}-${si}-${subi}`);
+                if (specEl) specEl.checked = false;
+            }
+        }
+        function currToggleSpec(pid, yi, si, subi, el) {
+            const sub = currGetProspectus(pid).years[yi].semesters[si].subjects[subi];
+            sub.is_spec = el.checked;
+            if (el.checked) {
+                sub.is_core = false;
+                const coreEl = document.getElementById(`cs-core-${pid}-${yi}-${si}-${subi}`);
+                if (coreEl) coreEl.checked = false;
+            }
+        }
+        function newFormToggleCore(yi, si, subi, el) {
+            _newFormYears[yi].semesters[si].subjects[subi].is_core = el.checked;
+            if (el.checked) {
+                _newFormYears[yi].semesters[si].subjects[subi].is_spec = false;
+                const specEl = document.getElementById(`nf-spec-${yi}-${si}-${subi}`);
+                if (specEl) specEl.checked = false;
+            }
+        }
+        function newFormToggleSpec(yi, si, subi, el) {
+            _newFormYears[yi].semesters[si].subjects[subi].is_spec = el.checked;
+            if (el.checked) {
+                _newFormYears[yi].semesters[si].subjects[subi].is_core = false;
+                const coreEl = document.getElementById(`nf-core-${yi}-${si}-${subi}`);
+                if (coreEl) coreEl.checked = false;
+            }
+        }
+
+        function currAddYear(pid) {
+            const p = currGetProspectus(pid);
+            const n = (p.years || []).length + 1;
+            if (!p.years) p.years = [];
+            p.years.push({ label: `Year ${n}`, semesters: [] });
+            refreshProspectusCard(p);
+        }
+        function currDeleteYear(pid, yi) {
+            currGetProspectus(pid).years.splice(yi, 1);
+            refreshProspectusCard(currGetProspectus(pid));
+        }
+        function currAddSemester(pid, yi) {
+            const y = currGetProspectus(pid).years[yi];
+            const n = (y.semesters || []).length + 1;
+            if (!y.semesters) y.semesters = [];
+            y.semesters.push({ label: n === 3 ? 'Summer' : `${n === 1 ? '1st' : '2nd'} Semester`, subjects: [] });
+            refreshProspectusCard(currGetProspectus(pid));
+        }
+        function currAddOtherReq(pid, yi) {
+            const y = currGetProspectus(pid).years[yi];
+            if (!y.semesters) y.semesters = [];
+            y.semesters.push({ label: 'Other Requirements', is_other_req: true, subjects: [] });
+            refreshProspectusCard(currGetProspectus(pid));
+        }
+        function currDeleteSemester(pid, yi, si) {
+            currGetProspectus(pid).years[yi].semesters.splice(si, 1);
+            refreshProspectusCard(currGetProspectus(pid));
+        }
+        function currAddSubject(pid, yi, si) {
+            const sem = currGetProspectus(pid).years[yi].semesters[si];
+            if (sem.is_other_req) {
+                sem.subjects.push({ code: '', title: '', lec: 3, lab: 0, prereq: '', desc: '' });
+            } else {
+                sem.subjects.push({ code: '', title: '', lec: 3, lab: 0, prereq: '', grade: '', is_core: false, is_spec: false });
+            }
+            refreshProspectusCard(currGetProspectus(pid));
+        }
+        function currDeleteSubject(pid, yi, si, subi) {
+            currGetProspectus(pid).years[yi].semesters[si].subjects.splice(subi, 1);
+            refreshProspectusCard(currGetProspectus(pid));
+        }
+
+        function refreshProspectusCard(p) {
+            const existing = document.getElementById(`pcard-${p.id}`);
+            if (existing) { existing.replaceWith(buildProspectusCard(p)); lucide.createIcons(); }
+        }
+
+        function toggleProspectusCard(pid) {
+            const body = document.getElementById(`pbody-${pid}`);
+            if (!body) return;
+            body.style.display = body.style.display !== 'none' ? 'none' : 'block';
+            lucide.createIcons();
+        }
+
+        function toggleProspectusMenu(pid) {
+            const menu = document.getElementById(`pmenu-${pid}`);
+            if (!menu) return;
+            const isOpen = menu.style.display !== 'none';
+            // close all open menus first
+            document.querySelectorAll('.pcard-menu').forEach(m => m.style.display = 'none');
+            if (!isOpen) menu.style.display = 'block';
+        }
+
+        function currViewDetails(pid) {
+            const p = currGetProspectus(pid);
+            if (!p) return;
+            const v = _prospectusVars(p);
+            const yearBlocks = _buildYearBlocksHTML(p);
+
+            const overlay = document.createElement('div');
+            overlay.id = 'prospectusViewModal';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.55);display:flex;align-items:flex-start;justify-content:center;padding:24px 32px 24px calc(220px + 32px);overflow-y:auto;box-sizing:border-box;';
+            overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+            const sheet = document.createElement('div');
+            sheet.style.cssText = 'background:#fff;border-radius:14px;width:100%;max-width:860px;box-shadow:0 8px 40px rgba(0,0,0,.22);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;';
+
+            // ── Sticky top bar ───────────────────────────────────────
+            const bar = document.createElement('div');
+            bar.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1.5px solid #e5e7eb;background:#fff;position:sticky;top:0;z-index:2;gap:10px;';
+            bar.innerHTML = `
+                <div style="min-width:0;">
+                    <p style="font-size:0.85rem;font-weight:700;color:#111827;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</p>
+                    <p style="font-size:0.72rem;color:#9ca3af;margin:1px 0 0;">Curricular Prospectus</p>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                    <button onclick="currPrint(${pid})"
+                        style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.72rem;font-weight:600;cursor:pointer;white-space:nowrap;">
+                        <i data-lucide="printer" style="width:12px;height:12px;"></i> Print
+                    </button>
+                    <button onclick="currExportPDF(${pid})"
+                        style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.72rem;font-weight:600;cursor:pointer;white-space:nowrap;">
+                        <i data-lucide="file-text" style="width:12px;height:12px;"></i> Export PDF
+                    </button>
+                    <button onclick="currExportWord(${pid})"
+                        style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.72rem;font-weight:600;cursor:pointer;white-space:nowrap;">
+                        <i data-lucide="file" style="width:12px;height:12px;"></i> Export Word
+                    </button>
+                    <button onclick="document.getElementById('prospectusViewModal').remove()"
+                        style="width:30px;height:30px;border-radius:7px;border:1.5px solid #e5e7eb;background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#6b7280;padding:0;flex-shrink:0;">
+                        <i data-lucide="x" style="width:14px;height:14px;"></i>
+                    </button>
+                </div>`;
+            sheet.appendChild(bar);
+
+            // ── Document content ─────────────────────────────────────
+            const content = document.createElement('div');
+            content.style.cssText = 'padding:32px 40px;font-family:Arial,sans-serif;color:#111;font-size:10pt;line-height:1.5;';
+            content.innerHTML = _prospectusHeaderHTML(v) + yearBlocks + _signatoriesHTML(p);
+            sheet.appendChild(content);
+
+            overlay.appendChild(sheet);
+            document.body.appendChild(overlay);
+            lucide.createIcons();
+        }
+
+        function closeProspectusMenu(pid) {
+            const menu = document.getElementById(`pmenu-${pid}`);
+            if (menu) menu.style.display = 'none';
+        }
+
+        // Close any open prospectus menu when clicking outside
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.pcard-menu').forEach(m => m.style.display = 'none');
+        });
+
+        /* ── Shared helpers for PDF/Print export ── */
+        function _semTableHTML(subs) {
+            if (!subs || !subs.length) return '<tr><td colspan="6" style="padding:6px;font-size:7.5pt;color:#888;text-align:center;">No subjects</td></tr>';
+            return subs.map(sub => `<tr>
+                <td style="padding:3px 4px;border:1px solid #bbb;font-size:7.5pt;">${sub.code||''}</td>
+                <td style="padding:3px 4px;border:1px solid #bbb;font-size:7.5pt;">${sub.title||''}</td>
+                <td style="padding:3px 4px;border:1px solid #bbb;font-size:7.5pt;text-align:center;">${sub.prereq||'None'}</td>
+                <td style="padding:3px 4px;border:1px solid #bbb;font-size:7.5pt;text-align:center;">${sub.lec??0}</td>
+                <td style="padding:3px 4px;border:1px solid #bbb;font-size:7.5pt;text-align:center;">${sub.lab??0}</td>
+                <td style="padding:3px 4px;border:1px solid #bbb;font-size:7.5pt;text-align:center;font-weight:bold;">${sub.total??((sub.lec||0)+(sub.lab||0))}</td>
+            </tr>`).join('');
+        }
+        function _semHeaderHTML(label) {
+            return `<tr style="background:#ddd;"><td colspan="6" style="padding:4px 6px;font-weight:bold;font-size:8pt;border:1px solid #bbb;text-align:center;">${label}</td></tr>
+            <tr style="background:#eee;">
+                <td style="padding:3px 4px;border:1px solid #bbb;font-size:7pt;font-weight:bold;">Code</td>
+                <td style="padding:3px 4px;border:1px solid #bbb;font-size:7pt;font-weight:bold;">Descriptive Title</td>
+                <td style="padding:3px 4px;border:1px solid #bbb;font-size:7pt;font-weight:bold;text-align:center;">Pre-req</td>
+                <td style="padding:3px 4px;border:1px solid #bbb;font-size:7pt;font-weight:bold;text-align:center;">Lec</td>
+                <td style="padding:3px 4px;border:1px solid #bbb;font-size:7pt;font-weight:bold;text-align:center;">Lab</td>
+                <td style="padding:3px 4px;border:1px solid #bbb;font-size:7pt;font-weight:bold;text-align:center;">Units</td>
+            </tr>`;
+        }
+        function _totalUnits(subs) {
+            return (subs||[]).reduce((a,s) => a + ((s.total||(s.lec||0)+(s.lab||0))||0), 0);
+        }
+        function _buildYearBlocksHTML(p) {
+            let html = '';
+            (p.years || []).forEach(y => {
+                const sems = y.semesters || [];
+                const sem1 = sems[0] || null;
+                const sem2 = sems[1] || null;
+                html += `<div style="margin-bottom:14px;">
+                    <div style="background:#555;color:#fff;font-weight:bold;font-size:9pt;padding:4px 8px;text-align:center;margin-bottom:4px;">${y.label||'Year'}</div>
+                    <table style="width:100%;border-collapse:collapse;"><tr>
+                        <td style="width:50%;vertical-align:top;padding-right:6px;"><table style="width:100%;border-collapse:collapse;">
+                            ${sem1 ? _semHeaderHTML(sem1.label||'1st Semester') : ''}
+                            ${sem1 ? _semTableHTML(sem1.subjects) : ''}
+                            ${sem1 ? `<tr><td colspan="5" style="padding:3px 6px;font-size:7.5pt;font-weight:bold;border:1px solid #bbb;text-align:right;">TOTAL</td><td style="padding:3px 4px;border:1px solid #bbb;font-size:7.5pt;font-weight:bold;text-align:center;">${_totalUnits(sem1.subjects)}</td></tr>` : ''}
+                        </table></td>
+                        <td style="width:50%;vertical-align:top;padding-left:6px;"><table style="width:100%;border-collapse:collapse;">
+                            ${sem2 ? _semHeaderHTML(sem2.label||'2nd Semester') : ''}
+                            ${sem2 ? _semTableHTML(sem2.subjects) : ''}
+                            ${sem2 ? `<tr><td colspan="5" style="padding:3px 6px;font-size:7.5pt;font-weight:bold;border:1px solid #bbb;text-align:right;">TOTAL</td><td style="padding:3px 4px;border:1px solid #bbb;font-size:7.5pt;font-weight:bold;text-align:center;">${_totalUnits(sem2.subjects)}</td></tr>` : ''}
+                        </table></td>
+                    </tr></table></div>`;
+                for (let i = 2; i < sems.length; i++) {
+                    const s = sems[i];
+                    html += `<div style="margin-bottom:14px;"><table style="width:100%;border-collapse:collapse;">
+                        ${_semHeaderHTML(s.label||`Semester ${i+1}`)}${_semTableHTML(s.subjects)}
+                        <tr><td colspan="5" style="padding:3px 6px;font-size:7.5pt;font-weight:bold;border:1px solid #bbb;text-align:right;">TOTAL</td>
+                            <td style="padding:3px 4px;border:1px solid #bbb;font-size:7.5pt;font-weight:bold;text-align:center;">${_totalUnits(s.subjects)}</td></tr>
+                    </table></div>`;
+                }
+            });
+            return html;
+        }
+        function _prospectusVars(p) {
+            const prog         = _programs.find(x => x.slug === _progSlug) || {};
+            return {
+                prog,
+                college:        p.college || prog.dept || 'College of Computing Studies',
+                collegeLogoUrl: prog.college_logo || '',
+                wmsuLogoUrl:    "{% static 'assets/Western_Mindanao_State_University.png' %}",
+                progName:       p.full_program_name || prog.name || p.name,
+                effYear:        p.effective_year || '',
+                refLine:        [p.cmo_ref, p.bor_ref].filter(Boolean).join(', '),
+                preparedName:   p.prepared_by_name  || '',
+                preparedTitle:  p.prepared_by_title || 'MIT Department Curriculum Committee Chair',
+                preparedDate:   p.prepared_by_date  || '',
+                notedName:      p.noted_by_name  || '',
+                notedTitle:     p.noted_by_title || 'College Dean',
+                notedDate:      p.noted_by_date  || '',
+            };
+        }
+        function _prospectusHeaderHTML(v) {
+            return `
+            <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:6px;">
+                <img src="${v.wmsuLogoUrl}" style="width:75px;height:75px;object-fit:contain;flex-shrink:0;" crossorigin="anonymous" />
+                <div style="text-align:center;line-height:1.6;">
+                    <div style="font-size:10pt;">Republic of the Philippines</div>
+                    <div style="font-size:11pt;font-weight:bold;">Western Mindanao State University</div>
+                    <div style="font-size:11pt;font-weight:bold;text-decoration:underline;text-transform:uppercase;">${v.college}</div>
+                    <div style="font-size:10pt;">Zamboanga City</div>
+                </div>
+                ${v.collegeLogoUrl ? `<img src="${v.collegeLogoUrl}" style="width:75px;height:75px;border-radius:50%;object-fit:cover;flex-shrink:0;" />` : `<div style="width:75px;flex-shrink:0;"></div>`}
+            </div>
+            <hr style="border:none;border-top:2px solid #111;margin:7px 0;" />
+            <div style="text-align:center;font-size:12pt;font-weight:bold;text-decoration:underline;text-transform:uppercase;margin:8px 0 3px;">${v.progName}</div>
+            ${v.refLine ? `<div style="text-align:center;font-size:9.5pt;">${v.refLine}</div>` : ''}
+            ${v.effYear ? `<div style="text-align:center;font-size:9.5pt;font-style:italic;">Effective SY ${v.effYear}</div>` : ''}
+            <div style="text-align:center;font-size:11pt;font-weight:bold;margin:12px 0 16px;text-transform:uppercase;">Program Curricular Prospectus</div>`;
+        }
+        function _signatoriesHTML(p) {
+            const prepName  = p.prepared_by_name  || '';
+            const prepTitle = p.prepared_by_title || 'MIT Department Curriculum Committee Chair';
+            const prepDate  = p.prepared_by_date  || '';
+            const notedName  = p.noted_by_name  || '';
+            const notedTitle = p.noted_by_title || 'College Dean';
+            const notedDate  = p.noted_by_date  || '';
+            return `<div style="display:flex;gap:48px;margin-top:48px;">
+                <div style="flex:1;">
+                    <div style="font-size:10pt;font-weight:bold;margin-bottom:36px;">Prepared by:</div>
+                    <div style="text-decoration:underline;font-weight:bold;font-size:10pt;">${prepName || '______________________________'}</div>
+                    <div style="font-size:10pt;font-weight:bold;">${prepTitle}</div>
+                    <div style="font-size:9.5pt;font-style:italic;">(Signature over printed name)</div>
+                    <div style="font-size:10pt;margin-top:6px;">Date: ${prepDate ? '<span style="text-decoration:underline;">' + prepDate + '</span>' : '______________________'}</div>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:10pt;font-weight:bold;margin-bottom:36px;">Noted by:</div>
+                    <div style="text-decoration:underline;font-weight:bold;font-size:10pt;">${notedName || '______________________________'}</div>
+                    <div style="font-size:10pt;font-weight:bold;">${notedTitle}</div>
+                    <div style="font-size:9.5pt;font-style:italic;">(Signature over printed name)</div>
+                    <div style="font-size:10pt;margin-top:6px;">Date: ${notedDate ? '<span style="text-decoration:underline;">' + notedDate + '</span>' : '______________________'}</div>
+                </div>
+            </div>`;
+        }
+
+        function _buildProspectusPopup(pid) {
+            const p = currGetProspectus(pid);
+            if (!p) return;
+            const win = window.open('', '_blank', 'width=1000,height=750');
+            if (!win) { pgToast('Allow pop-ups to print.', 'error'); return; }
+
+            const v = _prospectusVars(p);
+            const yearBlocks = _buildYearBlocksHTML(p);
+
+            win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+                <title>${p.name} — Curriculum Prospectus</title>
+                <style>
+                    *{margin:0;padding:0;box-sizing:border-box;}
+                    body{font-family:Arial,sans-serif;color:#111;padding:20px 28px;}
+                    .btn-bar{display:flex;justify-content:center;margin:18px auto 0;}
+                    .print-btn{padding:8px 22px;background:#7b1113;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:9pt;}
+                    @media print{.btn-bar{display:none;} body{padding:12px 18px;}}
+                </style>
+            </head><body>
+                ${_prospectusHeaderHTML(v)}
+                ${yearBlocks}
+                ${_signatoriesHTML(p)}
+                <div class="btn-bar"><button class="print-btn" onclick="window.print()">&#128438; Print</button></div>
+            </body></html>`);
+            win.document.close();
+        }
+
+        function currPrint(pid) { _buildProspectusPopup(pid); }
+
+        async function currExportPDF(pid) {
+            const p = currGetProspectus(pid);
+            if (!p) return;
+            if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+                pgToast('PDF library still loading, please retry in a moment.', 'error'); return;
+            }
+            pgToast('Generating PDF…', 'info');
+            const v = _prospectusVars(p);
+            const yearBlocks = _buildYearBlocksHTML(p);
+            const wrap = document.createElement('div');
+            wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;font-family:Arial,sans-serif;color:#111;padding:24px 32px;box-sizing:border-box;';
+            wrap.innerHTML = _prospectusHeaderHTML(v) + yearBlocks + _signatoriesHTML(p);
+            document.body.appendChild(wrap);
+            // wait for images
+            await Promise.all(Array.from(wrap.querySelectorAll('img')).map(img =>
+                img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
+            ));
+            try {
+                const canvas = await html2canvas(wrap, { scale: 2, useCORS: true, allowTaint: false, backgroundColor: '#ffffff', logging: false });
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                const pageW = pdf.internal.pageSize.getWidth();
+                const pageH = pdf.internal.pageSize.getHeight();
+                const ratio = canvas.width / pageW;
+                const pageHpx = Math.floor(pageH * ratio);
+                let yPx = 0;
+                while (yPx < canvas.height) {
+                    const sliceH = Math.min(pageHpx, canvas.height - yPx);
+                    const slice = document.createElement('canvas');
+                    slice.width = canvas.width; slice.height = sliceH;
+                    slice.getContext('2d').drawImage(canvas, 0, yPx, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+                    if (yPx > 0) pdf.addPage();
+                    pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, pageW, sliceH / ratio);
+                    yPx += pageHpx;
+                }
+                const fname = (p.name||'Prospectus').replace(/[^a-zA-Z0-9\s\-]/g,'').trim();
+                pdf.save(`${fname} - Curricular Prospectus.pdf`);
+                pgToast('PDF downloaded!', 'success');
+            } catch(err) {
+                console.error(err);
+                pgToast('PDF generation failed. Use Print instead.', 'error');
+            } finally {
+                document.body.removeChild(wrap);
+            }
+        }
+
+        function currExportWord(pid) {
+            const p = currGetProspectus(pid);
+            if (!p) return;
+            const v = _prospectusVars(p);
+            const refs    = v.refLine;
+            const effYear = v.effYear ? `Effective SY ${v.effYear}` : '';
+            let html = `<html xmlns:o='urn:schemas-microsoft-com:office:office'
+                xmlns:w='urn:schemas-microsoft-com:office:word'
+                xmlns='http://www.w3.org/TR/REC-html40'>
+            <head><meta charset='utf-8'><title>${p.name}</title>
+            <style>
+                body{font-family:Arial,sans-serif;margin:40px;}
+                table.hdr{border-collapse:collapse;width:100%;}
+                td.logo-cell{width:90px;text-align:center;vertical-align:middle;padding:0 8px;}
+                td.text-cell{text-align:center;vertical-align:middle;padding:0 16px;}
+                .rep{font-size:10pt;color:#111;margin:0 0 2px 0;}
+                .uni{font-size:11pt;font-weight:bold;color:#111;margin:0 0 2px 0;}
+                .col{font-size:11pt;font-weight:bold;text-decoration:underline;text-transform:uppercase;color:#111;margin:0 0 2px 0;}
+                .addr{font-size:10pt;color:#111;margin:0;}
+                .hr{border:none;border-top:2pt solid #111;margin:6px 0;}
+                .prog{font-size:12pt;font-weight:bold;text-align:center;text-transform:uppercase;text-decoration:underline;margin:8px 0 3px 0;}
+                .ref{font-size:9.5pt;text-align:center;margin:0 0 2px 0;}
+                .eff{font-size:9.5pt;text-align:center;font-style:italic;margin:0 0 2px 0;}
+                .doctitle{font-size:12pt;font-weight:bold;text-align:center;text-transform:uppercase;margin:12px 0 14px 0;}
+                table.content{border-collapse:collapse;width:100%;}
+                table.content td,table.content th{border:1px solid #999;padding:4px 6px;font-size:9pt;}
+                .yr{background:#555;color:#fff;font-weight:bold;text-align:center;}
+                .sem{background:#ddd;font-weight:bold;text-align:center;}
+                .hd{background:#eee;font-weight:bold;font-size:8pt;}
+            </style></head><body>
+            <table class="hdr">
+              <tr>
+                <td class="logo-cell"><img src="${v.wmsuLogoUrl}" width="75" height="75" style="object-fit:contain;" /></td>
+                <td class="text-cell">
+                  <p class="rep">Republic of the Philippines</p>
+                  <p class="uni">Western Mindanao State University</p>
+                  <p class="col">${v.college}</p>
+                  <p class="addr">Zamboanga City</p>
+                </td>
+                <td class="logo-cell">${v.collegeLogoUrl ? `<img src="${v.collegeLogoUrl}" width="75" height="75" style="border-radius:50%;object-fit:cover;" />` : ''}</td>
+              </tr>
+            </table>
+            <hr class="hr">
+            <p class="prog">${v.progName}</p>
+            ${refs ? `<p class="ref">${refs}</p>` : ''}
+            ${effYear ? `<p class="eff">${effYear}</p>` : ''}
+            <p class="doctitle">Program Curricular Prospectus</p>
+            <table class="content">`;
+            (p.years || []).forEach(y => {
+                html += `<tr><td colspan="7" class="yr">${y.label || 'Year'}</td></tr>`;
+                (y.semesters || []).forEach(s => {
+                    html += `<tr><td colspan="7" class="sem">${s.label || 'Semester'}</td></tr>`;
+                    html += `<tr style="background:#f9fafb;font-size:9pt;font-weight:bold;">
+                        <td>Code</td><td>Descriptive Title</td><td>Prereq</td>
+                        <td>Lec</td><td>Lab</td><td>Total</td><td>Type</td></tr>`;
+                    (s.subjects || []).forEach(sub => {
+                        const type = sub.is_core ? 'Core' : sub.is_spec ? 'Spec.' : '—';
+                        html += `<tr><td>${sub.code||''}</td><td>${sub.title||''}</td>
+                            <td>${sub.prereq||'—'}</td><td style="text-align:center;">${sub.lec??0}</td>
+                            <td style="text-align:center;">${sub.lab??0}</td>
+                            <td style="text-align:center;font-weight:bold;">${sub.total??((sub.lec||0)+(sub.lab||0))}</td>
+                            <td style="text-align:center;">${type}</td></tr>`;
+                    });
+                });
+            });
+            html += `</table>
+            <table style="width:100%;border-collapse:collapse;margin-top:40px;">
+              <tr>
+                <td style="width:50%;padding:0 24px 0 0;vertical-align:top;">
+                  <p style="font-size:10pt;font-weight:bold;margin:0 0 28px 0;">Prepared by:</p>
+                  <p style="font-size:10pt;font-weight:bold;text-decoration:underline;margin:0 0 2px 0;">${v.preparedName || '______________________________'}</p>
+                  <p style="font-size:10pt;font-weight:bold;margin:0 0 2px 0;">${v.preparedTitle}</p>
+                  <p style="font-size:9.5pt;font-style:italic;margin:0 0 6px 0;">(Signature over printed name)</p>
+                  <p style="font-size:10pt;margin:0;">Date: ${v.preparedDate || '______________________'}</p>
+                </td>
+                <td style="width:50%;padding:0 0 0 24px;vertical-align:top;">
+                  <p style="font-size:10pt;font-weight:bold;margin:0 0 28px 0;">Noted by:</p>
+                  <p style="font-size:10pt;font-weight:bold;text-decoration:underline;margin:0 0 2px 0;">${v.notedName || '______________________________'}</p>
+                  <p style="font-size:10pt;font-weight:bold;margin:0 0 2px 0;">${v.notedTitle}</p>
+                  <p style="font-size:9.5pt;font-style:italic;margin:0 0 6px 0;">(Signature over printed name)</p>
+                  <p style="font-size:10pt;margin:0;">Date: ${v.notedDate || '______________________'}</p>
+                </td>
+              </tr>
+            </table>
+            </body></html>`;
+            const blob = new Blob([html], { type: 'application/msword' });
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.href = url; a.download = `${p.name.replace(/[^a-z0-9]/gi,'_')}.doc`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        function toggleYearSection(pid, yi) {
+            const body = document.getElementById(`ybody-${pid}-${yi}`);
+            const chev = document.getElementById(`ychev-${pid}-${yi}`);
+            const open = body.style.display !== 'none';
+            body.style.display = open ? 'none' : 'block';
+            // chevron up (180deg) = expanded, chevron down (0deg) = collapsed
+            if (chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+        }
+
+        // ── new prospectus form ──────────────────────────────────
+
+        // ── new-form years state ─────────────────────────────────
+        let _newFormYears = [];
+
+        function currShowNewForm() {
+            _newFormYears = [];
+            renderNewFormYears();
+            const modal = document.getElementById('newProspectusModal');
+            modal.style.display = 'flex';
+            lucide.createIcons();
+            document.getElementById('newProspectusName').focus();
+        }
+        function currHideNewForm() {
+            document.getElementById('newProspectusModal').style.display = 'none';
+            ['newProspectusName','newProspectusEffYear','newProspectusCollege',
+             'newProspectusFullName','newProspectusCMO','newProspectusBOR','newProspectusDesc',
+             'newProspectusPreparedName','newProspectusPreparedTitle','newProspectusPreparedDate',
+             'newProspectusNotedName','newProspectusNotedTitle','newProspectusNotedDate']
+                .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+            _newFormYears = [];
+        }
+
+        // ── new-form year/semester/subject mutators ──────────────
+        function newFormAddYear() {
+            const n = _newFormYears.length + 1;
+            _newFormYears.push({ label: `Year ${n}`, semesters: [] });
+            renderNewFormYears();
+        }
+        function newFormDeleteYear(yi) { _newFormYears.splice(yi, 1); renderNewFormYears(); }
+        function newFormAddSemester(yi) {
+            const n = _newFormYears[yi].semesters.length + 1;
+            _newFormYears[yi].semesters.push({
+                label: n === 3 ? 'Summer' : (n === 1 ? '1st Semester' : '2nd Semester'),
+                subjects: []
+            });
+            renderNewFormYears();
+        }
+        function newFormDeleteSemester(yi, si) { _newFormYears[yi].semesters.splice(si, 1); renderNewFormYears(); }
+        function newFormAddOtherReq(yi) {
+            _newFormYears[yi].semesters.push({ label: 'Other Requirements', is_other_req: true, subjects: [] });
+            renderNewFormYears();
+        }
+        function newFormAddSubject(yi, si) {
+            const sem = _newFormYears[yi].semesters[si];
+            if (sem.is_other_req) {
+                sem.subjects.push({ code: '', title: '', lec: 3, lab: 0, prereq: '', desc: '' });
+            } else {
+                sem.subjects.push({ code: '', title: '', lec: 3, lab: 0, prereq: '', is_core: false, is_spec: false });
+            }
+            renderNewFormYears();
+        }
+        function newFormDeleteSubject(yi, si, subi) { _newFormYears[yi].semesters[si].subjects.splice(subi, 1); renderNewFormYears(); }
+        function newFormUpdateYearLabel(yi, val) { _newFormYears[yi].label = val; }
+        function newFormUpdateSemLabel(yi, si, val) { _newFormYears[yi].semesters[si].label = val; }
+        function newFormUpdateSubject(yi, si, subi, field, val) { _newFormYears[yi].semesters[si].subjects[subi][field] = val; }
+
+        function renderNewFormYears() {
+            const container = document.getElementById('newFormYearsList');
+            if (!container) return;
+            if (!_newFormYears.length) {
+                container.innerHTML = '<p style="font-size:0.78rem;color:#9ca3af;padding:6px 0;">No years yet. Click "Add Year" to start.</p>';
+                return;
+            }
+            container.innerHTML = '';
+            _newFormYears.forEach((y, yi) => {
+                const yDiv = document.createElement('div');
+                yDiv.style.cssText = 'margin-bottom:10px;border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;background:#fff;';
+
+                // Year header
+                const yHdr = document.createElement('div');
+                yHdr.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e5e7eb;';
+                yHdr.innerHTML = `
+                    <input type="text" value="${y.label}" onchange="newFormUpdateYearLabel(${yi},this.value)"
+                        style="flex:1;font-size:0.82rem;font-weight:700;color:#374151;background:transparent;border:none;outline:none;" />
+                    <button onclick="newFormAddSemester(${yi})"
+                        style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.7rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        <i data-lucide="plus" style="width:11px;height:11px;"></i> Add Semester
+                    </button>
+                    <button onclick="newFormAddOtherReq(${yi})"
+                        style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.7rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        <i data-lucide="plus" style="width:11px;height:11px;"></i> Other Requirements
+                    </button>
+                    <button onclick="newFormDeleteYear(${yi})"
+                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.72rem;font-weight:600;white-space:nowrap;padding:4px 2px;flex-shrink:0;">
+                        Delete Year
+                    </button>`;
+
+                const yBody = document.createElement('div');
+                yBody.style.cssText = 'padding:10px 12px;';
+
+                if (!(y.semesters || []).length) {
+                    const noSem = document.createElement('p');
+                    noSem.style.cssText = 'font-size:0.75rem;color:#9ca3af;padding:2px 0 4px;';
+                    noSem.textContent = 'No semesters yet. Click "Add Semester" above.';
+                    yBody.appendChild(noSem);
+                } else {
+                    y.semesters.forEach((s, si) => {
+                        yBody.appendChild(buildNewFormSemSection(yi, si, s));
+                    });
+                }
+
+                yDiv.appendChild(yHdr);
+                yDiv.appendChild(yBody);
+                container.appendChild(yDiv);
+            });
+            lucide.createIcons();
+        }
+
+        function buildNewFormSemSection(yi, si, s) {
+            const sDiv = document.createElement('div');
+            sDiv.style.cssText = 'margin-bottom:10px;border:1.5px solid #f3f4f6;border-radius:8px;overflow:hidden;background:#fff;';
+
+            // Semester header
+            const sHdr = document.createElement('div');
+            sHdr.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:#fafafa;border-bottom:1px solid #f3f4f6;';
+            if (s.is_other_req) {
+                sHdr.innerHTML = `
+                    <span style="flex:1;font-size:0.78rem;font-weight:600;color:#374151;">Other Requirements</span>
+                    <button onclick="newFormAddSubject(${yi},${si})"
+                        style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.68rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        <i data-lucide="plus" style="width:10px;height:10px;"></i> Add Subject
+                    </button>
+                    <button onclick="newFormDeleteSemester(${yi},${si})"
+                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.7rem;font-weight:600;white-space:nowrap;padding:3px 2px;flex-shrink:0;">
+                        Delete Other Requirements
+                    </button>`;
+            } else {
+                sHdr.innerHTML = `
+                    <input type="text" value="${s.label}" onchange="newFormUpdateSemLabel(${yi},${si},this.value)"
+                        style="flex:1;font-size:0.78rem;font-weight:600;color:#374151;background:transparent;border:none;outline:none;" />
+                    <button onclick="newFormAddSubject(${yi},${si})"
+                        style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.68rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        <i data-lucide="plus" style="width:10px;height:10px;"></i> Add Subject
+                    </button>
+                    <button onclick="newFormDeleteSemester(${yi},${si})"
+                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.7rem;font-weight:600;white-space:nowrap;padding:3px 2px;flex-shrink:0;">
+                        Delete Semester
+                    </button>`;
+            }
+            sDiv.appendChild(sHdr);
+
+            // Subject table
+            const subWrap = document.createElement('div');
+            subWrap.style.cssText = 'padding:8px 10px;';
+
+            if (s.subjects && s.subjects.length) {
+                const tbl = document.createElement('table');
+                tbl.style.cssText = 'width:100%;border-collapse:collapse;';
+                if (s.is_other_req) {
+                    tbl.innerHTML = `<thead><tr style="background:#f9fafb;">
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:85px;">Code</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Descriptive Title</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:90px;">Prereq</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lec</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lab</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Total</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Description</th>
+                        <th style="border-bottom:1.5px solid #e5e7eb;width:28px;"></th>
+                    </tr></thead>`;
+                } else {
+                    tbl.innerHTML = `<thead><tr style="background:#f9fafb;">
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:85px;">Code</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Descriptive Title</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:90px;">Prereq</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lec</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lab</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Total</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:72px;line-height:1.3;">IT Core<br>Courses</th>
+                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:72px;line-height:1.3;">IT Spec.<br>Courses</th>
+                        <th style="border-bottom:1.5px solid #e5e7eb;width:28px;"></th>
+                    </tr></thead>`;
+                }
+                const tbody = document.createElement('tbody');
+                s.subjects.forEach((sub, subi) => {
+                    const total = (sub.lec || 0) + (sub.lab || 0);
+                    const tr = document.createElement('tr');
+                    tr.style.cssText = 'border-bottom:1px solid #f3f4f6;';
+                    if (s.is_other_req) {
+                        tr.innerHTML = `
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.code||''}" placeholder="Code" onchange="newFormUpdateSubject(${yi},${si},${subi},'code',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.title||''}" placeholder="Descriptive Title" onchange="newFormUpdateSubject(${yi},${si},${subi},'title',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.prereq||''}" placeholder="—" onchange="newFormUpdateSubject(${yi},${si},${subi},'prereq',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lec||0}" min="0" max="12" onchange="newFormUpdateSubject(${yi},${si},${subi},'lec',+this.value);newFormRefreshTotal(${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
+                            <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lab||0}" min="0" max="12" onchange="newFormUpdateSubject(${yi},${si},${subi},'lab',+this.value);newFormRefreshTotal(${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
+                            <td id="nftotal-${yi}-${si}-${subi}" style="padding:3px 6px;text-align:center;font-size:0.73rem;font-weight:700;color:#374151;">${total}</td>
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.desc||''}" placeholder="Description" onchange="newFormUpdateSubject(${yi},${si},${subi},'desc',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 4px;text-align:center;"><button onclick="newFormDeleteSubject(${yi},${si},${subi})" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:2px;"><i data-lucide="x" style="width:12px;height:12px;"></i></button></td>`;
+                    } else {
+                        tr.innerHTML = `
+                        <td style="padding:3px 5px;"><input type="text" value="${sub.code||''}" placeholder="Code" onchange="newFormUpdateSubject(${yi},${si},${subi},'code',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                        <td style="padding:3px 5px;"><input type="text" value="${sub.title||''}" placeholder="Descriptive Title" onchange="newFormUpdateSubject(${yi},${si},${subi},'title',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                        <td style="padding:3px 5px;"><input type="text" value="${sub.prereq||''}" placeholder="—" onchange="newFormUpdateSubject(${yi},${si},${subi},'prereq',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                        <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lec||0}" min="0" max="12" onchange="newFormUpdateSubject(${yi},${si},${subi},'lec',+this.value);newFormRefreshTotal(${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
+                        <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lab||0}" min="0" max="12" onchange="newFormUpdateSubject(${yi},${si},${subi},'lab',+this.value);newFormRefreshTotal(${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
+                        <td id="nftotal-${yi}-${si}-${subi}" style="padding:3px 6px;text-align:center;font-size:0.73rem;font-weight:700;color:#374151;">${total}</td>
+                        <td style="padding:3px 5px;text-align:center;"><input type="checkbox" id="nf-core-${yi}-${si}-${subi}" ${sub.is_core ? 'checked' : ''} onchange="newFormToggleCore(${yi},${si},${subi},this)" style="width:16px;height:16px;cursor:pointer;accent-color:#7b1113;" /></td>
+                        <td style="padding:3px 5px;text-align:center;"><input type="checkbox" id="nf-spec-${yi}-${si}-${subi}" ${sub.is_spec ? 'checked' : ''} onchange="newFormToggleSpec(${yi},${si},${subi},this)" style="width:16px;height:16px;cursor:pointer;accent-color:#7b1113;" /></td>
+                        <td style="padding:3px 4px;text-align:center;"><button onclick="newFormDeleteSubject(${yi},${si},${subi})" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:2px;"><i data-lucide="x" style="width:12px;height:12px;"></i></button></td>`;
+                    }
+                    tbody.appendChild(tr);
+                });
+                tbl.appendChild(tbody);
+                subWrap.appendChild(tbl);
+            } else {
+                const empty = document.createElement('p');
+                empty.style.cssText = 'font-size:0.75rem;color:#9ca3af;padding:4px 0;';
+                empty.textContent = 'No subjects yet. Click "Add Subject" to add one.';
+                subWrap.appendChild(empty);
+            }
+            sDiv.appendChild(subWrap);
+            return sDiv;
+        }
+
+        function newFormRefreshTotal(yi, si, subi) {
+            const sub = _newFormYears[yi].semesters[si].subjects[subi];
+            sub.total = (sub.lec || 0) + (sub.lab || 0);
+            const el = document.getElementById(`nftotal-${yi}-${si}-${subi}`);
+            if (el) el.textContent = sub.total;
+        }
+
+        async function currCreateProspectus() {
+            const name = document.getElementById('newProspectusName').value.trim();
+            if (!name) { pgToast('Enter a name for the prospectus.', 'error'); return; }
+            try {
+                const res = await fetch('/admin-panel/api/prospectuses/create/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                    body: JSON.stringify({
+                        name,
+                        description: document.getElementById('newProspectusDesc').value.trim(),
+                        college: document.getElementById('newProspectusCollege').value.trim(),
+                        full_program_name: document.getElementById('newProspectusFullName').value.trim(),
+                        cmo_ref: document.getElementById('newProspectusCMO').value.trim(),
+                        bor_ref: document.getElementById('newProspectusBOR').value.trim(),
+                        effective_year: document.getElementById('newProspectusEffYear').value.trim(),
+                        prepared_by_name:  document.getElementById('newProspectusPreparedName').value.trim(),
+                        prepared_by_title: document.getElementById('newProspectusPreparedTitle').value.trim(),
+                        prepared_by_date:  document.getElementById('newProspectusPreparedDate').value.trim(),
+                        noted_by_name:  document.getElementById('newProspectusNotedName').value.trim(),
+                        noted_by_title: document.getElementById('newProspectusNotedTitle').value.trim(),
+                        noted_by_date:  document.getElementById('newProspectusNotedDate').value.trim(),
+                        program_slug: _progSlug,
+                        years: _newFormYears,
+                    }),
+                });
+                const d = await res.json();
+                if (d.success) {
+                    pgToast('Prospectus created!', 'success');
+                    currHideNewForm();
+                    await loadProspectusTab();
+                } else {
+                    pgToast(d.message || 'Could not create prospectus.', 'error');
+                }
+            } catch { pgToast('Network error.', 'error'); }
+        }
+
+        // ── save / delete prospectus ─────────────────────────────
+
+        async function currSaveProspectus(pid) {
+            const p = currGetProspectus(pid);
+            try {
+                const res = await fetch(`/admin-panel/api/prospectuses/${pid}/update/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                    body: JSON.stringify({
+                        name: p.name,
+                        description: p.description,
+                        college: p.college || '',
+                        full_program_name: p.full_program_name || '',
+                        cmo_ref: p.cmo_ref || '',
+                        bor_ref: p.bor_ref || '',
+                        effective_year: p.effective_year || '',
+                        prepared_by_name:  p.prepared_by_name  || '',
+                        prepared_by_title: p.prepared_by_title || '',
+                        prepared_by_date:  p.prepared_by_date  || '',
+                        noted_by_name:  p.noted_by_name  || '',
+                        noted_by_title: p.noted_by_title || '',
+                        noted_by_date:  p.noted_by_date  || '',
+                        years: p.years,
+                    }),
+                });
+                const d = await res.json();
+                if (d.success) pgToast('Prospectus saved!', 'success');
+                else pgToast(d.message || 'Save failed.', 'error');
+            } catch { pgToast('Network error.', 'error'); }
+        }
+        async function currDeleteProspectus(pid, pname) {
+            if (!confirm(`Delete "${pname}" and all its courses? This cannot be undone.`)) return;
+            try {
+                const res = await fetch(`/admin-panel/api/prospectuses/${pid}/delete/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                    body: JSON.stringify({ id: pid }),
+                });
+                const d = await res.json();
+                if (d.success) { pgToast('Prospectus deleted.', 'success'); await loadProspectusTab(); }
+                else pgToast(d.message || 'Delete failed.', 'error');
+            } catch { pgToast('Network error.', 'error'); }
+        }
 
         /* ═══════════════════════════════════════════════════
            LOGO HANDLING
@@ -1495,6 +2651,24 @@
             } else {
                 thumb.innerHTML = `<span id="modalLogoInitials" style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#fff;">${deg.slice(0, 3).toUpperCase()}</span>`;
             }
+        }
+
+        function collegeLogoDragOver(e) { e.preventDefault(); document.getElementById('collegeLogoZone').style.borderColor = '#9B1C1C'; }
+        function collegeLogoDragLeave(e) { document.getElementById('collegeLogoZone').style.borderColor = '#e5e7eb'; }
+        function collegeLogoDrop(e) { e.preventDefault(); collegeLogoDragLeave(); handleCollegeLogoFile(e.dataTransfer.files[0]); }
+
+        function handleCollegeLogoFile(file) {
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) { pgToast('Logo must be under 2 MB.', 'error'); return; }
+            _collegeLogoFile = file;
+            const reader = new FileReader();
+            reader.onload = e => {
+                _collegeLogoUrl = e.target.result;
+                const clp = document.getElementById('collegeLogoPreview');
+                if (clp) clp.innerHTML = `<img src="${_collegeLogoUrl}" style="width:100%;height:100%;object-fit:cover;" />`;
+                lucide.createIcons();
+            };
+            reader.readAsDataURL(file);
         }
 
         function updateModalHeader() {
@@ -1852,6 +3026,7 @@
                 order: Number(document.getElementById('progOrder').value) || 1,
                 visible: _visible,
                 logo: _logoUrl,
+                college_logo: _collegeLogoUrl,
                 stats: collectStats(),
                 curriculum: _currRows,
                 outcomes: _outcomes,
@@ -1960,6 +3135,108 @@
     </script>
 
     <script src="{% static 'admin_app/js/admin_cms_scripts.js' %}" defer></script>
+
+    <!-- ═══ New Prospectus Modal ═══ -->
+    <div id="newProspectusModal"
+        style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;padding-left:220px;"
+        onclick="if(event.target===this)currHideNewForm()">
+        <div style="background:#fff;border-radius:20px;width:calc(100% - 64px);max-height:90vh;overflow-y:auto;box-shadow:0 4px 32px rgba(0,0,0,.18);display:flex;flex-direction:column;border:1.5px solid #e5e7eb;">
+            <!-- Modal header -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1.5px solid #f3f4f6;position:sticky;top:0;background:#fff;border-radius:16px 16px 0 0;z-index:1;">
+                <div>
+                    <p style="font-size:1rem;font-weight:700;color:#111;margin:0;">New Prospectus</p>
+                    <p style="font-size:0.72rem;color:#6b7280;margin:2px 0 0;">Fill in the curriculum version details below.</p>
+                </div>
+                <button onclick="currHideNewForm()" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;color:#6b7280;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">
+                    <i data-lucide="x" style="width:18px;height:18px;"></i>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <div style="padding:20px 22px;flex:1;">
+                <!-- Row 1: Name / AY + Effective Year -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+                    <div>
+                        <label class="lbl">Name / Academic Year <span style="color:#dc2626;">*</span></label>
+                        <input type="text" id="newProspectusName" class="field" placeholder="e.g. AY 2023–2024" />
+                    </div>
+                    <div>
+                        <label class="lbl">Effective School Year</label>
+                        <input type="text" id="newProspectusEffYear" class="field" placeholder="e.g. 2023–2024" />
+                    </div>
+                </div>
+                <!-- Row 2: College + Full Program Name -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+                    <div>
+                        <label class="lbl">College</label>
+                        <input type="text" id="newProspectusCollege" class="field" placeholder="e.g. College of Computing Studies" />
+                    </div>
+                    <div>
+                        <label class="lbl">Full Program Name</label>
+                        <input type="text" id="newProspectusFullName" class="field" placeholder="e.g. Master of Information Technology" />
+                    </div>
+                </div>
+                <!-- Row 3: CMO Ref + BOR Ref -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+                    <div>
+                        <label class="lbl">CMO Reference <span class="lbl-hint">(optional)</span></label>
+                        <input type="text" id="newProspectusCMO" class="field" placeholder="e.g. CMO 15, S.2019" />
+                    </div>
+                    <div>
+                        <label class="lbl">BOR Reference <span class="lbl-hint">(optional)</span></label>
+                        <input type="text" id="newProspectusBOR" class="field" placeholder="e.g. BOR No. 405, S.2019" />
+                    </div>
+                </div>
+                <!-- Row 4: Description -->
+                <div style="margin-bottom:16px;">
+                    <label class="lbl">Description <span class="lbl-hint">(optional)</span></label>
+                    <input type="text" id="newProspectusDesc" class="field" placeholder="Brief description…" />
+                </div>
+                <!-- Years & Semesters builder -->
+                <div style="border-top:1px solid #e5e7eb;padding-top:14px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                        <p class="text-xs font-bold text-gray-600 uppercase tracking-wider">Years &amp; Semesters</p>
+                        <button onclick="newFormAddYear()" class="btn-secondary" style="font-size:0.72rem;padding:5px 10px;">
+                            <i data-lucide="plus" style="width:12px;height:12px;"></i> Add Year
+                        </button>
+                    </div>
+                    <div id="newFormYearsList">
+                        <p id="newFormNoYears" style="font-size:0.78rem;color:#9ca3af;padding:6px 0;">No years yet. Click "Add Year" to start.</p>
+                    </div>
+                </div>
+                <!-- Signatories -->
+                <div style="border-top:1px solid #e5e7eb;padding-top:14px;margin-top:4px;">
+                    <p class="text-xs font-bold text-gray-600 uppercase tracking-wider" style="margin-bottom:10px;">Signatories</p>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                        <div>
+                            <p style="font-size:0.72rem;font-weight:700;color:#374151;margin:0 0 6px;">Prepared by:</p>
+                            <label class="lbl">Name</label>
+                            <input type="text" id="newProspectusPreparedName" class="field" placeholder="Name, credentials" style="margin-bottom:8px;" />
+                            <label class="lbl">Title</label>
+                            <input type="text" id="newProspectusPreparedTitle" class="field" placeholder="e.g. MIT Department Curriculum Committee Chair" style="margin-bottom:8px;" />
+                            <label class="lbl">Date</label>
+                            <input type="text" id="newProspectusPreparedDate" class="field" placeholder="e.g. June 20, 2025" />
+                        </div>
+                        <div>
+                            <p style="font-size:0.72rem;font-weight:700;color:#374151;margin:0 0 6px;">Noted by:</p>
+                            <label class="lbl">Name</label>
+                            <input type="text" id="newProspectusNotedName" class="field" placeholder="Name, credentials" style="margin-bottom:8px;" />
+                            <label class="lbl">Title</label>
+                            <input type="text" id="newProspectusNotedTitle" class="field" placeholder="e.g. College Dean" style="margin-bottom:8px;" />
+                            <label class="lbl">Date</label>
+                            <input type="text" id="newProspectusNotedDate" class="field" placeholder="e.g. June 20, 2025" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal footer -->
+            <div style="display:flex;gap:8px;padding:14px 22px;border-top:1.5px solid #f3f4f6;justify-content:flex-end;position:sticky;bottom:0;background:#fff;border-radius:0 0 16px 16px;">
+                <button onclick="currHideNewForm()" class="btn-secondary" style="font-size:0.78rem;padding:7px 14px;">Cancel</button>
+                <button onclick="currCreateProspectus()" class="btn-primary" style="font-size:0.78rem;padding:7px 16px;">
+                    <i data-lucide="save" style="width:13px;height:13px;"></i> Create Prospectus
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
