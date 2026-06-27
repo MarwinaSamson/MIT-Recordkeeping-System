@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -1336,12 +1336,12 @@
         >
           <div>
             <p class="eyebrow mb-1">Program Overview</p>
-            <h2 class="sh mb-3">About the MIT Program</h2>
-            <div class="gold-divider mb-7"></div>
+            <h2 class="sh mb-3">About the {{ main_program.name|default:"MIT Program" }}</h2>
 
-            <p class="text-gray-600 leading-relaxed text-[.95rem] mb-8">
-              {{ cms.about_overview_text }}
+            <p class="text-gray-600 leading-relaxed text-[.95rem] mb-5">
+              {{ main_program.description }}
             </p>
+            <div class="gold-divider mb-7"></div>
 
             <div class="info-card mb-6">
               <div class="info-row">
@@ -1352,7 +1352,7 @@
                 </div>
                 <div>
                   <p class="info-label">Institution</p>
-                  <p class="info-val">{{ cms.about_info_institution }}</p>
+                  <p class="info-val">{{ main_program.institution }}</p>
                 </div>
               </div>
               <div class="info-row">
@@ -1363,7 +1363,7 @@
                 </div>
                 <div>
                   <p class="info-label">COPC / CMO Reference</p>
-                  <p class="info-val">{{ cms.about_info_copc }}</p>
+                  <p class="info-val">{{ main_program.copc }}</p>
                 </div>
               </div>
               <div class="info-row">
@@ -1374,7 +1374,7 @@
                 </div>
                 <div>
                   <p class="info-label">Current Effective Academic Year</p>
-                  <p class="info-val">{{ cms.about_info_ay }}</p>
+                  <p class="info-val">{{ main_program.eff_year }}</p>
                 </div>
               </div>
               <div class="info-row">
@@ -1385,11 +1385,12 @@
                 </div>
                 <div>
                   <p class="info-label">Accrediting Body</p>
-                  <p class="info-val">{{ cms.about_info_accred }}</p>
+                  <p class="info-val">{{ main_program.accreditor }}</p>
                 </div>
               </div>
             </div>
 
+            {% if main_program.accreditor or main_program.copc %}
             <div
               class="flex items-start gap-3 rounded-xl px-5 py-4"
               style="background: #fffbeb; border: 1px solid #f5d97c"
@@ -1401,33 +1402,43 @@
               >
               <div>
                 <p class="text-sm font-semibold mb-0.5" style="color: #92600a">
-                  {{ cms.about_ched_heading }}
+                  {{ main_program.accreditor }}
                 </p>
                 <p class="text-xs leading-relaxed" style="color: #a8751a">
-                  {{ cms.about_ched_desc }}
+                  {% if main_program.copc %}CMO Reference: {{ main_program.copc }}{% endif %}{% if main_program.copc and main_program.eff_year %} &nbsp;·&nbsp; {% endif %}{% if main_program.eff_year %}Effective: {{ main_program.eff_year }}{% endif %}
                 </p>
               </div>
             </div>
+            {% endif %}
           </div>
 
           <div>
             <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-7">
+              {% if prog_stats %}
               <div class="stat-card">
-                <p class="stat-n">{{ cms.about_stat1_val }}</p>
-                <p class="stat-lbl">{{ cms.about_stat1_lbl }}</p>
+                <p class="stat-n">{{ prog_stats.core }}</p>
+                <p class="stat-lbl">Core Courses</p>
               </div>
               <div class="stat-card">
-                <p class="stat-n">{{ cms.about_stat2_val }}</p>
-                <p class="stat-lbl">{{ cms.about_stat2_lbl }}</p>
+                <p class="stat-n">{{ prog_stats.spec }}</p>
+                <p class="stat-lbl">Specialization Courses</p>
               </div>
               <div class="stat-card">
-                <p class="stat-n">{{ cms.about_stat3_val }}</p>
-                <p class="stat-lbl">{{ cms.about_stat3_lbl }}</p>
+                <p class="stat-n">{{ prog_stats.other_req }}</p>
+                <p class="stat-lbl">Other Requirements</p>
               </div>
               <div class="stat-card">
-                <p class="stat-n">{{ cms.about_stat4_val }}</p>
-                <p class="stat-lbl">{{ cms.about_stat4_lbl }}</p>
+                <p class="stat-n">{{ prog_stats.total_units }}</p>
+                <p class="stat-lbl">Total Units</p>
               </div>
+              {% else %}
+              {% for stat in main_program.stats %}
+              <div class="stat-card">
+                <p class="stat-n">{{ stat.stat_value }}</p>
+                <p class="stat-lbl">{{ stat.stat_label }}</p>
+              </div>
+              {% endfor %}
+              {% endif %}
             </div>
 
             <div>
@@ -1532,147 +1543,205 @@
           style="z-index: 1; position: relative"
         >
           <p class="a1 eyebrow mb-3" style="color: rgba(201, 168, 76, 0.85)">
-            MIT Program · WMSU
+            {% if main_program.curriculum_eyebrow %}{{ main_program.curriculum_eyebrow }}{% else %}{{ main_program.name|default:"MIT Program" }} · {{ main_program.institution|default:"WMSU" }}{% endif %}
           </p>
           <h1
             class="a2 font-serif font-black text-white leading-tight mb-4"
             style="font-size: clamp(2rem, 5vw, 3rem)"
           >
-            Course
-            <em class="italic" style="color: var(--gold-light)">Catalog</em>
+            {{ main_program.curriculum_title|default:"Course" }}
+            <em class="italic" style="color: var(--gold-light)">{{ main_program.curriculum_title_italic|default:"Catalog" }}</em>
           </h1>
           <p
             class="a3 text-base sm:text-lg"
             style="color: rgba(255, 255, 255, 0.65)"
           >
-            Browse subjects by curriculum year. Click any course to read its
-            full description and key topics.
+            {{ main_program.curriculum_subtitle|default:"Browse subjects by curriculum year and semester. Click any subject to view details." }}
           </p>
         </div>
       </div>
 
       <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-        <!-- Curriculum Year Switcher -->
+        {% if prospectus_years %}
+        <!-- Year switcher from latest prospectus -->
         <div class="mb-8">
-          <p
-            class="eyebrow mb-3"
-            style="display: flex; align-items: center; gap: 6px"
-          >
-            <span class="material-symbols-rounded" style="font-size: 14px"
-              >swap_horiz</span
-            >
-            Select Curriculum Year
+          <p class="eyebrow mb-3" style="display: flex; align-items: center; gap: 6px">
+            <span class="material-symbols-rounded" style="font-size: 14px">swap_horiz</span>
+            Select Year
           </p>
           <div class="curr-switcher-bar">
+            {% for year in prospectus_years %}
             <button
-              class="curr-tab-btn active"
-              id="curr-btn-1"
-              onclick="switchCourseCurriculum('1')"
+              class="curr-tab-btn {% if forloop.first %}active{% endif %}"
+              id="curr-btn-{{ forloop.counter }}"
+              onclick="switchCourseCurriculum('{{ forloop.counter }}')"
             >
-              <span class="ct-year">2023</span>
-              <span class="ct-label">– 2024 Curriculum</span>
-              <span class="ct-badge" style="background: #fff4e0; color: #8a5800"
-                >Current</span
-              >
+              <span class="ct-year">Y{{ forloop.counter }}</span>
+              <span class="ct-label">{{ year.label }}</span>
+              {% if forloop.first %}
+              <span class="ct-badge" style="background: #fff4e0; color: #8a5800">Latest</span>
+              {% endif %}
             </button>
+            {% endfor %}
           </div>
         </div>
 
-        <!-- ═══ CURRICULUM PANEL ═══ -->
+        {% for year in prospectus_years %}
+        <div class="curr-panel {% if forloop.first %}active{% endif %}" id="curr-{{ forloop.counter }}">
+          {% for sem in year.semesters %}
+          <div class="course-block">
+            <div class="section-header">
+              <div class="section-icon" style="background: {% if sem.is_other_req %}#9a6020{% else %}var(--crimson){% endif %}">
+                <span class="material-symbols-rounded text-white" style="font-size: 19px">
+                  {% if sem.is_other_req %}assignment{% else %}menu_book{% endif %}
+                </span>
+              </div>
+              <div class="section-meta">
+                <p class="section-title">{{ sem.label }}</p>
+                <p class="section-subtitle">{{ year.label }}</p>
+              </div>
+              <span class="unit-badge-lg" {% if sem.is_other_req %}style="background: rgba(154, 96, 32, 0.08); color: #9a6020"{% endif %}>
+                {{ sem.total_units }} Units
+              </span>
+            </div>
+            <div class="course-grid">
+              {% for subj in sem.subjects %}
+              <div
+                class="cpill-v2{% if sem.is_other_req %} legacy{% endif %}"
+                onclick="openModal('{{ subj.code|escapejs }}', '{{ subj.title|escapejs }}', '{{ subj.total }}', '{{ subj.prereq|default:"None"|escapejs }}', '{{ subj.description|escapejs }}', '')"
+              >
+                <div class="cpill-icon-v2 flex-shrink-0">
+                  <span class="material-symbols-rounded" style="font-size:18px">
+                    {% if subj.is_core %}dns{% elif subj.is_specialization %}star{% else %}menu_book{% endif %}
+                  </span>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <p class="cpill-code">{{ subj.code }}</p>
+                  <p class="cpill-name">{{ subj.title }}</p>
+                  <span class="cpill-units-pill">
+                    <span class="material-symbols-rounded" style="font-size:11px">schedule</span>
+                    {{ subj.total }} Units
+                  </span>
+                </div>
+                <div class="cpill-arrow flex-shrink-0">
+                  <span class="material-symbols-rounded" style="font-size:20px;color:#d0c8bc">chevron_right</span>
+                </div>
+              </div>
+              {% empty %}
+              <p class="text-xs text-gray-400 py-3" style="grid-column:1/-1">No subjects in this semester yet.</p>
+              {% endfor %}
+            </div>
+          </div>
+          {% empty %}
+          <div class="cs-note" style="margin: 16px 0">
+            <span class="material-symbols-rounded flex-shrink-0" style="font-size: 16px; color: #9a7010; margin-top: 1px">info</span>
+            <span>No semesters found for this year.</span>
+          </div>
+          {% endfor %}
+
+          <div class="curr-summary-card">
+            <div class="curr-summary-head">
+              <span class="material-symbols-rounded" style="font-size: 16px; color: #7a6a55">summarize</span>
+              <span class="curr-summary-head-txt">Summary · {{ year.label }}</span>
+            </div>
+            <div class="curr-sum-grid">
+              {% for sem in year.semesters %}
+              <div class="curr-sum-cell">
+                <p class="curr-sum-num">{{ sem.total_units }}</p>
+                <p class="curr-sum-lbl">{{ sem.label }}</p>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="curr-sum-total">
+              <span class="curr-sum-total-lbl">Year Total</span>
+              <span class="curr-sum-total-num">{{ year.total_units }} Units</span>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <!-- Fallback: curriculum_groups display -->
+        <div class="mb-8">
+          <p class="eyebrow mb-3" style="display: flex; align-items: center; gap: 6px">
+            <span class="material-symbols-rounded" style="font-size: 14px">swap_horiz</span>
+            Curriculum
+          </p>
+          <div class="curr-switcher-bar">
+            <button class="curr-tab-btn active" id="curr-btn-1" onclick="switchCourseCurriculum('1')">
+              <span class="ct-year">Current</span>
+              <span class="ct-label">Curriculum</span>
+              <span class="ct-badge" style="background: #fff4e0; color: #8a5800">Active</span>
+            </button>
+          </div>
+        </div>
         <div class="curr-panel active" id="curr-1">
           {% for curriculum_group in curriculum_groups %}
           <div class="course-block">
             <div class="section-header">
-              <div
-                class="section-icon"
-                style="background:{% if curriculum_group.title|lower == 'foundation' or curriculum_group.title|lower == 'core' %}var(--crimson){% elif curriculum_group.title|lower == 'specialization' %}var(--crimson){% elif curriculum_group.title|lower == 'cognate' %}#9a6020{% else %}var(--crimson){% endif %}"
-              >
-                <span
-                  class="material-symbols-rounded text-white"
-                  style="font-size: 19px"
-                >
-                  {% if curriculum_group.title|lower == 'foundation' or curriculum_group.title|lower == 'core' %}settings{% elif curriculum_group.title|lower == 'specialization' %}star{% elif curriculum_group.title|lower == 'cognate' %}brightness_5{% else %}emoji_events{% endif %}
-                  
-                </span>
+              <div class="section-icon" style="background: var(--crimson)">
+                <span class="material-symbols-rounded text-white" style="font-size: 19px">menu_book</span>
               </div>
               <div class="section-meta">
                 <p class="section-title">{{ curriculum_group.title }}</p>
                 <p class="section-subtitle">Program Courses</p>
               </div>
-              <span
-                class="unit-badge-lg"
-                {%
-                if
-                curriculum_group.title|lower=""
-                ="cognate"
-                %}style="background: rgba(154, 96, 32, 0.08); color: #9a6020"
-                {%
-                endif
-                %}
-              >
-                {{ curriculum_group.total_units }} Units
-              </span>
+              <span class="unit-badge-lg">{{ curriculum_group.total_units }} Units</span>
             </div>
-            {% if curriculum_group.title|lower == 'cognate' %}
-            <div class="cognate-note">
-              <span
-                class="material-symbols-rounded flex-shrink-0"
-                style="font-size: 18px; color: #d4970a"
-                >info</span
-              >
-              <p>
-                <strong>Note:</strong> Choose only one from the following MIT
-                Cognates. The selected cognate course counts as 3 units toward
-                your total degree requirement.
-              </p>
-            </div>
-            {% endif %}
             <div class="course-grid">
               {% for course in curriculum_group.courses %}
               <div
-                class="course-card"
+                class="cpill-v2"
                 onclick="openModal('{{ course.code|escapejs }}', '{{ course.name|escapejs }}', '{{ course.units }}', 'None', '{{ course.description|escapejs }}', '')"
               >
-                <div class="course-code">{{ course.code }}</div>
-                <div class="course-name">{{ course.name }}</div>
-                <div class="course-meta">
-                  <span class="course-units">{{ course.units }} Units</span>
-                  <span class="course-prereq">Pre: None</span>
+                <div class="cpill-icon-v2 flex-shrink-0">
+                  <span class="material-symbols-rounded" style="font-size:18px">menu_book</span>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <p class="cpill-code">{{ course.code }}</p>
+                  <p class="cpill-name">{{ course.name }}</p>
+                  <span class="cpill-units-pill">
+                    <span class="material-symbols-rounded" style="font-size:11px">schedule</span>
+                    {{ course.units }} Units
+                  </span>
+                </div>
+                <div class="cpill-arrow flex-shrink-0">
+                  <span class="material-symbols-rounded" style="font-size:20px;color:#d0c8bc">chevron_right</span>
                 </div>
               </div>
+              {% empty %}
+              <p class="text-xs text-gray-400 py-3" style="grid-column:1/-1">No courses in this group yet.</p>
               {% endfor %}
             </div>
           </div>
+          {% empty %}
+          <div class="cs-note" style="margin: 16px 0">
+            <span class="material-symbols-rounded flex-shrink-0" style="font-size: 16px; color: #9a7010; margin-top: 1px">info</span>
+            <span>No curriculum data available. Please configure a prospectus in Program Management.</span>
+          </div>
           {% endfor %}
-
-          <!-- Summary -->
+          {% if curriculum_groups %}
           <div class="curr-summary-card">
             <div class="curr-summary-head">
-              <span
-                class="material-symbols-rounded"
-                style="font-size: 16px; color: #7a6a55"
-                >summarize</span
-              >
-              <span class="curr-summary-head-txt"
-                >Summary of Units · Program Curriculum</span
-              >
+              <span class="material-symbols-rounded" style="font-size: 16px; color: #7a6a55">summarize</span>
+              <span class="curr-summary-head-txt">Summary of Units</span>
             </div>
             <div class="curr-sum-grid">
               {% for group in curriculum_groups %}
               <div class="curr-sum-cell">
                 <p class="curr-sum-num">{{ group.total_units }}</p>
-                <p class="curr-sum-lbl">{{ group.title }} Units</p>
+                <p class="curr-sum-lbl">{{ group.title }}</p>
               </div>
               {% endfor %}
             </div>
             <div class="curr-sum-total">
               <span class="curr-sum-total-lbl">Grand Total</span>
-              <span class="curr-sum-total-num">
-                {{ curriculum_grand_total_units }} Units
-              </span>
+              <span class="curr-sum-total-num">{{ curriculum_grand_total_units }} Units</span>
             </div>
           </div>
+          {% endif %}
         </div>
+        {% endif %}
       </div>
     </div>
 
@@ -1684,21 +1753,20 @@
           style="z-index: 1; position: relative"
         >
           <p class="a1 eyebrow mb-3" style="color: rgba(201, 168, 76, 0.85)">
-            MIT Program · WMSU
+            {% if main_program.outcomes_eyebrow %}{{ main_program.outcomes_eyebrow }}{% else %}{{ main_program.name|default:"MIT Program" }} · {{ main_program.institution|default:"WMSU" }}{% endif %}
           </p>
           <h1
             class="a2 font-serif font-black text-white leading-tight mb-4"
             style="font-size: clamp(2rem, 5vw, 3rem)"
           >
-            Program
-            <em class="italic" style="color: var(--gold-light)">Outcomes</em>
+            {{ main_program.outcomes_title|default:"Program" }}
+            <em class="italic" style="color: var(--gold-light)">{{ main_program.outcomes_title_italic|default:"Outcomes" }}</em>
           </h1>
           <p
             class="a3 text-base sm:text-lg"
             style="color: rgba(255, 255, 255, 0.65)"
           >
-            What graduates are expected to know and be able to do upon
-            completion.
+            {{ main_program.outcomes_subtitle|default:"What graduates are expected to know and be able to do upon completion." }}
           </p>
         </div>
       </div>
@@ -1708,7 +1776,7 @@
         <h2 class="sh mb-3">Program Outcomes</h2>
         <div class="gold-divider mb-10"></div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {% for outcome in cms.about_outcomes %}
+          {% for outcome in main_program.outcomes %}
           <div
             class="hov bg-white rounded-2xl p-6"
             style="
@@ -1726,12 +1794,12 @@
                   class="material-symbols-rounded"
                   style="font-size: 20px; color: var(--crimson)"
                 >
-                  {% if outcome.number == 1 %}dns{% elif outcome.number == 2 %}science{% elif outcome.number == 3 %}hub{% elif outcome.number == 4 %}layers{% elif outcome.number == 5 %}manage_accounts{% elif outcome.number == 6 %}lightbulb{% elif outcome.number == 7 %}smart_toy{% else %}storage{% endif %}
+                  {{ outcome.icon|default:"emoji_events" }}
                 </span>
               </div>
               <span
                 class="font-serif text-4xl font-bold text-gray-100 leading-none"
-                >{{ outcome.number|stringformat:"02d" }}</span
+                >{{ forloop.counter|stringformat:"02d" }}</span
               >
             </div>
             <p class="font-semibold text-gray-900 text-sm mb-2">
@@ -1789,20 +1857,20 @@
           style="z-index: 1; position: relative"
         >
           <p class="a1 eyebrow mb-3" style="color: rgba(201, 168, 76, 0.85)">
-            MIT Program · WMSU
+            {% if main_program.objectives_eyebrow %}{{ main_program.objectives_eyebrow }}{% else %}{{ main_program.name|default:"MIT Program" }} · {{ main_program.institution|default:"WMSU" }}{% endif %}
           </p>
           <h1
             class="a2 font-serif font-black text-white leading-tight mb-4"
             style="font-size: clamp(2rem, 5vw, 3rem)"
           >
-            Program
-            <em class="italic" style="color: var(--gold-light)">Objectives</em>
+            {{ main_program.objectives_title|default:"Program" }}
+            <em class="italic" style="color: var(--gold-light)">{{ main_program.objectives_title_italic|default:"Objectives" }}</em>
           </h1>
           <p
             class="a3 text-base sm:text-lg"
             style="color: rgba(255, 255, 255, 0.65)"
           >
-            The goals and aims that guide the MIT program's design and delivery.
+            {{ main_program.objectives_subtitle|default:"The goals and aims that guide the program's design and delivery." }}
           </p>
         </div>
       </div>
@@ -1812,7 +1880,7 @@
         <h2 class="sh mb-3">Program Objectives</h2>
         <div class="gold-divider mb-10"></div>
         <ul class="space-y-3">
-          {% for objective in cms.about_objectives %}
+          {% for objective in main_program.objectives %}
           <li
             class="obj bg-white border-l-4 border border-gray-100 rounded-xl px-5 sm:px-6 py-5 flex gap-4 sm:gap-5 items-start"
             style="
@@ -1825,11 +1893,11 @@
               style="background: var(--crimson)"
             >
               <span class="text-white text-xs font-bold font-mono"
-                >{{ objective.number }}</span
+                >{{ forloop.counter }}</span
               >
             </div>
             <p class="text-gray-600 leading-relaxed text-sm">
-              {{ objective.description|safe }}
+              {{ objective.text|safe }}
             </p>
           </li>
           {% empty %}
@@ -1866,21 +1934,20 @@
           style="z-index: 1; position: relative"
         >
           <p class="a1 eyebrow mb-3" style="color: rgba(201, 168, 76, 0.85)">
-            MIT Program · WMSU
+            {% if main_program.faculty_eyebrow %}{{ main_program.faculty_eyebrow }}{% else %}{{ main_program.name|default:"MIT Program" }} · {{ main_program.institution|default:"WMSU" }}{% endif %}
           </p>
           <h1
             class="a2 font-serif font-black text-white leading-tight mb-4"
             style="font-size: clamp(2rem, 5vw, 3rem)"
           >
-            Meet the
-            <em class="italic" style="color: var(--gold-light)">Faculty</em>
+            {{ main_program.faculty_title|default:"Meet the" }}
+            <em class="italic" style="color: var(--gold-light)">{{ main_program.faculty_title_italic|default:"Faculty" }}</em>
           </h1>
           <p
             class="a3 text-base sm:text-lg"
             style="color: rgba(255, 255, 255, 0.65)"
           >
-            Our dedicated educators and researchers guiding the next generation
-            of IT professionals.
+            {{ main_program.faculty_subtitle|default:"Our dedicated educators and researchers guiding the next generation of IT professionals." }}
           </p>
         </div>
       </div>
@@ -1889,6 +1956,26 @@
         <p class="eyebrow mb-1">Our Educators</p>
         <h2 class="sh mb-3">Meet the Faculty</h2>
         <div class="gold-divider mb-10"></div>
+
+        {% if main_program.program_heads %}
+        {% for head in main_program.program_heads %}{% if head.is_current %}
+        <div style="display:flex;justify-content:center;margin-bottom:2.5rem;">
+          <div style="background:#fffbeb;border:2px solid #fde68a;border-radius:20px;padding:28px 36px;text-align:center;min-width:260px;max-width:340px;box-shadow:0 4px 20px rgba(180,83,9,0.10);">
+            <div style="width:100px;height:100px;border-radius:50%;overflow:hidden;background:#f3f4f6;border:3px solid #f59e0b;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
+              {% if head.photo %}
+              <img src="{{ head.photo }}" alt="{{ head.name }}" style="width:100%;height:100%;object-fit:cover;">
+              {% else %}
+              <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--crimson);">
+                <span style="color:white;font-size:2.2rem;font-weight:700;font-family:serif;">{{ head.name|slice:":1"|upper|default:"P" }}</span>
+              </div>
+              {% endif %}
+            </div>
+            <p style="font-size:1.1rem;font-weight:800;color:#111827;font-family:serif;margin:0 0 4px;line-height:1.2;">{{ head.name }}</p>
+            <p style="font-size:0.82rem;color:#b45309;font-weight:600;margin:0;">{{ head.title }}</p>
+          </div>
+        </div>
+        {% endif %}{% endfor %}
+        {% endif %}
 
         <div
           class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
@@ -1901,27 +1988,27 @@
               box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
             "
           >
-            {% if member.photo_url %}
-            <div class="fav h-44 w-full overflow-hidden">
+            <div class="fav h-44 w-full flex items-center justify-center" style="background:#f9fafb;">
+              {% if member.photo %}
               <img
-                src="{{ member.photo_url }}"
+                src="{{ member.photo }}"
                 alt="{{ member.name|default:'Faculty member' }}"
-                class="w-full h-full object-cover"
                 loading="lazy"
+                style="width:144px;height:144px;border-radius:50%;object-fit:cover;"
               />
+              {% else %}
+              <div style="width:144px;height:144px;border-radius:50%;background:var(--crimson);display:flex;align-items:center;justify-content:center;">
+                <span style="color:white;font-size:2.5rem;font-weight:700;font-family:serif;">{{ member.name|slice:":1"|upper|default:"F" }}</span>
+              </div>
+              {% endif %}
             </div>
-            {% else %}
-            <div class="fav h-44 w-full">
-              <span>{{ member.name|slice:":1"|upper|default:"F" }}</span>
-            </div>
-            {% endif %}
             <div class="p-5">
               <p
                 class="font-serif text-lg font-bold text-gray-900 leading-snug"
               >
                 {{ member.name }}
               </p>
-              <p class="eyebrow mt-0.5 mb-2.5">{{ member.title }}</p>
+              <p class="eyebrow mt-0.5 mb-2.5">{{ member.role }}</p>
               <p class="text-xs text-gray-500 leading-relaxed mb-3">
                 {{ member.bio }}
               </p>
@@ -2144,556 +2231,10 @@
     </script>
 
     <script>
-      /* ─── Course Data ─── */
-      const COURSES_2023 = {
-        core: [
-          {
-            code: "MIT 201",
-            icon: "dns",
-            units: "3 Units",
-            prereq: "None",
-            type: "Foundation Course",
-            title: "Advanced Operating Systems and Networking",
-            desc: "This course provides operating system concepts, process scheduling, CPU scheduling, deadlock, memory management, and file systems. Students will study widely used operating systems such as Windows and UNIX. Topics include kernel design, the I/O system, scheduling algorithms, process control, inter-process communication, system calls, memory management, and protection and security issues. This course also covers the different network protocols, setting and managing network connectivity, and network topologies.",
-            topics: [
-              "Process Scheduling",
-              "CPU Scheduling",
-              "Memory Management",
-              "Deadlock",
-              "File Systems",
-              "Kernel Design",
-              "Network Protocols",
-              "Network Topologies",
-              "Security & Protection",
-            ],
-          },
-          {
-            code: "MIT 202",
-            icon: "architecture",
-            units: "3 Units",
-            prereq: "None",
-            type: "Foundation Course",
-            title: "Advanced System Design and Implementation",
-            desc: "This course focuses on the analysis, logical design, and implementation of computer-based information systems. Emphasis is placed upon the development of requirements specifications that serve the business needs of the organization. The course provides advanced topics on design using an object-oriented approach bridging from analysis to implementation.",
-            topics: [
-              "Requirements Analysis",
-              "Logical Design",
-              "OOP Approach",
-              "Systems Implementation",
-              "Software Architecture",
-              "Scalability",
-              "UML Modeling",
-            ],
-          },
-          {
-            code: "MIT 203",
-            icon: "storage",
-            units: "3 Units",
-            prereq: "None",
-            type: "Foundation Course",
-            title: "Advance Database Systems",
-            desc: "This course provides a solid foundation and advances in database technology and its implementation. Topics include different approaches to database application development, conceptual and logical data models, physical database design, relational algebra, functional dependencies, constraints and triggers, NoSQL, Parallel and Distributed Databases, Transactions, and SQL Query Optimization.",
-            topics: [
-              "Relational Algebra",
-              "Data Modeling",
-              "Physical Database Design",
-              "NoSQL",
-              "Distributed Databases",
-              "Query Optimization",
-              "Transactions",
-              "Constraints & Triggers",
-            ],
-          },
-          {
-            code: "MIT 204",
-            icon: "manage_accounts",
-            units: "3 Units",
-            prereq: "None",
-            type: "Foundation Course",
-            title: "Technology and Project Management",
-            desc: "The course covers fundamental project management principles and methodologies for managing the software development life cycle and process models. Topics include process metrics, software project planning, monitoring, control, scheduling mechanisms, budget estimates, risk assessment, leadership, motivation, and team building.",
-            topics: [
-              "SDLC",
-              "Agile Methodologies",
-              "Risk Assessment",
-              "Project Scheduling",
-              "Budget Estimation",
-              "Team Leadership",
-              "Process Metrics",
-              "Quality Control",
-            ],
-          },
-        ],
-        spec: [
-          {
-            code: "MIT 205",
-            icon: "code",
-            units: "3 Units",
-            prereq: "None",
-            type: "Specialization Course",
-            title: "Systems Development",
-            desc: "This course deals with the advanced study of methods and best practices in system development. It involves in-depth analysis of organizational, business, and socio-technical issues in the implementation of IT. Tracks include E-Commerce Solutions and E-Learning Solutions.",
-            topics: [
-              "System Development Methods",
-              "E-Commerce Solutions",
-              "E-Learning Solutions",
-              "Socio-Technical Issues",
-              "IT Implementation",
-              "Design Patterns",
-              "API Development",
-            ],
-          },
-          {
-            code: "MIT 206",
-            icon: "inventory_2",
-            units: "3 Units",
-            prereq: "None",
-            type: "Specialization Course",
-            title: "Information Management",
-            desc: "This course focuses on the advancement of information management processes and their design and analysis using relevant data management technologies. Covers advances in data and process modeling techniques, database design, and query optimization. Tracks include IM Modelling & Design and IM Implementation, Configuration, and Administration.",
-            topics: [
-              "IM Modelling & Design",
-              "IM Implementation",
-              "Data Governance",
-              "Process Modeling",
-              "Query Optimization",
-              "Business Intelligence",
-              "Data Visualization",
-            ],
-          },
-          {
-            code: "MIT 207",
-            icon: "touch_app",
-            units: "3 Units",
-            prereq: "None",
-            type: "Specialization Course",
-            title: "Interactive Systems",
-            desc: "Interactive systems are computer systems characterized by significant amounts of interaction between humans and computers. This course concentrates on theories, principles, and methodologies of interactive system design and evaluation — including user-centered design, experience design, usability analysis, and task analysis. Tracks include Multimedia Solutions and Human-Computer Interaction.",
-            topics: [
-              "HCI Principles",
-              "User-Centered Design",
-              "Usability Testing",
-              "Experience Design",
-              "Task Analysis",
-              "Multimedia Solutions",
-              "Accessibility",
-              "Prototyping",
-            ],
-          },
-          {
-            code: "MIT 208",
-            icon: "smart_toy",
-            units: "3 Units",
-            prereq: "None",
-            type: "Specialization Course",
-            title: "Intelligent Systems",
-            desc: "This course focuses on AI-driven technologies for information management. Topics include machine learning, expert systems, neural networks, knowledge representation, and intelligent decision-making. Tracks include Expert Systems and Artificial Intelligence.",
-            topics: [
-              "Machine Learning",
-              "Expert Systems",
-              "Neural Networks",
-              "Artificial Intelligence",
-              "Knowledge Representation",
-              "Intelligent Decision Systems",
-              "AI Ethics",
-            ],
-          },
-          {
-            code: "MIT 209",
-            icon: "bar_chart",
-            units: "3 Units",
-            prereq: "None",
-            type: "Specialization Course",
-            title: "Data Analytics",
-            desc: "This course introduces modern data analytics tools and methodologies. Topics include statistical analysis, data mining, visualization, and the application of analytical methods to real-world IT problems. Students learn to derive insights from large datasets to support organizational decision-making.",
-            topics: [
-              "Data Mining",
-              "Statistical Analysis",
-              "Data Visualization",
-              "Predictive Analytics",
-              "Big Data",
-              "Python/R Analytics",
-              "Business Intelligence",
-              "Decision Support",
-            ],
-          },
-        ],
-        cogn: [
-          {
-            code: "MITCC1",
-            icon: "rocket_launch",
-            units: "3 Units",
-            prereq: "None",
-            type: "Cognate Course",
-            title: "Emerging Trends of Computing",
-            desc: "This course introduces modern technologies used in the industry to solve complex and challenging problems. It involves discussions of modern algorithms based on Machine Learning and Artificial Intelligence. Students will apply these concepts to real-world problems to provide meaningful solutions.",
-            topics: [
-              "Cloud Computing",
-              "IoT",
-              "Blockchain",
-              "Quantum Computing",
-              "Edge Computing",
-              "Cybersecurity Trends",
-              "AI & ML Algorithms",
-              "Technology Assessment",
-            ],
-          },
-          {
-            code: "MITCC2",
-            icon: "cloud",
-            units: "3 Units",
-            prereq: "None",
-            type: "Cognate Course",
-            title: "Cloud Computing",
-            desc: "This course provides an in-depth study of cloud computing paradigms, architectures, and services. Topics include cloud service models (IaaS, PaaS, SaaS), deployment models, virtualization, containerization, and cloud security. Students gain hands-on experience with major cloud platforms.",
-            topics: [
-              "IaaS / PaaS / SaaS",
-              "Cloud Architecture",
-              "Virtualization",
-              "Containerization",
-              "Docker / Kubernetes",
-              "Cloud Security",
-              "Serverless Computing",
-              "AWS / Azure / GCP",
-            ],
-          },
-          {
-            code: "MITCC3",
-            icon: "model_training",
-            units: "3 Units",
-            prereq: "None",
-            type: "Cognate Course",
-            title: "Machine Learning",
-            desc: "This course provides a comprehensive introduction to machine learning theory and practice. Topics include supervised and unsupervised learning, deep learning foundations, model evaluation, and practical deployment. Students implement ML pipelines for real-world applications.",
-            topics: [
-              "Supervised Learning",
-              "Unsupervised Learning",
-              "Deep Learning",
-              "Neural Networks",
-              "Model Evaluation",
-              "Feature Engineering",
-              "scikit-learn / TensorFlow",
-              "ML Deployment",
-            ],
-          },
-        ],
-        cap: [
-          {
-            code: "Capstone 1",
-            icon: "science",
-            units: "3 Units",
-            prereq: "None",
-            type: "Capstone Project",
-            title: "Capstone Project 1 – Directed Research",
-            desc: "Capstone Project 1 focuses on the infrastructure, application, or processes involved in implementing a computing solution to a problem. Students propose a capstone project that introduces either a new application, technology, or process that can be used as a tool to solve an organizational or societal problem.",
-            topics: [
-              "Problem Identification",
-              "Research Design",
-              "Proposal Writing",
-              "System Design",
-              "Prototype Development",
-              "Faculty Mentorship",
-              "Feasibility Study",
-            ],
-          },
-          {
-            code: "Capstone 2",
-            icon: "emoji_events",
-            units: "3 Units",
-            prereq: "Capstone Project 1",
-            type: "Capstone Project",
-            title: "Capstone Project 2 – National/International Forum",
-            desc: "Students present the final capstone project including the system and complete documentation. The project should produce innovative results, generate new knowledge or theories, or explore new frontiers of knowledge. The final output must be presented in a national or international public forum.",
-            topics: [
-              "Full Implementation",
-              "System Testing",
-              "Evaluation",
-              "Public Presentation",
-              "Oral Defense",
-              "Technical Documentation",
-              "Publication-Ready Output",
-            ],
-          },
-        ],
-      };
-
-      const COURSES_2019 = {
-        core: [
-          {
-            code: "MIT 201",
-            icon: "dns",
-            units: "3 Units",
-            prereq: "None",
-            type: "IT Core Course",
-            title: "Advanced Operating System and Networking",
-            desc: "This course provides operating system concepts, process scheduling, CPU scheduling, deadlock, memory management, and file systems. Students will study widely used operating systems such as Windows and UNIX. Topics include kernel design, the I/O system, scheduling algorithms, process control, inter-process communication, system calls, memory management, and protection and security issues. This course also covers the different network protocols, setting and managing network connectivity, and network topologies.",
-            topics: [
-              "Process Scheduling",
-              "CPU Scheduling",
-              "Memory Management",
-              "Deadlock",
-              "File Systems",
-              "Kernel Design",
-              "Network Protocols",
-              "Network Topologies",
-            ],
-          },
-          {
-            code: "MIT 202",
-            icon: "architecture",
-            units: "3 Units",
-            prereq: "None",
-            type: "IT Core Course",
-            title: "Advanced Systems Design and Implementation",
-            desc: "This course focuses on the analysis, logical design, and implementation of computer-based information systems. Emphasis is placed upon the development of requirements specifications that serve the business needs of the organization. The course provides advanced topics on design using an object-oriented approach bridging from analysis to implementation.",
-            topics: [
-              "Requirements Analysis",
-              "Logical Design",
-              "OOP Approach",
-              "Systems Implementation",
-              "Software Architecture",
-              "UML Modeling",
-            ],
-          },
-          {
-            code: "MIT 203",
-            icon: "storage",
-            units: "3 Units",
-            prereq: "None",
-            type: "IT Core Course",
-            title: "Advanced Database Systems",
-            desc: "This course provides a solid foundation and advances in database technology and its implementation. Topics include different approaches to database application development, conceptual and logical data models, physical database design, relational algebra, functional dependencies, constraints and triggers, NoSQL, Parallel and Distributed Databases, Transactions, and SQL Query Optimization.",
-            topics: [
-              "Relational Algebra",
-              "Data Modeling",
-              "Physical Database Design",
-              "NoSQL",
-              "Distributed Databases",
-              "Query Optimization",
-              "Transactions",
-            ],
-          },
-          {
-            code: "MIT 204",
-            icon: "manage_accounts",
-            units: "3 Units",
-            prereq: "None",
-            type: "IT Core Course",
-            title: "Technology and Project Management",
-            desc: "The course covers fundamental project management principles and methodologies for managing the software development life cycle and process models. Topics include process metrics, software project planning, monitoring, control, scheduling mechanisms, budget estimates, risk assessment, leadership, motivation, and team building.",
-            topics: [
-              "SDLC",
-              "Project Planning",
-              "Risk Assessment",
-              "Scheduling",
-              "Budget Estimation",
-              "Team Leadership",
-              "Quality Control",
-            ],
-          },
-        ],
-        research: [
-          {
-            code: "MIT 205",
-            icon: "science",
-            units: "3 Units",
-            prereq: "None",
-            type: "Research Course",
-            title: "Technical Research",
-            desc: "This course develops student competencies in conducting technical research within the IT discipline. Topics include research design, methodology selection, data collection methods, technical writing, and presentation of findings. Students produce a substantial research proposal addressing a real-world IT problem.",
-            topics: [
-              "Research Design",
-              "Methodology Selection",
-              "Data Collection",
-              "Technical Writing",
-              "Literature Review",
-              "Research Ethics",
-              "Proposal Writing",
-            ],
-          },
-          {
-            code: "MIT 206",
-            icon: "query_stats",
-            units: "3 Units",
-            prereq: "None",
-            type: "Research Course",
-            title: "Statistical Research",
-            desc: "This course covers statistical methods and tools applied to research in information technology. Topics include descriptive and inferential statistics, hypothesis testing, regression analysis, data sampling, and statistical software tools. Students learn to interpret and present statistical findings effectively.",
-            topics: [
-              "Descriptive Statistics",
-              "Inferential Statistics",
-              "Hypothesis Testing",
-              "Regression Analysis",
-              "SPSS / R",
-              "Data Sampling",
-              "Statistical Reporting",
-            ],
-          },
-        ],
-        spec: [
-          {
-            code: "MIT 207",
-            icon: "code",
-            units: "3 Units",
-            prereq: "None",
-            type: "Specialization Course",
-            title: "Specialization Course 1",
-            desc: "This specialization course provides an in-depth study of selected IT topics relevant to current industry needs. Students explore advanced methodologies and frameworks within a chosen area of specialization, developing both theoretical understanding and practical application skills.",
-            topics: [
-              "Advanced IT Topics",
-              "Industry Frameworks",
-              "Applied Research",
-              "Practical Implementation",
-            ],
-          },
-          {
-            code: "MIT 208",
-            icon: "hub",
-            units: "3 Units",
-            prereq: "None",
-            type: "Specialization Course",
-            title: "Specialization Course 2",
-            desc: "Continuing the specialization track, this course deepens knowledge in the selected domain, covering advanced tools, technologies, and emerging practices. Students engage in project-based learning and case study analysis.",
-            topics: [
-              "Domain-Specific Tools",
-              "Emerging Practices",
-              "Case Studies",
-              "Project-Based Learning",
-            ],
-          },
-          {
-            code: "MIT 209",
-            icon: "layers",
-            units: "3 Units",
-            prereq: "None",
-            type: "Specialization Course",
-            title: "Specialization Course 3",
-            desc: "The third specialization course extends the student's expertise in the chosen IT domain, introducing complex problems and cutting-edge solutions. Students develop a mini-project as part of this course.",
-            topics: [
-              "Complex Problem Solving",
-              "Cutting-Edge Solutions",
-              "Mini-Project",
-              "Domain Mastery",
-            ],
-          },
-          {
-            code: "MIT 210",
-            icon: "star",
-            units: "3 Units",
-            prereq: "None",
-            type: "Specialization Course",
-            title: "Specialization Course 4",
-            desc: "Building upon previous specialization courses, students engage with advanced research and implementation challenges in their chosen domain. Collaboration and peer review are emphasized.",
-            topics: [
-              "Advanced Research",
-              "Implementation Challenges",
-              "Collaboration",
-              "Peer Review",
-            ],
-          },
-          {
-            code: "MIT 211",
-            icon: "lightbulb",
-            units: "3 Units",
-            prereq: "None",
-            type: "Specialization Course",
-            title: "Specialization Course 5",
-            desc: "The final specialization course prepares students for the capstone project by consolidating their domain expertise. Students synthesize knowledge from all previous specialization courses and demonstrate mastery through comprehensive assessment.",
-            topics: [
-              "Knowledge Synthesis",
-              "Capstone Preparation",
-              "Comprehensive Assessment",
-              "Domain Expertise",
-            ],
-          },
-        ],
-        cap: [
-          {
-            code: "MIT 212A",
-            icon: "science",
-            units: "3 Units",
-            prereq: "None",
-            type: "Capstone Project",
-            title: "Capstone Project 1",
-            desc: "Capstone Project 1 focuses on the infrastructure, application, or processes involved in implementing a computing solution to a problem. Students propose a capstone project that introduces either a new application, technology, or process that can be used as a tool to solve an organizational or societal problem.",
-            topics: [
-              "Problem Identification",
-              "Research Design",
-              "Proposal Writing",
-              "System Design",
-              "Prototype Development",
-            ],
-          },
-          {
-            code: "MIT 212B",
-            icon: "emoji_events",
-            units: "3 Units",
-            prereq: "MIT 212A",
-            type: "Capstone Project",
-            title: "Capstone Project 2",
-            desc: "Students present the final capstone project including the system and complete documentation. The project should produce innovative results, generate new knowledge or theories, or explore new frontiers of knowledge. The final output must be presented in a national or international public forum.",
-            topics: [
-              "Full Implementation",
-              "System Testing",
-              "Evaluation",
-              "Public Presentation",
-              "Oral Defense",
-              "Technical Documentation",
-            ],
-          },
-        ],
-      };
-
-      /* ─── Build course cards ─── */
-      function buildCourseCards(list, containerId, isLegacy) {
-        const c = document.getElementById(containerId);
-        if (!c) return;
-        c.innerHTML = "";
-        list.forEach((course) => {
-          const el = document.createElement("div");
-          el.className = "cpill-v2" + (isLegacy ? " legacy" : "");
-          el.onclick = () => openModal(course);
-          el.innerHTML = `
-      <div class="cpill-icon-v2 flex-shrink-0">
-        <span class="material-symbols-rounded" style="font-size:18px">${course.icon}</span>
-      </div>
-      <div class="flex-1 min-w-0">
-        <p class="cpill-code">${course.code}</p>
-        <p class="cpill-name">${course.title}</p>
-        <span class="cpill-units-pill">
-          <span class="material-symbols-rounded" style="font-size:11px">schedule</span>
-          ${course.units}
-        </span>
-      </div>
-      <div class="cpill-arrow flex-shrink-0">
-        <span class="material-symbols-rounded" style="font-size:20px;color:#d0c8bc">chevron_right</span>
-      </div>`;
-          c.appendChild(el);
-        });
-      }
-
-      /* Build 2023 courses */
-      buildCourseCards(COURSES_2023.core, "core-courses-2023", false);
-      buildCourseCards(COURSES_2023.spec, "spec-courses-2023", false);
-      buildCourseCards(COURSES_2023.cogn, "cogn-courses-2023", false);
-      buildCourseCards(COURSES_2023.cap, "cap-courses-2023", false);
-
-      /* Build 2019 courses */
-      buildCourseCards(COURSES_2019.core, "core-courses-2019", true);
-      buildCourseCards(COURSES_2019.research, "research-courses-2019", true);
-      buildCourseCards(COURSES_2019.spec, "spec-courses-2019", true);
-      buildCourseCards(COURSES_2019.cap, "cap-courses-2019", true);
-
       /* ─── Course Curriculum Switcher ─── */
-      function switchCourseCurriculum(yr) {
-        ["2019", "2023"].forEach((y) => {
-          document
-            .getElementById("curr-" + y)
-            .classList.toggle("active", y === yr);
-          document
-            .getElementById("curr-btn-" + y)
-            .classList.toggle("active", y === yr);
-        });
+      function switchCourseCurriculum(id) {
+        document.querySelectorAll('.curr-panel').forEach(p => p.classList.toggle('active', p.id === 'curr-' + id));
+        document.querySelectorAll('.curr-tab-btn').forEach(b => b.classList.toggle('active', b.id === 'curr-btn-' + id));
       }
 
       /* ─── Modal ─── */

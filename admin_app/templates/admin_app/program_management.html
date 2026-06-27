@@ -30,7 +30,7 @@
         /* ── Shared form atoms (same as cms_settings) ── */
         .lbl {
             display: block;
-            font-size: 0.72rem;
+            font-size: 0.82rem;
             font-weight: 700;
             color: #374151;
             margin-bottom: 5px;
@@ -39,7 +39,7 @@
         }
 
         .lbl-hint {
-            font-size: 0.68rem;
+            font-size: 0.78rem;
             font-weight: 400;
             color: #9ca3af;
             text-transform: none;
@@ -52,7 +52,7 @@
             padding: 8px 12px;
             border: 1.5px solid #e5e7eb;
             border-radius: 10px;
-            font-size: 0.83rem;
+            font-size: 0.93rem;
             color: #111827;
             background: #fff;
             transition: border-color .15s, box-shadow .15s;
@@ -84,7 +84,7 @@
         }
 
         .cms-card-title {
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: #111827;
             display: flex;
@@ -94,7 +94,7 @@
         }
 
         .cms-card-subtitle {
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             color: #9ca3af;
             margin-bottom: 14px;
         }
@@ -385,7 +385,7 @@
             align-items: center;
             gap: 5px;
             padding: 8px 14px;
-            font-size: 0.74rem;
+            font-size: 0.84rem;
             font-weight: 700;
             color: #9ca3af;
             border-bottom: 2px solid transparent;
@@ -439,7 +439,7 @@
             border-radius: 50%;
             background: #7b1113;
             color: #fff;
-            font-size: 0.65rem;
+            font-size: 0.75rem;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -507,6 +507,10 @@
         }
 
         /* ── Modal overlay ── */
+        /* ── Editor panel font-size overrides (scoped so card grid is unaffected) ── */
+        #progEditorPanel .btn-primary  { font-size: 0.9rem; }
+        #progEditorPanel .btn-secondary { font-size: 0.9rem; }
+
         #progEditorPanel {
             background: #fff;
             border-radius: 20px;
@@ -637,7 +641,7 @@
         .curr-tbl {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
         }
 
         .curr-tbl th {
@@ -663,7 +667,7 @@
         .curr-tbl .code-cell {
             font-family: 'JetBrains Mono', monospace;
             color: #7b1113;
-            font-size: 0.68rem;
+            font-size: 0.78rem;
         }
 
         /* ── Level badge ── */
@@ -787,7 +791,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="deleteProgramPrompt()" id="btnDeleteProg"
-                        style="display:none;padding:7px 14px;border-radius:10px;border:1.5px solid #fecaca;background:#fff0f0;color:#dc2626;font-size:0.78rem;font-weight:700;cursor:pointer;display:none;align-items:center;gap:5px;">
+                        style="display:none;padding:7px 14px;border-radius:10px;border:1.5px solid #fecaca;background:#fff0f0;color:#dc2626;font-size:0.88rem;font-weight:700;cursor:pointer;display:none;align-items:center;gap:5px;">
                         <i data-lucide="trash-2" style="width:13px;height:13px;"></i> Delete
                     </button>
                     <button onclick="closeModal()"
@@ -842,7 +846,7 @@
                                         </div>
                                         <input type="file" id="logoFileInput" accept="image/*" style="display:none;" onchange="handleLogoFile(this.files[0])" />
                                     </div>
-                                    <span style="font-size:0.72rem;color:#6b7280;font-weight:500;">Program Seal</span>
+                                    <span style="font-size:0.82rem;color:#6b7280;font-weight:500;">Program Seal</span>
                                 </div>
                                 <!-- College Logo -->
                                 <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
@@ -856,7 +860,7 @@
                                         </div>
                                         <input type="file" id="collegeLogoFileInput" accept="image/*" style="display:none;" onchange="handleCollegeLogoFile(this.files[0])" />
                                     </div>
-                                    <span style="font-size:0.72rem;color:#6b7280;font-weight:500;">College Logo</span>
+                                    <span style="font-size:0.82rem;color:#6b7280;font-weight:500;">College Logo</span>
                                 </div>
                             </div>
                         </div>
@@ -907,47 +911,22 @@
                 <!-- ── TAB: Overview ── -->
                 <div class="prog-tab-panel" id="panel-overview">
                     <div class="space-y-4">
-                        <div>
-                            <label class="lbl">Hero Badge Text <span class="lbl-hint">(small pill above the title in the
-                                    hero banner)</span></label>
-                            <input type="text" id="progHeroBadge" class="field" placeholder="e.g. MIT PROGRAM · WMSU" />
-                        </div>
-                        <div>
-                            <label class="lbl">Hero Tagline <span class="lbl-hint">(shown below the program name in the
-                                    hero)</span></label>
-                            <textarea id="progHeroTagline" class="field" rows="3"
-                                placeholder="Preparing professionals for the industrial practice of systems integration…"></textarea>
-                        </div>
-                        <div>
-                            <label class="lbl">Program Description <span class="lbl-hint">(paragraph in the About
-                                    tab)</span></label>
-                            <textarea id="progDescription" class="field" rows="5"
-                                placeholder="Full description of the program…"></textarea>
-                        </div>
-                        <div>
-                            <label class="lbl">CHED Badge Title <span class="lbl-hint">(gold box heading in the About
-                                    tab)</span></label>
-                            <input type="text" id="progChedTitle" class="field"
-                                placeholder="e.g. CHED Certified Program" />
-                        </div>
-                        <div>
-                            <label class="lbl">CHED Badge Body Text</label>
-                            <textarea id="progChedBody" class="field" rows="2"
-                                placeholder="Complies with CHED Resolution No…"></textarea>
+                        <!-- Hidden fields kept for save compatibility -->
+                        <div style="display:none;">
+                            <input type="text" id="progHeroBadge" class="field" />
+                            <textarea id="progHeroTagline" class="field" rows="1"></textarea>
+                            <input type="text" id="progChedTitle" class="field" />
+                            <textarea id="progChedBody" class="field" rows="1"></textarea>
                         </div>
 
-                        <!-- Stats -->
                         <div>
-                            <div class="flex items-center justify-between mb-2">
-                                <label class="lbl" style="margin-bottom:0;">Program Stats <span class="lbl-hint">(e.g.
-                                        "39 Total Units" cards)</span></label>
-                                <button onclick="addStat()" class="btn-secondary"
-                                    style="padding:5px 10px;font-size:0.72rem;">
-                                    <i data-lucide="plus" style="width:12px;height:12px;"></i> Add Stat
-                                </button>
-                            </div>
-                            <div id="statsList" class="space-y-2"></div>
+                            <label class="lbl">Program Overview <span class="lbl-hint">(description shown in the About tab)</span></label>
+                            <textarea id="progDescription" class="field" rows="8"
+                                placeholder="Full description of the program…"></textarea>
                         </div>
+
+                        <!-- Stats list kept hidden for JS compat; auto-computed from prospectus on the About page -->
+                        <div style="display:none;"><div id="statsList"></div></div>
                     </div>
                 </div>
 
@@ -965,13 +944,51 @@
 
                     <!-- Curriculum content (shown when _editId is set) -->
                     <div id="currContent">
+
+                        <!-- ── Curriculum Section Header (collapsible) ── -->
+                        <div style="margin-bottom:16px;border:1.5px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+                            <div onclick="toggleCurrHeader()" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f9fafb;cursor:pointer;user-select:none;">
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <i data-lucide="layout-template" style="width:13px;height:13px;color:#6b7280;"></i>
+                                    <span style="font-size:.85rem;font-weight:600;color:#374151;">Courses Tab — Section Header</span>
+                                    <span style="font-size:.75rem;color:#9ca3af;">· banner shown at the top of the Courses tab on the About page</span>
+                                </div>
+                                <i data-lucide="chevron-down" id="currHeaderChevron" style="width:13px;height:13px;color:#9ca3af;transition:transform .2s;"></i>
+                            </div>
+                            <div id="currHeaderFields" style="display:none;padding:14px 16px;border-top:1px solid #f3f4f6;background:#fff;">
+                                <div style="margin-bottom:12px;">
+                                    <label class="lbl">Eyebrow text <span class="lbl-hint">(small line above the title, e.g. MIT · WMSU)</span></label>
+                                    <input type="text" id="currEyebrow" class="field" placeholder="e.g. MIT Program · WMSU" />
+                                </div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                                    <div>
+                                        <label class="lbl">Title — bold part <span class="lbl-hint">(e.g. Course)</span></label>
+                                        <input type="text" id="currTitleBold" class="field" placeholder="Course" />
+                                    </div>
+                                    <div>
+                                        <label class="lbl">Title — italic/gold part <span class="lbl-hint">(e.g. Catalog)</span></label>
+                                        <input type="text" id="currTitleItalic" class="field" placeholder="Catalog" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="lbl">Subtitle</label>
+                                    <input type="text" id="currSubtitle" class="field" placeholder="Browse subjects by curriculum year and semester. Click any subject to view details." />
+                                </div>
+                                <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+                                    <button id="btnSaveCurrHeader" onclick="saveCurrHeader()" class="btn-primary" style="font-size:.9rem;padding:6px 16px;">
+                                        <i data-lucide="save" style="width:13px;height:13px;"></i> Save
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Header row -->
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
                             <div>
                                 <p class="text-sm font-bold text-gray-700">Curriculum Prospectuses</p>
                                 <p class="text-xs text-gray-400 mt-0.5">Each prospectus represents one curriculum version (e.g. AY 2023–2024).</p>
                             </div>
-                            <button onclick="currShowNewForm()" id="btnAddProspectus" class="btn-primary" style="font-size:0.78rem;padding:7px 14px;">
+                            <button onclick="currShowNewForm()" id="btnAddProspectus" class="btn-primary" style="font-size:0.88rem;padding:7px 14px;">
                                 <i data-lucide="plus" style="width:13px;height:13px;"></i> New Prospectus
                             </button>
                         </div>
@@ -983,15 +1000,55 @@
 
                 <!-- ── TAB: Outcomes ── -->
                 <div class="prog-tab-panel" id="panel-outcomes">
+                    <div style="margin-bottom:16px;border:1.5px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+                        <div onclick="toggleSectionHeader('oc')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f9fafb;cursor:pointer;user-select:none;">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <i data-lucide="layout-template" style="width:13px;height:13px;color:#6b7280;"></i>
+                                <span style="font-size:.85rem;font-weight:600;color:#374151;">Outcomes Tab — Section Header</span>
+                                <span style="font-size:.75rem;color:#9ca3af;">· banner shown at the top of the Outcomes tab</span>
+                            </div>
+                            <i data-lucide="chevron-down" id="ocHeaderChevron" style="width:13px;height:13px;color:#9ca3af;transition:transform .2s;"></i>
+                        </div>
+                        <div id="ocHeaderFields" style="display:none;padding:14px 16px;border-top:1px solid #f3f4f6;background:#fff;">
+                            <div style="margin-bottom:12px;">
+                                <label class="lbl">Eyebrow text <span class="lbl-hint">(small line above the title)</span></label>
+                                <input type="text" id="ocEyebrow" class="field" placeholder="e.g. MIT Program · WMSU" />
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                                <div>
+                                    <label class="lbl">Title — bold part <span class="lbl-hint">(e.g. Program)</span></label>
+                                    <input type="text" id="ocTitleBold" class="field" placeholder="Program" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Title — italic/gold part <span class="lbl-hint">(e.g. Outcomes)</span></label>
+                                    <input type="text" id="ocTitleItalic" class="field" placeholder="Outcomes" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="lbl">Subtitle</label>
+                                <input type="text" id="ocSubtitle" class="field" placeholder="What graduates are expected to know and be able to do upon completion." />
+                            </div>
+                            <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+                                <button id="btnSaveocHeader" onclick="saveSectionHeader('oc', 'outcomes')" class="btn-primary" style="font-size:.9rem;padding:6px 16px;">
+                                    <i data-lucide="save" style="width:13px;height:13px;"></i> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                     <div class="flex items-center justify-between mb-4">
                         <div>
                             <p class="text-sm font-bold text-gray-700">Program Outcomes</p>
                             <p class="text-xs text-gray-400 mt-0.5">Outcome cards shown in the Outcomes tab of the
                                 program page.</p>
                         </div>
-                        <button onclick="addOutcome()" class="btn-primary">
-                            <i data-lucide="plus"></i> Add Outcome
-                        </button>
+                        <div style="display:flex;gap:8px;">
+                            <button id="btnEditOutcomes" onclick="enterOutcomesEdit()" class="btn-secondary" style="display:none;">
+                                <i data-lucide="pencil"></i> Edit Outcomes
+                            </button>
+                            <button onclick="addOutcome()" class="btn-primary">
+                                <i data-lucide="plus"></i> Add Outcome
+                            </button>
+                        </div>
                     </div>
                     <div id="outcomesList" class="space-y-3">
                         <div class="empty-state" id="outcomesEmpty">
@@ -1003,15 +1060,55 @@
 
                 <!-- ── TAB: Objectives ── -->
                 <div class="prog-tab-panel" id="panel-objectives">
+                    <div style="margin-bottom:16px;border:1.5px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+                        <div onclick="toggleSectionHeader('obj')" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f9fafb;cursor:pointer;user-select:none;">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <i data-lucide="layout-template" style="width:13px;height:13px;color:#6b7280;"></i>
+                                <span style="font-size:.85rem;font-weight:600;color:#374151;">Objectives Tab — Section Header</span>
+                                <span style="font-size:.75rem;color:#9ca3af;">· banner shown at the top of the Objectives tab</span>
+                            </div>
+                            <i data-lucide="chevron-down" id="objHeaderChevron" style="width:13px;height:13px;color:#9ca3af;transition:transform .2s;"></i>
+                        </div>
+                        <div id="objHeaderFields" style="display:none;padding:14px 16px;border-top:1px solid #f3f4f6;background:#fff;">
+                            <div style="margin-bottom:12px;">
+                                <label class="lbl">Eyebrow text <span class="lbl-hint">(small line above the title)</span></label>
+                                <input type="text" id="objEyebrow" class="field" placeholder="e.g. MIT Program · WMSU" />
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                                <div>
+                                    <label class="lbl">Title — bold part <span class="lbl-hint">(e.g. Program)</span></label>
+                                    <input type="text" id="objTitleBold" class="field" placeholder="Program" />
+                                </div>
+                                <div>
+                                    <label class="lbl">Title — italic/gold part <span class="lbl-hint">(e.g. Objectives)</span></label>
+                                    <input type="text" id="objTitleItalic" class="field" placeholder="Objectives" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="lbl">Subtitle</label>
+                                <input type="text" id="objSubtitle" class="field" placeholder="The goals and aims that guide the program's design and delivery." />
+                            </div>
+                            <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+                                <button id="btnSaveobjHeader" onclick="saveSectionHeader('obj', 'objectives')" class="btn-primary" style="font-size:.9rem;padding:6px 16px;">
+                                    <i data-lucide="save" style="width:13px;height:13px;"></i> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                     <div class="flex items-center justify-between mb-4">
                         <div>
                             <p class="text-sm font-bold text-gray-700">Program Objectives</p>
                             <p class="text-xs text-gray-400 mt-0.5">Numbered objective items shown in the Objectives
                                 tab.</p>
                         </div>
-                        <button onclick="addObjective()" class="btn-primary">
-                            <i data-lucide="plus"></i> Add Objective
-                        </button>
+                        <div style="display:flex;gap:8px;">
+                            <button id="btnEditObjectives" onclick="enterObjectivesEdit()" class="btn-secondary" style="display:none;">
+                                <i data-lucide="pencil"></i> Edit Objectives
+                            </button>
+                            <button onclick="addObjective()" class="btn-primary">
+                                <i data-lucide="plus"></i> Add Objective
+                            </button>
+                        </div>
                     </div>
                     <div id="objectivesList" class="space-y-2">
                         <div class="empty-state" id="objectivesEmpty">
@@ -1023,22 +1120,81 @@
 
                 <!-- ── TAB: Faculty ── -->
                 <div class="prog-tab-panel" id="panel-faculty">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <p class="text-sm font-bold text-gray-700">Faculty Members</p>
-                            <p class="text-xs text-gray-400 mt-0.5">Faculty cards shown in the Faculty tab. Upload a
-                                photo for each member.</p>
-                        </div>
-                        <button onclick="addFaculty()" class="btn-primary">
-                            <i data-lucide="plus"></i> Add Faculty
+
+                    <!-- ── Faculty inner tab bar ── -->
+                    <div style="display:flex;gap:4px;margin-bottom:16px;background:#f3f4f6;padding:4px;border-radius:10px;">
+                        <button id="facInnerTab-header" onclick="switchFacultyInnerTab('header')"
+                            style="flex:1;padding:7px 10px;border-radius:7px;border:none;cursor:pointer;font-size:0.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px;background:transparent;color:#9ca3af;transition:background .15s,color .15s;">
+                            <i data-lucide="layout-template" style="width:12px;height:12px;"></i> Faculty Header
+                        </button>
+                        <button id="facInnerTab-members" onclick="switchFacultyInnerTab('members')"
+                            style="flex:1;padding:7px 10px;border-radius:7px;border:none;cursor:pointer;font-size:0.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px;background:#7b1113;color:#fff;transition:background .15s,color .15s;">
+                            <i data-lucide="users" style="width:12px;height:12px;"></i> Faculty Members
+                        </button>
+                        <button id="facInnerTab-heads" onclick="switchFacultyInnerTab('heads')"
+                            style="flex:1;padding:7px 10px;border-radius:7px;border:1.5px solid #fde68a;cursor:pointer;font-size:0.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px;background:#fffbeb;color:#b45309;transition:background .15s,color .15s;">
+                            <i data-lucide="shield" style="width:12px;height:12px;"></i> Program Head
                         </button>
                     </div>
-                    <div id="facultyList" class="space-y-3">
-                        <div class="empty-state" id="facultyEmpty">
-                            <i data-lucide="users"></i>
-                            <p class="text-sm">No faculty members yet.</p>
+
+                    <!-- ── Inner panel: Faculty Header ── -->
+                    <div id="facInnerPanel-header" style="display:none;">
+                        <div style="margin-bottom:12px;">
+                            <label class="lbl">Eyebrow text <span class="lbl-hint">(small line above the title)</span></label>
+                            <input type="text" id="facEyebrow" class="field" placeholder="e.g. MIT Program · WMSU" />
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                            <div>
+                                <label class="lbl">Title — bold part <span class="lbl-hint">(e.g. Meet the)</span></label>
+                                <input type="text" id="facTitleBold" class="field" placeholder="Meet the" />
+                            </div>
+                            <div>
+                                <label class="lbl">Title — italic/gold part <span class="lbl-hint">(e.g. Faculty)</span></label>
+                                <input type="text" id="facTitleItalic" class="field" placeholder="Faculty" />
+                            </div>
+                        </div>
+                        <div style="margin-bottom:14px;">
+                            <label class="lbl">Subtitle</label>
+                            <input type="text" id="facSubtitle" class="field" placeholder="Our dedicated educators and researchers guiding the next generation of IT professionals." />
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;">
+                            <button id="btnSavefacHeader" onclick="saveSectionHeader('fac', 'faculty')" class="btn-primary" style="font-size:.9rem;padding:6px 16px;">
+                                <i data-lucide="save" style="width:13px;height:13px;"></i> Save Faculty Header
+                            </button>
                         </div>
                     </div>
+
+                    <!-- ── Inner panel: Faculty Members ── -->
+                    <div id="facInnerPanel-members">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <p class="text-sm font-bold text-gray-700">Faculty Members</p>
+                                <p class="text-xs text-gray-400 mt-0.5">Faculty cards shown in the Faculty tab. Upload a photo for each member.</p>
+                            </div>
+                            <button onclick="addFaculty()" class="btn-primary">
+                                <i data-lucide="plus"></i> Add Faculty
+                            </button>
+                        </div>
+                        <div id="facultyList" class="space-y-3">
+                            <div class="empty-state" id="facultyEmpty">
+                                <i data-lucide="users"></i>
+                                <p class="text-sm">No faculty members yet.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Inner panel: Program Head ── -->
+                    <div id="facInnerPanel-heads" style="display:none;">
+                        <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;">
+                            <i data-lucide="info" style="width:15px;height:15px;color:#b45309;flex-shrink:0;margin-top:1px;"></i>
+                            <p style="font-size:0.85rem;color:#92400e;margin:0;line-height:1.5;">Previous program heads are <strong>never deleted</strong>. When a new head is appointed, click <strong>"Add Program Head"</strong>, fill in their details, then click <strong>"Set as Current"</strong> on their entry.</p>
+                        </div>
+                        <div id="progHeadList"></div>
+                        <button onclick="addProgramHead()" class="btn-secondary" style="margin-top:4px;">
+                            <i data-lucide="plus" style="width:13px;height:13px;"></i> Add Program Head
+                        </button>
+                    </div>
+
                 </div>
 
                 <!-- ── TAB: Settings ── -->
@@ -1067,7 +1223,7 @@
                             <p class="text-xs text-gray-500 mb-3">Permanently delete this program and all its content.
                                 This cannot be undone.</p>
                             <button onclick="deleteProgramPrompt()"
-                                style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;border:1.5px solid #fecaca;background:#fff;color:#dc2626;font-size:0.8rem;font-weight:700;cursor:pointer;">
+                                style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;border:1.5px solid #fecaca;background:#fff;color:#dc2626;font-size:0.9rem;font-weight:700;cursor:pointer;">
                                 <i data-lucide="trash-2" style="width:14px;height:14px;"></i> Delete This Program
                             </button>
                         </div>
@@ -1149,11 +1305,15 @@
         let _currRows = [];       // kept for legacy compat
         let _outcomes = [];
         let _objectives = [];
+        let _outcomesEditMode = false;
+        let _objectivesEditMode = false;
         let _faculty = [];
+        let _programHeads = [];
         // Curriculum / prospectus state
         let _prospectuses = [];   // loaded from API for current program
         let _progSlug = '';       // slug of the program currently open in the editor
         let _viewMode = 'grid';
+        let _activeTab = 'identity';
 
         // Programs are loaded from the API on DOMContentLoaded (see INIT below)
 
@@ -1362,7 +1522,8 @@
             _editId = null; _progSlug = '';
             _logoFile = null; _logoUrl = '';
             _visible = true;
-            _currRows = []; _outcomes = []; _objectives = []; _faculty = []; _prospectuses = [];
+            _currRows = []; _outcomes = []; _objectives = []; _faculty = []; _programHeads = []; _prospectuses = [];
+            _outcomesEditMode = false; _objectivesEditMode = false;
             resetModalFields();
             document.getElementById('modalTitle').textContent = 'New Program';
             document.getElementById('modalSubtitle').textContent = 'Fill in the program details across each tab';
@@ -1371,13 +1532,13 @@
             document.getElementById('visibilityToggle').querySelector('span').style.left = '22px';
             switchProgTab('identity', document.querySelector('.prog-tab'));
             renderOutcomes(); renderObjectives(); renderFaculty();
-            const panel = document.getElementById('progEditorPanel');
-            panel.style.display = 'block';
-            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.getElementById('viewGrid').style.display = 'none';
+            document.getElementById('viewList').style.display = 'none';
+            document.getElementById('progEditorPanel').style.display = 'block';
             lucide.createIcons();
         }
 
-        function openEditModal(id) {
+function openEditModal(id) {
             const p = _programs.find(x => x.id === id);
             if (!p) return;
             _editId = id; _progSlug = p.slug || '';
@@ -1388,7 +1549,9 @@
             _currRows = p.curriculum ? JSON.parse(JSON.stringify(p.curriculum)) : [];
             _outcomes = p.outcomes ? JSON.parse(JSON.stringify(p.outcomes)) : [];
             _objectives = p.objectives ? JSON.parse(JSON.stringify(p.objectives)) : [];
-            _faculty = p.faculty ? JSON.parse(JSON.stringify(p.faculty)) : [];
+            _faculty = p.faculty ? p.faculty.map(f => ({...f, _editing: false})) : [];
+            _programHeads = p.program_heads ? JSON.parse(JSON.stringify(p.program_heads)) : [];
+            _outcomesEditMode = false; _objectivesEditMode = false;
 
             // Populate fields
             setVal('progName', p.name || '');
@@ -1406,6 +1569,22 @@
             setVal('progChedBody', p.ched_body || '');
             setVal('progSlug', p.slug || '');
             setVal('progOrder', p.order || 1);
+            setVal('currEyebrow', p.curriculum_eyebrow || '');
+            setVal('currTitleBold', p.curriculum_title || '');
+            setVal('currTitleItalic', p.curriculum_title_italic || '');
+            setVal('currSubtitle', p.curriculum_subtitle || '');
+            setVal('ocEyebrow', p.outcomes_eyebrow || '');
+            setVal('ocTitleBold', p.outcomes_title || '');
+            setVal('ocTitleItalic', p.outcomes_title_italic || '');
+            setVal('ocSubtitle', p.outcomes_subtitle || '');
+            setVal('objEyebrow', p.objectives_eyebrow || '');
+            setVal('objTitleBold', p.objectives_title || '');
+            setVal('objTitleItalic', p.objectives_title_italic || '');
+            setVal('objSubtitle', p.objectives_subtitle || '');
+            setVal('facEyebrow', p.faculty_eyebrow || '');
+            setVal('facTitleBold', p.faculty_title || '');
+            setVal('facTitleItalic', p.faculty_title_italic || '');
+            setVal('facSubtitle', p.faculty_subtitle || '');
 
             // Logo preview
             const lp = document.getElementById('logoPreview');
@@ -1440,18 +1619,18 @@
 
             updateLogoThumb();
             switchProgTab('identity', document.querySelector('.prog-tab'));
-            renderOutcomes(); renderObjectives(); renderFaculty();
+            renderOutcomes(); renderObjectives(); renderFaculty(); renderProgramHeads();
             if (_progSlug) loadProspectusTab();   // pre-fetch so list is ready when tab opens
-            const panel = document.getElementById('progEditorPanel');
-            panel.style.display = 'block';
-            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.getElementById('viewGrid').style.display = 'none';
+            document.getElementById('viewList').style.display = 'none';
+            document.getElementById('progEditorPanel').style.display = 'block';
             lucide.createIcons();
         }
 
         function closeModal() {
-            const panel = document.getElementById('progEditorPanel');
-            panel.style.display = 'none';
-            panel.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            document.getElementById('progEditorPanel').style.display = 'none';
+            document.getElementById('viewGrid').style.display = _viewMode === 'list' ? 'none' : '';
+            document.getElementById('viewList').style.display = _viewMode === 'list' ? '' : 'none';
         }
 
         function setVal(id, val) {
@@ -1481,6 +1660,7 @@
            TAB SWITCHING
         ═══════════════════════════════════════════════════ */
         function switchProgTab(id, btn) {
+            _activeTab = id;
             document.querySelectorAll('.prog-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.prog-tab-panel').forEach(p => p.classList.remove('active'));
             if (btn) btn.classList.add('active');
@@ -1489,6 +1669,13 @@
             const footer = document.getElementById('progModalFooter');
             if (footer) footer.style.display = id === 'curriculum' ? 'none' : 'flex';
             if (id === 'curriculum') loadProspectusTab();
+            // Update save button label based on active tab
+            const btnSave = document.getElementById('btnSave');
+            if (btnSave) {
+                const labels = { objectives: 'Save Objective', outcomes: 'Save Outcome', faculty: 'Save Faculty' };
+                const label = labels[id] || 'Save Program';
+                btnSave.innerHTML = `<i data-lucide="save"></i> ${label}`;
+            }
             lucide.createIcons();
         }
 
@@ -1496,6 +1683,93 @@
         /* ═══════════════════════════════════════════════════
            CURRICULUM / PROSPECTUS
         ═══════════════════════════════════════════════════ */
+
+        function toggleCurrHeader() {
+            const fields = document.getElementById('currHeaderFields');
+            const chevron = document.getElementById('currHeaderChevron');
+            const open = fields.style.display !== 'none';
+            fields.style.display = open ? 'none' : 'block';
+            if (chevron) chevron.style.transform = open ? '' : 'rotate(180deg)';
+        }
+
+        function toggleSectionHeader(prefix) {
+            const fields = document.getElementById(`${prefix}HeaderFields`);
+            const chevron = document.getElementById(`${prefix}HeaderChevron`);
+            const open = fields.style.display !== 'none';
+            fields.style.display = open ? 'none' : 'block';
+            if (chevron) chevron.style.transform = open ? '' : 'rotate(180deg)';
+        }
+
+        async function saveSectionHeader(prefix, apiPrefix) {
+            if (!_editId) { pgToast('Save the program first before editing header text.', 'error'); return; }
+            const btn = document.getElementById(`btnSave${prefix}Header`);
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" style="width:13px;height:13px;"></i> Saving…'; lucide.createIcons(); }
+            try {
+                const existing = _programs.find(p => p.id === _editId) || {};
+                const updates = {
+                    [`${apiPrefix}_eyebrow`]:      document.getElementById(`${prefix}Eyebrow`).value.trim(),
+                    [`${apiPrefix}_title`]:         document.getElementById(`${prefix}TitleBold`).value.trim(),
+                    [`${apiPrefix}_title_italic`]:  document.getElementById(`${prefix}TitleItalic`).value.trim(),
+                    [`${apiPrefix}_subtitle`]:      document.getElementById(`${prefix}Subtitle`).value.trim(),
+                };
+                const payload = Object.assign({}, existing, updates);
+                const res = await fetch("{% url 'admin_app:api_save_program' %}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: JSON.stringify(payload),
+                });
+                const d = await res.json();
+                if (d.success !== false) {
+                    pgToast('Header saved!', 'success');
+                    const idx = _programs.findIndex(p => p.id === _editId);
+                    if (idx >= 0) Object.assign(_programs[idx], updates);
+                } else {
+                    pgToast(d.message || 'Save failed.', 'error');
+                }
+            } catch (err) {
+                pgToast('Network error — could not reach server.', 'error');
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" style="width:13px;height:13px;"></i> Save'; lucide.createIcons(); }
+            }
+        }
+
+        async function saveCurrHeader() {
+            if (!_editId) { pgToast('Save the program first before editing header text.', 'error'); return; }
+            const btn = document.getElementById('btnSaveCurrHeader');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" style="width:13px;height:13px;"></i> Saving…'; lucide.createIcons(); }
+            try {
+                // Merge new header fields into the full current program so the API doesn't wipe other fields
+                const existing = _programs.find(p => p.id === _editId) || {};
+                const payload = Object.assign({}, existing, {
+                    curriculum_eyebrow:      document.getElementById('currEyebrow').value.trim(),
+                    curriculum_title:        document.getElementById('currTitleBold').value.trim(),
+                    curriculum_title_italic:  document.getElementById('currTitleItalic').value.trim(),
+                    curriculum_subtitle:      document.getElementById('currSubtitle').value.trim(),
+                });
+                const res = await fetch("{% url 'admin_app:api_save_program' %}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: JSON.stringify(payload),
+                });
+                const d = await res.json();
+                if (d.success !== false) {
+                    pgToast('Header saved!', 'success');
+                    const idx = _programs.findIndex(p => p.id === _editId);
+                    if (idx >= 0) {
+                        _programs[idx].curriculum_eyebrow      = payload.curriculum_eyebrow;
+                        _programs[idx].curriculum_title        = payload.curriculum_title;
+                        _programs[idx].curriculum_title_italic  = payload.curriculum_title_italic;
+                        _programs[idx].curriculum_subtitle      = payload.curriculum_subtitle;
+                    }
+                } else {
+                    pgToast(d.message || 'Save failed.', 'error');
+                }
+            } catch (err) {
+                pgToast('Network error — could not reach server.', 'error');
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" style="width:13px;height:13px;"></i> Save'; lucide.createIcons(); }
+            }
+        }
 
         async function loadProspectusTab() {
             const noProgEl  = document.getElementById('currNoProgram');
@@ -1508,7 +1782,7 @@
             noProgEl.style.display = 'none';
             contentEl.style.display = 'block';
             const listEl = document.getElementById('prospectusList');
-            listEl.innerHTML = '<p style="font-size:0.8rem;color:#9ca3af;padding:12px 0;">Loading…</p>';
+            listEl.innerHTML = '<p style="font-size:0.9rem;color:#9ca3af;padding:12px 0;">Loading…</p>';
             try {
                 const res = await fetch(`/admin-panel/api/prospectuses/by-program/${_progSlug}/`, {
                     headers: { 'X-CSRFToken': getCSRFToken() }
@@ -1520,11 +1794,11 @@
                     renderProspectuses();
                 } else {
                     console.error('[Curriculum] API error:', d.message);
-                    listEl.innerHTML = `<p style="font-size:0.8rem;color:#dc2626;">${d.message || 'Unknown API error.'}</p>`;
+                    listEl.innerHTML = `<p style="font-size:0.9rem;color:#dc2626;">${d.message || 'Unknown API error.'}</p>`;
                 }
             } catch (e) {
                 console.error('[Curriculum] fetch/parse error:', e);
-                listEl.innerHTML = `<p style="font-size:0.8rem;color:#dc2626;">Could not load curriculum data: ${e.message}</p>`;
+                listEl.innerHTML = `<p style="font-size:0.9rem;color:#dc2626;">Could not load curriculum data: ${e.message}</p>`;
                 pgToast('Failed to load curriculum data.', 'error');
             }
         }
@@ -1577,12 +1851,12 @@
                         <i data-lucide="book-open" style="width:16px;height:16px;color:#6b7280;"></i>
                     </div>
                     <div style="min-width:0;">
-                        <p style="font-size:0.85rem;font-weight:700;color:#111827;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</p>
-                        <p style="font-size:0.72rem;color:#9ca3af;margin:1px 0 0;">${p.description || '&nbsp;'}</p>
+                        <p style="font-size:0.95rem;font-weight:700;color:#111827;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</p>
+                        <p style="font-size:0.82rem;color:#9ca3af;margin:1px 0 0;">${p.description || '&nbsp;'}</p>
                     </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:12px;">
-                    <span style="font-size:0.68rem;color:#6b7280;background:#f3f4f6;padding:3px 8px;border-radius:20px;white-space:nowrap;">
+                    <span style="font-size:0.78rem;color:#6b7280;background:#f3f4f6;padding:3px 8px;border-radius:20px;white-space:nowrap;">
                         ${yearCount} yr${yearCount !== 1 ? 's' : ''} &middot; ${subjectCount} subject${subjectCount !== 1 ? 's' : ''}
                     </span>
                     <!-- 3-dot menu -->
@@ -1595,28 +1869,28 @@
                         <div id="pmenu-${p.id}" class="pcard-menu"
                             style="display:none;position:absolute;right:0;top:36px;z-index:999;background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.12);min-width:168px;overflow:hidden;">
                             <button onclick="event.stopPropagation();currViewDetails(${p.id});closeProspectusMenu(${p.id})"
-                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.78rem;color:#374151;font-weight:500;text-align:left;"
+                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.88rem;color:#374151;font-weight:500;text-align:left;"
                                 onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='none'">
                                 <i data-lucide="eye" style="width:13px;height:13px;color:#6b7280;flex-shrink:0;"></i> View Details
                             </button>
                             <button onclick="event.stopPropagation();currPrint(${p.id});closeProspectusMenu(${p.id})"
-                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.78rem;color:#374151;font-weight:500;text-align:left;"
+                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.88rem;color:#374151;font-weight:500;text-align:left;"
                                 onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='none'">
                                 <i data-lucide="printer" style="width:13px;height:13px;color:#6b7280;flex-shrink:0;"></i> Print
                             </button>
                             <button onclick="event.stopPropagation();currExportPDF(${p.id});closeProspectusMenu(${p.id})"
-                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.78rem;color:#374151;font-weight:500;text-align:left;"
+                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.88rem;color:#374151;font-weight:500;text-align:left;"
                                 onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='none'">
                                 <i data-lucide="file-text" style="width:13px;height:13px;color:#6b7280;flex-shrink:0;"></i> Export as PDF
                             </button>
                             <button onclick="event.stopPropagation();currExportWord(${p.id});closeProspectusMenu(${p.id})"
-                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.78rem;color:#374151;font-weight:500;text-align:left;"
+                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.88rem;color:#374151;font-weight:500;text-align:left;"
                                 onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='none'">
                                 <i data-lucide="file" style="width:13px;height:13px;color:#6b7280;flex-shrink:0;"></i> Export as Word
                             </button>
                             <div style="height:1px;background:#f3f4f6;margin:3px 0;"></div>
                             <button onclick="event.stopPropagation();closeProspectusMenu(${p.id});currDeleteProspectus(${p.id},'${safeName}')"
-                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.78rem;color:#dc2626;font-weight:500;text-align:left;"
+                                style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 14px;background:none;border:none;cursor:pointer;font-size:0.88rem;color:#dc2626;font-weight:500;text-align:left;"
                                 onmouseover="this.style.background='#fff5f5'" onmouseout="this.style.background='none'">
                                 <i data-lucide="trash-2" style="width:13px;height:13px;color:#dc2626;flex-shrink:0;"></i> Delete
                             </button>
@@ -1635,42 +1909,42 @@
             const sigRow = document.createElement('div');
             sigRow.style.cssText = 'border-top:1px solid #e5e7eb;margin-top:14px;padding-top:12px;';
             sigRow.innerHTML = `
-                <p style="font-size:0.72rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px;">Signatories</p>
+                <p style="font-size:0.82rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px;">Signatories</p>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                     <div>
-                        <p style="font-size:0.72rem;font-weight:700;color:#374151;margin:0 0 6px;">Prepared by:</p>
-                        <label style="font-size:0.68rem;color:#6b7280;display:block;margin-bottom:2px;">Name</label>
+                        <p style="font-size:0.82rem;font-weight:700;color:#374151;margin:0 0 6px;">Prepared by:</p>
+                        <label style="font-size:0.78rem;color:#6b7280;display:block;margin-bottom:2px;">Name</label>
                         <input type="text" value="${p.prepared_by_name||''}" placeholder="Name, credentials"
                             onchange="currUpdateSignatory(${p.id},'prepared_by_name',this.value)"
-                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.72rem;outline:none;margin-bottom:6px;box-sizing:border-box;"
+                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.82rem;outline:none;margin-bottom:6px;box-sizing:border-box;"
                             onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" />
-                        <label style="font-size:0.68rem;color:#6b7280;display:block;margin-bottom:2px;">Title</label>
+                        <label style="font-size:0.78rem;color:#6b7280;display:block;margin-bottom:2px;">Title</label>
                         <input type="text" value="${p.prepared_by_title||'MIT Department Curriculum Committee Chair'}" placeholder="Title"
                             onchange="currUpdateSignatory(${p.id},'prepared_by_title',this.value)"
-                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.72rem;outline:none;margin-bottom:6px;box-sizing:border-box;"
+                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.82rem;outline:none;margin-bottom:6px;box-sizing:border-box;"
                             onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" />
-                        <label style="font-size:0.68rem;color:#6b7280;display:block;margin-bottom:2px;">Date</label>
+                        <label style="font-size:0.78rem;color:#6b7280;display:block;margin-bottom:2px;">Date</label>
                         <input type="text" value="${p.prepared_by_date||''}" placeholder="e.g. June 20, 2025"
                             onchange="currUpdateSignatory(${p.id},'prepared_by_date',this.value)"
-                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.72rem;outline:none;box-sizing:border-box;"
+                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.82rem;outline:none;box-sizing:border-box;"
                             onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" />
                     </div>
                     <div>
-                        <p style="font-size:0.72rem;font-weight:700;color:#374151;margin:0 0 6px;">Noted by:</p>
-                        <label style="font-size:0.68rem;color:#6b7280;display:block;margin-bottom:2px;">Name</label>
+                        <p style="font-size:0.82rem;font-weight:700;color:#374151;margin:0 0 6px;">Noted by:</p>
+                        <label style="font-size:0.78rem;color:#6b7280;display:block;margin-bottom:2px;">Name</label>
                         <input type="text" value="${p.noted_by_name||''}" placeholder="Name, credentials"
                             onchange="currUpdateSignatory(${p.id},'noted_by_name',this.value)"
-                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.72rem;outline:none;margin-bottom:6px;box-sizing:border-box;"
+                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.82rem;outline:none;margin-bottom:6px;box-sizing:border-box;"
                             onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" />
-                        <label style="font-size:0.68rem;color:#6b7280;display:block;margin-bottom:2px;">Title</label>
+                        <label style="font-size:0.78rem;color:#6b7280;display:block;margin-bottom:2px;">Title</label>
                         <input type="text" value="${p.noted_by_title||'College Dean'}" placeholder="Title"
                             onchange="currUpdateSignatory(${p.id},'noted_by_title',this.value)"
-                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.72rem;outline:none;margin-bottom:6px;box-sizing:border-box;"
+                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.82rem;outline:none;margin-bottom:6px;box-sizing:border-box;"
                             onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" />
-                        <label style="font-size:0.68rem;color:#6b7280;display:block;margin-bottom:2px;">Date</label>
+                        <label style="font-size:0.78rem;color:#6b7280;display:block;margin-bottom:2px;">Date</label>
                         <input type="text" value="${p.noted_by_date||''}" placeholder="e.g. June 20, 2025"
                             onchange="currUpdateSignatory(${p.id},'noted_by_date',this.value)"
-                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.72rem;outline:none;box-sizing:border-box;"
+                            style="width:100%;border:1.5px solid #e5e7eb;border-radius:7px;padding:5px 8px;font-size:0.82rem;outline:none;box-sizing:border-box;"
                             onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" />
                     </div>
                 </div>`;
@@ -1681,11 +1955,11 @@
             actRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #e5e7eb;';
             actRow.innerHTML = `
                 <button onclick="currAddYear(${p.id})"
-                    style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:8px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.72rem;font-weight:600;cursor:pointer;">
+                    style="display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:8px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.82rem;font-weight:600;cursor:pointer;">
                     <i data-lucide="plus" style="width:12px;height:12px;"></i> Add Year
                 </button>
                 <button onclick="currSaveProspectus(${p.id})"
-                    style="display:inline-flex;align-items:center;gap:5px;padding:6px 16px;border-radius:8px;background:#9B1C1C;color:#fff;font-size:0.72rem;font-weight:700;border:none;cursor:pointer;">
+                    style="display:inline-flex;align-items:center;gap:5px;padding:6px 16px;border-radius:8px;background:#9B1C1C;color:#fff;font-size:0.82rem;font-weight:700;border:none;cursor:pointer;">
                     <i data-lucide="save" style="width:12px;height:12px;"></i> Save Changes
                 </button>`;
             body.appendChild(actRow);
@@ -1697,7 +1971,7 @@
             const wrap = document.createElement('div');
             wrap.id = `pyears-${p.id}`;
             if (!p.years || !p.years.length) {
-                wrap.innerHTML = '<p style="font-size:0.78rem;color:#9ca3af;margin-bottom:8px;">No years yet — click <strong>Add Year</strong> below.</p>';
+                wrap.innerHTML = '<p style="font-size:0.88rem;color:#9ca3af;margin-bottom:8px;">No years yet — click <strong>Add Year</strong> below.</p>';
                 return wrap;
             }
             p.years.forEach((y, yi) => {
@@ -1710,17 +1984,17 @@
                     <i data-lucide="chevron-down" id="ychev-${p.id}-${yi}" style="width:13px;height:13px;color:#6b7280;transition:transform .2s;transform:rotate(180deg);flex-shrink:0;"></i>
                     <input type="text" value="${y.label}" onchange="currUpdateYearLabel(${p.id},${yi},this.value)"
                         onclick="event.stopPropagation()"
-                        style="flex:1;font-size:0.82rem;font-weight:700;color:#374151;background:transparent;border:none;outline:none;" />
+                        style="flex:1;font-size:0.92rem;font-weight:700;color:#374151;background:transparent;border:none;outline:none;" />
                     <button onclick="event.stopPropagation();currAddSemester(${p.id},${yi})"
-                        style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.7rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
                         <i data-lucide="plus" style="width:11px;height:11px;"></i> Add Semester
                     </button>
                     <button onclick="event.stopPropagation();currAddOtherReq(${p.id},${yi})"
-                        style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.7rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
                         <i data-lucide="plus" style="width:11px;height:11px;"></i> Other Requirements
                     </button>
                     <button onclick="event.stopPropagation();currDeleteYear(${p.id},${yi})"
-                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.72rem;font-weight:600;white-space:nowrap;padding:4px 2px;flex-shrink:0;">
+                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.82rem;font-weight:600;white-space:nowrap;padding:4px 2px;flex-shrink:0;">
                         Delete Year
                     </button>`;
                 yHdr.addEventListener('click', () => toggleYearSection(p.id, yi));
@@ -1731,7 +2005,7 @@
 
                 if (!(y.semesters || []).length) {
                     const noSem = document.createElement('p');
-                    noSem.style.cssText = 'font-size:0.75rem;color:#9ca3af;padding:2px 0 4px;';
+                    noSem.style.cssText = 'font-size:0.85rem;color:#9ca3af;padding:2px 0 4px;';
                     noSem.textContent = 'No semesters yet. Click "Add Semester" above.';
                     yBody.appendChild(noSem);
                 } else {
@@ -1755,13 +2029,13 @@
             sHdr.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:#fafafa;border-bottom:1px solid #f3f4f6;';
             if (s.is_other_req) {
                 sHdr.innerHTML = `
-                    <span style="flex:1;font-size:0.78rem;font-weight:600;color:#374151;">Other Requirements</span>
+                    <span style="flex:1;font-size:0.88rem;font-weight:600;color:#374151;">Other Requirements</span>
                     <button onclick="currAddSubject(${p.id},${yi},${si})"
-                        style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.68rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.78rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
                         <i data-lucide="plus" style="width:10px;height:10px;"></i> Add Subject
                     </button>
                     <button onclick="currDeleteSemester(${p.id},${yi},${si})"
-                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.7rem;font-weight:600;white-space:nowrap;padding:3px 2px;flex-shrink:0;">
+                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.8rem;font-weight:600;white-space:nowrap;padding:3px 2px;flex-shrink:0;">
                         Delete Other Requirements
                     </button>`;
             } else {
@@ -1769,11 +2043,11 @@
                     <input type="text" value="${s.label}" onchange="currUpdateSemLabel(${p.id},${yi},${si},this.value)"
                         style="flex:1;font-size:0.78rem;font-weight:600;color:#374151;background:transparent;border:none;outline:none;" />
                     <button onclick="currAddSubject(${p.id},${yi},${si})"
-                        style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.68rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.78rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
                         <i data-lucide="plus" style="width:10px;height:10px;"></i> Add Subject
                     </button>
                     <button onclick="currDeleteSemester(${p.id},${yi},${si})"
-                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.7rem;font-weight:600;white-space:nowrap;padding:3px 2px;flex-shrink:0;">
+                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.8rem;font-weight:600;white-space:nowrap;padding:3px 2px;flex-shrink:0;">
                         Delete Semester
                     </button>`;
             }
@@ -1787,25 +2061,25 @@
                 tbl.style.cssText = 'width:100%;border-collapse:collapse;';
                 if (s.is_other_req) {
                     tbl.innerHTML = `<thead><tr style="background:#f9fafb;">
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:85px;">Code</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Descriptive Title</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:90px;">Prereq</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lec</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lab</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Total</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Description</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:85px;">Code</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Descriptive Title</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:90px;">Prereq</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lec</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lab</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Total</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Description</th>
                         <th style="border-bottom:1.5px solid #e5e7eb;width:28px;"></th>
                     </tr></thead>`;
                 } else {
                     tbl.innerHTML = `<thead><tr style="background:#f9fafb;">
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:85px;">Code</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Descriptive Title</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:90px;">Prereq</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lec</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lab</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Total</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:72px;line-height:1.3;">IT Core<br>Courses</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:72px;line-height:1.3;">IT Spec.<br>Courses</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:85px;">Code</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Descriptive Title</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:90px;">Prereq</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lec</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lab</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Total</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:72px;line-height:1.3;">IT Core<br>Courses</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:72px;line-height:1.3;">IT Spec.<br>Courses</th>
                         <th style="border-bottom:1.5px solid #e5e7eb;width:28px;"></th>
                     </tr></thead>`;
                 }
@@ -1816,22 +2090,22 @@
                     tr.style.cssText = 'border-bottom:1px solid #f3f4f6;';
                     if (s.is_other_req) {
                         tr.innerHTML = `
-                            <td style="padding:3px 5px;"><input type="text" value="${sub.code||''}" placeholder="Code" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'code',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
-                            <td style="padding:3px 5px;"><input type="text" value="${sub.title||''}" placeholder="Descriptive Title" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'title',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
-                            <td style="padding:3px 5px;"><input type="text" value="${sub.prereq||''}" placeholder="—" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'prereq',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
-                            <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lec||0}" min="0" max="12" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'lec',+this.value);currRefreshTotal('${p.id}',${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
-                            <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lab||0}" min="0" max="12" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'lab',+this.value);currRefreshTotal('${p.id}',${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
-                            <td id="ctotal-${p.id}-${yi}-${si}-${subi}" style="padding:3px 6px;text-align:center;font-size:0.73rem;font-weight:700;color:#374151;">${total}</td>
-                            <td style="padding:3px 5px;"><input type="text" value="${sub.desc||''}" placeholder="Description" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'desc',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.code||''}" placeholder="Code" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'code',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.83rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.title||''}" placeholder="Descriptive Title" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'title',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.83rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.prereq||''}" placeholder="—" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'prereq',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.83rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lec||0}" min="0" max="12" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'lec',+this.value);currRefreshTotal('${p.id}',${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.83rem;text-align:center;outline:none;" /></td>
+                            <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lab||0}" min="0" max="12" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'lab',+this.value);currRefreshTotal('${p.id}',${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.83rem;text-align:center;outline:none;" /></td>
+                            <td id="ctotal-${p.id}-${yi}-${si}-${subi}" style="padding:3px 6px;text-align:center;font-size:0.83rem;font-weight:700;color:#374151;">${total}</td>
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.desc||''}" placeholder="Description" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'desc',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.83rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
                             <td style="padding:3px 4px;text-align:center;"><button onclick="currDeleteSubject(${p.id},${yi},${si},${subi})" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:2px;"><i data-lucide="x" style="width:12px;height:12px;"></i></button></td>`;
                     } else {
                         tr.innerHTML = `
-                        <td style="padding:3px 5px;"><input type="text" value="${sub.code||''}" placeholder="Code" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'code',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
-                        <td style="padding:3px 5px;"><input type="text" value="${sub.title||''}" placeholder="Descriptive Title" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'title',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
-                        <td style="padding:3px 5px;"><input type="text" value="${sub.prereq||''}" placeholder="—" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'prereq',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
-                        <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lec||0}" min="0" max="12" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'lec',+this.value);currRefreshTotal('${p.id}',${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
-                        <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lab||0}" min="0" max="12" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'lab',+this.value);currRefreshTotal('${p.id}',${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
-                        <td id="ctotal-${p.id}-${yi}-${si}-${subi}" style="padding:3px 6px;text-align:center;font-size:0.73rem;font-weight:700;color:#374151;">${total}</td>
+                        <td style="padding:3px 5px;"><input type="text" value="${sub.code||''}" placeholder="Code" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'code',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.83rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                        <td style="padding:3px 5px;"><input type="text" value="${sub.title||''}" placeholder="Descriptive Title" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'title',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.83rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                        <td style="padding:3px 5px;"><input type="text" value="${sub.prereq||''}" placeholder="—" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'prereq',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.83rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                        <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lec||0}" min="0" max="12" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'lec',+this.value);currRefreshTotal('${p.id}',${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.83rem;text-align:center;outline:none;" /></td>
+                        <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lab||0}" min="0" max="12" onchange="currUpdateSubject(${p.id},${yi},${si},${subi},'lab',+this.value);currRefreshTotal('${p.id}',${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.83rem;text-align:center;outline:none;" /></td>
+                        <td id="ctotal-${p.id}-${yi}-${si}-${subi}" style="padding:3px 6px;text-align:center;font-size:0.83rem;font-weight:700;color:#374151;">${total}</td>
                         <td style="padding:3px 5px;text-align:center;"><input type="checkbox" id="cs-core-${p.id}-${yi}-${si}-${subi}" ${sub.is_core ? 'checked' : ''} onchange="currToggleCore('${p.id}',${yi},${si},${subi},this)" style="width:16px;height:16px;cursor:pointer;accent-color:#7b1113;" /></td>
                         <td style="padding:3px 5px;text-align:center;"><input type="checkbox" id="cs-spec-${p.id}-${yi}-${si}-${subi}" ${sub.is_spec ? 'checked' : ''} onchange="currToggleSpec('${p.id}',${yi},${si},${subi},this)" style="width:16px;height:16px;cursor:pointer;accent-color:#7b1113;" /></td>
                         <td style="padding:3px 4px;text-align:center;"><button onclick="currDeleteSubject(${p.id},${yi},${si},${subi})" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:2px;"><i data-lucide="x" style="width:12px;height:12px;"></i></button></td>`;
@@ -1842,7 +2116,7 @@
                 subWrap.appendChild(tbl);
             } else {
                 const empty = document.createElement('p');
-                empty.style.cssText = 'font-size:0.75rem;color:#9ca3af;padding:4px 0;';
+                empty.style.cssText = 'font-size:0.85rem;color:#9ca3af;padding:4px 0;';
                 empty.textContent = 'No subjects yet. Click "Add Subject" to add one.';
                 subWrap.appendChild(empty);
             }
@@ -1981,20 +2255,20 @@
             bar.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1.5px solid #e5e7eb;background:#fff;position:sticky;top:0;z-index:2;gap:10px;';
             bar.innerHTML = `
                 <div style="min-width:0;">
-                    <p style="font-size:0.85rem;font-weight:700;color:#111827;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</p>
-                    <p style="font-size:0.72rem;color:#9ca3af;margin:1px 0 0;">Curricular Prospectus</p>
+                    <p style="font-size:0.95rem;font-weight:700;color:#111827;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</p>
+                    <p style="font-size:0.82rem;color:#9ca3af;margin:1px 0 0;">Curricular Prospectus</p>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
                     <button onclick="currPrint(${pid})"
-                        style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.72rem;font-weight:600;cursor:pointer;white-space:nowrap;">
+                        style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">
                         <i data-lucide="printer" style="width:12px;height:12px;"></i> Print
                     </button>
                     <button onclick="currExportPDF(${pid})"
-                        style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.72rem;font-weight:600;cursor:pointer;white-space:nowrap;">
+                        style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">
                         <i data-lucide="file-text" style="width:12px;height:12px;"></i> Export PDF
                     </button>
                     <button onclick="currExportWord(${pid})"
-                        style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.72rem;font-weight:600;cursor:pointer;white-space:nowrap;">
+                        style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">
                         <i data-lucide="file" style="width:12px;height:12px;"></i> Export Word
                     </button>
                     <button onclick="document.getElementById('prospectusViewModal').remove()"
@@ -2380,7 +2654,7 @@
             const container = document.getElementById('newFormYearsList');
             if (!container) return;
             if (!_newFormYears.length) {
-                container.innerHTML = '<p style="font-size:0.78rem;color:#9ca3af;padding:6px 0;">No years yet. Click "Add Year" to start.</p>';
+                container.innerHTML = '<p style="font-size:0.88rem;color:#9ca3af;padding:6px 0;">No years yet. Click "Add Year" to start.</p>';
                 return;
             }
             container.innerHTML = '';
@@ -2393,17 +2667,17 @@
                 yHdr.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e5e7eb;';
                 yHdr.innerHTML = `
                     <input type="text" value="${y.label}" onchange="newFormUpdateYearLabel(${yi},this.value)"
-                        style="flex:1;font-size:0.82rem;font-weight:700;color:#374151;background:transparent;border:none;outline:none;" />
+                        style="flex:1;font-size:0.92rem;font-weight:700;color:#374151;background:transparent;border:none;outline:none;" />
                     <button onclick="newFormAddSemester(${yi})"
-                        style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.7rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
                         <i data-lucide="plus" style="width:11px;height:11px;"></i> Add Semester
                     </button>
                     <button onclick="newFormAddOtherReq(${yi})"
-                        style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.7rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:7px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
                         <i data-lucide="plus" style="width:11px;height:11px;"></i> Other Requirements
                     </button>
                     <button onclick="newFormDeleteYear(${yi})"
-                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.72rem;font-weight:600;white-space:nowrap;padding:4px 2px;flex-shrink:0;">
+                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.82rem;font-weight:600;white-space:nowrap;padding:4px 2px;flex-shrink:0;">
                         Delete Year
                     </button>`;
 
@@ -2412,7 +2686,7 @@
 
                 if (!(y.semesters || []).length) {
                     const noSem = document.createElement('p');
-                    noSem.style.cssText = 'font-size:0.75rem;color:#9ca3af;padding:2px 0 4px;';
+                    noSem.style.cssText = 'font-size:0.85rem;color:#9ca3af;padding:2px 0 4px;';
                     noSem.textContent = 'No semesters yet. Click "Add Semester" above.';
                     yBody.appendChild(noSem);
                 } else {
@@ -2437,13 +2711,13 @@
             sHdr.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 10px;background:#fafafa;border-bottom:1px solid #f3f4f6;';
             if (s.is_other_req) {
                 sHdr.innerHTML = `
-                    <span style="flex:1;font-size:0.78rem;font-weight:600;color:#374151;">Other Requirements</span>
+                    <span style="flex:1;font-size:0.88rem;font-weight:600;color:#374151;">Other Requirements</span>
                     <button onclick="newFormAddSubject(${yi},${si})"
-                        style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.68rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.78rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
                         <i data-lucide="plus" style="width:10px;height:10px;"></i> Add Subject
                     </button>
                     <button onclick="newFormDeleteSemester(${yi},${si})"
-                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.7rem;font-weight:600;white-space:nowrap;padding:3px 2px;flex-shrink:0;">
+                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.8rem;font-weight:600;white-space:nowrap;padding:3px 2px;flex-shrink:0;">
                         Delete Other Requirements
                     </button>`;
             } else {
@@ -2451,11 +2725,11 @@
                     <input type="text" value="${s.label}" onchange="newFormUpdateSemLabel(${yi},${si},this.value)"
                         style="flex:1;font-size:0.78rem;font-weight:600;color:#374151;background:transparent;border:none;outline:none;" />
                     <button onclick="newFormAddSubject(${yi},${si})"
-                        style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.68rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                        style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;border:1.5px solid #d1d5db;background:#fff;color:#374151;font-size:0.78rem;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;">
                         <i data-lucide="plus" style="width:10px;height:10px;"></i> Add Subject
                     </button>
                     <button onclick="newFormDeleteSemester(${yi},${si})"
-                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.7rem;font-weight:600;white-space:nowrap;padding:3px 2px;flex-shrink:0;">
+                        style="background:none;border:none;cursor:pointer;color:#dc2626;font-size:0.8rem;font-weight:600;white-space:nowrap;padding:3px 2px;flex-shrink:0;">
                         Delete Semester
                     </button>`;
             }
@@ -2470,25 +2744,25 @@
                 tbl.style.cssText = 'width:100%;border-collapse:collapse;';
                 if (s.is_other_req) {
                     tbl.innerHTML = `<thead><tr style="background:#f9fafb;">
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:85px;">Code</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Descriptive Title</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:90px;">Prereq</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lec</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lab</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Total</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Description</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:85px;">Code</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Descriptive Title</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:90px;">Prereq</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lec</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lab</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Total</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Description</th>
                         <th style="border-bottom:1.5px solid #e5e7eb;width:28px;"></th>
                     </tr></thead>`;
                 } else {
                     tbl.innerHTML = `<thead><tr style="background:#f9fafb;">
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:85px;">Code</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Descriptive Title</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:90px;">Prereq</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lec</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lab</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Total</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:72px;line-height:1.3;">IT Core<br>Courses</th>
-                        <th style="padding:5px 6px;font-size:0.63rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:72px;line-height:1.3;">IT Spec.<br>Courses</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:85px;">Code</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;">Descriptive Title</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:left;border-bottom:1.5px solid #e5e7eb;width:90px;">Prereq</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lec</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Lab</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:44px;">Total</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:72px;line-height:1.3;">IT Core<br>Courses</th>
+                        <th style="padding:5px 6px;font-size:0.73rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;text-align:center;border-bottom:1.5px solid #e5e7eb;width:72px;line-height:1.3;">IT Spec.<br>Courses</th>
                         <th style="border-bottom:1.5px solid #e5e7eb;width:28px;"></th>
                     </tr></thead>`;
                 }
@@ -2499,22 +2773,22 @@
                     tr.style.cssText = 'border-bottom:1px solid #f3f4f6;';
                     if (s.is_other_req) {
                         tr.innerHTML = `
-                            <td style="padding:3px 5px;"><input type="text" value="${sub.code||''}" placeholder="Code" onchange="newFormUpdateSubject(${yi},${si},${subi},'code',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
-                            <td style="padding:3px 5px;"><input type="text" value="${sub.title||''}" placeholder="Descriptive Title" onchange="newFormUpdateSubject(${yi},${si},${subi},'title',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
-                            <td style="padding:3px 5px;"><input type="text" value="${sub.prereq||''}" placeholder="—" onchange="newFormUpdateSubject(${yi},${si},${subi},'prereq',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
-                            <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lec||0}" min="0" max="12" onchange="newFormUpdateSubject(${yi},${si},${subi},'lec',+this.value);newFormRefreshTotal(${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
-                            <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lab||0}" min="0" max="12" onchange="newFormUpdateSubject(${yi},${si},${subi},'lab',+this.value);newFormRefreshTotal(${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
-                            <td id="nftotal-${yi}-${si}-${subi}" style="padding:3px 6px;text-align:center;font-size:0.73rem;font-weight:700;color:#374151;">${total}</td>
-                            <td style="padding:3px 5px;"><input type="text" value="${sub.desc||''}" placeholder="Description" onchange="newFormUpdateSubject(${yi},${si},${subi},'desc',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.code||''}" placeholder="Code" onchange="newFormUpdateSubject(${yi},${si},${subi},'code',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.83rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.title||''}" placeholder="Descriptive Title" onchange="newFormUpdateSubject(${yi},${si},${subi},'title',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.83rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.prereq||''}" placeholder="—" onchange="newFormUpdateSubject(${yi},${si},${subi},'prereq',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.83rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                            <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lec||0}" min="0" max="12" onchange="newFormUpdateSubject(${yi},${si},${subi},'lec',+this.value);newFormRefreshTotal(${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.83rem;text-align:center;outline:none;" /></td>
+                            <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lab||0}" min="0" max="12" onchange="newFormUpdateSubject(${yi},${si},${subi},'lab',+this.value);newFormRefreshTotal(${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.83rem;text-align:center;outline:none;" /></td>
+                            <td id="nftotal-${yi}-${si}-${subi}" style="padding:3px 6px;text-align:center;font-size:0.83rem;font-weight:700;color:#374151;">${total}</td>
+                            <td style="padding:3px 5px;"><input type="text" value="${sub.desc||''}" placeholder="Description" onchange="newFormUpdateSubject(${yi},${si},${subi},'desc',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.83rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
                             <td style="padding:3px 4px;text-align:center;"><button onclick="newFormDeleteSubject(${yi},${si},${subi})" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:2px;"><i data-lucide="x" style="width:12px;height:12px;"></i></button></td>`;
                     } else {
                         tr.innerHTML = `
-                        <td style="padding:3px 5px;"><input type="text" value="${sub.code||''}" placeholder="Code" onchange="newFormUpdateSubject(${yi},${si},${subi},'code',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
-                        <td style="padding:3px 5px;"><input type="text" value="${sub.title||''}" placeholder="Descriptive Title" onchange="newFormUpdateSubject(${yi},${si},${subi},'title',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
-                        <td style="padding:3px 5px;"><input type="text" value="${sub.prereq||''}" placeholder="—" onchange="newFormUpdateSubject(${yi},${si},${subi},'prereq',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.73rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
-                        <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lec||0}" min="0" max="12" onchange="newFormUpdateSubject(${yi},${si},${subi},'lec',+this.value);newFormRefreshTotal(${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
-                        <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lab||0}" min="0" max="12" onchange="newFormUpdateSubject(${yi},${si},${subi},'lab',+this.value);newFormRefreshTotal(${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.73rem;text-align:center;outline:none;" /></td>
-                        <td id="nftotal-${yi}-${si}-${subi}" style="padding:3px 6px;text-align:center;font-size:0.73rem;font-weight:700;color:#374151;">${total}</td>
+                        <td style="padding:3px 5px;"><input type="text" value="${sub.code||''}" placeholder="Code" onchange="newFormUpdateSubject(${yi},${si},${subi},'code',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.83rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                        <td style="padding:3px 5px;"><input type="text" value="${sub.title||''}" placeholder="Descriptive Title" onchange="newFormUpdateSubject(${yi},${si},${subi},'title',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.83rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                        <td style="padding:3px 5px;"><input type="text" value="${sub.prereq||''}" placeholder="—" onchange="newFormUpdateSubject(${yi},${si},${subi},'prereq',this.value)" style="width:100%;border:1px solid #e5e7eb;border-radius:5px;padding:3px 5px;font-size:0.83rem;outline:none;" onfocus="this.style.borderColor='#9B1C1C'" onblur="this.style.borderColor='#e5e7eb'" /></td>
+                        <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lec||0}" min="0" max="12" onchange="newFormUpdateSubject(${yi},${si},${subi},'lec',+this.value);newFormRefreshTotal(${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.83rem;text-align:center;outline:none;" /></td>
+                        <td style="padding:3px 5px;text-align:center;"><input type="number" value="${sub.lab||0}" min="0" max="12" onchange="newFormUpdateSubject(${yi},${si},${subi},'lab',+this.value);newFormRefreshTotal(${yi},${si},${subi})" style="width:38px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 4px;font-size:0.83rem;text-align:center;outline:none;" /></td>
+                        <td id="nftotal-${yi}-${si}-${subi}" style="padding:3px 6px;text-align:center;font-size:0.83rem;font-weight:700;color:#374151;">${total}</td>
                         <td style="padding:3px 5px;text-align:center;"><input type="checkbox" id="nf-core-${yi}-${si}-${subi}" ${sub.is_core ? 'checked' : ''} onchange="newFormToggleCore(${yi},${si},${subi},this)" style="width:16px;height:16px;cursor:pointer;accent-color:#7b1113;" /></td>
                         <td style="padding:3px 5px;text-align:center;"><input type="checkbox" id="nf-spec-${yi}-${si}-${subi}" ${sub.is_spec ? 'checked' : ''} onchange="newFormToggleSpec(${yi},${si},${subi},this)" style="width:16px;height:16px;cursor:pointer;accent-color:#7b1113;" /></td>
                         <td style="padding:3px 4px;text-align:center;"><button onclick="newFormDeleteSubject(${yi},${si},${subi})" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:2px;"><i data-lucide="x" style="width:12px;height:12px;"></i></button></td>`;
@@ -2525,7 +2799,7 @@
                 subWrap.appendChild(tbl);
             } else {
                 const empty = document.createElement('p');
-                empty.style.cssText = 'font-size:0.75rem;color:#9ca3af;padding:4px 0;';
+                empty.style.cssText = 'font-size:0.85rem;color:#9ca3af;padding:4px 0;';
                 empty.textContent = 'No subjects yet. Click "Add Subject" to add one.';
                 subWrap.appendChild(empty);
             }
@@ -2645,7 +2919,7 @@
             const thumb = document.getElementById('modalLogoThumb');
             const initials = document.getElementById('modalLogoInitials');
             const deg = document.getElementById('progDegree').value || document.getElementById('progName').value || 'P';
-            initials.textContent = deg.slice(0, 3).toUpperCase();
+            if (initials) initials.textContent = deg.slice(0, 3).toUpperCase();
             if (_logoUrl) {
                 thumb.innerHTML = `<img src="${_logoUrl}" style="width:100%;height:100%;object-fit:contain;" />`;
             } else {
@@ -2750,10 +3024,10 @@
                 row.setAttribute('data-ci', i);
                 row.innerHTML = `
           <div style="flex:1;display:grid;grid-template-columns:90px 1fr 60px 120px;gap:8px;align-items:start;">
-            <div><label class="lbl" style="font-size:.6rem;">Code</label><input type="text" class="field" value="${c.code || ''}" placeholder="MIT 201" onchange="_currRows[${i}].code=this.value" /></div>
-            <div><label class="lbl" style="font-size:.6rem;">Title</label><input type="text" class="field" value="${c.title || ''}" placeholder="Course title…" onchange="_currRows[${i}].title=this.value" /></div>
-            <div><label class="lbl" style="font-size:.6rem;">Units</label><input type="number" class="field" value="${c.units || 3}" min="1" max="12" onchange="_currRows[${i}].units=Number(this.value)" /></div>
-            <div><label class="lbl" style="font-size:.6rem;">Type</label>
+            <div><label class="lbl" style="font-size:.7rem;">Code</label><input type="text" class="field" value="${c.code || ''}" placeholder="MIT 201" onchange="_currRows[${i}].code=this.value" /></div>
+            <div><label class="lbl" style="font-size:.7rem;">Title</label><input type="text" class="field" value="${c.title || ''}" placeholder="Course title…" onchange="_currRows[${i}].title=this.value" /></div>
+            <div><label class="lbl" style="font-size:.7rem;">Units</label><input type="number" class="field" value="${c.units || 3}" min="1" max="12" onchange="_currRows[${i}].units=Number(this.value)" /></div>
+            <div><label class="lbl" style="font-size:.7rem;">Type</label>
               <select class="field" onchange="_currRows[${i}].type=this.value">
                 <option value="core" ${c.type === 'core' ? 'selected' : ''}>Core</option>
                 <option value="spec" ${c.type === 'spec' ? 'selected' : ''}>Specialization</option>
@@ -2819,10 +3093,10 @@
             wrap.style.display = 'block';
             wrap.innerHTML = `
         <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
-          <p style="font-size:0.78rem;font-weight:700;color:#15803d;margin:0;">${rows.length} courses parsed from CSV</p>
+          <p style="font-size:0.88rem;font-weight:700;color:#15803d;margin:0;">${rows.length} courses parsed from CSV</p>
           <div style="display:flex;gap:8px;">
-            <button onclick="document.getElementById('currBulkPreview').style.display='none'" class="btn-secondary" style="padding:5px 10px;font-size:0.72rem;">Discard</button>
-            <button onclick="applyCurrBulk(${JSON.stringify(rows).replace(/"/g, '&quot;')})" class="btn-primary" style="padding:5px 12px;font-size:0.72rem;">Apply ${rows.length} Courses</button>
+            <button onclick="document.getElementById('currBulkPreview').style.display='none'" class="btn-secondary" style="padding:5px 10px;font-size:0.82rem;">Discard</button>
+            <button onclick="applyCurrBulk(${JSON.stringify(rows).replace(/"/g, '&quot;')})" class="btn-primary" style="padding:5px 12px;font-size:0.82rem;">Apply ${rows.length} Courses</button>
           </div>
         </div>
         <div style="overflow-x:auto;border-radius:8px;border:1px solid #f3f4f6;">
@@ -2848,31 +3122,85 @@
         ═══════════════════════════════════════════════════ */
         function renderOutcomes() {
             const list = document.getElementById('outcomesList');
-            const empty = document.getElementById('outcomesEmpty');
+            const editBtn = document.getElementById('btnEditOutcomes');
             list.innerHTML = '';
-            if (!_outcomes.length) { list.appendChild(empty); return; }
-            _outcomes.forEach((o, i) => {
-                const row = document.createElement('div');
-                row.className = 'list-row';
-                row.innerHTML = `
-          <div class="list-row-num">${i + 1}</div>
-          <div style="flex:1;display:grid;grid-template-columns:150px 1fr;gap:8px;">
-            <div><label class="lbl" style="font-size:.6rem;">Icon <span class="lbl-hint">(Material Symbol)</span></label>
-              <input type="text" class="field" value="${o.icon || ''}" placeholder="e.g. dns, science" onchange="_outcomes[${i}].icon=this.value" /></div>
-            <div><label class="lbl" style="font-size:.6rem;">Title</label>
-              <input type="text" class="field" value="${o.title || ''}" placeholder="Outcome title…" onchange="_outcomes[${i}].title=this.value" /></div>
-            <div style="grid-column:1/-1;"><label class="lbl" style="font-size:.6rem;">Description</label>
-              <textarea class="field" rows="2" placeholder="Description…" onchange="_outcomes[${i}].description=this.value">${o.description || ''}</textarea></div>
-          </div>
-          <button class="btn-del" onclick="_outcomes.splice(${i},1);renderOutcomes()"><i data-lucide="x"></i></button>`;
-                list.appendChild(row);
-            });
+            if (!_outcomes.length) {
+                list.innerHTML = '<div class="empty-state" id="outcomesEmpty"><i data-lucide="trophy"></i><p class="text-sm">No outcomes yet.</p></div>';
+                if (editBtn) editBtn.style.display = 'none';
+                lucide.createIcons();
+                return;
+            }
+            if (editBtn) editBtn.style.display = _outcomesEditMode ? 'none' : 'inline-flex';
+            if (!_outcomesEditMode) {
+                // View-only mode
+                _outcomes.forEach((o, i) => {
+                    const row = document.createElement('div');
+                    row.className = 'list-row';
+                    row.style.cursor = 'default';
+                    row.innerHTML = `
+              <div class="list-row-num">${i + 1}</div>
+              <div style="flex:1;">
+                <p style="font-size:.9rem;font-weight:600;color:#111827;margin:0 0 2px;">${o.title || '<em style="color:#9ca3af">No title</em>'}</p>
+                ${o.description ? `<p style="font-size:.82rem;color:#6b7280;margin:0;">${o.description}</p>` : ''}
+              </div>
+              ${o.icon ? `<span style="font-size:.7rem;font-family:monospace;color:#9ca3af;background:#f3f4f6;padding:2px 6px;border-radius:4px;white-space:nowrap;">${o.icon}</span>` : ''}`;
+                    list.appendChild(row);
+                });
+            } else {
+                // Edit mode
+                _outcomes.forEach((o, i) => {
+                    const row = document.createElement('div');
+                    row.className = 'list-row';
+                    row.innerHTML = `
+              <div class="list-row-num">${i + 1}</div>
+              <div style="flex:1;display:grid;grid-template-columns:150px 1fr;gap:8px;">
+                <div><label class="lbl" style="font-size:.7rem;">Icon <span class="lbl-hint">(Material Symbol)</span></label>
+                  <input type="text" class="field oc-icon" value="${o.icon || ''}" placeholder="e.g. dns, science" /></div>
+                <div><label class="lbl" style="font-size:.7rem;">Title</label>
+                  <input type="text" class="field oc-title" value="${o.title || ''}" placeholder="Outcome title…" /></div>
+                <div style="grid-column:1/-1;"><label class="lbl" style="font-size:.7rem;">Description</label>
+                  <textarea class="field oc-desc" rows="2" placeholder="Description…">${o.description || ''}</textarea></div>
+              </div>
+              <button class="btn-del" onclick="removeOutcome(${i})"><i data-lucide="x"></i></button>`;
+                    list.appendChild(row);
+                });
+            }
             lucide.createIcons();
         }
 
+        function enterOutcomesEdit() {
+            _outcomesEditMode = true;
+            renderOutcomes();
+        }
+
+        function syncOutcomesFromDom() {
+            // Always rebuild _outcomes entirely from whatever rows are in the DOM
+            const rowEls = document.querySelectorAll('#outcomesList .list-row');
+            _outcomes = [...rowEls].map(row => ({
+                icon:        (row.querySelector('.oc-icon')  || { value: 'emoji_events' }).value.trim() || 'emoji_events',
+                title:       (row.querySelector('.oc-title') || { value: '' }).value.trim(),
+                description: (row.querySelector('.oc-desc')  || { value: '' }).value.trim(),
+            }));
+        }
+
         function addOutcome() {
+            syncOutcomesFromDom();
             _outcomes.push({ icon: 'emoji_events', title: '', description: '' });
             renderOutcomes();
+        }
+
+        function removeOutcome(i) {
+            syncOutcomesFromDom();
+            _outcomes.splice(i, 1);
+            renderOutcomes();
+        }
+
+        function collectOutcomes() {
+            return [...document.querySelectorAll('#outcomesList .list-row')].map(row => ({
+                icon:        (row.querySelector('.oc-icon')  || { value: '' }).value.trim() || 'emoji_events',
+                title:       (row.querySelector('.oc-title') || { value: '' }).value.trim(),
+                description: (row.querySelector('.oc-desc')  || { value: '' }).value.trim(),
+            })).filter(o => o.title || o.description);
         }
 
 
@@ -2881,24 +3209,69 @@
         ═══════════════════════════════════════════════════ */
         function renderObjectives() {
             const list = document.getElementById('objectivesList');
-            const empty = document.getElementById('objectivesEmpty');
+            const editBtn = document.getElementById('btnEditObjectives');
             list.innerHTML = '';
-            if (!_objectives.length) { list.appendChild(empty); return; }
-            _objectives.forEach((o, i) => {
-                const row = document.createElement('div');
-                row.className = 'list-row';
-                row.innerHTML = `
-          <div class="list-row-num">${i + 1}</div>
-          <textarea class="field" style="flex:1;" rows="2" placeholder="Objective text…" onchange="_objectives[${i}].text=this.value">${o.text || ''}</textarea>
-          <button class="btn-del" onclick="_objectives.splice(${i},1);renderObjectives()"><i data-lucide="x"></i></button>`;
-                list.appendChild(row);
-            });
+            if (!_objectives.length) {
+                list.innerHTML = '<div class="empty-state" id="objectivesEmpty"><i data-lucide="flag"></i><p class="text-sm">No objectives yet.</p></div>';
+                if (editBtn) editBtn.style.display = 'none';
+                lucide.createIcons();
+                return;
+            }
+            if (editBtn) editBtn.style.display = _objectivesEditMode ? 'none' : 'inline-flex';
+            if (!_objectivesEditMode) {
+                // View-only mode
+                _objectives.forEach((o, i) => {
+                    const row = document.createElement('div');
+                    row.className = 'list-row';
+                    row.style.cursor = 'default';
+                    row.innerHTML = `
+              <div class="list-row-num">${i + 1}</div>
+              <p style="flex:1;font-size:.9rem;color:#374151;margin:0;">${o.text || '<em style="color:#9ca3af">No text</em>'}</p>`;
+                    list.appendChild(row);
+                });
+            } else {
+                // Edit mode
+                _objectives.forEach((o, i) => {
+                    const row = document.createElement('div');
+                    row.className = 'list-row';
+                    row.innerHTML = `
+              <div class="list-row-num">${i + 1}</div>
+              <textarea class="field obj-text" style="flex:1;" rows="2" placeholder="Objective text…">${o.text || ''}</textarea>
+              <button class="btn-del" onclick="removeObjective(${i})"><i data-lucide="x"></i></button>`;
+                    list.appendChild(row);
+                });
+            }
             lucide.createIcons();
         }
 
+        function enterObjectivesEdit() {
+            _objectivesEditMode = true;
+            renderObjectives();
+        }
+
+        function syncObjectivesFromDom() {
+            // Always rebuild _objectives entirely from whatever rows are in the DOM
+            _objectives = [...document.querySelectorAll('#objectivesList .list-row')].map(row => ({
+                text: (row.querySelector('.obj-text') || { value: '' }).value.trim(),
+            }));
+        }
+
         function addObjective() {
+            syncObjectivesFromDom();
             _objectives.push({ text: '' });
             renderObjectives();
+        }
+
+        function removeObjective(i) {
+            syncObjectivesFromDom();
+            _objectives.splice(i, 1);
+            renderObjectives();
+        }
+
+        function collectObjectives() {
+            return [...document.querySelectorAll('#objectivesList .list-row')].map(row => ({
+                text: (row.querySelector('.obj-text') || { value: '' }).value.trim(),
+            })).filter(o => o.text);
         }
 
 
@@ -2928,16 +3301,16 @@
               </div>
             </div>
             <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-              <div><label class="lbl" style="font-size:.6rem;">Full Name</label>
+              <div><label class="lbl" style="font-size:.7rem;">Full Name</label>
                 <input type="text" class="field fac-name" value="${eName}" placeholder="e.g. Dr. Juan Dela Cruz"
                   oninput="_faculty[${i}].name=this.value" onchange="_faculty[${i}].name=this.value" /></div>
-              <div><label class="lbl" style="font-size:.6rem;">Role / Position</label>
+              <div><label class="lbl" style="font-size:.7rem;">Role / Position</label>
                 <input type="text" class="field fac-role" value="${eRole}" placeholder="e.g. Program Chair"
                   oninput="_faculty[${i}].role=this.value" onchange="_faculty[${i}].role=this.value" /></div>
-              <div style="grid-column:1/-1;"><label class="lbl" style="font-size:.6rem;">Short Bio</label>
+              <div style="grid-column:1/-1;"><label class="lbl" style="font-size:.7rem;">Short Bio</label>
                 <textarea class="field fac-bio" rows="2" placeholder="Ph.D. in IT · Specializes in…"
                   oninput="_faculty[${i}].bio=this.value" onchange="_faculty[${i}].bio=this.value">${eBio}</textarea></div>
-              <div style="grid-column:1/-1;"><label class="lbl" style="font-size:.6rem;">Course Tags <span class="lbl-hint">(comma-separated)</span></label>
+              <div style="grid-column:1/-1;"><label class="lbl" style="font-size:.7rem;">Course Tags <span class="lbl-hint">(comma-separated)</span></label>
                 <input type="text" class="field fac-tags" value="${eTags}" placeholder="MIT 201, Databases"
                   oninput="_faculty[${i}].tags=this.value.split(',').map(t=>t.trim()).filter(Boolean)"
                   onchange="_faculty[${i}].tags=this.value.split(',').map(t=>t.trim()).filter(Boolean)" /></div>
@@ -2950,16 +3323,213 @@
         }
 
         function collectFaculty() {
-            // Read directly from the DOM at save time so values typed without
-            // tabbing out (which would not have fired onchange) are captured.
-            return [...document.querySelectorAll('#facultyList .fac-row')].map((row, i) => ({
-                name:  (row.querySelector('.fac-name')  || {value:''}).value.trim(),
-                role:  (row.querySelector('.fac-role')  || {value:''}).value.trim(),
-                bio:   (row.querySelector('.fac-bio')   || {value:''}).value.trim(),
-                tags:  (row.querySelector('.fac-tags')  || {value:''}).value
-                           .split(',').map(t => t.trim()).filter(Boolean),
-                photo: (_faculty[i] || {}).photo || '',
-            })).filter(f => f.name || f.role);
+            // _faculty is kept in sync via oninput handlers; strip internal _editing flag
+            return _faculty
+                .filter(f => f.name || f.role)
+                .map(({ name, role, bio, tags, photo }) => ({
+                    name:  name  || '',
+                    role:  role  || '',
+                    bio:   bio   || '',
+                    tags:  Array.isArray(tags) ? tags : [],
+                    photo: photo || '',
+                }));
+        }
+
+        /* ═══════════════════════════════════════════════════
+           FACULTY INNER TABS
+        ═══════════════════════════════════════════════════ */
+        function switchFacultyInnerTab(tab) {
+            // Show / hide panels
+            ['header', 'members', 'heads'].forEach(t => {
+                const panel = document.getElementById('facInnerPanel-' + t);
+                if (panel) panel.style.display = t === tab ? '' : 'none';
+            });
+
+            const bH = document.getElementById('facInnerTab-header');
+            const bM = document.getElementById('facInnerTab-members');
+            const bP = document.getElementById('facInnerTab-heads');
+
+            // Reset to inactive styles
+            bH.style.background  = 'transparent'; bH.style.color = '#9ca3af'; bH.style.border = 'none';
+            bM.style.background  = 'transparent'; bM.style.color = '#9ca3af'; bM.style.border = 'none';
+            // Program Head always keeps amber tint when inactive so it always stands out
+            bP.style.background  = '#fffbeb'; bP.style.color = '#b45309'; bP.style.border = '1.5px solid #fde68a';
+
+            // Active style
+            if (tab === 'header')  { bH.style.background = '#374151'; bH.style.color = '#fff'; }
+            if (tab === 'members') { bM.style.background = '#7b1113'; bM.style.color = '#fff'; }
+            if (tab === 'heads')   { bP.style.background = '#b45309'; bP.style.color = '#fff'; bP.style.border = '1.5px solid #b45309'; }
+        }
+
+        /* ═══════════════════════════════════════════════════
+           PROGRAM HEAD HISTORY
+        ═══════════════════════════════════════════════════ */
+        function renderProgramHeads() {
+            const list = document.getElementById('progHeadList');
+            if (!list) return;
+            list.innerHTML = '';
+            if (!_programHeads.length) {
+                list.innerHTML = '<p style="font-size:0.88rem;color:#9ca3af;padding:4px 0 8px;">No program heads recorded yet. Click "Add Program Head" to start.</p>';
+                return;
+            }
+            _programHeads.forEach((h, i) => {
+                const row = document.createElement('div');
+                if (h._editing) {
+                    // ── EDIT MODE ──
+                    row.style.cssText = h.is_current
+                        ? 'background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px 14px;margin-bottom:8px;'
+                        : 'background:#fafafa;border:1.5px solid #e5e7eb;border-radius:10px;padding:12px 14px;margin-bottom:8px;';
+                    const photoHtml = h.photo
+                        ? `<img src="${h.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                        : `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:2px;"><i data-lucide="camera" style="width:18px;height:18px;color:#9ca3af;"></i><span style="font-size:0.6rem;color:#9ca3af;">Photo</span></div>`;
+                    row.innerHTML = `
+                      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                        ${h.is_current
+                            ? '<span style="font-size:0.78rem;font-weight:700;color:#15803d;background:#dcfce7;padding:2px 10px;border-radius:20px;border:1px solid #bbf7d0;">● Current</span>'
+                            : '<span style="font-size:0.78rem;color:#9ca3af;background:#f3f4f6;padding:2px 10px;border-radius:20px;border:1px solid #e5e7eb;">Past</span>'
+                        }
+                        <button onclick="setCurrentProgramHead(${i})" style="font-size:0.78rem;font-weight:600;color:${h.is_current ? '#9B1C1C' : '#15803d'};background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;">
+                          ${h.is_current ? 'Unmark as Current' : 'Set as Current'}
+                        </button>
+                        <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+                          <button onclick="saveProgramHeadEdit(${i})" style="font-size:0.78rem;font-weight:600;color:#fff;background:#15803d;border:none;border-radius:6px;padding:4px 12px;cursor:pointer;display:flex;align-items:center;gap:4px;">
+                            <i data-lucide="check" style="width:11px;height:11px;"></i> Done
+                          </button>
+                          <button onclick="removeProgramHead(${i})" class="btn-del" style="width:28px;height:28px;flex-shrink:0;">
+                            <i data-lucide="trash-2" style="width:12px;height:12px;"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <div style="display:flex;gap:14px;align-items:flex-start;">
+                        <div style="flex-shrink:0;text-align:center;">
+                          <input type="file" id="phHead_${i}" accept="image/*" style="display:none;" onchange="handleProgHeadPhoto(this,${i})">
+                          <div onclick="document.getElementById('phHead_${i}').click()" style="width:72px;height:72px;border-radius:50%;overflow:hidden;background:#f3f4f6;border:2px dashed #d1d5db;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                            ${photoHtml}
+                          </div>
+                          <p style="font-size:0.62rem;color:#9ca3af;margin:4px 0 0;">Upload</p>
+                        </div>
+                        <div style="flex:1;">
+                          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
+                            <div>
+                              <label class="lbl">Full Name</label>
+                              <input type="text" class="field" value="${h.name || ''}" placeholder="Dr. Juan dela Cruz"
+                                oninput="_programHeads[${i}].name=this.value" />
+                            </div>
+                            <div>
+                              <label class="lbl">Title / Designation</label>
+                              <input type="text" class="field" value="${h.title || ''}" placeholder="Program Coordinator"
+                                oninput="_programHeads[${i}].title=this.value" />
+                            </div>
+                          </div>
+                          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div>
+                              <label class="lbl">Term Start</label>
+                              <input type="text" class="field" value="${h.start_date || ''}" placeholder="e.g. June 2021"
+                                oninput="_programHeads[${i}].start_date=this.value" />
+                            </div>
+                            <div>
+                              <label class="lbl">Term End</label>
+                              <input type="text" class="field" value="${h.end_date || ''}"
+                                placeholder="${h.is_current ? 'Present (leave blank)' : 'e.g. May 2024'}"
+                                ${h.is_current ? 'disabled style="background:#f9fafb;color:#9ca3af;"' : ''}
+                                oninput="_programHeads[${i}].end_date=this.value" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>`;
+                } else {
+                    // ── VIEW MODE ──
+                    row.style.cssText = h.is_current
+                        ? 'background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;'
+                        : 'background:#fafafa;border:1.5px solid #f3f4f6;border-radius:10px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;';
+                    const initial = (h.name || '?').slice(0, 1).toUpperCase();
+                    const thumbHtml = h.photo
+                        ? `<img src="${h.photo}" style="width:100%;height:100%;object-fit:cover;">`
+                        : `<span style="font-size:1.2rem;font-weight:700;color:#fff;font-family:serif;">${initial}</span>`;
+                    const termText = h.start_date
+                        ? h.start_date + (h.is_current ? ' – Present' : (h.end_date ? ' – ' + h.end_date : ''))
+                        : (h.is_current ? 'Current' : '');
+                    row.innerHTML = `
+                      <div style="flex-shrink:0;width:52px;height:52px;border-radius:50%;overflow:hidden;background:${h.is_current ? '#15803d' : '#6b7280'};display:flex;align-items:center;justify-content:center;">
+                        ${thumbHtml}
+                      </div>
+                      <div style="flex:1;min-width:0;">
+                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+                          <span style="font-size:0.9rem;font-weight:700;color:#111827;">${h.name || '(unnamed)'}</span>
+                          ${h.is_current
+                              ? '<span style="font-size:0.7rem;font-weight:700;color:#15803d;background:#dcfce7;padding:1px 8px;border-radius:20px;border:1px solid #bbf7d0;">● Current</span>'
+                              : '<span style="font-size:0.7rem;color:#9ca3af;background:#f3f4f6;padding:1px 8px;border-radius:20px;border:1px solid #e5e7eb;">Past</span>'
+                          }
+                        </div>
+                        <p style="font-size:0.8rem;color:#6b7280;margin:0 0 1px;">${h.title || ''}</p>
+                        <p style="font-size:0.72rem;color:#9ca3af;margin:0;">${termText}</p>
+                      </div>
+                      <div style="display:flex;gap:6px;flex-shrink:0;">
+                        <button onclick="editProgramHead(${i})" style="font-size:0.75rem;font-weight:600;color:#374151;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:4px 10px;cursor:pointer;display:flex;align-items:center;gap:4px;">
+                          <i data-lucide="pencil" style="width:11px;height:11px;"></i> Edit
+                        </button>
+                        <button onclick="removeProgramHead(${i})" class="btn-del" style="width:28px;height:28px;flex-shrink:0;">
+                          <i data-lucide="trash-2" style="width:12px;height:12px;"></i>
+                        </button>
+                      </div>`;
+                }
+                list.appendChild(row);
+            });
+            lucide.createIcons();
+        }
+
+        function editProgramHead(i) {
+            _programHeads[i]._editing = true;
+            renderProgramHeads();
+        }
+
+        function saveProgramHeadEdit(i) {
+            _programHeads[i]._editing = false;
+            renderProgramHeads();
+        }
+
+        function handleProgHeadPhoto(input, i) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                _programHeads[i].photo = e.target.result;
+                renderProgramHeads();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function addProgramHead() {
+            _programHeads.unshift({ name: '', title: '', start_date: '', end_date: '', is_current: false, photo: '', _editing: true });
+            renderProgramHeads();
+        }
+
+        function removeProgramHead(i) {
+            _programHeads.splice(i, 1);
+            renderProgramHeads();
+        }
+
+        function setCurrentProgramHead(i) {
+            const wasAlreadyCurrent = _programHeads[i].is_current;
+            _programHeads.forEach(h => { h.is_current = false; });
+            if (!wasAlreadyCurrent) {
+                _programHeads[i].is_current = true;
+                _programHeads[i].end_date = '';
+            }
+            renderProgramHeads();
+        }
+
+        function collectProgramHeads() {
+            return _programHeads
+                .filter(h => h.name || h.title)
+                .map(({ name, title, start_date, end_date, is_current, photo }) => ({
+                    name:       name       || '',
+                    title:      title      || '',
+                    start_date: start_date || '',
+                    end_date:   end_date   || '',
+                    is_current: !!is_current,
+                    photo:      photo      || '',
+                }));
         }
 
         function addFaculty() {
@@ -3007,6 +3577,10 @@
             btnSave.innerHTML = '<i data-lucide="loader-2" class="spin" style="width:14px;height:14px;"></i> Saving…';
             lucide.createIcons();
 
+            // Sync DOM → arrays only when in edit mode (view mode has no input elements to read)
+            if (_outcomesEditMode) syncOutcomesFromDom();
+            if (_objectivesEditMode) syncObjectivesFromDom();
+
             const data = {
                 id: _editId || genId(),
                 name,
@@ -3027,11 +3601,15 @@
                 visible: _visible,
                 logo: _logoUrl,
                 college_logo: _collegeLogoUrl,
+                curriculum_title: document.getElementById('currTitleBold').value.trim(),
+                curriculum_title_italic: document.getElementById('currTitleItalic').value.trim(),
+                curriculum_subtitle: document.getElementById('currSubtitle').value.trim(),
                 stats: collectStats(),
                 curriculum: _currRows,
-                outcomes: _outcomes,
-                objectives: _objectives,
+                outcomes: _outcomes.filter(o => o.title || o.description),
+                objectives: _objectives.filter(o => o.text),
                 faculty: collectFaculty(),
+                program_heads: collectProgramHeads(),
             };
 
             try {
@@ -3049,12 +3627,27 @@
                     return;
                 }
                 if (d.success !== false) {
+                    const wasEditing = !!_editId;
                     const idx = _programs.findIndex(p => p.id === data.id);
                     if (idx >= 0) _programs[idx] = data; else _programs.push(data);
-                    renderAll();
-                    closeModal();
-                    pgToast(_editId ? 'Program updated!' : 'Program created!', 'success');
                     _editId = data.id;
+                    // Sync JS arrays from what was actually saved
+                    _objectives = data.objectives ? JSON.parse(JSON.stringify(data.objectives)) : [];
+                    _outcomes  = data.outcomes  ? JSON.parse(JSON.stringify(data.outcomes))  : [];
+                    _programHeads = data.program_heads ? JSON.parse(JSON.stringify(data.program_heads)) : [];
+                    _outcomesEditMode = false; _objectivesEditMode = false;
+                    if (_activeTab === 'objectives' || _activeTab === 'outcomes' || _activeTab === 'faculty') {
+                        // Stay on the tab — re-render list so saved data is immediately visible
+                        renderObjectives();
+                        renderOutcomes();
+                        renderFaculty(); renderProgramHeads();
+                        renderAll();
+                        pgToast('Saved!', 'success');
+                    } else {
+                        renderAll();
+                        closeModal();
+                        pgToast(wasEditing ? 'Program updated!' : 'Program created!', 'success');
+                    }
                 } else {
                     pgToast(d.message || 'Save failed.', 'error');
                     console.error('Save failed:', d.message);
@@ -3064,7 +3657,9 @@
                 console.error('Network error during save:', err);
             } finally {
                 btnSave.disabled = false;
-                btnSave.innerHTML = '<i data-lucide="save" style="width:14px;height:14px;"></i> Save Program';
+                const tabLabels = { objectives: 'Save Objective', outcomes: 'Save Outcome', faculty: 'Save Faculty' };
+                const finalLabel = tabLabels[_activeTab] || 'Save Program';
+                btnSave.innerHTML = `<i data-lucide="save" style="width:14px;height:14px;"></i> ${finalLabel}`;
                 lucide.createIcons();
             }
         }
@@ -3111,6 +3706,137 @@
         ═══════════════════════════════════════════════════ */
         document.addEventListener('DOMContentLoaded', async () => {
             lucide.createIcons();
+
+            // admin_cms_scripts.js is loaded with defer and defines its own addOutcome/addObjective
+            // that use outcomesData/objectivesData variables. Override them here (DOMContentLoaded
+            // fires after defer scripts) so the program management versions take effect instead.
+            window.addOutcome = function() {
+                if (_outcomesEditMode) syncOutcomesFromDom(); // only sync when already in edit mode
+                _outcomesEditMode = true;
+                _outcomes.push({ icon: 'emoji_events', title: '', description: '' });
+                renderOutcomes();
+            };
+            window.removeOutcome = function(i) {
+                syncOutcomesFromDom(); // always in edit mode when delete is visible
+                _outcomes.splice(i, 1);
+                renderOutcomes();
+            };
+            window.addObjective = function() {
+                if (_objectivesEditMode) syncObjectivesFromDom(); // only sync when already in edit mode
+                _objectivesEditMode = true;
+                _objectives.push({ text: '' });
+                renderObjectives();
+            };
+            window.removeObjective = function(i) {
+                syncObjectivesFromDom(); // always in edit mode when delete is visible
+                _objectives.splice(i, 1);
+                renderObjectives();
+            };
+
+            // admin_cms_scripts.js also defines renderFaculty() using its own facultyData array
+            // (always empty on this page). Override it so PM's _faculty array is used instead.
+            window.renderFaculty = function() {
+                const list = document.getElementById('facultyList');
+                if (!list) return;
+                list.innerHTML = '';
+                if (!_faculty.length) {
+                    list.innerHTML = `<div class="empty-state"><i data-lucide="users"></i><p class="text-sm">No faculty members yet.</p></div>`;
+                    lucide.createIcons(); return;
+                }
+                _faculty.forEach((f, i) => {
+                    const row = document.createElement('div');
+                    row.className = 'fac-row';
+                    const circlePhoto = f.photo
+                        ? `<img src="${f.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+                        : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f3f4f6;border-radius:50%;"><i data-lucide="user" style="width:20px;height:20px;color:#d1d5db;"></i></div>`;
+                    const fileInput = `<input type="file" accept="image/*" style="display:none;" id="facPhoto_${i}" onchange="handleFacultyPhoto(this,${i})" />`;
+
+                    if (!f._editing) {
+                        // ── View mode: compact read-only row ──
+                        row.style.cssText = 'background:#fafafa;border:1.5px solid #f3f4f6;border-radius:12px;padding:10px 14px;margin-bottom:8px;';
+                        row.innerHTML = `
+                          <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;flex-shrink:0;cursor:pointer;" onclick="triggerFacultyPhoto(${i})" title="Click to change photo">
+                              ${circlePhoto}${fileInput}
+                            </div>
+                            <div style="flex:1;min-width:0;">
+                              <p style="font-size:.95rem;font-weight:600;color:#111827;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.name || '<span style="color:#9ca3af;font-style:italic;">No name</span>'}</p>
+                              <p style="font-size:.82rem;color:#6b7280;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.role || '<span style="color:#9ca3af;font-style:italic;">No role</span>'}</p>
+                            </div>
+                            <div style="display:flex;gap:4px;flex-shrink:0;">
+                              <button onclick="_faculty[${i}]._editing=true;renderFaculty()" style="border:none;background:#f3f4f6;cursor:pointer;padding:5px 10px;border-radius:8px;color:#374151;display:flex;align-items:center;gap:4px;font-size:.82rem;font-weight:500;">
+                                <i data-lucide="pencil" style="width:12px;height:12px;"></i> Edit
+                              </button>
+                              <button class="btn-del" onclick="_faculty.splice(${i},1);renderFaculty()"><i data-lucide="trash-2"></i></button>
+                            </div>
+                          </div>`;
+                    } else {
+                        // ── Edit mode: full form ──
+                        row.style.cssText = 'background:#fafafa;border:1.5px solid #9B1C1C;border-radius:12px;padding:14px;margin-bottom:8px;';
+                        const eName = (f.name || '').replace(/"/g, '&quot;');
+                        const eRole = (f.role || '').replace(/"/g, '&quot;');
+                        const eTags = (f.tags || []).join(', ').replace(/"/g, '&quot;');
+                        const eBio  = (f.bio  || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                        row.innerHTML = `
+                          <div style="display:flex;gap:14px;align-items:flex-start;">
+                            <div style="flex-shrink:0;">
+                              <label class="lbl" style="font-size:.6rem;margin-bottom:4px;">Photo</label>
+                              <div style="width:88px;height:88px;border-radius:50%;overflow:hidden;border:2px dashed #e5e7eb;cursor:pointer;display:flex;align-items:center;justify-content:center;" onclick="triggerFacultyPhoto(${i})" title="Click to upload photo">
+                                ${circlePhoto}${fileInput}
+                              </div>
+                            </div>
+                            <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                              <div><label class="lbl" style="font-size:.7rem;">Full Name</label>
+                                <input type="text" class="field fac-name" value="${eName}" placeholder="e.g. Dr. Juan Dela Cruz"
+                                  oninput="_faculty[${i}].name=this.value" /></div>
+                              <div><label class="lbl" style="font-size:.7rem;">Role / Position</label>
+                                <input type="text" class="field fac-role" value="${eRole}" placeholder="e.g. Program Chair"
+                                  oninput="_faculty[${i}].role=this.value" /></div>
+                              <div style="grid-column:1/-1;"><label class="lbl" style="font-size:.7rem;">Short Bio</label>
+                                <textarea class="field fac-bio" rows="2" placeholder="Ph.D. in IT · Specializes in…"
+                                  oninput="_faculty[${i}].bio=this.value">${eBio}</textarea></div>
+                              <div style="grid-column:1/-1;"><label class="lbl" style="font-size:.7rem;">Course Tags <span class="lbl-hint">(comma-separated)</span></label>
+                                <input type="text" class="field fac-tags" value="${eTags}" placeholder="MIT 201, Databases"
+                                  oninput="_faculty[${i}].tags=this.value.split(',').map(t=>t.trim()).filter(Boolean)" /></div>
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
+                              <button onclick="_faculty[${i}]._editing=false;renderFaculty()" style="border:none;background:#f0fdf4;cursor:pointer;padding:5px 8px;border-radius:8px;color:#15803d;font-size:.7rem;font-weight:500;display:flex;align-items:center;gap:3px;white-space:nowrap;">
+                                <i data-lucide="check" style="width:12px;height:12px;"></i> Done
+                              </button>
+                              <button class="btn-del" onclick="_faculty.splice(${i},1);renderFaculty()"><i data-lucide="trash-2"></i></button>
+                            </div>
+                          </div>`;
+                    }
+                    list.appendChild(row);
+                });
+                lucide.createIcons();
+            };
+
+            window.addFaculty = function() {
+                _faculty.push({ name: '', role: '', bio: '', tags: [], photo: '', _editing: true });
+                renderFaculty();
+            };
+
+            // Event delegation: keep _outcomes / _objectives in sync as user types
+            document.getElementById('outcomesList').addEventListener('input', e => {
+                const row = e.target.closest('.list-row');
+                if (!row) return;
+                const rows = [...row.parentElement.querySelectorAll('.list-row')];
+                const i = rows.indexOf(row);
+                if (i < 0 || !_outcomes[i]) return;
+                if (e.target.classList.contains('oc-icon'))  _outcomes[i].icon        = e.target.value;
+                if (e.target.classList.contains('oc-title')) _outcomes[i].title       = e.target.value;
+                if (e.target.classList.contains('oc-desc'))  _outcomes[i].description = e.target.value;
+            });
+            document.getElementById('objectivesList').addEventListener('input', e => {
+                const row = e.target.closest('.list-row');
+                if (!row) return;
+                const rows = [...row.parentElement.querySelectorAll('.list-row')];
+                const i = rows.indexOf(row);
+                if (i < 0 || !_objectives[i]) return;
+                if (e.target.classList.contains('obj-text')) _objectives[i].text = e.target.value;
+            });
+
             // Load programs from the API instead of template injection
             // so large base64 logos don't end up in the page HTML.
             try {

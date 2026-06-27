@@ -2755,54 +2755,7 @@ Certified true copy from your institution</textarea
                        1) Hero  2) Overview  3) Courses  4) Outcomes  5) Objectives  6) Faculty
                 ══════════════════════════════════════════════════════════ -->
           <div id="cms-about-page" class="cms-panel hidden">
-            <!-- About Page sub-tabs — uses .about-tab class + about-tab-{name} IDs to match admin_cms_scripts.js -->
-            <div
-              id="aboutSubTabRow"
-              class="flex flex-wrap gap-2 mb-6 p-4 bg-gray-50 rounded-2xl border border-gray-100"
-            >
-              <span
-                class="text-xs font-bold text-gray-400 uppercase tracking-widest self-center mr-1"
-                >Section:</span
-              >
-              <button
-                class="about-tab cms-tab active border-red-800 text-red-800"
-                onclick="switchAboutTab('hero', this)"
-              >
-                <i data-lucide="star"></i> Hero
-              </button>
-              <button
-                class="about-tab cms-tab border-transparent text-gray-400"
-                onclick="switchAboutTab('overview', this)"
-              >
-                <i data-lucide="info"></i> Overview
-              </button>
-              <button
-                class="about-tab cms-tab border-transparent text-gray-400"
-                onclick="switchAboutTab('courses', this)"
-              >
-                <i data-lucide="book-open"></i> Courses
-              </button>
-              <button
-                class="about-tab cms-tab border-transparent text-gray-400"
-                onclick="switchAboutTab('outcomes', this)"
-              >
-                <i data-lucide="trophy"></i> Outcomes
-              </button>
-              <button
-                class="about-tab cms-tab border-transparent text-gray-400"
-                onclick="switchAboutTab('objectives', this)"
-              >
-                <i data-lucide="flag"></i> Objectives
-              </button>
-              <button
-                class="about-tab cms-tab border-transparent text-gray-400"
-                onclick="switchAboutTab('faculty', this)"
-              >
-                <i data-lucide="users"></i> Faculty
-              </button>
-            </div>
-
-            <!-- ── About: Hero ── -->
+            <!-- ── About Page: Hero Section ── -->
             <div id="about-tab-hero" class="about-panel">
               <div class="cms-card">
                 <p class="cms-card-title">
@@ -2887,7 +2840,7 @@ Certified true copy from your institution</textarea
               </div>
             </div>
 
-            <!-- ── About: Overview ── -->
+            <!-- Overview, Courses, Outcomes, Objectives, Faculty panels below are intentionally inaccessible — managed in Program Management instead -->
             <div id="about-tab-overview" class="about-panel hidden">
               <!-- Program Description -->
               <div class="cms-card">

@@ -2815,7 +2815,11 @@ def save_program(request):
             'eff_year', 'accreditor', 'hero_badge', 'hero_tagline', 'description',
             'ched_title', 'ched_body', 'slug', 'order', 'visible', 'logo',
             'college_logo', 'college',
-            'stats', 'curriculum', 'outcomes', 'objectives', 'faculty',
+            'stats', 'curriculum', 'outcomes', 'objectives', 'faculty', 'program_heads',
+            'curriculum_eyebrow', 'curriculum_title', 'curriculum_title_italic', 'curriculum_subtitle',
+            'outcomes_eyebrow', 'outcomes_title', 'outcomes_title_italic', 'outcomes_subtitle',
+            'objectives_eyebrow', 'objectives_title', 'objectives_title_italic', 'objectives_subtitle',
+            'faculty_eyebrow', 'faculty_title', 'faculty_title_italic', 'faculty_subtitle',
         ]
         program_obj = {k: data[k] for k in allowed_fields if k in data}
         program_obj['name'] = program_obj.get('name', '').strip()
