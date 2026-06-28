@@ -219,8 +219,9 @@
              field_key is pre-computed by the view (_title_to_key) and passed
              in via req.field_key — the template never recomputes it.
         -->
-          {% if admission_requirements %} {% for req in admission_requirements
-          %} {% if req.multi_page %}
+          {% if admission_requirements %}
+          {% for req in admission_requirements %}
+          {% if req.multi_page %}
           <!-- ── MULTI-PAGE / HYBRID BLOCK ── -->
           <div class="border border-gray-200 rounded-xl p-5 bg-blue-50/30">
             <div class="flex items-center justify-between mb-3">
@@ -364,7 +365,9 @@
               </span>
             </div>
           </div>
-          {% endif %} {% endfor %} {% else %}
+          {% endif %}
+          {% endfor %}
+          {% else %}
           <!-- Fallback if CMS has no requirements configured -->
           <div
             class="border border-amber-200 bg-amber-50 rounded-xl p-5 text-sm text-amber-800"
