@@ -2,6 +2,22 @@
 
 import django.db.models.deletion
 from django.db import migrations, models
+from django.utils.text import slugify
+
+
+def populate_slugs(apps, schema_editor):
+    Program = apps.get_model('admin_app', 'Program')
+    used_slugs = set()
+    for program in Program.objects.all():
+        base_slug = slugify(program.name) or f'program-{program.pk}'
+        slug = base_slug
+        counter = 1
+        while slug in used_slugs:
+            slug = f'{base_slug}-{counter}'
+            counter += 1
+        used_slugs.add(slug)
+        program.slug = slug
+        program.save(update_fields=['slug'])
 
 
 class Migration(migrations.Migration):
@@ -20,6 +36,13 @@ class Migration(migrations.Migration):
             name="program_name",
         ),
         migrations.AddField(
+            model_name="program",
+            name="slug",
+            field=models.SlugField(blank=True, max_length=255, default=''),
+            preserve_default=False,
+        ),
+        migrations.RunPython(populate_slugs, migrations.RunPython.noop),
+        migrations.AlterField(
             model_name="program",
             name="slug",
             field=models.SlugField(blank=True, max_length=255, unique=True),
