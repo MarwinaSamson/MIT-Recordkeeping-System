@@ -205,8 +205,17 @@ cython_debug/
 # Marimo
 marimo/_static/
 marimo/_lsp/
-<<<<<<< Updated upstream
 __marimo__/
-=======
-__marimo__/
->>>>>>> Stashed changes
+
+# Debug / one-off scripts (not for production)
+debug_keys.py
+debug_v2.py
+check_db.py
+test_document_mapping.py
+tmp_scripts/
+
+# Production static files output
+staticfiles/
+
+# Local environment variables
+.env
