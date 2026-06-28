@@ -1,4 +1,4 @@
-ÿþDjango==5.2.11
+Django==5.2.11
 psycopg2-binary==2.9.11
 requests==2.32.5
 pyjwt==2.11.0
