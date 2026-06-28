@@ -35,10 +35,18 @@ class Migration(migrations.Migration):
             model_name="prospectus",
             name="program_name",
         ),
+        # Drop any partial state left by previous failed migration attempts.
+        # DROP COLUMN CASCADE also removes all indexes/constraints on the column.
+        migrations.RunSQL(
+            sql="ALTER TABLE admin_app_program DROP COLUMN IF EXISTS slug",
+            reverse_sql=migrations.RunSQL.noop,
+        ),
+        # db_index=False prevents AddField from queuing a _like deferred index;
+        # AlterField below handles all final indexes exactly once.
         migrations.AddField(
             model_name="program",
             name="slug",
-            field=models.SlugField(blank=True, max_length=255, default=''),
+            field=models.SlugField(blank=True, max_length=255, default='', db_index=False),
             preserve_default=False,
         ),
         migrations.RunPython(populate_slugs, migrations.RunPython.noop),
