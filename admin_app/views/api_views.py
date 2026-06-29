@@ -165,10 +165,29 @@ def verify_document(request):
             notes=f"Document verified."
         )
 
+        # Auto-update application status when all submitted docs are verified
+        total_docs = Document.objects.filter(user=app.user).count()
+        verified_docs = DocumentVerification.objects.filter(
+            document__user=app.user, status='verified'
+        ).count()
+        has_unverified = DocumentVerification.objects.filter(
+            document__user=app.user
+        ).exclude(status='verified').exists()
+        auto_verified = (
+            total_docs > 0
+            and verified_docs == total_docs
+            and not has_unverified
+            and app.status not in ('rejected',)
+        )
+        if auto_verified:
+            app.status = 'verified'
+            app.save(update_fields=['status', 'last_activity'])
+
         return JsonResponse({
             'success': True,
             'message': f'Document verified successfully.',
-            'status': 'verified'
+            'status': 'verified',
+            'application_status': app.status,
         })
     except Application.DoesNotExist:
         return JsonResponse({'success': False, 'message': f'Application {app_id} not found.'}, status=404)
@@ -731,11 +750,11 @@ def update_cms_settings(request):
         update_data = {
             'admissions_open': bool(data.get('admissions_open', cms.admissions_open)),
             'show_announcement': bool(data.get('show_announcement', cms.show_announcement)),
-            'nav_subtitle': data.get('nav_subtitle', cms.nav_subtitle).strip(),
-            'hero_badge': data.get('hero_badge', cms.hero_badge).strip(),
-            'hero_heading1': data.get('hero_heading1', cms.hero_heading1).strip(),
-            'hero_heading2': data.get('hero_heading2', cms.hero_heading2).strip(),
-            'hero_tagline': data.get('hero_tagline', cms.hero_tagline).strip(),
+            'nav_subtitle': (data.get('nav_subtitle') or cms.nav_subtitle or '').strip(),
+            'hero_badge': (data.get('hero_badge') or cms.hero_badge or '').strip(),
+            'hero_heading1': (data.get('hero_heading1') or cms.hero_heading1 or '').strip(),
+            'hero_heading2': (data.get('hero_heading2') or cms.hero_heading2 or '').strip(),
+            'hero_tagline': (data.get('hero_tagline') or cms.hero_tagline or '').strip(),
             'app_window_ay': str(data.get('app_window_ay') or cms.app_window_ay or '').strip(),
             'app_window_enrollment': str(data.get('app_window_enrollment') or cms.app_window_enrollment or '').strip(),
             'app_window_deadline_year': str(data.get('app_window_deadline_year') or cms.app_window_deadline_year or '').strip(),
@@ -746,10 +765,7 @@ def update_cms_settings(request):
             'app_stat_label2': str(data.get('app_stat_label2') or cms.app_stat_label2 or '').strip(),
             'cta_heading': str(data.get('cta_heading') or cms.cta_heading or '').strip(),
             'cta_sublabel': str(data.get('cta_sublabel') or cms.cta_sublabel or '').strip(),
-            'application_deadline': data.get('application_deadline') or None,
             'hero_bg_image_url': str(data.get('hero_bg_image_url') or cms.hero_bg_image_url or '').strip(),
-            'enrollment_start_date': data.get('enrollment_start_date') or None,
-            'enrollment_end_date': data.get('enrollment_end_date') or None,
             'contact_address': data.get('contact_address', cms.contact_address).strip(),
             'contact_phone': data.get('contact_phone', cms.contact_phone).strip(),
             'contact_email': data.get('contact_email', cms.contact_email).strip(),
@@ -778,6 +794,15 @@ def update_cms_settings(request):
             'about_stat4_lbl': data.get('about_stat4_lbl', cms.about_stat4_lbl).strip(),
             
         }
+
+        # Only update date fields when explicitly included in the request to prevent
+        # partial saves (e.g. hero image upload) from wiping enrollment/deadline dates.
+        if 'application_deadline' in data:
+            update_data['application_deadline'] = data['application_deadline'] or None
+        if 'enrollment_start_date' in data:
+            update_data['enrollment_start_date'] = data['enrollment_start_date'] or None
+        if 'enrollment_end_date' in data:
+            update_data['enrollment_end_date'] = data['enrollment_end_date'] or None
 
         # Validate and save announcements list [{text, duration}]
         raw_announcements = data.get('announcements', None)
@@ -845,7 +870,7 @@ def update_cms_settings(request):
                         'day_label': str(slide.get('day_label', '')).strip(),
                         'time': str(slide.get('time', '')).strip(),
                         'venue': str(slide.get('venue', '')).strip(),
-                        'description': str(slide.get('description', '')).strip(),
+                        'description': str(slide.get('desc', slide.get('description', ''))).strip(),
                         'image_url': str(slide.get('image_url', '')).strip(),
                         'audience': str(slide.get('audience', '')).strip(),
                         'featured': bool(slide.get('featured', False)),
@@ -899,6 +924,7 @@ def update_cms_settings(request):
                     'venue': str(raw_calendar_event.get('venue', '')).strip(),
                     'audience': str(raw_calendar_event.get('audience', '')).strip(),
                     'desc': str(raw_calendar_event.get('desc', '')).strip(),
+                    'attachments': raw_calendar_event.get('attachments', []),
                 }
                 saved_calendar_event = event
                 updated = False
@@ -1838,7 +1864,26 @@ def send_requirement_notification(request):
                     message=f"{message}\n\nMissing requirements: {req_names}"
                 )
 
-            # Send email notification
+            # Create in-app bell notification
+            from students_app.models import Notification, StudentInboxMessage
+            Notification.objects.create(
+                user=user,
+                notification_type='general',
+                title='Action Required: Missing Requirements',
+                message=f"{message}\n\nMissing: {req_names}",
+            )
+
+            # Create inbox message so student sees it in their Inbox tab
+            StudentInboxMessage.objects.create(
+                user=user,
+                subject='Action Required: Missing Admission Requirements',
+                body=f"{message}\n\nMissing requirements: {req_names}\n\nPlease submit the required documents as soon as possible.",
+                sent_by=request.user,
+            )
+
+            notifications_sent += 1
+
+            # Send email notification (non-critical — in-app already created above)
             try:
                 full_name = user.get_full_name() or user.email
                 email_message = f"""Dear {full_name},
@@ -1858,11 +1903,9 @@ Admissions Office
                     message=email_message,
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[user.email],
-                    fail_silently=False,
+                    fail_silently=True,
                 )
-                notifications_sent += 1
             except Exception as e:
-                # Log but continue with other students
                 print(f"Failed to send email to {user.email}: {e}")
 
         AdminActivityLog.objects.create(
@@ -2615,6 +2658,62 @@ def get_messaging_history(request):
             'time': log.timestamp.strftime('%b %d, %Y · %I:%M %p'),
         })
     return JsonResponse({'success': True, 'history': history})
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["GET"])
+def get_student_replies(request):
+    """Return student replies to admin inbox messages (newest first, unread first)."""
+    from students_app.models import StudentMessageReply
+    qs = (
+        StudentMessageReply.objects
+        .select_related('message', 'sent_by')
+        .order_by('-created_at')[:100]
+    )
+    data = []
+    for r in qs:
+        pd = None
+        try:
+            from students_app.models import PersonalDetails
+            pd = PersonalDetails.objects.filter(user=r.sent_by).first()
+        except Exception:
+            pass
+        name = (
+            f"{pd.first_name} {pd.last_name}".strip()
+            if pd else r.sent_by.get_full_name() or r.sent_by.username
+        )
+        data.append({
+            'id': r.id,
+            'message_id': r.message_id,
+            'subject': r.message.subject,
+            'student_name': name,
+            'student_email': r.sent_by.email,
+            'body': r.body,
+            'is_read': r.is_read_by_admin,
+            'created_at': r.created_at.strftime('%b %d, %Y · %I:%M %p'),
+        })
+    unread = StudentMessageReply.objects.filter(is_read_by_admin=False).count()
+    return JsonResponse({'success': True, 'replies': data, 'unread_count': unread})
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
+def mark_student_replies_read(request):
+    """Mark one or all student replies as read by admin."""
+    from students_app.models import StudentMessageReply
+    try:
+        data = json.loads(request.body)
+        reply_id = data.get('reply_id')
+        if reply_id:
+            StudentMessageReply.objects.filter(id=int(reply_id)).update(is_read_by_admin=True)
+        else:
+            StudentMessageReply.objects.filter(is_read_by_admin=False).update(is_read_by_admin=True)
+        unread = StudentMessageReply.objects.filter(is_read_by_admin=False).count()
+        return JsonResponse({'success': True, 'unread_count': unread})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
 
 
 @login_required(login_url='login')

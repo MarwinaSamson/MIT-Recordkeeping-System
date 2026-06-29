@@ -164,16 +164,21 @@ async function saveAnnouncementSettings() {
 
 /** Save homepage hero + deadline settings */
 async function saveHomepageSettings() {
-  await _postCMS({
-    admissions_open: document.getElementById('cmsAdmissionsToggle')?.classList.contains('on'),
-    show_announcement: document.getElementById('cmsAnnouncementToggle')?.classList.contains('on'),
-    nav_subtitle: document.getElementById('cmsNavSubtitle')?.value.trim() || '',
-    hero_badge: document.getElementById('cmsHeroBadge')?.value.trim() || '',
-    hero_heading1: document.getElementById('cmsHeroHeading1')?.value.trim() || '',
-    hero_heading2: document.getElementById('cmsHeroHeading2')?.value.trim() || '',
+  const payload = {
+    admissions_open: document.getElementById('cmsAdmissionsToggle')?.classList.contains('on') ?? false,
+    show_announcement: document.getElementById('cmsAnnouncementToggle')?.classList.contains('on') ?? false,
     hero_tagline: document.getElementById('cmsHeroTagline')?.value.trim() || '',
-    application_deadline: document.getElementById('cmsDeadline')?.value || null,
-  });
+  };
+  // Only include fields that have a real input in the hero panel
+  const navSubtitle = document.getElementById('cmsNavSubtitle');
+  if (navSubtitle) payload.nav_subtitle = navSubtitle.value.trim();
+  const heroBadge = document.getElementById('cmsHeroBadge');
+  if (heroBadge) payload.hero_badge = heroBadge.value.trim();
+  const heroH1 = document.getElementById('cmsHeroHeading1');
+  if (heroH1) payload.hero_heading1 = heroH1.value.trim();
+  const heroH2 = document.getElementById('cmsHeroHeading2');
+  if (heroH2) payload.hero_heading2 = heroH2.value.trim();
+  await _postCMS(payload);
 }
 
 /** Live-preview the seal/logo before saving */
@@ -399,7 +404,8 @@ function _initDownloadsUpload() {
   input.addEventListener('change', async function () {
     if (!this.files[0]) return;
     const file = this.files[0];
-    const resourceType = (resourceInput?.value || '').trim() || file.name;
+    const enteredType = (resourceInput?.value || '').trim();
+    const resourceType = enteredType || file.name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     const formData = new FormData();
     formData.append('file', file);
 

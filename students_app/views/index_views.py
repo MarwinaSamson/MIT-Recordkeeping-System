@@ -1,6 +1,8 @@
+import json
 from django.shortcuts import render, get_object_or_404
 from django.http import Http404
 from django.utils import timezone
+from datetime import datetime
 from admin_app.models import CMSSettings, Faculty, Application, SchoolYear
 
 
@@ -24,7 +26,23 @@ def index(request):
     all_slides = cms.event_slides or []
     featured_slides = [s for s in all_slides if s.get('featured', False)]
     # Fallback: show all if none are marked featured
-    event_slides = featured_slides if featured_slides else all_slides
+    raw_slides = featured_slides if featured_slides else all_slides
+
+    # Parse date strings into display-ready values for the template
+    event_slides = []
+    for slide in raw_slides:
+        s = dict(slide)
+        raw_date = s.get('date', '')
+        try:
+            dt = datetime.strptime(raw_date, '%Y-%m-%d')
+            s['date_display'] = dt.strftime('%B %d, %Y').replace(' 0', ' ')
+            s['month_short'] = dt.strftime('%b')
+            s['day_label'] = dt.strftime('%d').lstrip('0') or dt.strftime('%d')
+        except (ValueError, TypeError, AttributeError):
+            s['date_display'] = raw_date
+            s['month_short'] = ''
+            s['day_label'] = ''
+        event_slides.append(s)
 
     # ── Dynamic enrollment count from the database ────────────────────────────
     active_sy = SchoolYear.objects.filter(is_active=True).first()
@@ -48,6 +66,7 @@ def index(request):
         'event_slides': event_slides,
         'enrollment_count': enrollment_count,
         'admissions_active': admissions_active,
+        'calendar_events_json': json.dumps(cms.calendar_events or []),
     }
     return render(request, "students_app/index.html", context)
 

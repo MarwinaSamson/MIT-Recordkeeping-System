@@ -551,6 +551,34 @@ def mark_all_inbox_messages_read(request):
 
 @login_required
 @require_http_methods(["POST"])
+def send_message_reply(request):
+    """Student replies to an admin inbox message."""
+    from students_app.models import StudentMessageReply
+    try:
+        data = json.loads(request.body)
+        msg_id = data.get('message_id')
+        body = (data.get('body') or '').strip()
+        if not msg_id or not body:
+            return JsonResponse({'status': 'error', 'message': 'message_id and body required'}, status=400)
+        msg = StudentInboxMessage.objects.get(id=int(msg_id), user=request.user)
+        reply = StudentMessageReply.objects.create(
+            message=msg,
+            sent_by=request.user,
+            body=body,
+        )
+        return JsonResponse({
+            'status': 'success',
+            'reply_id': reply.id,
+            'created_at': reply.created_at.strftime('%b %d, %Y %I:%M %p'),
+        })
+    except StudentInboxMessage.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Message not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@login_required
+@require_http_methods(["POST"])
 def submit_application(request):
     try:
         data = json.loads(request.body)
@@ -656,6 +684,49 @@ def submit_application(request):
     except Exception as e:
         import traceback
         traceback.print_exc()
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def update_profile(request):
+    """Update the authenticated student's personal details."""
+    try:
+        data = json.loads(request.body)
+        personal, _ = PersonalDetails.objects.get_or_create(user=request.user)
+
+        if 'firstName' in data:
+            personal.first_name = str(data['firstName']).strip()
+        if 'lastName' in data:
+            personal.last_name = str(data['lastName']).strip()
+        if data.get('dob'):
+            from datetime import date as date_cls
+            try:
+                personal.dob = date_cls.fromisoformat(str(data['dob']))
+            except (ValueError, TypeError):
+                pass
+        if data.get('gender'):
+            personal.gender = str(data['gender']).strip()
+        if 'contact' in data:
+            personal.contact_number = str(data['contact']).strip()
+        if 'email' in data and data['email']:
+            personal.email = str(data['email']).strip()
+        if 'address' in data:
+            personal.permanent_address = str(data['address']).strip()
+
+        personal.save()
+
+        first_name = personal.first_name or ''
+        last_name = personal.last_name or ''
+        if first_name or last_name:
+            request.user.first_name = first_name
+            request.user.last_name = last_name
+            request.user.save(update_fields=['first_name', 'last_name'])
+
+        return JsonResponse({'success': True, 'message': 'Profile updated successfully.'})
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid data.'}, status=400)
+    except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 

@@ -1890,11 +1890,10 @@
                       src="{{ evt.image_url|default:'{% static \'assets/WMSU.jpg\' %}' }}"
                       alt="{{ evt.title }}"
                     />
-                    {% if evt.day_label %}
+                    {% if evt.day_label or evt.date_display %}
                     <div class="cs-date-chip">
                       <span class="day">{{ evt.day_label }}</span
-                      ><span class="month"
-                        >{{ evt.date|date:"M"|slice:":3" }}</span
+                      ><span class="month">{{ evt.month_short }}</span
                       >
                     </div>
                     {% endif %} {% if evt.featured %}
@@ -1909,7 +1908,7 @@
                       <span class="material-symbols-rounded"
                         >calendar_month</span
                       >
-                      {{ evt.date|date:"F j, Y" }}<span class="dot">·</span
+                      {{ evt.date_display }}<span class="dot">·</span
                       ><span class="material-symbols-rounded">schedule</span> {{ evt.time }}
                       
                     </div>
@@ -2075,6 +2074,10 @@
             </div>
           </div>
           <p class="detail-desc" id="detailDesc"></p>
+          <div id="detailAttachments" style="display:none;margin-top:12px;">
+            <p style="font-size:0.78rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Attachments</p>
+            <div id="detailAttachmentsList"></div>
+          </div>
         </div>
         <div style="margin-top: 28px">
           <div style="margin-bottom: 12px">
@@ -2234,19 +2237,19 @@
                     class="text-white/50 text-[10px] uppercase tracking-widest mb-1"
                     style="font-family: var(--mono)"
                   >
-                    Deadline
+                    Enrollment
                   </p>
                   <p
                     class="text-white font-black text-2xl"
                     style="font-family: &quot;Playfair Display&quot;, serif"
                   >
-                    {% if cms.application_deadline %}{{ cms.application_deadline|date:"F j" }}{% else %}August 1{% endif %}
+                    {% if cms.enrollment_start_date %}{{ cms.enrollment_start_date|date:"F" }}{% else %}{{ cms.app_window_enrollment }}{% endif %}
                   </p>
                   <p
                     class="text-white/45 text-xs"
                     style="font-family: var(--mono)"
                   >
-                    {% if cms.application_deadline %}{{ cms.application_deadline|date:"Y" }}{% else %}{{ cms.app_window_deadline_year }}{% endif %}
+                    {% if cms.enrollment_start_date %}{{ cms.enrollment_start_date|date:"Y" }}{% else %}{{ cms.app_window_enrollment_year }}{% endif %}
                   </p>
                 </div>
                 <div
@@ -2261,19 +2264,19 @@
                     class="text-white/50 text-[10px] uppercase tracking-widest mb-1"
                     style="font-family: var(--mono)"
                   >
-                    Enrollment
+                    Deadline
                   </p>
                   <p
                     class="text-white font-black text-2xl"
                     style="font-family: &quot;Playfair Display&quot;, serif"
                   >
-                    {{ cms.app_window_enrollment }}
+                    {% if cms.application_deadline %}{{ cms.application_deadline|date:"F j" }}{% else %}August 1{% endif %}
                   </p>
                   <p
                     class="text-white/45 text-xs"
                     style="font-family: var(--mono)"
                   >
-                    {{ cms.app_window_enrollment_year }}
+                    {% if cms.application_deadline %}{{ cms.application_deadline|date:"Y" }}{% else %}{{ cms.app_window_deadline_year }}{% endif %}
                   </p>
                 </div>
               </div>
@@ -2639,7 +2642,7 @@
     <!-- 4. Academic calendar -->
     <script>
       (function () {
-        const EVENTS = {% if cms.calendar_events %}{{ cms.calendar_events|safe }}{% else %}[]{% endif %};
+        const EVENTS = {{ calendar_events_json }};
         const MN = [
           "January",
           "February",
@@ -2778,6 +2781,26 @@
           document.getElementById("detailVenue").textContent = e.venue;
           document.getElementById("detailAud").textContent = e.audience;
           document.getElementById("detailDesc").textContent = e.desc;
+          // Attachments
+          const attBox = document.getElementById("detailAttachments");
+          const attList = document.getElementById("detailAttachmentsList");
+          const atts = Array.isArray(e.attachments) ? e.attachments : [];
+          if (atts.length) {
+            attList.innerHTML = atts.map(a =>
+              a.url
+                ? `<a href="${a.url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:#1d4ed8;margin-bottom:4px;text-decoration:underline;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                    ${a.label || a.name || 'Attachment'}
+                   </a>`
+                : `<span style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:#6b7280;margin-bottom:4px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                    ${a.label || a.name || 'Attachment'}
+                   </span>`
+            ).join('');
+            attBox.style.display = 'block';
+          } else {
+            attBox.style.display = 'none';
+          }
           p.classList.add("vis");
           p.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }

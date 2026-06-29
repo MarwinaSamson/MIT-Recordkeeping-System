@@ -746,6 +746,26 @@
                 banner.
               </p>
               <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="lbl">Nav Subtitle <span class="lbl-hint">(below university name)</span></label>
+                    <input type="text" id="cmsNavSubtitle" class="field" value="{{ cms.nav_subtitle|default:'MIT · Graduate School Admissions' }}" placeholder="e.g. MIT · Graduate School Admissions" />
+                  </div>
+                  <div>
+                    <label class="lbl">Hero Badge <span class="lbl-hint">(small label above heading)</span></label>
+                    <input type="text" id="cmsHeroBadge" class="field" value="{{ cms.hero_badge|default:'Graduate School · Information Technology' }}" placeholder="e.g. Graduate School · Information Technology" />
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="lbl">Heading Line 1</label>
+                    <input type="text" id="cmsHeroHeading1" class="field" value="{{ cms.hero_heading1|default:'The University' }}" placeholder="e.g. The University" />
+                  </div>
+                  <div>
+                    <label class="lbl">Heading Line 2 <span class="lbl-hint">(shown in gold/italic)</span></label>
+                    <input type="text" id="cmsHeroHeading2" class="field" value="{{ cms.hero_heading2|default:'of Choice' }}" placeholder="e.g. of Choice" />
+                  </div>
+                </div>
                 <div>
                   <label class="lbl"
                     >Hero Tagline
@@ -764,6 +784,12 @@
                 </div>
                 <div>
                   <label class="lbl">Hero Background Image</label>
+                  {% if cms.hero_bg_image_url %}
+                  <div class="mb-2 rounded-lg overflow-hidden border border-gray-200" style="height:120px;">
+                    <img src="{{ cms.hero_bg_image_url }}" alt="Current hero" class="w-full h-full object-cover" />
+                  </div>
+                  <p class="text-xs text-green-600 mb-2">✓ Current hero image set. Upload a new one to replace it.</p>
+                  {% endif %}
                   <div
                     id="heroImageDropzone"
                     class="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center justify-center p-8 cursor-pointer hover:border-red-300 hover:bg-red-50 transition"
@@ -5040,8 +5066,9 @@ Develop students' capacity to conduct both technical and statistical research, c
       function addEventSlide() {
         const list = document.getElementById("eventSlidesList");
         const idx = list.querySelectorAll(".event-slide-row").length + 1;
-        const tpl = document.querySelector(".event-slide-row").cloneNode(true);
+        const tpl = list.querySelector(".event-slide-row").cloneNode(true);
         tpl.dataset.idx = idx;
+        tpl.dataset.imageUrl = '';
         tpl.querySelector(".w-7.h-7").textContent = idx;
         tpl.querySelector(".font-bold.text-gray-800.text-sm").textContent =
           "Event Slide " + idx;
@@ -5051,15 +5078,29 @@ Develop students' capacity to conduct both technical and statistical research, c
         tpl
           .querySelectorAll(".toggle-track")
           .forEach((t) => t.classList.remove("on"));
+        // Reset dropzone visual (clears inherited background image)
+        const dz = tpl.querySelector(".border-2.border-dashed");
+        if (dz) {
+          dz.style.backgroundImage = "";
+          dz.style.backgroundSize = "";
+          dz.style.backgroundPosition = "";
+          const ok = dz.querySelector(".evt-img-ok");
+          if (ok) ok.remove();
+          dz.querySelectorAll("i, p").forEach(el => el.style.display = "");
+        }
+        // Remove "✓ Image set" text from cloned slide
+        const imgOkTxt = tpl.querySelector(".text-green-600");
+        if (imgOkTxt) imgOkTxt.remove();
         list.appendChild(tpl);
         lucide.createIcons();
       }
       function removeEventSlide(btn) {
         const row = btn.closest(".event-slide-row");
-        if (document.querySelectorAll(".event-slide-row").length > 1)
+        if (document.querySelectorAll(".event-slide-row").length > 1) {
           row.remove();
-        else alert("At least one event slide is required.");
-        reindexEventSlides();
+          reindexEventSlides();
+          saveEventSlides();
+        } else alert("At least one event slide is required.");
       }
       function reindexEventSlides() {
         document.querySelectorAll(".event-slide-row").forEach((row, i) => {

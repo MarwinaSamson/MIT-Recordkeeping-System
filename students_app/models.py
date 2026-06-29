@@ -245,6 +245,29 @@ class StudentInboxMessage(models.Model):
         return f'{self.subject} → {self.user_id}'
 
 
+class StudentMessageReply(models.Model):
+    """Student reply to an admin inbox message."""
+    message = models.ForeignKey(
+        StudentInboxMessage,
+        on_delete=models.CASCADE,
+        related_name='replies',
+    )
+    sent_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='message_replies',
+    )
+    body = models.TextField()
+    is_read_by_admin = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f'Reply by {self.sent_by_id} on msg {self.message_id}'
+
+
 class CORSubmission(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),

@@ -337,8 +337,13 @@
     .sy-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-4); font-family: var(--font-mono); }
     .sy-value { font-family: var(--font-display); font-size: 1.05rem; font-style: italic; color: var(--ink); font-weight: 600; letter-spacing: -0.01em; }
     .sy-sem { padding: 4px 12px; border-radius: 99px; background: var(--gold-pale); border: 1px solid var(--gold-border); font-size: 0.69rem; font-weight: 600; color: var(--gold); font-family: var(--font-mono); }
-    .sy-status { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--green); font-weight: 600; }
+    .sy-status { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--green); font-weight: 600; padding: 4px 10px; border-radius: 99px; }
     .sy-status .ms { font-size: 15px; }
+    .sy-status--rejected { color: #b91c1c; background: #fee2e2; }
+    .sy-status--incomplete { color: #b45309; background: #fffbeb; }
+    .sy-status--verified, .sy-status--enrolled { color: #15803d; background: #f0fdf4; }
+    .sy-status--reviewing { color: #1d4ed8; background: #eff6ff; }
+    .sy-status--pending { color: #6b7280; background: #f3f4f6; }
     .sy-divider { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
 
     /* ============================================================
@@ -1031,7 +1036,7 @@
         <span class="ms">notifications</span>
         <span class="tb-notif-dot" id="topNotifDot"></span>
       </button>
-      <div class="tb-avatar" id="topAvatar" onclick="switchPage('profile', document.querySelectorAll('.nav-item')[6])">JD</div>
+      <div class="tb-avatar" id="topAvatar" onclick="switchPage('profile', document.querySelectorAll('.nav-item')[6])">{{ initials }}</div>
     </div>
   </header>
 
@@ -1077,8 +1082,13 @@
           <div class="sy-label">Student ID</div>
           <div style="font-size:0.78rem;font-weight:600;color:var(--ink);font-family:var(--font-mono)">{{ student_id_display }}</div>
         </div>
-        <div class="sy-status">
-          <span class="ms">verified</span> Enrolled & Active
+        <div class="sy-status sy-status--{{ application_status|default:'pending' }}">
+          {% if application_status == 'rejected' %}<span class="ms">cancel</span> Application Rejected
+          {% elif application_status == 'incomplete' %}<span class="ms">warning</span> Incomplete Requirements
+          {% elif application_status == 'verified' %}<span class="ms">verified</span> Verified
+          {% elif application_status == 'enrolled' %}<span class="ms">verified</span> Enrolled & Active
+          {% elif application_status == 'reviewing' %}<span class="ms">pending</span> Under Review
+          {% else %}<span class="ms">pending</span> Pending Review{% endif %}
         </div>
       </div>
 
@@ -1572,7 +1582,7 @@
       <div class="profile-layout">
         <div class="fu">
           <div class="card" style="text-align:center;padding:24px 18px">
-            <div class="avatar-lg" id="profileAvatarBig">NV</div>
+            <div class="avatar-lg" id="profileAvatarBig">{{ initials }}</div>
             <div style="font-size:0.9rem;font-weight:700;color:var(--ink);margin-bottom:18px;font-family:var(--font-display)" id="profileName">{{ full_name }}</div>
             <div style="font-size:0.69rem;color:var(--gold);margin-bottom:2px;font-family:var(--font-mono);font-weight:600">MIT Student</div>
             <div style="font-size:0.69rem;color:var(--ink-4);margin-bottom:18px;font-family:var(--font-mono)" id="profileEmail">{{ student.email }}</div>
@@ -1595,11 +1605,16 @@
                 <div class="field"><label>Date of Birth</label><input type="date" id="pDob" value="{{ personal_details.dob|date:'Y-m-d'|default_if_none:'' }}"></div>
                 <div class="field">
                   <label>Gender</label>
-                  <select id="pGender"><option value="">Select</option><option>Male</option><option>Female</option><option>Prefer not to say</option></select>
+                  <select id="pGender">
+                    <option value="">Select</option>
+                    <option {% if personal_details.gender == 'Male' %}selected{% endif %}>Male</option>
+                    <option {% if personal_details.gender == 'Female' %}selected{% endif %}>Female</option>
+                    <option {% if personal_details.gender == 'Prefer not to say' %}selected{% endif %}>Prefer not to say</option>
+                  </select>
                 </div>
                 <div class="field"><label>Contact Number</label><input type="tel" id="pContact" placeholder="+63 9XX XXX XXXX" value="{{ personal_details.contact_number|default_if_none:'' }}"></div>
                 <div class="field"><label>Email Address</label><input type="email" id="pEmail" placeholder="name@wmsu.edu.ph" value="{{ personal_details.email|default:student.email }}"></div>
-                <div class="field" style="grid-column:1/-1"><label>Permanent Address</label><input type="text" id="pAddress" placeholder="Enter your permanent address"></div>
+                <div class="field" style="grid-column:1/-1"><label>Permanent Address</label><input type="text" id="pAddress" placeholder="Enter your permanent address" value="{{ personal_details.permanent_address|default_if_none:'' }}"></div>
               </div>
               <div id="savePersonalBtns" style="display:none;gap:8px;margin-top:12px">
                 <button class="btn btn-primary btn-xs" onclick="saveProfile()"><span class="ms" style="font-size:14px">check</span>Save Changes</button>
@@ -2180,12 +2195,27 @@
       currentMsgId = null;
     }
 
-    function sendMsgReply() {
+    async function sendMsgReply() {
       const text = $('msgReplyText').value.trim();
-      if(!text) { showToast('Please write a reply first.','info'); return; }
-      $('msgReplyText').value = '';
-      closeMsgView();
-      showToast('Reply sent successfully.','success');
+      if (!text) { showToast('Please write a reply first.', 'info'); return; }
+      if (!currentMsgId) return;
+      try {
+        const res = await fetch('/api/student-inbox/reply/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') || '' },
+          body: JSON.stringify({ message_id: currentMsgId, body: text }),
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          $('msgReplyText').value = '';
+          showToast('Reply sent successfully.', 'success');
+          closeMsgView();
+        } else {
+          showToast(data.message || 'Failed to send reply.', 'error');
+        }
+      } catch (e) {
+        showToast('Failed to send reply.', 'error');
+      }
     }
 
     // Close message modal on backdrop click
@@ -2193,19 +2223,28 @@
       if(e.target === $('msgViewModal')) closeMsgView();
     });
 
+    const NOTIF_NAV_MAP = {
+      'document_verified':  'documents',
+      'document_rejected':  'documents',
+      'document_reviewing': 'documents',
+      'application_status': 'dashboard',
+      'deadline_reminder':  'documents',
+    };
+
     async function markRead(id) {
+      const n = notifications.find(x => x.id === id);
       try {
         const res = await fetch('/api/notifications/read/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken') || ''
           },
           body: JSON.stringify({ notification_id: id })
         });
 
         if (res.ok) {
-          const n = notifications.find(x => x.id === id);
           if (n) n.unread = false;
           updateBadge();
           renderNotifs('notifList');
@@ -2214,6 +2253,15 @@
       } catch (err) {
         console.error('markRead error:', err);
       }
+      // Navigate to relevant page
+      if (n && n.type) {
+        const page = NOTIF_NAV_MAP[n.type];
+        if (page) {
+          const navIdx = { 'dashboard': 0, 'documents': 2, 'notifications': 4 }[page] ?? 4;
+          const navItems = document.querySelectorAll('.nav-item');
+          if (navItems[navIdx]) switchPage(page, navItems[navIdx]);
+        }
+      }
     }
 
     async function markAllRead() {
@@ -2221,7 +2269,8 @@
         const res = await fetch('/api/notifications/read-all/', {
           method: 'POST',
           headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken') || ''
           }
         });
 
@@ -3064,6 +3113,10 @@
        ============================================================ */
     let editing=false;
     const editableFields=['pFirstName','pLastName','pDob','pGender','pContact','pEmail','pAddress'];
+    // Disable all profile fields on page load (read-only until "Edit Profile" clicked)
+    document.addEventListener('DOMContentLoaded', () => {
+      editableFields.forEach(id => { const el = $(id); if (el) el.disabled = true; });
+    });
     function toggleEditMode() {
       editing=!editing;
       editableFields.forEach(id=>{const el=$(id);if(el)el.disabled=!editing;});
@@ -3072,7 +3125,42 @@
       const spb=$('savePersonalBtns'); if(spb)spb.style.display=editing?'flex':'none';
     }
     function cancelEdit(){ if(editing)toggleEditMode(); }
-    function saveProfile(){ toggleEditMode(); showToast('Profile updated.','success'); }
+    async function saveProfile(){
+      const payload = {
+        firstName: ($('pFirstName')?.value || '').trim(),
+        lastName:  ($('pLastName')?.value  || '').trim(),
+        dob:       $('pDob')?.value  || '',
+        gender:    $('pGender')?.value || '',
+        contact:   $('pContact')?.value || '',
+        email:     $('pEmail')?.value   || '',
+        address:   $('pAddress')?.value || '',
+      };
+      try {
+        const res = await fetch('/api/update-profile/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') || '' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.success) {
+          toggleEditMode();
+          showToast('Profile updated.', 'success');
+          // Update displayed name
+          const fullName = [payload.firstName, payload.lastName].filter(Boolean).join(' ');
+          if (fullName) {
+            const pn = $('profileName'); if (pn) pn.textContent = fullName;
+            const ab = $('profileAvatarBig');
+            if (ab) ab.textContent = fullName.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+            const ta = $('topAvatar');
+            if (ta) ta.textContent = fullName.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+          }
+        } else {
+          showToast(data.message || 'Failed to update profile.', 'error');
+        }
+      } catch (e) {
+        showToast('Network error. Please try again.', 'error');
+      }
+    }
 
     /* ============================================================
        RENDER DYNAMIC DATES
@@ -3225,6 +3313,7 @@ function closeLogoutModal() {
               desc:      n.message,
               time:      n.time,
               unread:    !n.read,
+              type:      n.type,
             });
           });
 

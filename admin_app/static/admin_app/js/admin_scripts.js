@@ -878,6 +878,22 @@ async function bulkVerifyApplications() {
 function closeModal() {
   const modal = document.getElementById("modal");
   if (modal) {
+    // Auto-save remarks if the toggle is on and the textarea has changed
+    const autoSave = document.getElementById('autoSaveRemarksToggle')?.classList.contains('on') ?? true;
+    const remarksEl = document.getElementById('remarks');
+    if (autoSave && selectedApp && remarksEl) {
+      const currentRemarks = remarksEl.value;
+      if (currentRemarks !== (selectedApp.remarks || '')) {
+        fetch('/admin-panel/api/application/remarks/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+          body: JSON.stringify({ application_id: selectedApp.id, remarks: currentRemarks })
+        })
+          .then(r => r.json())
+          .then(d => { if (d.success) { selectedApp.remarks = currentRemarks; showToast('Remarks saved.'); } })
+          .catch(() => {});
+      }
+    }
     modal.classList.remove("open");
     modal.style.display = "none";
   }
@@ -1216,6 +1232,12 @@ function verifyDoc(idx) {
         doc.verifiedBy = contextData.adminName || "Admin";
         doc.verifiedOn = new Date().toISOString().split("T")[0];
         doc.issues = [];
+        // Reflect auto-verified application status
+        if (data.application_status && selectedApp) {
+          selectedApp.status = data.application_status;
+          const appInList = applications.find(a => a.id === selectedApp.id);
+          if (appInList) appInList.status = data.application_status;
+        }
         showToast(data.message);
         renderDocCards();
         if (document.getElementById('docPreviewOverlay')?.style.display === 'flex') _renderDocPreviewModal();
@@ -2017,8 +2039,17 @@ async function loadRequirementTypes() {
 // Populate requirement dropdowns
 function populateRequirementDropdowns(types) {
   const select = document.getElementById('addReqRequirementSelect');
-  select.innerHTML = '<option value="">-- Select a requirement --</option>' +
-    types.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  if (!types || types.length === 0) {
+    select.innerHTML = '<option value="">-- No types available. Add via "Manage Requirement Types" first --</option>';
+    const errEl = document.getElementById('addReqError');
+    if (errEl) {
+      errEl.textContent = 'No requirement types configured. Click "Manage Requirement Types" to add some first.';
+      errEl.classList.remove('hidden');
+    }
+  } else {
+    select.innerHTML = '<option value="">-- Select a requirement --</option>' +
+      types.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  }
 }
 
 // Open add requirement modal
@@ -2297,12 +2328,20 @@ async function sendNotifications() {
 
   errorEl.classList.add('hidden');
 
-  // Collect all requirement IDs
+  // Collect all requirement IDs, filtering out empty/invalid values
   const requirementIds = [];
   checkboxes.forEach(cb => {
-    const reqIds = cb.dataset.requirements.split(',');
+    const reqIds = cb.dataset.requirements.split(',').filter(s => s.trim() !== '');
     requirementIds.push(...reqIds);
   });
+
+  const validIds = requirementIds.map(id => parseInt(id)).filter(id => !isNaN(id));
+
+  if (validIds.length === 0) {
+    errorEl.textContent = 'No valid requirements found for selected students.';
+    errorEl.classList.remove('hidden');
+    return;
+  }
 
   try {
     const response = await fetch('/admin-panel/api/requirements/notify/', {
@@ -2312,7 +2351,7 @@ async function sendNotifications() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        student_requirement_ids: requirementIds.map(id => parseInt(id)),
+        student_requirement_ids: validIds,
         message: message
       })
     });
@@ -4195,8 +4234,16 @@ document.getElementById('corSemesterFilter')?.addEventListener('change', _render
   };
 
   // ── Mark read ──────────────────────────────────────────────────────
+  const NOTIF_PAGE_MAP = {
+    'cor_upload': 'cor',
+    'grade_upload': 'grades',
+    'requirement_submitted': 'missing-requirements',
+    'document_upload': 'documents',
+    'enrollment_submitted': 'documents',
+  };
+
   window.markOneAdminNotifRead = async function (id, cardEl) {
-    if (cardEl.classList.contains('bg-white')) return; // already read
+    const notifType = cardEl.dataset.type;
     try {
       await fetch('/admin-panel/api/notifications/mark-read/', {
         method: 'POST',
@@ -4214,6 +4261,12 @@ document.getElementById('corSemesterFilter')?.addEventListener('change', _render
       updateAdminNotifBadge(cd.unread_count);
     } catch (e) {
       console.error('Failed to mark notification read', e);
+    }
+    // Navigate to the relevant section
+    const targetPage = NOTIF_PAGE_MAP[notifType];
+    if (targetPage) {
+      const navItem = document.querySelector(`.nav-item[onclick*="${targetPage}"]`);
+      if (navItem) switchPage(targetPage, navItem);
     }
   };
 
