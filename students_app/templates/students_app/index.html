@@ -2642,7 +2642,7 @@
     <!-- 4. Academic calendar -->
     <script>
       (function () {
-        const EVENTS = {{ calendar_events_json }};
+        const EVENTS = {{ calendar_events_json|safe }};
         const MN = [
           "January",
           "February",
