@@ -1390,11 +1390,19 @@
         <div>
           <div class="year-tabs" id="prospYearTabs"></div>
 
+          <div id="gradeLockedBanner" style="display:none;margin-bottom:14px;padding:10px 14px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius-sm);align-items:center;gap:10px">
+            <span class="ms" style="color:var(--green);flex-shrink:0">lock</span>
+            <div>
+              <div style="font-size:0.79rem;font-weight:700;color:var(--green);font-family:var(--font-display)">Grades Acknowledged</div>
+              <div style="font-size:0.71rem;color:var(--green);font-family:var(--font-mono);margin-top:1px">Your submitted grades have been verified by the admin and can no longer be edited.</div>
+            </div>
+          </div>
+
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap">
             <span style="font-size:0.79rem;font-weight:600;color:var(--ink-3)">Overall GWA:</span>
             <span class="gwa-pill gwa-none" id="gwaDisplay">—</span>
             <span style="font-size:0.7rem;color:var(--ink-4);font-family:var(--font-mono)">enter grades to calculate</span>
-            <button class="btn btn-xs btn-success" style="margin-left:auto" onclick="saveGrades()">
+            <button id="saveGradesBtn" class="btn btn-xs btn-success" style="margin-left:auto" onclick="saveGrades()">
               <span class="ms">save</span>Save Grades
             </button>
           </div>
@@ -1403,7 +1411,7 @@
         </div>
 
         <div style="display:flex;flex-direction:column;gap:14px">
-          <div class="card fu">
+          <div class="card fu" id="gradeScreenshotCard">
             <div class="card-header"><div class="card-title">Upload Grade Screenshot</div></div>
             <div class="card-body">
               <p style="font-size:0.73rem;color:var(--ink-4);margin-bottom:12px;line-height:1.6">Upload a clear photo of your screenshot grade. Enter grades manually above.</p>
@@ -1815,6 +1823,7 @@
     const $ = id => document.getElementById(id);
     let gradeScreenshotFile = null;
     let gradeSubmissionLoaded = false;
+    let gradeSubmissionLocked = false;
 
     /* ============================================================
        FILE SECURITY
@@ -2797,6 +2806,17 @@
       return entries;
     }
 
+    function lockGradeEditing() {
+      gradeSubmissionLocked = true;
+      const banner = $('gradeLockedBanner');
+      if (banner) banner.style.display = 'flex';
+      const btn = $('saveGradesBtn');
+      if (btn) btn.style.display = 'none';
+      const card = $('gradeScreenshotCard');
+      if (card) card.style.display = 'none';
+      document.querySelectorAll('.grade-input').forEach(inp => { inp.disabled = true; });
+    }
+
     function applyGradeSubmission(submission) {
       if (!submission) return;
       gradeSubmissionLoaded = true;
@@ -2912,7 +2932,8 @@
                 data-code="${c.code}"
                 data-title="${c.title.replace(/"/g,'&quot;')}"
                 data-units="${c.lec+c.lab}"
-                value="${gradeVal||''}" oninput="updateGrade(this)"></td>
+                value="${gradeVal||''}" oninput="updateGrade(this)"
+                ${gradeSubmissionLocked ? 'disabled' : ''}></td>
             </tr>`;
           });
           html+=`<tr class="total-row"><td colspan="5" style="text-align:right;font-family:var(--font-mono)">TOTAL</td><td style="font-family:var(--font-mono)">${totalUnits}</td><td>—</td></tr>`;
@@ -2975,6 +2996,10 @@
 
     let gradesScreenshotFile = null;
     async function saveGrades(){
+      if (gradeSubmissionLocked) {
+        showToast('Grades have been acknowledged by the admin and can no longer be edited.', 'error');
+        return;
+      }
       const inputs = Array.from(document.querySelectorAll('.grade-input[data-course]'));
       const entries = [];
       inputs.forEach((inp) => {
@@ -3078,6 +3103,10 @@
           }
           const ocrPanel = $('ocrPanel');
           if (ocrPanel) ocrPanel.style.display = 'block';
+        }
+
+        if (sub.status === 'Acknowledged') {
+          lockGradeEditing();
         }
       } catch (e) {
         console.error('loadLatestGrades failed', e);

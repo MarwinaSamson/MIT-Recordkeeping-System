@@ -351,6 +351,13 @@ def submit_grade_submission(request):
       - entries_json: JSON list of {code,title,units,grade}
       - screenshot (optional file)
     """
+    latest = GradeSubmission.objects.filter(user=request.user).order_by('-uploaded_at').first()
+    if latest and latest.status == 'Acknowledged':
+        return JsonResponse({
+            'success': False,
+            'message': 'Your grades have already been acknowledged by the admin and can no longer be edited.',
+        }, status=403)
+
     semester = (request.POST.get('semester') or '').strip()
     school_year = (request.POST.get('school_year') or '').strip()
     gpa_raw = (request.POST.get('gpa') or '').strip()
