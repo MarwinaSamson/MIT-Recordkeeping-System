@@ -381,13 +381,18 @@ def submit_grade_submission(request):
         except ValueError:
             gpa_val = None
 
-    # Create a new submission per save (history), admin verifies latest
+    # Create a new submission per save (history), admin verifies latest.
+    # Carry over the previous screenshot if no new file was uploaded.
+    inherited_screenshot = None
+    if not screenshot and latest and latest.screenshot:
+        inherited_screenshot = latest.screenshot
+
     sub = GradeSubmission.objects.create(
         user=request.user,
         semester=semester,
         school_year=school_year,
         gpa=gpa_val,
-        screenshot=screenshot,
+        screenshot=screenshot or inherited_screenshot,
         status='Pending',
     )
 
