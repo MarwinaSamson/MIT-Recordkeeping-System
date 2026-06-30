@@ -3231,7 +3231,7 @@ function renderApplicationCards() {
           </div>
           <div>
             <p class="font-bold text-gray-800 text-sm leading-tight">${escapeHtml(app.name || '—')}</p>
-            <p class="text-xs text-gray-400">${escapeHtml(app.course || '—')} · ${escapeHtml(app.id || '—')}</p>
+            <p class="text-xs text-gray-400">${escapeHtml(app.student_curriculum || app.curriculum || app.course || '—')} · ${escapeHtml(app.id || '—')}</p>
           </div>
         </div>
         <div class="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
@@ -3279,7 +3279,7 @@ function openAppDetailsModal() {
   // Populate modal with application data
   document.getElementById('appModalID').textContent = selectedApp.id || '—';
   document.getElementById('appModalSummaryID').textContent = selectedApp.id || '—';
-  document.getElementById('appModalSummaryCourse').textContent = selectedApp.program_description || selectedApp.course || '—';
+  document.getElementById('appModalSummaryCourse').textContent = selectedApp.student_curriculum || selectedApp.curriculum || selectedApp.program_description || selectedApp.course || '—';
   document.getElementById('appModalSummaryDate').textContent = selectedApp.submission_date || '—';
   document.getElementById('appModalSummaryActivity').textContent = selectedApp.last_activity || '—';
   document.getElementById('appModalSummaryStatus').innerHTML = statusBadge(selectedApp.status || '');
@@ -3479,6 +3479,127 @@ function closeAppDetailsModal() {
     modal.classList.remove('fade-in');
   }
 }
+
+function openEditDetailsModal() {
+  if (!selectedApp) return;
+  const modal = document.getElementById('editDetailsModal');
+  if (!modal) return;
+
+  const p = selectedApp.personal || {};
+  const subtitle = document.getElementById('editDetailsSubtitle');
+  if (subtitle) subtitle.textContent = `Editing details for ${escapeHtml(selectedApp.name || selectedApp.id || '—')}`;
+
+  document.getElementById('editFirstName').value        = p.first_name || '';
+  document.getElementById('editMiddleName').value       = p.middle_name || '';
+  document.getElementById('editLastName').value         = p.last_name || '';
+  document.getElementById('editEmail').value            = p.email || selectedApp.email || '';
+  document.getElementById('editContactNumber').value    = p.contact_number || selectedApp.mobile || '';
+  document.getElementById('editDob').value              = p.dob || '';
+  document.getElementById('editGender').value           = p.gender || '';
+  document.getElementById('editCivilStatus').value      = p.civil_status || '';
+  document.getElementById('editPlaceOfBirth').value     = p.place_of_birth || '';
+  document.getElementById('editPermanentAddress').value = p.permanent_address || '';
+  document.getElementById('editCurrentAddress').value   = p.current_address || '';
+
+  const errEl = document.getElementById('editDetailsError');
+  if (errEl) errEl.classList.add('hidden');
+
+  modal.style.display = 'flex';
+  modal.classList.add('fade-in');
+  lucide.createIcons();
+}
+
+function closeEditDetailsModal() {
+  const modal = document.getElementById('editDetailsModal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('fade-in');
+  }
+}
+
+function saveApplicationDetails() {
+  if (!selectedApp) return;
+  const errEl = document.getElementById('editDetailsError');
+  if (errEl) errEl.classList.add('hidden');
+
+  const firstName = document.getElementById('editFirstName').value.trim();
+  const lastName  = document.getElementById('editLastName').value.trim();
+  if (!firstName || !lastName) {
+    if (errEl) { errEl.textContent = 'First Name and Last Name are required.'; errEl.classList.remove('hidden'); }
+    return;
+  }
+
+  const payload = {
+    user_id:           selectedApp.userId || selectedApp.user_id,
+    first_name:        firstName,
+    middle_name:       document.getElementById('editMiddleName').value.trim(),
+    last_name:         lastName,
+    email:             document.getElementById('editEmail').value.trim(),
+    contact_number:    document.getElementById('editContactNumber').value.trim(),
+    dob:               document.getElementById('editDob').value,
+    gender:            document.getElementById('editGender').value,
+    civil_status:      document.getElementById('editCivilStatus').value,
+    place_of_birth:    document.getElementById('editPlaceOfBirth').value.trim(),
+    permanent_address: document.getElementById('editPermanentAddress').value.trim(),
+    current_address:   document.getElementById('editCurrentAddress').value.trim(),
+  };
+
+  const saveBtn = document.querySelector('#editDetailsModal button[onclick="saveApplicationDetails()"]');
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
+
+  fetch('/admin-panel/api/application/details/update/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+    body: JSON.stringify(payload),
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        // Update in-memory selectedApp so the modal re-opens with fresh data
+        if (!selectedApp.personal) selectedApp.personal = {};
+        Object.assign(selectedApp.personal, {
+          first_name:        payload.first_name,
+          middle_name:       payload.middle_name,
+          last_name:         payload.last_name,
+          full_name:         `${payload.first_name} ${payload.middle_name ? payload.middle_name + ' ' : ''}${payload.last_name}`.trim(),
+          email:             payload.email,
+          contact_number:    payload.contact_number,
+          dob:               payload.dob,
+          gender:            payload.gender,
+          civil_status:      payload.civil_status,
+          place_of_birth:    payload.place_of_birth,
+          permanent_address: payload.permanent_address,
+          current_address:   payload.current_address,
+        });
+        selectedApp.name  = selectedApp.personal.full_name || selectedApp.name;
+        selectedApp.email = payload.email || selectedApp.email;
+        selectedApp.mobile = payload.contact_number || selectedApp.mobile;
+
+        // Sync the in-memory applications array
+        const idx = applications.findIndex(a => a.id === selectedApp.id);
+        if (idx !== -1) applications[idx] = selectedApp;
+
+        closeEditDetailsModal();
+        showToast('Student details updated successfully ✓');
+        // Re-open the app details modal to reflect changes
+        openAppDetailsModal();
+        renderApplicationCards();
+      } else {
+        if (errEl) { errEl.textContent = data.message || 'Failed to save changes.'; errEl.classList.remove('hidden'); }
+      }
+    })
+    .catch(e => {
+      if (errEl) { errEl.textContent = 'Network error: ' + e.message; errEl.classList.remove('hidden'); }
+    })
+    .finally(() => {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Save Changes';
+        lucide.createIcons();
+      }
+    });
+}
+
 function updateApplicationStats() {
   const s = applications.map(a => (a.status || '').toLowerCase());
   document.getElementById("appTotalCount").innerText = applications.length;

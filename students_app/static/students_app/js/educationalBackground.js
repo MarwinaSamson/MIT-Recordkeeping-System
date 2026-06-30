@@ -105,6 +105,27 @@ container.innerHTML += `
         </div>
         `;
 
+const prospectuses = window.__prospectuses__ || [];
+const savedMitCurriculum = window.__savedMitCurriculum__ || saved.mitCurriculum || "";
+const curriculumOptions = prospectuses.map(function(p) {
+  const sel = p.name === savedMitCurriculum ? " selected" : "";
+  return `<option value="${p.name}"${sel}>${p.name}</option>`;
+}).join("");
+
+container.innerHTML += `
+        <div class="border border-gray-200 rounded-xl p-5 space-y-4 mb-4">
+            <h3 class="text-lg font-bold text-brand">MIT Curriculum <span class="text-gray-400 text-sm font-normal ml-1">(if applicable)</span></h3>
+            <div>
+            <select name="mitCurriculum"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand transition bg-white">
+                <option value="">— Select Curriculum —</option>
+                ${curriculumOptions}
+            </select>
+            <p class="text-xs text-red-500 mt-1 hidden" data-error="mitCurriculum"></p>
+            </div>
+        </div>
+        `;
+
 // ===== VALIDATION =====
 document.getElementById("eduForm").addEventListener("submit", function (e) {
   e.preventDefault();
@@ -147,6 +168,11 @@ document.getElementById("eduForm").addEventListener("submit", function (e) {
     ? this.elements["scholarship"].value.trim()
     : "";
   data.scholarship = scholarship;
+
+  // Get MIT Curriculum value
+  const mitCurriculumEl = this.elements["mitCurriculum"];
+  const mitCurriculum = mitCurriculumEl ? mitCurriculumEl.value.trim() : "";
+  data.mitCurriculum = mitCurriculum;
 
   if (valid) {
     // Set the data in a hidden field and submit the form

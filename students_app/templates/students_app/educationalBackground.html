@@ -87,6 +87,12 @@
       </div>
     </div>
 
+    <script>
+      window.__prospectuses__ = [
+        {% for p in prospectuses %}{ id: "{{ p.id }}", name: "{{ p.name|escapejs }}" },{% endfor %}
+      ];
+      window.__savedMitCurriculum__ = "{{ saved_mit_curriculum|escapejs }}";
+    </script>
     <script src="{% static 'students_app/js/educationalBackground.js' %}"></script>
   </body>
 </html>

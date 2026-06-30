@@ -63,6 +63,7 @@ from .views.api_views import (
      get_admin_notification_count,
      get_activity_log_api,
      toggle_student_status,
+     update_application_details,
 )
 
 from .views.document_verification import (
@@ -121,6 +122,7 @@ urlpatterns = [
          name='api_send_notification'),
     path('api/students/all/', get_all_students, name='api_get_all_students'),
     path('api/student/toggle-status/', toggle_student_status, name='api_toggle_student_status'),
+    path('api/application/details/update/', update_application_details, name='api_update_application_details'),
 
     # Program CMS APIs
     path('api/program/list/', list_cms_programs, name='api_list_cms_programs'),

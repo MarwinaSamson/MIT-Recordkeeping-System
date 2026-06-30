@@ -777,6 +777,55 @@ def toggle_student_status(request):
 @login_required(login_url='login')
 @user_passes_test(is_superuser, login_url='login')
 @require_http_methods(["POST"])
+def update_application_details(request):
+    """Update a student's personal details from the admin Application Details modal."""
+    try:
+        from students_app.models import PersonalDetails
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        if not user_id:
+            return JsonResponse({'success': False, 'message': 'user_id is required.'}, status=400)
+
+        user = User.objects.get(id=user_id)
+        pd, _ = PersonalDetails.objects.get_or_create(user=user, defaults={
+            'first_name': '', 'last_name': '', 'dob': '2000-01-01',
+            'gender': '', 'civil_status': '', 'place_of_birth': '',
+            'religion': '', 'ethnicity': '', 'nationality': '', 'disability': '',
+            'permanent_address': '', 'contact_number': '', 'email': user.email,
+            'name_of_parent': '', 'relationship': '', 'parent_income': '',
+        })
+
+        editable_fields = [
+            'first_name', 'middle_name', 'last_name', 'dob', 'age', 'gender',
+            'civil_status', 'place_of_birth', 'permanent_address', 'current_address',
+            'contact_number', 'email',
+        ]
+        updated = []
+        for field in editable_fields:
+            if field in data:
+                setattr(pd, field, data[field])
+                updated.append(field)
+
+        if updated:
+            pd.save(update_fields=updated)
+
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='profile_updated',
+            notes=f'Admin updated personal details for student {user.username} (fields: {", ".join(updated)})'
+        )
+        return JsonResponse({'success': True, 'message': 'Student details updated successfully.'})
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'User not found.'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON data.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
 def update_cms_settings(request):
     """Update public homepage CMS settings."""
     try:

@@ -6,8 +6,9 @@ from ..models import EducationalBackground
 @login_required
 def educational_background(request):
     if request.method == 'POST':
-        # Get the data from the form
         levels_data = request.POST.get('levels_data')
+        mit_curriculum = request.POST.get('mitCurriculum', '').strip()
+
         if levels_data:
             import json
             try:
@@ -24,13 +25,19 @@ def educational_background(request):
 
                     # Only save if school_name is provided (required fields check)
                     if level_data.get('schoolName', '').strip():
+                        extra = {}
+                        if level_key == 'college' and mit_curriculum:
+                            from students_app.utils import resolve_canonical_curriculum_name
+                            extra['mit_curriculum'] = resolve_canonical_curriculum_name(mit_curriculum) or mit_curriculum
+
                         EducationalBackground.objects.create(
                             user=user,
                             level=level_key,
                             school_name=level_data.get('schoolName', ''),
                             degree_course=level_data.get('degree', ''),
                             year_completed=int(level_data.get('yearCompleted', 0)) if level_data.get('yearCompleted') else None,
-                            scholarship=data.get('scholarship', '')
+                            scholarship=data.get('scholarship', ''),
+                            **extra
                         )
 
                 messages.success(request, 'Educational background saved successfully!')
@@ -41,4 +48,11 @@ def educational_background(request):
             except Exception as e:
                 messages.error(request, f'Error saving data: {str(e)}')
 
-    return render(request, "students_app/educationalBackground.html")
+    # GET — pass prospectuses and previously saved curriculum for pre-fill
+    from admin_app.models import Prospectus
+    prospectuses = Prospectus.objects.filter(is_active=True).order_by('-created_at')
+    eb_college = EducationalBackground.objects.filter(user=request.user, level='college').first()
+    return render(request, "students_app/educationalBackground.html", {
+        'prospectuses': prospectuses,
+        'saved_mit_curriculum': eb_college.mit_curriculum if eb_college else '',
+    })
