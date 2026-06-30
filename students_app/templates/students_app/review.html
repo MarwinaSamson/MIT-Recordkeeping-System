@@ -300,12 +300,12 @@
   </div>
 
   <body class="bg-beige min-h-screen">
-    <header class="text-center pt-10 pb-6">
-      <div class="flex items-center justify-center mb-4">
+    <header class="text-center pt-6 sm:pt-10 pb-4 sm:pb-6">
+      <div class="flex items-center justify-center mb-3 sm:mb-4">
         <img
           src="{% static 'assets/logoandcap.png' %}"
           alt="WMSU Logo"
-          class="h-16 w-auto object-contain drop-shadow-sm"
+          class="h-12 sm:h-16 w-auto object-contain drop-shadow-sm"
         />
       </div>
       <div class="flex items-center justify-center gap-3 mb-2">
@@ -317,10 +317,10 @@
         </p>
         <span class="block w-8 h-px bg-[#8c1515]/30"></span>
       </div>
-      <h1 class="text-3xl font-bold text-ink">
+      <h1 class="text-2xl sm:text-3xl font-bold text-ink">
         WMSU <em class="italic text-brand">Graduate School</em>
       </h1>
-      <p class="text-sm text-muted mt-1">
+      <p class="text-xs sm:text-sm text-muted mt-1 px-4">
         Admission Form &mdash; Complete all sections to submit your application.
       </p>
     </header>
@@ -366,15 +366,15 @@
           </div>
         </div>
 
-        <div class="flex justify-between pt-6">
+        <div class="flex justify-between pt-6 gap-2">
           <a
             href="{% url 'privacyNotice' %}"
-            class="inline-flex items-center gap-2 px-8 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand/5 active:scale-[0.98] transition"
+            class="inline-flex items-center gap-2 px-5 sm:px-8 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand/5 active:scale-[0.98] transition"
             >← Back</a
           >
           <button
             onclick="submitApplication()"
-            class="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md"
+            class="inline-flex items-center gap-2 px-4 sm:px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md text-sm sm:text-base"
           >
             Submit Application
           </button>

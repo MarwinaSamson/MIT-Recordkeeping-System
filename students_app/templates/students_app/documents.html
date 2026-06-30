@@ -114,12 +114,12 @@
   </head>
 
   <body class="bg-beige min-h-screen">
-    <header class="text-center pt-10 pb-6">
-      <div class="flex items-center justify-center mb-4">
+    <header class="text-center pt-6 sm:pt-10 pb-4 sm:pb-6">
+      <div class="flex items-center justify-center mb-3 sm:mb-4">
         <img
           src="{% static 'assets/logoandcap.png' %}"
           alt="WMSU Logo"
-          class="h-16 w-auto object-contain drop-shadow-sm"
+          class="h-12 sm:h-16 w-auto object-contain drop-shadow-sm"
         />
       </div>
       <div class="flex items-center justify-center gap-3 mb-2">
@@ -131,14 +131,14 @@
         </p>
         <span class="block w-8 h-px bg-[#8c1515]/30"></span>
       </div>
-      <h1 class="text-3xl font-bold text-ink">
+      <h1 class="text-2xl sm:text-3xl font-bold text-ink">
         WMSU <em class="italic text-brand">Graduate School</em>
       </h1>
-      <p class="text-sm text-muted mt-1">
+      <p class="text-xs sm:text-sm text-muted mt-1 px-4">
         Admission Form &mdash; Complete all sections to submit your application.
       </p>
     </header>
-    <div class="max-w-4xl mx-auto px-4 mb-8">
+    <div class="max-w-4xl mx-auto px-4 mb-6 sm:mb-8">
       <div class="flex items-center justify-between" id="progressBar"></div>
     </div>
     <div class="max-w-3xl mx-auto px-4 pb-12">
@@ -250,17 +250,17 @@
                 <i class="fas fa-star text-yellow-500 text-xs"></i>
                 <span>Recommended: Upload as one PDF file</span>
               </div>
-              <div class="flex items-start gap-4">
-                <div class="flex-grow">
+              <div class="flex flex-col sm:flex-row items-start gap-3">
+                <div class="flex-grow w-full">
                   <input
                     type="file"
                     name="{{ req.field_key }}_pdf"
                     accept=".pdf"
-                    class="w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 transition cms-pdf-input"
+                    class="w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200 transition cms-pdf-input"
                   />
                 </div>
                 <div
-                  class="flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden cms-pdf-preview"
+                  class="cms-pdf-preview flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden"
                 >
                   <i class="fas fa-file-pdf text-2xl text-red-500"></i>
                 </div>
@@ -283,28 +283,30 @@
                 data-field-key="{{ req.field_key }}"
               >
                 <div
-                  class="cms-image-item flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-200"
+                  class="cms-image-item flex flex-col sm:flex-row items-start gap-3 bg-white p-3 rounded-lg border border-gray-200"
                 >
-                  <div class="flex-grow">
+                  <div class="flex-grow w-full">
                     <input
                       type="file"
                       name="{{ req.field_key }}_images[]"
                       accept=".jpg,.jpeg,.png"
-                      class="cms-image-input w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition"
+                      class="cms-image-input w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition"
                     />
                   </div>
-                  <div
-                    class="cms-image-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden"
-                  >
-                    <i class="fas fa-image text-2xl"></i>
+                  <div class="flex items-center gap-2 sm:contents">
+                    <div
+                      class="cms-image-preview flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden"
+                    >
+                      <i class="fas fa-image text-2xl"></i>
+                    </div>
+                    <button
+                      type="button"
+                      class="remove-cms-image text-red-500 hover:text-red-700 p-1"
+                      style="display: none"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    class="remove-cms-image text-red-500 hover:text-red-700 p-1"
-                    style="display: none"
-                  >
-                    <i class="fas fa-times"></i>
-                  </button>
                 </div>
               </div>
               <button
@@ -342,17 +344,17 @@
             <p class="text-xs text-gray-500 mb-3">{{ req.description }}</p>
             {% endif %}
 
-            <div class="flex items-start gap-4">
-              <div class="flex-grow">
+            <div class="flex flex-col sm:flex-row items-start gap-3">
+              <div class="flex-grow w-full">
                 <input
                   type="file"
                   name="{{ req.field_key }}_file"
                   accept=".pdf,.jpg,.jpeg,.png"
-                  class="cms-single-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition"
+                  class="cms-single-file w-full rounded-lg border border-gray-300 px-3 py-2 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition"
                 />
               </div>
               <div
-                class="cms-single-preview flex-shrink-0 w-20 h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden"
+                class="cms-single-preview flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 overflow-hidden"
               >
                 <i class="fas fa-image text-2xl"></i>
               </div>
@@ -382,12 +384,12 @@
           <div class="flex justify-between pt-6">
             <a
               href="{% url 'workingStudent' %}"
-              class="inline-flex items-center gap-2 px-8 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand/5 active:scale-[0.98] transition"
+              class="inline-flex items-center gap-2 px-5 sm:px-8 py-3 rounded-lg border-2 border-brand text-brand font-semibold hover:bg-brand/5 active:scale-[0.98] transition"
               >← Back</a
             >
             <button
               type="submit"
-              class="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md"
+              class="inline-flex items-center gap-2 px-5 sm:px-8 py-3 rounded-lg bg-brand text-white font-semibold hover:opacity-90 active:scale-[0.98] transition shadow-md"
             >
               Next →
             </button>
