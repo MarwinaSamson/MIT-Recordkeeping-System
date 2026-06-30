@@ -35,6 +35,7 @@
   .badge-verified{background:#DCFCE7;color:#15803D;}
   .badge-incomplete{background:#FEE2E2;color:#B91C1C;}
   .badge-rejected{background:#FEE2E2;color:#B91C1C;}
+  .badge-enrolled{background:#DCFCE7;color:#15803D;font-weight:700;}
 
   .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
   .dot-green{background:#22C55E;}.dot-orange{background:#F97316;}.dot-red{background:#EF4444;}

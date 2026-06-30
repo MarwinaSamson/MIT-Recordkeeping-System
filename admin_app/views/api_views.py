@@ -733,6 +733,50 @@ def delete_user_account(request):
 @login_required(login_url='login')
 @user_passes_test(is_superuser, login_url='login')
 @require_http_methods(["POST"])
+def toggle_student_status(request):
+    """Activate or deactivate a student account. Deactivated students cannot log in."""
+    try:
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        is_active = data.get('is_active')
+        reason = str(data.get('reason', '')).strip()
+
+        if not user_id:
+            return JsonResponse({'success': False, 'message': 'user_id is required.'}, status=400)
+        if is_active is None:
+            return JsonResponse({'success': False, 'message': 'is_active is required.'}, status=400)
+        if not reason:
+            return JsonResponse({'success': False, 'message': 'A reason is required.'}, status=400)
+
+        user = User.objects.get(id=user_id)
+        if user.id == request.user.id:
+            return JsonResponse({'success': False, 'message': 'You cannot change your own account status.'}, status=400)
+
+        user.is_active = bool(is_active)
+        user.save()
+
+        action_label = 'activated' if is_active else 'deactivated'
+        AdminActivityLog.objects.create(
+            admin=request.user,
+            action='profile_updated',
+            notes=f'Student account {action_label}: {user.username}. Reason: {reason}'
+        )
+        return JsonResponse({
+            'success': True,
+            'message': f'Student account has been {action_label}.',
+            'is_active': user.is_active,
+        })
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'User not found.'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'message': 'Invalid JSON data.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=400)
+
+
+@login_required(login_url='login')
+@user_passes_test(is_superuser, login_url='login')
+@require_http_methods(["POST"])
 def update_cms_settings(request):
     """Update public homepage CMS settings."""
     try:

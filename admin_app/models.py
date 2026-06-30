@@ -21,6 +21,7 @@ class Application(models.Model):
         ('verified', 'Verified'),
         ('incomplete', 'Incomplete'),
         ('rejected', 'Rejected'),
+        ('enrolled', 'Enrolled'),
     ]
 
     user = models.OneToOneField(

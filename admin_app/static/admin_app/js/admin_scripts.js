@@ -515,8 +515,8 @@ function statusBadge(s) {
     "Pending review": "Pending Review",
     "Under review": "Under Review"
   }[normalized] || normalized;
-  const m = { "Pending Review": "badge-pending", "Under Review": "badge-review", "Verified": "badge-verified", "Incomplete": "badge-incomplete", "Rejected": "badge-rejected" };
-  const ic = { "Pending Review": "⏳", "Under Review": "🔄", "Verified": "✅", "Incomplete": "⚠️", "Rejected": "❌" };
+  const m = { "Pending Review": "badge-pending", "Under Review": "badge-review", "Verified": "badge-verified", "Incomplete": "badge-incomplete", "Rejected": "badge-rejected", "Enrolled": "badge-enrolled" };
+  const ic = { "Pending Review": "⏳", "Under Review": "🔄", "Verified": "✅", "Incomplete": "⚠️", "Rejected": "❌", "Enrolled": "🎓" };
   return `<span class="status-badge ${m[full] || 'badge-review'}">${ic[full] || ''}${full}</span>`;
 }
 function initials(n) { return n.split(" ").filter((_, i, a) => i === 0 || i === a.length - 1).map(x => x[0]).join("").toUpperCase(); }
@@ -622,7 +622,7 @@ function switchPage(pageId, el) {
     }
     renderTable();
   }
-  if (pageId === 'students') renderStudents();
+  if (pageId === 'students') renderCurriculumCards();
   if (pageId === 'history') refreshActivityHistory();
   if (pageId === 'dashboard') renderDashboard();
   if (pageId === 'school-year') {
@@ -746,77 +746,216 @@ function updateCounts() {
   document.getElementById("incompleteCount").innerText = s.filter(x => x === "incomplete").length;
 }
 /* ═══ STUDENTS ═══ */
-function renderStudents() {
-  const grid = document.getElementById("studentGrid");
-  const cnt = document.getElementById("studentCount");
-  if (!grid) return;
-  const search = (document.getElementById("studentSearch")?.value || "").toLowerCase();
-  const course = document.getElementById("studentCourse")?.value || "all";
-  let filtered = applications.filter(a =>
-    (a.name.toLowerCase().includes(search) || a.id.toLowerCase().includes(search)) &&
-    (course === "all" || a.course === course)
-  );
-  if (cnt) cnt.innerText = filtered.length;
-  if (!filtered.length) {
-    grid.innerHTML = `<div class="col-span-3 py-16 text-center text-gray-400"><i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-40"></i><p class="text-sm">No students found.</p></div>`;
+/* ═══ STUDENT TAB — CURRICULUM CARDS ═══ */
+
+// Track which curriculum is currently open in table view
+let _activeCurriculumFilter = 'all';
+
+function renderCurriculumCards() {
+  const cardsGrid  = document.getElementById('curriculumCardsGrid');
+  const cntEl      = document.getElementById('studentCount');
+  if (!cardsGrid) return;
+
+  if (cntEl) cntEl.innerText = applications.length;
+
+  // Build a map: curriculum label → [apps]
+  const curriculaMap = {};
+  applications.forEach(app => {
+    const label = (app.curriculum || '').trim() || '(No Curriculum Assigned)';
+    if (!curriculaMap[label]) curriculaMap[label] = [];
+    curriculaMap[label].push(app);
+  });
+
+  // Populate the curriculum filter dropdown (for table view)
+  const sel = document.getElementById('studentCurriculum');
+  if (sel) {
+    const prev = sel.value;
+    sel.innerHTML = '<option value="all">All Curricula</option>';
+    Object.keys(curriculaMap).sort().forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      if (c === prev) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  if (!Object.keys(curriculaMap).length) {
+    cardsGrid.innerHTML = `<div class="col-span-4 py-16 text-center text-gray-400">
+      <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
+      <p class="text-sm">No students found.</p></div>`;
     lucide.createIcons(); return;
   }
-  grid.innerHTML = filtered.map(app => {
-    // Account status
-    const isActive = app.accountActive !== undefined ? app.accountActive : true;
-    const accountBadge = isActive
-      ? '<span class="px-2 py-0.5 text-xs rounded-full bg-green-50 border border-green-200 text-green-700 font-medium">Active</span>'
-      : '<span class="px-2 py-0.5 text-xs rounded-full bg-red-50 border border-red-200 text-red-700 font-medium">Inactive</span>';
 
-    const esc = (s) => String(s || '').replace(/'/g, "\\'");
-    const userId = app.userId || 0;
-    const reason = esc(app.accountStatusReason || '');
-    const changedBy = esc(app.accountStatusChangedBy || '');
-    const changedAt = esc(app.accountStatusChangedAt || '');
+  // Sort curricula: named ones first (alphabetical), then "No Curriculum Assigned"
+  const sortedKeys = Object.keys(curriculaMap).sort((a, b) => {
+    if (a === '(No Curriculum Assigned)') return 1;
+    if (b === '(No Curriculum Assigned)') return -1;
+    return a.localeCompare(b);
+  });
 
-    const toggleBtn = `
-      <button onclick="openToggleStatusModal(${userId},'${esc(app.name)}',${isActive},'${reason}','${changedBy}','${changedAt}')" 
-        class="text-xs font-medium px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 w-full justify-center
-        ${isActive ? 'text-red-600 border-red-200 hover:bg-red-50' : 'text-green-600 border-green-200 hover:bg-green-50'}">
-        <i data-lucide="${isActive ? 'user-x' : 'user-check'}" class="w-3 h-3"></i>
-        ${isActive ? 'Deactivate Account' : 'Activate Account'}
-      </button>`;
+  const CARD_COLORS = [
+    { bg: 'bg-red-50',    border: 'border-red-200',    icon: 'text-red-600',    dot: 'bg-red-500' },
+    { bg: 'bg-blue-50',   border: 'border-blue-200',   icon: 'text-blue-600',   dot: 'bg-blue-500' },
+    { bg: 'bg-green-50',  border: 'border-green-200',  icon: 'text-green-600',  dot: 'bg-green-500' },
+    { bg: 'bg-purple-50', border: 'border-purple-200', icon: 'text-purple-600', dot: 'bg-purple-500' },
+    { bg: 'bg-amber-50',  border: 'border-amber-200',  icon: 'text-amber-600',  dot: 'bg-amber-500' },
+    { bg: 'bg-teal-50',   border: 'border-teal-200',   icon: 'text-teal-600',   dot: 'bg-teal-500' },
+  ];
 
-    const statusInfo = app.accountStatusReason
-      ? `<p class="text-xs text-gray-400 mt-1.5">${esc(app.accountStatusChangedBy || '')}${app.accountStatusChangedBy && app.accountStatusChangedAt ? ' · ' : ''}${esc(app.accountStatusChangedAt || '')}</p>`
-      : '';
+  cardsGrid.innerHTML = sortedKeys.map((currName, idx) => {
+    const apps     = curriculaMap[currName];
+    const color    = CARD_COLORS[idx % CARD_COLORS.length];
+    const enrolled = apps.filter(a => (a.status || '').toLowerCase() === 'enrolled').length;
+    const total    = apps.length;
+    const active   = apps.filter(a => a.accountActive !== false).length;
+    const esc      = (s) => String(s || '').replace(/"/g, '&quot;');
 
     return `
-    <div class="bg-white rounded-2xl shadow-sm p-5 fade-in hover:shadow-md transition">
-      <div class="flex items-center gap-4 mb-3">
-        <div class="w-12 h-12 rounded-full ${avatarBg(app.name)} flex items-center justify-center font-bold text-base flex-shrink-0">${initials(app.name)}</div>
-        <div>
-          <p class="font-bold text-gray-800 text-sm leading-tight">${app.name}</p>
-          <p class="text-xs text-gray-400">${app.course} · ${app.id}</p>
+    <div class="bg-white border ${color.border} rounded-2xl p-5 cursor-pointer hover:shadow-md transition-all hover:-translate-y-0.5 fade-in"
+         onclick="openCurriculumStudents('${esc(currName)}')">
+      <div class="flex items-start justify-between mb-3">
+        <div class="w-10 h-10 rounded-xl ${color.bg} flex items-center justify-center flex-shrink-0">
+          <i data-lucide="book-open" class="w-5 h-5 ${color.icon}"></i>
         </div>
+        <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${color.bg} ${color.icon} border ${color.border}">${total} student${total !== 1 ? 's' : ''}</span>
       </div>
-      <div class="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-xs text-gray-500 font-semibold uppercase tracking-wide">Account</span>
-          ${accountBadge}
-        </div>
-        ${statusInfo}
-        <div class="mt-2">${toggleBtn}</div>
-      </div>
-      <div class="space-y-1.5 text-xs text-gray-500 mb-3">
-        <p class="flex items-center gap-2"><i data-lucide="mail" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>${app.email}</p>
-        <p class="flex items-center gap-2"><i data-lucide="phone" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>${app.mobile}</p>
-        <p class="flex items-center gap-2"><i data-lucide="calendar" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0"></i>Submitted: ${app.submission_date}</p>
-      </div>
-      <div class="border-t border-gray-100 pt-3 flex items-center justify-between">
-        ${statusBadge(app.status)}
-        <button onclick="switchPage('documents',document.querySelectorAll('.nav-item')[1]);setTimeout(function(){openModal('${app.id}')},120)"
-          class="text-xs text-red-700 font-semibold hover:underline flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i> View Docs</button>
+      <p class="font-bold text-gray-800 text-sm leading-snug mb-1">${escapeHtml(currName)}</p>
+      <div class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
+        <span class="flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
+          ${enrolled} enrolled
+        </span>
+        <span class="flex items-center gap-1">
+          <span class="w-2 h-2 rounded-full bg-blue-400 inline-block"></span>
+          ${active} active accounts
+        </span>
       </div>
     </div>`;
-  }).join("");
+  }).join('');
   lucide.createIcons();
 }
+
+function openCurriculumStudents(currName) {
+  _activeCurriculumFilter = currName;
+
+  // Show table section, hide cards section
+  document.getElementById('curriculumCardsSection').style.display = 'none';
+  const tableSection = document.getElementById('studentTableSection');
+  tableSection.style.display = 'block';
+
+  // Set title
+  document.getElementById('studentTableTitle').textContent = currName;
+  const apps = applications.filter(a => {
+    const label = (a.curriculum || '').trim() || '(No Curriculum Assigned)';
+    return label === currName;
+  });
+  document.getElementById('studentTableSubtitle').textContent = `${apps.length} student${apps.length !== 1 ? 's' : ''} in this curriculum`;
+
+  // Set curriculum filter to this one
+  const sel = document.getElementById('studentCurriculum');
+  if (sel) sel.value = currName;
+
+  // Reset search + sort
+  const searchEl = document.getElementById('studentSearch');
+  if (searchEl) searchEl.value = '';
+  const sortEl = document.getElementById('studentSort');
+  if (sortEl) sortEl.value = 'name_asc';
+
+  renderStudentTable();
+}
+
+function showCurriculumCards() {
+  document.getElementById('studentTableSection').style.display = 'none';
+  document.getElementById('curriculumCardsSection').style.display = 'block';
+  _activeCurriculumFilter = 'all';
+}
+
+function renderStudentTable() {
+  const tbody    = document.getElementById('studentTableBody');
+  const cntEl    = document.getElementById('studentTableCount');
+  if (!tbody) return;
+
+  const search   = (document.getElementById('studentSearch')?.value || '').toLowerCase();
+  const currFilter = document.getElementById('studentCurriculum')?.value || 'all';
+  const sort     = document.getElementById('studentSort')?.value || 'name_asc';
+
+  let filtered = applications.filter(app => {
+    const label = (app.curriculum || '').trim() || '(No Curriculum Assigned)';
+    const matchCurr = currFilter === 'all' || label === currFilter;
+    const matchSearch = !search ||
+      app.name.toLowerCase().includes(search) ||
+      (app.id || '').toLowerCase().includes(search) ||
+      (app.email || '').toLowerCase().includes(search);
+    return matchCurr && matchSearch;
+  });
+
+  // Sort
+  filtered.sort((a, b) => {
+    if (sort === 'name_asc')    return a.name.localeCompare(b.name);
+    if (sort === 'name_desc')   return b.name.localeCompare(a.name);
+    if (sort === 'date_newest') return new Date(b.submission_date) - new Date(a.submission_date);
+    if (sort === 'date_oldest') return new Date(a.submission_date) - new Date(b.submission_date);
+    return 0;
+  });
+
+  if (cntEl) cntEl.innerText = filtered.length;
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="px-5 py-14 text-center text-gray-400 text-sm">
+      <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-40 block"></i>No students found.</td></tr>`;
+    lucide.createIcons(); return;
+  }
+
+  const esc = (s) => String(s || '').replace(/'/g, "\\'");
+
+  tbody.innerHTML = filtered.map(app => {
+    const isActive     = app.accountActive !== undefined ? app.accountActive : true;
+    const userId       = app.userId || 0;
+    const currLabel    = (app.curriculum || '').trim() || '—';
+    const semYearLabel = [app.semester, app.year_admitted].filter(Boolean).join(' · ') || '—';
+
+    const accountBadge = isActive
+      ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-green-50 border border-green-200 text-green-700 font-medium">
+           <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>Active</span>`
+      : `<span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full bg-red-50 border border-red-200 text-red-700 font-medium">
+           <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>Inactive</span>`;
+
+    return `<tr class="hover:bg-gray-50 transition">
+      <td class="px-5 py-3.5">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full ${avatarBg(app.name)} flex items-center justify-center font-bold text-xs flex-shrink-0">${initials(app.name)}</div>
+          <div>
+            <p class="font-semibold text-gray-800 text-sm leading-tight">${escapeHtml(app.name)}</p>
+            <p class="text-xs text-gray-400">${escapeHtml(app.id)} · ${escapeHtml(app.email)}</p>
+          </div>
+        </div>
+      </td>
+      <td class="px-4 py-3.5 text-xs text-gray-600">${escapeHtml(currLabel)}</td>
+      <td class="px-4 py-3.5 text-xs text-gray-600">${escapeHtml(semYearLabel)}</td>
+      <td class="px-4 py-3.5">${statusBadge(app.status)}</td>
+      <td class="px-4 py-3.5">${accountBadge}</td>
+      <td class="px-4 py-3.5 text-right pr-5">
+        <div class="flex items-center justify-end gap-2">
+          <button onclick="switchPage('documents',document.querySelectorAll('.nav-item')[1]);setTimeout(function(){openModal('${esc(app.id)}')},120)"
+            class="text-xs text-red-700 font-semibold hover:underline flex items-center gap-1">
+            <i data-lucide="eye" class="w-3 h-3"></i> Docs
+          </button>
+          <button onclick="openToggleStatusModal(${userId},'${esc(app.name)}',${isActive},'','','')"
+            class="text-xs font-medium px-2.5 py-1 rounded-lg border transition flex items-center gap-1
+            ${isActive ? 'text-red-600 border-red-200 hover:bg-red-50' : 'text-green-600 border-green-200 hover:bg-green-50'}">
+            <i data-lucide="${isActive ? 'user-x' : 'user-check'}" class="w-3 h-3"></i>
+            ${isActive ? 'Deactivate' : 'Activate'}
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  lucide.createIcons();
+}
+
+// Keep old name as alias so any lingering callers don't break
+function renderStudents() { renderCurriculumCards(); }
 
 /* ═══ BULK VERIFY FUNCTIONS ═══ */
 
@@ -1379,7 +1518,6 @@ function acceptEnrollApplication() {
   const remarks = document.getElementById("remarks")?.value || '';
   const semester = document.getElementById("admSemester")?.value || "";
   const yearAdmitted = document.getElementById("admYear")?.value || "";
-  const programLevel = document.getElementById("admProgramLevel")?.value || "";
   const curriculum = document.getElementById("admCurriculum")?.value || "";
   const curriculumData = saveCurriculumData();
 
@@ -1392,7 +1530,6 @@ function acceptEnrollApplication() {
       remarks,
       semester,
       year_admitted: yearAdmitted,
-      program_level: programLevel,
       curriculum,
       curriculum_data: curriculumData
     })
@@ -1404,7 +1541,6 @@ function acceptEnrollApplication() {
         selectedApp.status = 'enrolled';
         selectedApp.semester = semester;
         selectedApp.year_admitted = yearAdmitted;
-        selectedApp.program_level = programLevel;
         selectedApp.curriculum = curriculum;
         selectedApp.curriculum_data = curriculumData;
         _updateAppModalButtons();
@@ -2483,8 +2619,17 @@ function confirmToggleStatus() {
     .then(function (data) {
       if (data.success) {
         showToast(data.message, 'success');
+        // Update the in-memory applications array so we don't need a full reload
+        var app = applications.find(function(a) { return (a.userId || a.user_id) == toggleStudentId; });
+        if (app) app.accountActive = !toggleStudentIsActive;
         closeToggleStatusModal();
-        setTimeout(function () { location.reload(); }, 1000);
+        // Refresh whichever student view is currently visible
+        var tableVisible = document.getElementById('studentTableSection')?.style.display !== 'none';
+        if (tableVisible) {
+          renderStudentTable();
+        } else {
+          renderCurriculumCards();
+        }
       } else {
         showToast('Error: ' + data.message, 'warn');
       }

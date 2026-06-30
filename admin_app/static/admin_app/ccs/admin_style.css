@@ -123,6 +123,12 @@ body {
     color: #B91C1C;
 }
 
+.badge-enrolled {
+    background: #DCFCE7;
+    color: #15803D;
+    font-weight: 700;
+}
+
 .dot {
     width: 8px;
     height: 8px;

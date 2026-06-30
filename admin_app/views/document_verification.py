@@ -169,6 +169,8 @@ def _build_application_list():
         apps.append({
             'id':              app.application_id,
             'user_id':         app.user.id,
+            'userId':          app.user.id,
+            'accountActive':   app.user.is_active,
             'name':            app.get_full_name(),
             'email':           app.user.email,
             'mobile':          app.get_contact_number(),

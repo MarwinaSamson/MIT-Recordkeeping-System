@@ -302,57 +302,85 @@
 
       <!-- ══ PAGE: STUDENTS ══ -->
       <div id="page-students" class="page p-8 w-full">
-        <div class="mb-7 fade-in">
+        <div class="mb-6 fade-in">
           <div class="page-header-accent"></div>
-          <h1 class="text-3xl font-bold text-gray-900 font-display">
-            Students
-          </h1>
-          <p class="text-gray-400 text-sm mt-1">
-            Enrolled and applicant records for the Graduate School.
-          </p>
+          <h1 class="text-3xl font-bold text-gray-900 font-display">Students</h1>
+          <p class="text-gray-400 text-sm mt-1">Enrolled and applicant records for the Graduate School.</p>
         </div>
-        <div class="flex flex-wrap gap-3 mb-5 items-center">
-          <div class="relative flex-1 min-w-[200px]">
-            <i
-              data-lucide="search"
-              class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-            ></i>
-            <input
-              id="studentSearch"
-              type="text"
-              placeholder="Search student name or ID..."
-              oninput="renderStudents()"
-              class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition"
-            />
+
+        <!-- ── Curriculum Cards Grid ── -->
+        <div id="curriculumCardsSection">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-sm font-semibold text-gray-600">Curricula</p>
+            <div class="bg-white rounded-xl border border-gray-200 px-4 py-2 text-sm text-gray-500 flex items-center gap-2">
+              <i data-lucide="users" class="w-4 h-4 text-red-700"></i>
+              Total Students: <span id="studentCount" class="font-bold text-gray-800">0</span>
+            </div>
           </div>
-          <div class="relative">
-            <select
-              id="studentCourse"
-              onchange="renderStudents()"
-              class="pl-3 pr-8 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none cursor-pointer focus:ring-2 focus:ring-red-200"
-            >
-              <option value="all">All Courses</option>
-              <option value="MIT">MIT</option>
-              <option value="MBA">MBA</option>
-              <option value="MPA">MPA</option>
-            </select>
-            <i
-              data-lucide="chevron-down"
-              class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-            ></i>
+          <div id="curriculumCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6"></div>
+        </div>
+
+        <!-- ── Student Table (shown when a curriculum card is clicked) ── -->
+        <div id="studentTableSection" style="display:none;">
+          <!-- Back button + curriculum title -->
+          <div class="flex items-center gap-3 mb-5">
+            <button onclick="showCurriculumCards()" class="flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+            </button>
+            <div>
+              <h2 id="studentTableTitle" class="text-lg font-bold text-gray-800"></h2>
+              <p id="studentTableSubtitle" class="text-xs text-gray-400"></p>
+            </div>
           </div>
-          <div
-            class="bg-white rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-500 flex items-center gap-2"
-          >
-            <i data-lucide="users" class="w-4 h-4 text-red-700"></i>
-            Total:
-            <span id="studentCount" class="font-bold text-gray-800">0</span>
+
+          <!-- Filters / sort -->
+          <div class="flex flex-wrap gap-3 mb-4 items-center">
+            <div class="relative flex-1 min-w-[200px]">
+              <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+              <input id="studentSearch" type="text" placeholder="Search by name or ID…"
+                oninput="renderStudentTable()"
+                class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition" />
+            </div>
+            <div class="relative">
+              <select id="studentCurriculum" onchange="renderStudentTable()"
+                class="pl-3 pr-8 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none cursor-pointer focus:ring-2 focus:ring-red-200">
+                <option value="all">All Curricula</option>
+              </select>
+              <i data-lucide="chevron-down" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+            </div>
+            <div class="relative">
+              <select id="studentSort" onchange="renderStudentTable()"
+                class="pl-3 pr-8 py-2.5 border border-gray-200 rounded-xl bg-white text-sm appearance-none focus:outline-none cursor-pointer focus:ring-2 focus:ring-red-200">
+                <option value="name_asc">Name A→Z</option>
+                <option value="name_desc">Name Z→A</option>
+                <option value="date_newest">Enrolled (Newest)</option>
+                <option value="date_oldest">Enrolled (Oldest)</option>
+              </select>
+              <i data-lucide="chevron-down" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+            </div>
+            <div class="bg-white rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-500 flex items-center gap-2">
+              <i data-lucide="users" class="w-4 h-4 text-red-700"></i>
+              Showing: <span id="studentTableCount" class="font-bold text-gray-800">0</span>
+            </div>
+          </div>
+
+          <!-- Student table -->
+          <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <table class="w-full text-left text-sm">
+              <thead>
+                <tr class="bg-gray-50 border-b border-gray-100">
+                  <th class="px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Student</th>
+                  <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Curriculum</th>
+                  <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Semester / Year</th>
+                  <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
+                  <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Account</th>
+                  <th class="px-4 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide text-right pr-5">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="studentTableBody" class="divide-y divide-gray-50"></tbody>
+            </table>
           </div>
         </div>
-        <div
-          id="studentGrid"
-          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-        ></div>
       </div>
 
       <!-- ══ PAGE: MISSING REQUIREMENTS ══ -->

@@ -2907,11 +2907,17 @@
           </div>
         </div>`;
 
+        const activeSemLabel = (D.currentSemester || '').trim().toLowerCase();
         yr.semesters.forEach(sem=>{
           const semKey=`${yr.label}-${sem.label}`;
           const courses=Array.isArray(sem.courses) ? sem.courses : [];
           const totalUnits=courses.reduce((a,c)=>a+(c.lec||0)+(c.lab||0),0);
-          html+=`<div class="prosp-semester-label"><span class="ms" style="font-size:14px">calendar_today</span>${sem.label}</div>
+          const semIsActive = activeSemLabel && sem.label.trim().toLowerCase() === activeSemLabel;
+          const semLocked = gradeSubmissionLocked || !semIsActive;
+          const semBadge = semIsActive
+            ? `<span style="font-size:0.58rem;font-weight:700;font-family:var(--font-mono);padding:2px 8px;border-radius:99px;background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);margin-left:8px;vertical-align:middle">Active</span>`
+            : `<span style="font-size:0.58rem;font-weight:700;font-family:var(--font-mono);padding:2px 8px;border-radius:99px;background:var(--surface-3);color:var(--ink-4);border:1px solid var(--border);margin-left:8px;vertical-align:middle">Not Active</span>`;
+          html+=`<div class="prosp-semester-label"><span class="ms" style="font-size:14px">calendar_today</span>${sem.label}${semBadge}</div>
           <div style="overflow-x:auto;margin-bottom:16px">
           <table class="prosp-table">
             <thead><tr><th>Code</th><th>Descriptive Title</th><th>Prereq</th><th>Lec</th><th>Lab</th><th>Total</th><th>Grade</th></tr></thead>
@@ -2933,7 +2939,7 @@
                 data-title="${c.title.replace(/"/g,'&quot;')}"
                 data-units="${c.lec+c.lab}"
                 value="${gradeVal||''}" oninput="updateGrade(this)"
-                ${gradeSubmissionLocked ? 'disabled' : ''}></td>
+                ${semLocked ? 'disabled' : ''}></td>
             </tr>`;
           });
           html+=`<tr class="total-row"><td colspan="5" style="text-align:right;font-family:var(--font-mono)">TOTAL</td><td style="font-family:var(--font-mono)">${totalUnits}</td><td>—</td></tr>`;
