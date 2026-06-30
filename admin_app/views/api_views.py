@@ -1974,8 +1974,17 @@ def students_with_status(request):
         PersonalDetails,
     )
 
-    required_types = {c[0] for c in Document.DOCUMENT_TYPE_CHOICES}
-    required_n = len(required_types)
+    # Get required count from CMS (source of truth for what documents are required).
+    # Document.DOCUMENT_TYPE_CHOICES keys ('tor', 'deans_recommendation', …) do NOT
+    # match the document_type values stored in the DB, which are CMS title strings
+    # (e.g. 'Transcript of Records').  Using the model choices for the intersection
+    # always produces an empty set, making every student appear to have 0 verified docs.
+    try:
+        from admin_app.models import CMSSettings
+        cms_reqs = CMSSettings.objects.get_or_create(pk=1)[0].admission_requirements or []
+        required_n = len(cms_reqs) or len(Document.DOCUMENT_TYPE_CHOICES)
+    except Exception:
+        required_n = len(Document.DOCUMENT_TYPE_CHOICES)
 
     users = (
         User.objects.filter(application__isnull=False)
@@ -1984,13 +1993,14 @@ def students_with_status(request):
     )
     user_ids = [u.id for u in users]
 
-    verified_types = defaultdict(set)
+    # Count verified documents per user by document_type title (as stored in the DB).
+    verified_doc_counts = defaultdict(int)
     for ver in (
         DocumentVerification.objects.filter(document__user_id__in=user_ids)
         .select_related('document')
     ):
         if ver.status == 'verified' and ver.document_id:
-            verified_types[ver.document.user_id].add(ver.document.document_type)
+            verified_doc_counts[ver.document.user_id] += 1
 
     cor_latest = {}
     for row in (
@@ -2025,9 +2035,8 @@ def students_with_status(request):
             full_name = user.get_full_name() or user.email
 
         app = user.application
-        vt = verified_types[user.id] & required_types
-        documents_uploaded = len(vt)
-        pending_documents = len(required_types - vt)
+        documents_uploaded = verified_doc_counts[user.id]
+        pending_documents = max(0, required_n - documents_uploaded)
 
         cor = cor_latest.get(user.id)
         cor_uploaded = bool(cor and cor.status == 'Verified')
